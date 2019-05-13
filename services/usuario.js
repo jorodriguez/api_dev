@@ -1,17 +1,20 @@
 
 const Pool = require('pg').Pool
+
+const { dbParams } = require('../config/config');
+
 const pool = new Pool({
-	user: 'vbkxmhcwhsnoxe',
-	host: 'ec2-54-243-197-120.compute-1.amazonaws.com',
-	database: 'd3cledlk3uuch6',
-	password: 'ba3232ca7f43cbd24ae67032e8a29a530e7f2e50b7a68b7d9e63ff545e6d04fb',
-	port: 5432,
-	ssl: { rejectUnauthorized: false }
+	user : dbParams.user,
+	host: dbParams.host,
+	database: dbParams.database,
+	password: dbParams.password,
+	port: dbParams.port,
+	ssl: { rejectUnauthorized: false }	
 });
+
 
 // GET a Login 
 const login = (request, response) => {
-
 	const { correo, password } = request.body
 
 	pool.query('SELECT * FROM usuario WHERE correo = $1 AND password = $2 AND eliminado = false',
@@ -20,6 +23,8 @@ const login = (request, response) => {
 			if (error) {
 				throw error
 			}
+			console.log("===== "+results.rowCount);
+			console.log("===== "+results.rows[0]);
 			response.status(200).json(results.rows);
 		});
 
@@ -29,6 +34,7 @@ const login = (request, response) => {
 const getUsers = (request, response) => {
 	pool.query('SELECT * FROM usuario ORDER BY id ASC', (error, results) => {
 		if (error) {
+			console.log(error);
 			throw error
 		}
 		response.status(200).json(results.rows)

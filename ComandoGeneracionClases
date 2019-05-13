@@ -1,0 +1,68 @@
+select * from co_alumno where eliminado=false order by nombre asc
+
+INSERT INTO USUARIO(id,NOMBRE,CORREO,PASSWORD)
+VALUES(1,'TEST','test@gmail.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC');
+
+INSERT INTO CO_SUCURSAL(id,NOMBRE,DIRECCION,genero) VALUES(1,'SUC MTY','x',1);
+
+INSERT INTO CO_GRUPO(ID,NOMBRE,genero) VALUES(1,'Baby Magic',1),(2,'Mini Magic',1),(3,'Super Magic',1);
+
+INSERT INTO CO_PADRE(ID,NOMBRE,CORREO,password,GENERO) VALUES(1,'DEFAULT','dummy@gmail.com','',1);
+
+INSERT INTO CO_ALUMNO(co_sucursal,co_grupo,co_padre,
+					nombre,apellidos,fecha_nacimiento,
+					alergias,nota,hora_entrada,
+					hora_salida,costo_inscripcion,costo_colegiatura,
+					minutos_gracia,foto,fecha_reinscripcion,
+					genero)
+VALUES(1,1,1,'prueba','prueba','2017-01-01','ninguna','','08:00:00','02:00:00',
+	  		0,0,0,'',current_date+100,1);
+
+
+
+CREATE TABLE public.co_alumno
+(
+    id integer serial not null,
+    co_sucursal integer NOT NULL,
+    co_grupo integer NOT NULL,
+    co_padre integer NOT NULL,
+    nombre text,
+    apellidos text,
+    fecha_nacimiento date NOT NULL,
+    alergias text,
+    nota text,
+    hora_entrada time without time zone NOT NULL,
+    hora_salida time without time zone NOT NULL,
+    costo_inscripcion numeric NOT NULL,
+    costo_colegiatura numeric NOT NULL,
+    minutos_gracia integer DEFAULT 0,
+    foto text,
+    fecha_reinscripcion date,
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT co_alumno_pkey PRIMARY KEY (id),
+    CONSTRAINT co_alumno_co_grupo_fkey FOREIGN KEY (co_grupo)
+        REFERENCES public.co_grupo (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT co_alumno_co_padre_fkey FOREIGN KEY (co_padre)
+        REFERENCES public.co_padre (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT co_alumno_co_sucursal_fkey FOREIGN KEY (co_sucursal)
+        REFERENCES public.co_sucursal (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT co_alumno_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT co_alumno_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES public.usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
