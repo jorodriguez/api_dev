@@ -140,9 +140,11 @@ const getParams = (body) => {
 
 //GET — /alumnos | getById()
 const getAlumnoById = (request, response) => {
-    
+    console.log("  getAlumnoById");
     const id = parseInt(request.params.id);
-
+   
+    console.log(" Alumno por id = "+id);
+    
     pool.query('SELECT * FROM co_alumno WHERE id=$1 AND eliminado=false',
     [id],
         (error, results) => {
@@ -150,7 +152,11 @@ const getAlumnoById = (request, response) => {
                 console.log(error);
                 throw error
             }
-            response.status(200).json(results.rows);
+            if(results.rowCount > 0){
+                response.status(200).json(results.rows[0]);
+            }else{
+                response.status(200).json({});
+            }
         })
 };
 
