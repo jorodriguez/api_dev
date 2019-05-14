@@ -31,6 +31,7 @@ app.delete('/users/:id', db.deleteUser);
 
 //alumno
 app.get('/alumnos', alumno.getAlumnos);
+app.get('/alumnos/:id', alumno.getAlumnoById);
 app.post('/alumnos', alumno.createAlumno);
 app.put('/alumnos/:id', alumno.updateAlumno);
 app.delete('/alumnos/:id', alumno.deleteAlumno);

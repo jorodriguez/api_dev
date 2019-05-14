@@ -138,12 +138,27 @@ const getParams = (body) => {
     return parametros;
 };
 
+//GET — /alumnos | getById()
+const getAlumnoById = (request, response) => {
+    
+    const id = parseInt(request.params.id);
 
+    pool.query('SELECT * FROM co_alumno WHERE id=$1 AND eliminado=false',
+    [id],
+        (error, results) => {
+            if (error) {
+                console.log(error);
+                throw error
+            }
+            response.status(200).json(results.rows);
+        })
+};
 
 
 module.exports = {
     getAlumnos,
     createAlumno,
     updateAlumno,
-    deleteAlumno
+    deleteAlumno,
+    getAlumnoById
 }
