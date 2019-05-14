@@ -81,7 +81,7 @@ const updateAlumno = (request, response) => {
     //const { nombre, correo } = request.body
 
     const p = getParams(request.body);
-  console.log("===== "+p);
+    console.log("===== "+p);
     pool.query(
         "UPDATE CO_ALUMNO  " +
         "SET nombre = $2, " +
