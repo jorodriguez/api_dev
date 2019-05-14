@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const app = express();
 const db = require('./services/usuario');
 const alumno = require('./services/alumno');
+const asistencia = require('./services/asistencia');
+
 const port = process.env.PORT || 5000;
 
 
@@ -36,6 +38,12 @@ app.get('/alumnos/:id', alumno.getAlumnoById);
 app.post('/alumnos', alumno.createAlumno);
 app.put('/alumnos/:id', alumno.updateAlumno);
 app.delete('/alumnos/:id', alumno.deleteAlumno);
+
+//asistencia
+app.get('/asistencia/alumnos_recibidos', asistencia.getAlumnosRecibidos);
+app.get('/asistencia/alumnos_por_recibidos', asistencia.getAlumnosPorRecibir);
+app.post('/asistencia/entradaAlumnos', asistencia.registrarEntradaAlumnos);
+app.post('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
 
 app.get('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API' })

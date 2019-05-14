@@ -66,3 +66,28 @@ CREATE TABLE public.co_alumno
         ON DELETE NO ACTION
 );
 
+
+
+
+
+create table co_asistencia(
+	id serial not null primary key,
+	fecha date not null default current_date,	
+	co_alumno integer not null,
+	hora_entrada time not null default current_time,
+	hora_salida time,	
+	usuario integer,
+	fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+	 CONSTRAINT co_asistencia_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT co_asistencia_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES public.usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
