@@ -1,11 +1,19 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+var cors = require('cors');
 const app = express();
 const db = require('./services/usuario');
 const alumno = require('./services/alumno');
 const asistencia = require('./services/asistencia');
 
 const port = process.env.PORT || 5000;
+
+app.use(function(req, res, next) {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	next();
+});
+  
 
 
 //es un middleware que serializa los cuerpos de las respuestas 
@@ -17,29 +25,17 @@ app.use(
 	})
 );
 
+app.use(cors());
 /*
-// Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8888');
-
-    // Request methods you wish to allow
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-
-    // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-
-    // Set to true if you need the website to include cookies in the requests sent
-    // to the API (e.g. in case you use sessions)
-    res.setHeader('Access-Control-Allow-Credentials', true); */
-
 app.use((req, res, next) => {
-	
+
 	res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type'); // If needed
     res.setHeader('Access-Control-Allow-Credentials', true); // If needed
     next();
 });
-
+*/
 //usar los queries importados 
 app.post('/login', db.login);
 app.get('/users', db.getUsers);
