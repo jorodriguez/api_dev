@@ -1,6 +1,7 @@
 const express = require('express');
-const app = express();
+
 const bodyParser = require('body-parser');
+
 const db = require('./services/usuario');
 const alumno = require('./services/alumno');
 const asistencia = require('./services/asistencia');
@@ -69,3 +70,8 @@ app.listen(port, () => {
 	console.log(`App corriendo en el puerto ${port}.`)
 });
 
+app.use(function(error, req, res, next) {
+	// Gets called because of `wrapAsync()`
+	res.json({ message: error.message });
+  });
+  
