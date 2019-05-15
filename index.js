@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-var cors = require('cors');
 const app = express();
 const db = require('./services/usuario');
 const alumno = require('./services/alumno');
@@ -25,7 +24,7 @@ app.use(
 	})
 );
 
-app.use(cors());
+
 /*
 app.use((req, res, next) => {
 
