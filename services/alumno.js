@@ -34,13 +34,6 @@ const createAlumno = (request, response) => {
         minutos_gracia, foto, fecha_reinscripcion
     } = request.body;
 
-    /*console.log("Params "+ nombre+"  "+ apellidos+"  "+fecha_nacimiento+"  "+        
-    alergias+"  "+nota+"  "+hora_entrada+"  "+
-    hora_salida+"  "+costo_inscripcion+"  "+costo_colegiatura+"  "+
-    minutos_gracia+"  "+foto+"  "+fecha_reinscripcion );*/
-    // const params = getParams(request.body);
-    //   console.log("Params "+params);
-
     pool.query("INSERT INTO CO_ALUMNO(" +
         "co_sucursal,co_grupo,co_padre," +
         "nombre,apellidos,fecha_nacimiento," +
@@ -68,7 +61,8 @@ const createAlumno = (request, response) => {
         (error, results) => {
             if (error) {
                 console.log(error);
-                throw error
+                response.status(404).send("[]");
+                return;
             }
             response.status(200).json(results.rows)
         })
@@ -106,8 +100,10 @@ const updateAlumno = (request, response) => {
         ],
         (error, results) => {
             if (error) {
-                console.log("ERROR "+error);
-                throw error
+                console.log("ERROR "+error);                
+                //throw error
+                response.status(404).send("[]");
+                return;
             }
             response.status(200).send(`User modified with ID: ${id}`)
         }
@@ -152,12 +148,14 @@ const getAlumnoById = (request, response) => {
         (error, results) => {
             if (error) {
                 console.log(error);
-                throw error
+                //throw error
+                response.status(400).json({});
+                return ;
             }
             if(results.rowCount > 0){
                 response.status(200).json(results.rows[0]);
             }else{
-                response.status(200).json({});
+                response.status(400).json({});
             }
         })
 };
