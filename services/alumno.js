@@ -139,6 +139,7 @@ const getParams = (body) => {
 };
 
 //GET — /alumnos | getById()
+
 const getAlumnoById = (request, response) => {
     console.log("  getAlumnoById");
     const id = parseInt(request.params.id);
