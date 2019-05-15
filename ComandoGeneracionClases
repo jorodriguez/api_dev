@@ -91,3 +91,10 @@ create table co_asistencia(
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 );
+
+
+
+alter table usuario ADD COLUMN co_sucursal int;
+ALTER TABLE usuario ADD FOREIGN KEY (co_sucursal) REFERENCES co_sucursal(id);
+update usuario set co_sucursal = 1;	
+alter table usuario ALTER COLUMN co_sucursal SET NOT NULL;

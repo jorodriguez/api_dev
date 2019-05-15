@@ -5,9 +5,12 @@ const bodyParser = require('body-parser');
 const db = require('./services/usuario');
 const alumno = require('./services/alumno');
 const asistencia = require('./services/asistencia');
+const grupo = require('./services/grupo');
+const authController = require('./auth/AuthController');
 
 const port = process.env.PORT || 5000;
- 
+
+
 
 //es un middleware que serializa los cuerpos de las respuestas 
 //   para poder invocar response.param
@@ -17,43 +20,41 @@ app.use(
 		extended: true,
 	})
 );
-app.use(function(error, req, res, next) {
-	// Gets called because of `wrapAsync()`
-	res.json({ message: error.message });
-  });
 
-app.use(function(req, res, next) {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
-	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-	next();
-  });
-
-/*
 app.use((req, res, next) => {
-
 	res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type'); // If needed
-    res.setHeader('Access-Control-Allow-Credentials', true); // If needed
-    next();
+	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
+	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,x-access-token'); // If needed
+	//res.setHeader('Access-Control-Allow-Headers', 'x-access-token'); // If needed	
+	res.setHeader('Access-Control-Allow-Credentials', true); // If needed
+	next();
+});
+
+app.use((err, req, res, next) => {
+	console.log("==========================================");
+	if (res.headersSent) {
+    return next(err);
+  }
+  res.status(500);
+  res.render('error', { error: err });
 });
 
 
-*/
-
-
 //usar los queries importados 
-app.post('/login', db.login);
-app.get('/users', db.getUsers);
+
+app.post('/auth/login', authController.login);
+app.post('/auth/register', authController.createUser);
+
+//app.post('/login', db.login);
+app.get('/users/:id_sucursal', db.getUsers);
 app.get('/users/:id', db.getUserById);
-app.post('/users', db.createUser);
+//app.post('/users', db.createUser);
 app.put('/users/:id', db.updateUser);
 app.delete('/users/:id', db.deleteUser);
 
 //alumno
-app.get('/alumnos', alumno.getAlumnos);
-app.get('/alumnos/:id', alumno.getAlumnoById);
+app.get('/alumnos/:id_sucursal', alumno.getAlumnos);
+app.get('/alumnos/id/:id', alumno.getAlumnoById);
 app.post('/alumnos', alumno.createAlumno);
 app.put('/alumnos/:id', alumno.updateAlumno);
 app.delete('/alumnos/:id', alumno.deleteAlumno);
@@ -64,6 +65,8 @@ app.get('/asistencia/alumnos_por_recibidos', asistencia.getAlumnosPorRecibir);
 app.post('/asistencia/entradaAlumnos', asistencia.registrarEntradaAlumnos);
 app.post('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
 
+//grupo
+app.get('/grupos', grupo.getGrupos);
 
 app.get('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API' })
@@ -72,4 +75,5 @@ app.get('/', (request, response) => {
 app.listen(port, () => {
 	console.log(`App corriendo en el puerto ${port}.`)
 });
+
 

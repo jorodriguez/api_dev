@@ -10,8 +10,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@hapi/joi": "^15.0.3",
+    "bcryptjs": "^2.4.3",
     "dotenv": "^8.0.0",
     "express": "^4.16.4",
-    "pg": "^7.10.0"
+    "jsonwebtoken": "^8.5.1",
+    "pg": "^7.10.0",
+    "vue-session": "^1.0.0"
   }
 }
