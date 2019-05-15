@@ -45,6 +45,7 @@ app.get('/asistencia/alumnos_por_recibidos', asistencia.getAlumnosPorRecibir);
 app.post('/asistencia/entradaAlumnos', asistencia.registrarEntradaAlumnos);
 app.post('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
 
+
 app.get('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API' })
 });
