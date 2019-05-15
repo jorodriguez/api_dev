@@ -12,6 +12,7 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
+
 //GET — /alumnos | getAlumnos()
 const getAlumnos = (request, response) => {
     pool.query('SELECT * FROM co_alumno WHERE eliminado=false ORDER BY nombre ASC',
@@ -85,7 +86,7 @@ const updateAlumno = (request, response) => {
     pool.query(
         "UPDATE CO_ALUMNO  " +
         "SET nombre = $2, " +
-        " apellidos = $3 ," +
+        "apellidos = $3 ," +
         "fecha_nacimiento = $4," +
         "alergias = $5," +
         "nota = $6," +
@@ -138,33 +139,12 @@ const getParams = (body) => {
     return parametros;
 };
 
-//GET — /alumnos | getById()
-const getAlumnoById = (request, response) => {
-    console.log("  getAlumnoById");
-    const id = parseInt(request.params.id);
-   
-    console.log(" Alumno por id = "+id);
-    
-    pool.query('SELECT * FROM co_alumno WHERE id=$1 AND eliminado=false',
-    [id],
-        (error, results) => {
-            if (error) {
-                console.log(error);
-                throw error
-            }
-            if(results.rowCount > 0){
-                response.status(200).json(results.rows[0]);
-            }else{
-                response.status(200).json({});
-            }
-        })
-};
+
 
 
 module.exports = {
     getAlumnos,
     createAlumno,
     updateAlumno,
-    deleteAlumno,
-    getAlumnoById
+    deleteAlumno
 }

@@ -32,11 +32,11 @@ app.use(
     res.setHeader('Access-Control-Allow-Credentials', true); */
 
 app.use((req, res, next) => {
-	res.setHeader('Access-Control-Allow-Origin', 'https://proyecto-magic.herokuapp.com/');    
-	res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-	res.append('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-	res.append('Access-Control-Allow-Headers', 'Content-Type');
-	res.setHeader('Access-Control-Allow-Credentials', true); 
+	
+	res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type'); // If needed
+    res.setHeader('Access-Control-Allow-Credentials', true); // If needed
     next();
 });
 
