@@ -1,6 +1,6 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const app = express();
+const bodyParser = require('body-parser');
 const db = require('./services/usuario');
 const alumno = require('./services/alumno');
 const asistencia = require('./services/asistencia');
@@ -34,7 +34,11 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Credentials', true); // If needed
     next();
 });
+
+
 */
+
+
 //usar los queries importados 
 app.post('/login', db.login);
 app.get('/users', db.getUsers);
