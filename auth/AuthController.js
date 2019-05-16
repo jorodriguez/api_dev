@@ -77,7 +77,7 @@ const login = (request, response) => {
                     return;
                 }
 
-                if (results.rows !== []) {
+                if (results.rowCount > 0) {
 
                     var usuario = results.rows[0];
 
@@ -97,7 +97,7 @@ const login = (request, response) => {
             });
 
     } catch (e) {
-        //handle.callbackErrorNoControlado(e, response);
+        
         response.status(400).send({ auth: false, token: null });
     }
 };

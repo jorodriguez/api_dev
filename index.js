@@ -69,7 +69,7 @@ app.post('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
 app.get('/grupos', grupo.getGrupos);
 
 app.get('/', (request, response) => {
-	response.json({ info: 'MagicIntelligence API' })
+	response.json({ info: 'MagicIntelligence API v1.0.0' })
 });
 
 app.listen(port, () => {
