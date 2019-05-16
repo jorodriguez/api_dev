@@ -10,8 +10,6 @@ const authController = require('./auth/AuthController');
 
 const port = process.env.PORT || 5000;
 
-
-
 //es un middleware que serializa los cuerpos de las respuestas 
 //   para poder invocar response.param
 app.use(bodyParser.json())
@@ -24,8 +22,7 @@ app.use(
 app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
-	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,x-access-token'); // If needed
-	//res.setHeader('Access-Control-Allow-Headers', 'x-access-token'); // If needed	
+	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,x-access-token'); // If needed	
 	res.setHeader('Access-Control-Allow-Credentials', true); // If needed
 	next();
 });
@@ -41,7 +38,6 @@ app.use((err, req, res, next) => {
 
 
 //usar los queries importados 
-
 app.post('/auth/login', authController.login);
 app.post('/auth/register', authController.createUser);
 

@@ -2,6 +2,7 @@
 const Pool = require('pg').Pool
 const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
+const helperToken = require('../helpers/helperToken');
 const config = require('../config/config');
 const Joi = require('@hapi/joi');
 const jwt = require('jsonwebtoken');
@@ -16,16 +17,13 @@ const pool = new Pool({
 });
 
 const getGrupos = (request, response) => {
+    console.log("@getGrupos");
     try {
+        var validacion = helperToken.validarToken(request);
 
-        var token = request.headers['x-access-token'];
-        if (!token) return response.status(401).send({ auth: false, message: 'No token provided.' });
-
-        jwt.verify(token, config.secret, function (err, decoded) {
-            if (err)
-                return response.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-        });
-
+        if(!validacion.tokenValido){
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
         pool.query("SELECT * from co_grupo WHERE eliminado = false",
             (error, results) => {
                 if (error) {

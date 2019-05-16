@@ -11,5 +11,5 @@ const callbackError = (mensaje, response) => {
 
 module.exports = {
     callbackErrorNoControlado,
-    callbackError   
+    callbackError
 }

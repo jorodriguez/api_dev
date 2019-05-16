@@ -3,9 +3,12 @@ const Pool = require('pg').Pool
 
 const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
-const config = require('../config/config');
+const  helperToken  = require('../helpers/helperToken');
 const Joi = require('@hapi/joi');
+
+const config = require('../config/config');
 const jwt = require('jsonwebtoken');
+
 
 const pool = new Pool({
     user: dbParams.user,
@@ -18,16 +21,22 @@ const pool = new Pool({
 
 //GET — /alumnos/:id_sucursal | getAlumnos()
 const getAlumnos = (request, response) => {
-    try {
-        var token = request.headers['x-access-token'];
-        if (!token) return response.status(401).send({ auth: false, message: 'No token provided.' });
+    console.log("@getAlumnos");
+    try {        
+        /*var token = request.headers['x-access-token'];
+        if (!token) return response.status(401).send(helperToken.noTokenProvider);
 
         jwt.verify(token, config.secret, function (err, decoded) {
             if (err)
-                return response.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-        });
+                return response.status(500).send(msgs.failedAuthenticateToken);
+        });*/
+        
+        var validacion = helperToken.validarToken(request);                                   
+        if(!validacion.tokenValido){            
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
 
-        console.log("paso token");
+        console.log("paso token getAlumnos");
 
         const id_sucursal = parseInt(request.params.id_sucursal);
 
@@ -56,21 +65,13 @@ const getAlumnos = (request, response) => {
 };
 
 const createAlumno = (request, response) => {
-    console.log("create alumno");
-    try {
-        /*const { nombre, apellidos, fecha_nacimiento,
-            alergias, nota, hora_entrada,
-            hora_salida, costo_inscripcion, costo_colegiatura,
-            minutos_gracia, foto, fecha_reinscripcion
-        } = request.body;*/
+    console.log("@create alumno");
+    try {      
+        var validacion = helperToken.validarToken(request);
 
-        var token = request.headers['x-access-token'];
-        if (!token) return response.status(401).send({ auth: false, message: 'No token provided.' });
-
-        jwt.verify(token, config.secret, function (err, decoded) {
-            if (err)
-                return response.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-        });
+        if(!validacion.tokenValido){
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
 
         const p = getParams(request.body);
 
@@ -121,15 +122,14 @@ const createAlumno = (request, response) => {
 
 // PUT — /alumno/:id | updateAlumno()
 const updateAlumno = (request, response) => {
+    console.log("@updateAlumnos");
     try {
-        //fixme :
-        var token = request.headers['x-access-token'];
-        if (!token) return response.status(401).send({ auth: false, message: 'No token provided.' });
+         
+        var validacion = helperToken.validarToken(request);
 
-        jwt.verify(token, config.secret, function (err, decoded) {
-            if (err)
-                return response.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-        });
+        if(!validacion.tokenValido){
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
 
         const id = parseInt(request.params.id)
 
@@ -174,16 +174,13 @@ const updateAlumno = (request, response) => {
 
 // DELETE — /alumnos/:id | deleteAlumno()
 const deleteAlumno = (request, response) => {
+    console.log("@deleteAlumnos");
     try {
+        var validacion = helperToken.validarToken(request);
 
-        //fixme :
-        var token = request.headers['x-access-token'];
-        if (!token) return response.status(401).send({ auth: false, message: 'No token provided.' });
-
-        jwt.verify(token, config.secret, function (err, decoded) {
-            if (err)
-                return response.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-        });
+        if(!validacion.tokenValido){
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
 
         const id = parseInt(request.params.id)
         pool.query('UPDATE CO_ALUMNO SET eliminado = true WHERE id = $1', [id], (error, results) => {
@@ -234,16 +231,14 @@ const getParams = (body) => {
 
 //GET — /alumnos | getById()
 const getAlumnoById = (request, response) => {
-    console.log("  getAlumnoById");
+    console.log(" @getAlumnoById");
     try {
-        //fixme :
-        var token = request.headers['x-access-token'];
-        if (!token) return response.status(401).send({ auth: false, message: 'No token provided.' });
+        
+        var validacion = helperToken.validarToken(request);
 
-        jwt.verify(token, config.secret, function (err, decoded) {
-            if (err)
-                return response.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-        });
+        if(!validacion.tokenValido){
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
 
         const id = parseInt(request.params.id);
 
