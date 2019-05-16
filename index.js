@@ -73,7 +73,7 @@ app.get('/', (request, response) => {
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port}.`)
+	console.log(`App corriendo en el puerto ${port} v1.0.`)
 });
 
 
