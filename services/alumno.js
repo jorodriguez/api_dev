@@ -33,23 +33,7 @@ const getAlumnos = (request, response) => {
 
         console.log("Consultando alumnos de la suc " + id_sucursal);
 
-        pool.query(
-            /*"SELECT a.id," +
-            "a.co_sucursal, " +
-            "a.co_grupo," +
-            "a.co_padre," +
-            "a.nombre," +
-            "a.apellidos," +
-            "a.fecha_nacimiento::date," +
-            "a.alergias," +
-            "a.nota," +
-            "a.hora_entrada," +
-            "a.hora_salida," +
-            "a.costo_inscripcion," +
-            "a.costo_colegiatura," +
-            "a.minutos_gracia," +
-            "a.foto," +
-            "a.fecha_reinscripcion," +*/
+        pool.query(          
             "SELECT a.*," +
             "g.nombre as nombre_grupo," +
             "s.nombre as nombre_sucursal," +
