@@ -17,12 +17,15 @@ const pool = new Pool({
 //FIXME : agregar el parametro de fecha
 const getAlumnosRecibidos = (request, response) => {
     console.log("@getAlumnosRecibidos");
-    try {        
+    try {
         var validacion = helperToken.validarToken(request);
 
-        if(!validacion.tokenValido){
+        if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
+
+        const id_sucursal = parseInt(request.params.id_sucursal);
+
         pool.query("select asistencia.id," +
             "asistencia.fecha," +
             "asistencia.hora_entrada," +
@@ -32,7 +35,9 @@ const getAlumnosRecibidos = (request, response) => {
             "alumno.apellidos as apellido_alumno " +
             " from co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id " +
             " WHERE asistencia.fecha = current_date AND asistencia.hora_salida is null AND alumno.eliminado=false " +
+            "           AND alumno.co_sucursal = $1" +
             " ORDER BY asistencia.hora_entrada DESC",
+            [id_sucursal],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -50,15 +55,24 @@ const getAlumnosPorRecibir = (request, response) => {
     try {
         var validacion = helperToken.validarToken(request);
 
-        if(!validacion.tokenValido){
+        if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
-        pool.query("select a.* " +
-            " from co_alumno a " +
-            " where id not in (select co_alumno" +
-            " from co_asistencia " +
-            " where fecha = current_date AND hora_salida is null and eliminado=false) AND a.eliminado = false",
+        const id_sucursal = parseInt(request.params.id_sucursal);
+
+        pool.query("select a.*" +
+            " FROM co_alumno a " +
+            "  WHERE id not in (" +
+            "               SELECT asistencia.co_alumno" +
+            "                   FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno=alumno.id" +
+            "                   WHERE asistencia.fecha = current_date AND asistencia.hora_salida is null   " +
+            "  AND alumno.co_sucursal = $1" +
+            "  AND asistencia.eliminado=false" +
+            ") " +
+            " AND a.co_sucursal = $2 " +
+            " AND a.eliminado = false",
+            [id_sucursal,id_sucursal],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -77,7 +91,7 @@ const registrarEntradaAlumnos = (request, response) => {
     try {
         var validacion = helperToken.validarToken(request);
 
-        if(!validacion.tokenValido){
+        if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
@@ -115,7 +129,7 @@ const registrarSalidaAlumnos = (request, response) => {
 
         var validacion = helperToken.validarToken(request);
 
-        if(!validacion.tokenValido){
+        if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 

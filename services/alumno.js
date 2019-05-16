@@ -3,7 +3,7 @@ const Pool = require('pg').Pool
 
 const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
-const  helperToken  = require('../helpers/helperToken');
+const helperToken = require('../helpers/helperToken');
 const Joi = require('@hapi/joi');
 
 const config = require('../config/config');
@@ -22,7 +22,7 @@ const pool = new Pool({
 //GET — /alumnos/:id_sucursal | getAlumnos()
 const getAlumnos = (request, response) => {
     console.log("@getAlumnos");
-    try {        
+    try {
         /*var token = request.headers['x-access-token'];
         if (!token) return response.status(401).send(helperToken.noTokenProvider);
 
@@ -30,9 +30,9 @@ const getAlumnos = (request, response) => {
             if (err)
                 return response.status(500).send(msgs.failedAuthenticateToken);
         });*/
-        
-        var validacion = helperToken.validarToken(request);                                   
-        if(!validacion.tokenValido){            
+
+        var validacion = helperToken.validarToken(request);
+        if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
@@ -42,15 +42,17 @@ const getAlumnos = (request, response) => {
 
         console.log("Consultando alumnos de la suc " + id_sucursal);
 
-        pool.query(          
+        pool.query(
             "SELECT a.*," +
             "g.nombre as nombre_grupo," +
             "s.nombre as nombre_sucursal," +
-            "p.nombre as nombre_padre" +
+            "padre.nombre as nombre_padre," +
+            "madre.nombre as nombre_madre" +
             " FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id" +
             "                     inner join co_sucursal s on a.co_sucursal = s.id" +
-            "                     inner join co_padre p on a.co_padre = p.id " +
-            " WHERE a.co_sucursal = $1 AND a.eliminado=false ORDER BY a.nombre ASC",
+            "                    left join co_familiar padre on a.padre = padre.id " +
+            "					 left join co_familiar madre on a.madre = madre.id " +
+            "WHERE a.co_sucursal = $1 AND a.eliminado=false ORDER BY a.nombre ASC",
             [id_sucursal],
             (error, results) => {
                 if (error) {
@@ -66,10 +68,10 @@ const getAlumnos = (request, response) => {
 
 const createAlumno = (request, response) => {
     console.log("@create alumno");
-    try {      
+    try {
         var validacion = helperToken.validarToken(request);
 
-        if(!validacion.tokenValido){
+        if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
@@ -83,7 +85,7 @@ const createAlumno = (request, response) => {
          }*/
 
         pool.query("INSERT INTO CO_ALUMNO(" +
-            "co_sucursal,co_grupo,co_padre," +
+            "co_sucursal,co_grupo,padre," +
             "nombre,apellidos,fecha_nacimiento," +
             "alergias,nota,hora_entrada," +
             "hora_salida,costo_inscripcion,costo_colegiatura," +
@@ -124,10 +126,10 @@ const createAlumno = (request, response) => {
 const updateAlumno = (request, response) => {
     console.log("@updateAlumnos");
     try {
-         
+
         var validacion = helperToken.validarToken(request);
 
-        if(!validacion.tokenValido){
+        if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
@@ -178,7 +180,7 @@ const deleteAlumno = (request, response) => {
     try {
         var validacion = helperToken.validarToken(request);
 
-        if(!validacion.tokenValido){
+        if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
@@ -233,10 +235,10 @@ const getParams = (body) => {
 const getAlumnoById = (request, response) => {
     console.log(" @getAlumnoById");
     try {
-        
+
         var validacion = helperToken.validarToken(request);
 
-        if(!validacion.tokenValido){
+        if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
@@ -244,14 +246,17 @@ const getAlumnoById = (request, response) => {
 
         console.log(" Alumno por id = " + id);
 
-        pool.query("SELECT a.*, " +
-            " g.nombre as nombre_grupo," +
-            " s.nombre as nombre_sucursal," +
-            " p.nombre as nombre_padre" +
+        pool.query(
+            "SELECT a.*," +
+            "g.nombre as nombre_grupo," +
+            "s.nombre as nombre_sucursal," +
+            "padre.nombre as nombre_padre," +
+            "madre.nombre as nombre_madre" +
             " FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id" +
-            "			inner join co_sucursal s on a.co_sucursal = s.id" +
-            "			inner join co_padre p on a.co_padre = p.id " +
-            " WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC",
+            "                     inner join co_sucursal s on a.co_sucursal = s.id" +
+            "                    left join co_familiar padre on a.padre = padre.id " +
+            "					 left join co_familiar madre on a.madre = madre.id " +
+            "WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC"            
             [id],
             (error, results) => {
                 if (error) {

@@ -56,8 +56,8 @@ app.put('/alumnos/:id', alumno.updateAlumno);
 app.delete('/alumnos/:id', alumno.deleteAlumno);
 
 //asistencia
-app.get('/asistencia/alumnos_recibidos', asistencia.getAlumnosRecibidos);
-app.get('/asistencia/alumnos_por_recibidos', asistencia.getAlumnosPorRecibir);
+app.get('/asistencia/alumnos_recibidos/:id_sucursal', asistencia.getAlumnosRecibidos);
+app.get('/asistencia/alumnos_por_recibidos/:id_sucursal', asistencia.getAlumnosPorRecibir);
 app.post('/asistencia/entradaAlumnos', asistencia.registrarEntradaAlumnos);
 app.post('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
 
