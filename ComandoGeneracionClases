@@ -145,3 +145,103 @@ ALTER TABLE co_alumno ADD FOREIGN KEY (co_familiar_1) REFERENCES co_familiar(id)
 ALTER TABLE co_alumno add column co_familiar_3 integer;
 ALTER TABLE co_alumno ADD FOREIGN KEY (co_familiar_1) REFERENCES co_familiar(id);
 
+------CREAR PROCEDIMIENTO PARA ZONA HORARIA
+CREATE or replace FUNCTION getDate(IN zona text,OUT fecha date) AS $$
+BEGIN    
+	IF zona IS NULL OR zona = '' THEN
+		zona := 'America/Monterrey';	
+    	--select current_date at time zone 'America/Monterrey' INTO fecha;
+		select current_date at time zone zona INTO fecha;
+	END IF;
+END;
+$$ 
+LANGUAGE 'plpgsql';
+----------------
+
+
+// a
+create table cat_actividad(
+	id serial
+	nombre text not null,
+	icono varchar(20) default 'no-icon-class',
+	fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT cat_actividad_pkey PRIMARY KEY (id),
+    CONSTRAINT cat_actividadgenero_fkey FOREIGN KEY (genero)
+        REFERENCES usuario (id) MATCH SIMPLE,
+    CONSTRAINT cat_actividad_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id) MATCH SIMPLE        
+);
+
+
+create table cat_tipo_actividad(
+	id serial not null,
+	etiqueta text not null,
+	nombre text not null,
+	cat_actividad integer not null,
+	fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT cat_tipo_actividad_pkey PRIMARY KEY (id),
+    CONSTRAINT cat_tipo_actividad_genero_fkey FOREIGN KEY (genero)
+        REFERENCES usuario (id),
+    CONSTRAINT cat_tipo_actividad_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),
+	CONSTRAINT cat_tipo_actividad_actividad_fkey FOREIGN KEY (cat_actividad)
+        REFERENCES usuario (id) 
+);
+
+
+--------------
+
+create table cat_sub_actividad(
+	id serial not null,
+	cat_tipo_actividad integer not null,
+	etiqueta text not null,
+	nombre text not null,	
+	fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT cat_sub_actividad_pkey PRIMARY KEY (id),
+    CONSTRAINT cat_sub_actividad_genero_fkey FOREIGN KEY (genero)
+        REFERENCES usuario (id),
+    CONSTRAINT cat_sub_actividad_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),
+	CONSTRAINT cat_sub_actividad_actividad_fkey FOREIGN KEY (cat_tipo_actividad)
+        REFERENCES usuario (id) 
+);
+
+
+
+------
+
+create table cat_registro_actividad(
+	id serial not null,
+	cat_alumno integer not null,
+	cat_tipo_actividad integer not null,
+	cat_sub_actividad integer not null,
+	fecha date not null,	
+	nombre text not null,	
+	nota text,
+	icono varchar(50) default 'no-icon-class',
+	url_foto text,	
+	fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT cat_reg_actividad_pkey PRIMARY KEY (id),
+    CONSTRAINT cat_reg_actividad_genero_fkey FOREIGN KEY (genero)
+        REFERENCES usuario (id),
+    CONSTRAINT cat_reg_actividad_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),
+	CONSTRAINT cat_reg_tipo_actividad_fkey FOREIGN KEY (cat_tipo_actividad)
+        REFERENCES usuario (id),
+	CONSTRAINT cat_reg_sub_actividad_fkey FOREIGN KEY (cat_sub_actividad)
+        REFERENCES usuario (id) 	
+);
+

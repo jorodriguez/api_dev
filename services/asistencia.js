@@ -95,17 +95,17 @@ const registrarEntradaAlumnos = (request, response) => {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
-        const { ids } = request.body;
-
-        var id_usuario = 1;
-
+        const { ids,genero } = request.body;
+        console.log("genero "+JSON.stringify(genero));
+      
         var sqlComplete = " values ";
         for (var i = 0; i < ids.length; i++) {
 
             if (i > 0) {
                 sqlComplete += ",";
             }
-            sqlComplete += "(current_date," + ids[i] + ",current_time," + id_usuario + "," + id_usuario + ")";
+            //sqlComplete += "(current_date," + ids[i] + ",current_time," + id_usuario + "," + id_usuario + ")";
+            sqlComplete += "(current_date," + ids[i] + ",getHora('')," + genero + "," + genero + ")";
         };
 
         pool.query("INSERT INTO CO_ASISTENCIA(fecha,co_alumno,hora_entrada,usuario,genero) " +
@@ -119,6 +119,7 @@ const registrarEntradaAlumnos = (request, response) => {
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
+        
     }
 };
 
@@ -133,10 +134,8 @@ const registrarSalidaAlumnos = (request, response) => {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
-        const { ids } = request.body;
-
-        var id_usuario = 1;
-
+        const { ids, genero  } = request.body;
+       
         var sqlComplete = " ( ";
         for (var i = 0; i < ids.length; i++) {
 
@@ -147,8 +146,11 @@ const registrarSalidaAlumnos = (request, response) => {
         };
         sqlComplete += ")";
 
-        pool.query("UPDATE CO_ASISTENCIA set hora_salida = current_time " +
-            " WHERE id IN " + sqlComplete,
+        pool.query("UPDATE CO_ASISTENCIA "+
+                    " SET hora_salida = getHora('') ,"+
+                    "  modifico = $1 " +
+                    " WHERE id IN " + sqlComplete,
+                    [genero],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
