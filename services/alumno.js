@@ -256,7 +256,7 @@ const getAlumnoById = (request, response) => {
             "                     inner join co_sucursal s on a.co_sucursal = s.id" +
             "                    left join co_familiar padre on a.padre = padre.id " +
             "					 left join co_familiar madre on a.madre = madre.id " +
-            " WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC"            
+            " WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC",            
             [id],
             (error, results) => {
                 if (error) {
