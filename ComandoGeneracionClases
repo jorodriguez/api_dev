@@ -159,13 +159,16 @@ LANGUAGE 'plpgsql';
 ----------------
 
 
-// a
+// 
+
+
 create table cat_actividad(
-	id serial
+	id serial,
 	nombre text not null,
-	icono varchar(20) default 'no-icon-class',
+	icono varchar(50) default 'no-icon-class',
 	fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     fecha_modifico timestamp without time zone,
+	posicion int default 0,
     genero integer NOT NULL,
     modifico integer,
     eliminado boolean NOT NULL DEFAULT false,
@@ -178,10 +181,9 @@ create table cat_actividad(
 
 
 create table cat_tipo_actividad(
-	id serial not null,
-	etiqueta text not null,
-	nombre text not null,
+	id serial not null,	
 	cat_actividad integer not null,
+	nombre text not null,	
 	fecha_modifico timestamp without time zone,
     genero integer NOT NULL,
     modifico integer,
@@ -192,16 +194,12 @@ create table cat_tipo_actividad(
     CONSTRAINT cat_tipo_actividad_modifico_fkey FOREIGN KEY (modifico)
         REFERENCES usuario (id),
 	CONSTRAINT cat_tipo_actividad_actividad_fkey FOREIGN KEY (cat_actividad)
-        REFERENCES usuario (id) 
+        REFERENCES cat_actividad (id) 
 );
-
-
---------------
 
 create table cat_sub_actividad(
 	id serial not null,
-	cat_tipo_actividad integer not null,
-	etiqueta text not null,
+	cat_actividad integer not null,	
 	nombre text not null,	
 	fecha_modifico timestamp without time zone,
     genero integer NOT NULL,
@@ -212,24 +210,21 @@ create table cat_sub_actividad(
         REFERENCES usuario (id),
     CONSTRAINT cat_sub_actividad_modifico_fkey FOREIGN KEY (modifico)
         REFERENCES usuario (id),
-	CONSTRAINT cat_sub_actividad_actividad_fkey FOREIGN KEY (cat_tipo_actividad)
-        REFERENCES usuario (id) 
+	CONSTRAINT cat_sub_actividad_actividad_fkey FOREIGN KEY (cat_actividad)
+        REFERENCES cat_actividad (id) 
 );
-
-
-
-------
 
 create table cat_registro_actividad(
 	id serial not null,
-	cat_alumno integer not null,
+	co_alumno integer not null,
 	cat_tipo_actividad integer not null,
 	cat_sub_actividad integer not null,
 	fecha date not null,	
-	nombre text not null,	
+	hora time not null,		
 	nota text,
 	icono varchar(50) default 'no-icon-class',
 	url_foto text,	
+	tiene_tipo_actividad boolean default false,
 	fecha_modifico timestamp without time zone,
     genero integer NOT NULL,
     modifico integer,
@@ -239,9 +234,30 @@ create table cat_registro_actividad(
         REFERENCES usuario (id),
     CONSTRAINT cat_reg_actividad_modifico_fkey FOREIGN KEY (modifico)
         REFERENCES usuario (id),
+	CONSTRAINT cat_reg_alumno_fkey FOREIGN KEY (co_alumno)
+        REFERENCES co_alumno (id),
 	CONSTRAINT cat_reg_tipo_actividad_fkey FOREIGN KEY (cat_tipo_actividad)
-        REFERENCES usuario (id),
+        REFERENCES cat_tipo_actividad (id),
 	CONSTRAINT cat_reg_sub_actividad_fkey FOREIGN KEY (cat_sub_actividad)
-        REFERENCES usuario (id) 	
+        REFERENCES cat_sub_actividad (id) 	
 );
 
+
+
+
+insert into cat_actividad(id,nombre,icono,posicion,genero)
+values(1,'Alimentación','fas fa-utensils',1,1),
+	   (2,'Medicamento','fas fa-prescription-bottle-alt',2,1),
+	   (3,'Siesta','fas fa-bed',3,1),
+	   (4,'Notas','fas fa-clipboard',4,1);
+
+insert into cat_tipo_actividad(cat_actividad,nombre,genero)
+values (1,'Biberón',1),
+		(1,'Desayuno',1),
+		(1,'Merienda Mañana',1),
+		(1,'Comida',1),
+		(1,'Merienda Tarde',1),
+		(1,'Cena',1);
+		
+insert into cat_sub_actividad(cat_actividad,nombre,genero)
+values (1,'Poco',1),(1,'Completo',1),(1,'Doble',1);
