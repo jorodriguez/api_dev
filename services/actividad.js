@@ -23,11 +23,13 @@ const getCatalogoActividades = (request, response) => {
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
+
         pool.query(
             "WITH actividades AS( "+
             "   SELECT a.id,"+
             "       a.nombre,"+
             "       a.posicion,"+
+            "       a.icono,"+
             "    ("+
             "        select array_to_json("+
             "            (select array_agg(ta.*) from cat_tipo_actividad ta where ta.cat_actividad =  a.id )"+

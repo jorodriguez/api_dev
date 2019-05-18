@@ -53,7 +53,7 @@ app.delete('/users/:id', db.deleteUser);
 app.get('/alumnos/:id_sucursal', alumno.getAlumnos);
 app.get('/alumnos/id/:id', alumno.getAlumnoById);
 app.post('/alumnos', alumno.createAlumno);
-app.put('/alumnos/:id', alumno.updateAlumno);
+app.put('/alumnos/:ids', alumno.updateAlumno);
 app.delete('/alumnos/:id', alumno.deleteAlumno);
 
 //asistencia

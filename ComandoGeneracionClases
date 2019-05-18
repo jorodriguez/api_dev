@@ -261,3 +261,11 @@ values (1,'Biberón',1),
 		
 insert into cat_sub_actividad(cat_actividad,nombre,genero)
 values (1,'Poco',1),(1,'Completo',1),(1,'Doble',1);
+
+
+
+
+ALTER TABLE cat_registro_actividad RENAME TO co_registro_actividad;
+
+alter table co_registro_Actividad drop column icono; 
+alter table co_registro_Actividad drop column tiene_tipo_activ
