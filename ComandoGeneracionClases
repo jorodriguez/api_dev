@@ -243,8 +243,6 @@ create table cat_registro_actividad(
 );
 
 
-
-
 insert into cat_actividad(id,nombre,icono,posicion,genero)
 values(1,'Alimentación','fas fa-utensils',1,1),
 	   (2,'Medicamento','fas fa-prescription-bottle-alt',2,1),
@@ -258,6 +256,15 @@ values (1,'Biberón',1),
 		(1,'Comida',1),
 		(1,'Merienda Tarde',1),
 		(1,'Cena',1);
-		
+
+--tipos de actividades ALIMENTACION		
 insert into cat_sub_actividad(cat_actividad,nombre,genero)
 values (1,'Poco',1),(1,'Completo',1),(1,'Doble',1);
+
+--ADD  COLUMN PARA RELACIONAR CON CAT_ACTIVIDAD (tabla principal)
+alter table co_registro_Actividad add column cat_actividad integer not null;
+ALTER TABLE co_registro_Actividad ADD FOREIGN KEY (cat_actividad) REFERENCES cat_actividad(id);
+
+---eliminar not null en registro_Actividad
+alter table co_registro_actividad alter column cat_tipo_actividad drop not null;
+alter table co_registro_actividad alter column cat_sub_actividad drop not null;

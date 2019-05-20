@@ -113,7 +113,7 @@ const createAlumno = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
-                response.status(200).json(results.rows)
+                response.status(200).json(results.rowCount)
             })
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);

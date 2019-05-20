@@ -55,6 +55,74 @@ const getCatalogoActividades = (request, response) => {
     }
 };
 
+
+const registrarActividad = (request, response) => {
+    console.log("@registrarActividad");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        const { alumnosIds,cat_actividad,tipo_actividad,sub_actividad,nota,genero } = request.body;
+
+        console.log("=====>> "+JSON.stringify(request.body));
+
+        /*console.log("ids "+alumnosIds);
+        console.log("cat_tipo_actividad "+cat_actividad);
+        console.log("tipo_actividad "+tipo_actividad);
+        console.log("sub_actividad "+sub_actividad);
+        console.log("nota "+nota);
+        console.log("genero "+genero);*/
+        
+        var nullOrEmpty = (val)=>{ 
+            if(val === null || val === -1 || val==='' || val===undefined) 
+            return null
+            else return val;
+        };
+        var nullOrEmptyStr = (val)=>{ 
+            if(val === null || val === -1 || val==='' || val===undefined) 
+            return ''
+            else return val;
+        };
+
+        var sqlComplete = " VALUES ";
+        for (var i = 0; i < alumnosIds.length; i++) {
+            if (i > 0) {
+                sqlComplete += ",";
+            }                      
+            sqlComplete += "(" + alumnosIds[i] + ","+
+                            cat_actividad+","+
+                            nullOrEmpty(tipo_actividad)+","+
+                            nullOrEmpty(sub_actividad)+","+
+                            "current_date,"+
+                            "getHora(''),"+
+                            "'"+nullOrEmptyStr(nota)+"',"+
+                            "'',"+
+                            genero
+                            +")";
+        };
+
+        console.log(" SQL "+sqlComplete);
+
+        pool.query("INSERT INTO co_registro_actividad(co_alumno,cat_actividad,cat_tipo_actividad,cat_sub_actividad,fecha,hora,nota,url_foto,genero) " +            
+            sqlComplete,
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }                
+                response.status(200).json(results.rowCount)
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+        
+    }
+};
+
+
 module.exports = {
-    getCatalogoActividades    
+    getCatalogoActividades,
+    registrarActividad  
 }

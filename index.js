@@ -68,13 +68,14 @@ app.get('/grupos', grupo.getGrupos);
 
 //actividades
 app.get('/actividad/catalogo_actividad', actividad.getCatalogoActividades);
+app.post('/actividad/registrar', actividad.registrarActividad);
 
 app.get('/', (request, response) => {
-	response.json({ info: 'MagicIntelligence API v1.0.2' })
+	response.json({ info: 'MagicIntelligence API v1.0.3' })
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.`)
+	console.log(`App corriendo en el puerto ${port} v1.0.3`)
 });
 
 
