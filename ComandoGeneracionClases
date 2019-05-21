@@ -403,6 +403,7 @@ create table co_alumno_falimiar(
         REFERENCES usuario (id)
 );
 
-
-
+// insert parentesco
+insert into co_parentesco(id,nombre,genero)
+values(1,'Papá',1),(2,'Mamá',1),(3,'Abuelo',1),(4,'Abuela',1),(5,'Tío',1),(6,'Hermamo',1);
 

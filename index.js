@@ -8,6 +8,7 @@ const asistencia = require('./services/asistencia');
 const grupo = require('./services/grupo');
 const authController = require('./auth/AuthController');
 const actividad = require('./services/actividad');
+const inscripcion = require('./services/inscripcion');
 
 const port = process.env.PORT || 5000;
 
@@ -69,6 +70,12 @@ app.get('/grupos', grupo.getGrupos);
 //actividades
 app.get('/actividad/catalogo_actividad', actividad.getCatalogoActividades);
 app.post('/actividad/registrar', actividad.registrarActividad);
+
+//inscripcion
+app.get('/inscripcion/:id_alumno', inscripcion.getFormatoInscripcion);
+app.post('/inscripcion/registrar', inscripcion.createFormatoInscripcion);
+app.put('/inscripcion/:id', inscripcion.createFormatoInscripcion);
+app.delete('/inscripcion/:id', inscripcion.createFormatoInscripcion);
 
 app.get('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API v1.0.3' })
