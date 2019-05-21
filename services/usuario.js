@@ -124,7 +124,9 @@ const updateUser = (request, response) => {
 			if (err)
 				return response.status(500).send(msgs.failedAuthenticateToken);
 		});*/
-		var validacion = helperToken.validarToken(request);
+		var validacion = helperToke
+
+		n.validarToken(request);
 
         if(!validacion.tokenValido){
             return response.status(validacion.status).send(validacion.mensajeRetorno);;

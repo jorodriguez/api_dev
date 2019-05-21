@@ -174,6 +174,7 @@ const updateAlumno = (request, response) => {
     }
 };
 
+
 // DELETE — /alumnos/:id | deleteAlumno()
 const deleteAlumno = (request, response) => {
     console.log("@deleteAlumnos");
@@ -249,13 +250,9 @@ const getAlumnoById = (request, response) => {
         pool.query(
             "SELECT a.*," +
             " g.nombre as nombre_grupo," +
-            " s.nombre as nombre_sucursal," +
-            " padre.nombre as nombre_padre," +
-            " madre.nombre as nombre_madre" +
+            " s.nombre as nombre_sucursal" +            
             " FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id" +
-            "                     inner join co_sucursal s on a.co_sucursal = s.id" +
-            "                    left join co_familiar padre on a.padre = padre.id " +
-            "					 left join co_familiar madre on a.madre = madre.id " +
+            "                     inner join co_sucursal s on a.co_sucursal = s.id" +            
             " WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC",            
             [id],
             (error, results) => {
