@@ -45,13 +45,9 @@ const getAlumnos = (request, response) => {
         pool.query(
             "SELECT a.*," +
             "g.nombre as nombre_grupo," +
-            "s.nombre as nombre_sucursal," +
-            "padre.nombre as nombre_padre," +
-            "madre.nombre as nombre_madre" +
+            "s.nombre as nombre_sucursal" +            
             " FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id" +
-            "                     inner join co_sucursal s on a.co_sucursal = s.id" +
-            "                    left join co_familiar padre on a.padre = padre.id " +
-            "					 left join co_familiar madre on a.madre = madre.id " +
+            "                     inner join co_sucursal s on a.co_sucursal = s.id" +            
             "WHERE a.co_sucursal = $1 AND a.eliminado=false ORDER BY a.nombre ASC",
             [id_sucursal],
             (error, results) => {
@@ -85,7 +81,7 @@ const createAlumno = (request, response) => {
          }*/
 
         pool.query("INSERT INTO CO_ALUMNO(" +
-            "co_sucursal,co_grupo,padre," +
+            "co_sucursal,co_grupo," +
             "nombre,apellidos,fecha_nacimiento," +
             "alergias,nota,hora_entrada," +
             "hora_salida,costo_inscripcion,costo_colegiatura," +
@@ -97,11 +93,10 @@ const createAlumno = (request, response) => {
             "$4,$5,$6," +
             "$7,$8,$9," +
             "$10,$11,$12," +
-            "$13,$14,$15," +
-            "$16" +
+            "$13,$14,$15," +            
             ");"
             , [
-                p.co_sucursal, p.co_grupo, 1,
+                p.co_sucursal, p.co_grupo,
                 p.nombre, p.apellidos, p.fecha_nacimiento,
                 p.alergias, p.nota, p.hora_entrada,
                 p.hora_salida, p.costo_inscripcion, p.costo_colegiatura,
