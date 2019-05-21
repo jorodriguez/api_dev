@@ -44,11 +44,11 @@ const getAlumnos = (request, response) => {
 
         pool.query(
             "SELECT a.*," +
-            "g.nombre as nombre_grupo," +
-            "s.nombre as nombre_sucursal" +            
+            " g.nombre as nombre_grupo," +
+            " s.nombre as nombre_sucursal" +            
             " FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id" +
             "                     inner join co_sucursal s on a.co_sucursal = s.id" +            
-            "WHERE a.co_sucursal = $1 AND a.eliminado=false ORDER BY a.nombre ASC",
+            "  WHERE a.co_sucursal = $1 AND a.eliminado=false ORDER BY a.nombre ASC",
             [id_sucursal],
             (error, results) => {
                 if (error) {
