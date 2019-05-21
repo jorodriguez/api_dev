@@ -6,6 +6,8 @@ const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
 const Joi = require('@hapi/joi');
 
+const inscripcion = require('./inscripcion');
+
 const config = require('../config/config');
 const jwt = require('jsonwebtoken');
 
@@ -54,7 +56,7 @@ const getAlumnos = (request, response) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
-                }
+                }                                             
                 response.status(200).json(results.rows);
             })
     } catch (e) {
@@ -70,8 +72,8 @@ const createAlumno = (request, response) => {
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
-
-        const p = getParams(request.body);
+  
+        const p = getParams(request.body);              
 
         /* const result = Joi.validate(p, schemaValidacionAlumno);
  
@@ -108,13 +110,15 @@ const createAlumno = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
+                
+                inscripcion.createFormatoInscripcionInicial(results.insertId);   
+
                 response.status(200).json(results.rowCount)
             })
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
 };
-
 
 
 // PUT — /alumno/:id | updateAlumno()
@@ -130,10 +134,15 @@ const updateAlumno = (request, response) => {
 
         const id = parseInt(request.params.id)
 
-        const p = getParams(request.body);
+        const alumno = getParams(request.body.alumno);
+        const formato = getParams(request.body.formato);
 
-        //const result = Joi.validate(p, schemaValidacionAlumno);
-        console.log("f nac " + p.fecha_nacimiento);
+        if(!alumno || !formato || !id){
+            console.log("!alumno || !formato || !id no van en el request");
+            return response.status(400).send("valores requeridos");
+        }
+
+        //const result = Joi.validate(p, schemaValidacionAlumno);        
         pool.query(
             "UPDATE CO_ALUMNO  " +
             "SET nombre = $2, " +
@@ -152,16 +161,19 @@ const updateAlumno = (request, response) => {
             " WHERE id = $1",
             [
                 id,
-                p.nombre, p.apellidos, p.fecha_nacimiento, p.alergias, p.nota,
-                p.hora_entrada, p.hora_salida, p.costo_inscripcion,
-                p.costo_colegiatura, p.minutos_gracia, p.foto, p.fecha_reinscripcion,
-                co_grupo
+                alumno.nombre, alumno.apellidos, alumno.fecha_nacimiento, alumno.alergias,
+                alumno.nota,alumno.hora_entrada, alumno.hora_salida, 
+                alumno.costo_inscripcion,alumno.costo_colegiatura, alumno.minutos_gracia,
+                alumno.foto, alumno.fecha_reinscripcion,alumno.co_grupo
             ],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
                 }
+                //llamar al otro guardad
+                inscripcion.updateInscripcion(formato);
+
                 response.status(200).send(`User modified with ID: ${id}`)
             })
     } catch (e) {

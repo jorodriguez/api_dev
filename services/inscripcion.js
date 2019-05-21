@@ -19,36 +19,27 @@ const pool = new Pool({
 });
 
 //GET — /inscripcion/:id_alumno | getFormatoInscripcion()
-const getFormatoInscripcion = (request, response) => {
+const getFormatoInscripcion = (id) => {
     console.log("@getFormatoInscripcion");
-    try {
-
-        var validacion = helperToken.validarToken(request);
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
-        console.log("paso token getFormatoInscripcion");
-
-        const id_alumno = parseInt(request.params.id_alumno);
-
+    try {                
+        
         console.log("Consultando asistencia de la suc " + id_sucursal);
 
         pool.query(
             " SELECT c.*,a.nombre as nombre_alumno,g.nombre as nombre_grupo" +
             " FROM co_formato_inscripcion c inner join co_alumno a on c.co_alumno = a.id" +
             "                                inner join co_grupo g on a.co_grupo = g.id" +
-            " WHERE c.co_alumno = $1 and c.eliminado = false",
-            [id_alumno],
+            " WHERE c.id = $1 AND c.eliminado = false",
+            [id],
             (error, results) => {
                 if (error) {
-                    handle.callbackError(error, response);
-                    return;
+                    console.log(" error "+error);
+                    return null;
                 }
-                response.status(200).json(results.rows);
+                return results.rows;
             })
     } catch (e) {
-        handle.callbackErrorNoControlado(e, response);
+        return null;
     }
 };
 
@@ -121,7 +112,108 @@ const createFormatoInscripcion = (request, response) => {
     }
 };
 
+const createFormatoInscripcionInicial = (id_alumno, genero) => {
+    console.log("@create Formato inscripcion inicial");
+    try {        
+        pool.query(
+            "  INSERT INTO CO_FORMATO_INSCRIPCION(" +
+            "    co_alumno,fecha_genero,genero" +
+            "  )" +
+            "  VALUES($1,current_date,$2)",
+            [
+                id_alumno,               
+                ,genero
+            ],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return false;
+                }
+                return true;
+            })
+    } catch (e) {        
+        console.log("Error al crear el formato inical "+e);
+        return false;
+    }
+};
+
+
 // PUT — /inscripcion/:id | updateInscripcion()
+const updateInscripcion = (formato) => {
+    console.log("@updateInscripcion");
+    try {             
+        
+        pool.query(
+            "UPDATE CO_ALUMNO  " +
+            " fecha_inscripcion                 = $2," +
+            " hermanos                          = $3, "+
+            " estado_convivencia_padres         = $4,"+
+             "servicio_contratar                = $5,"+
+            " horario_servicio                  = $6, "+
+            " direccion                         = $7,"+
+            " resp_escuela_guarderia            = $8,"+
+            " resp_esperan_como_institucion     = $9,"+
+            " resp_circunstancia_especial_familia = $10,"+
+            " resp_participacion_padres         = $11,"+
+            " estado_embarazo                   = $12,"+
+            " resp_embarazo_planeado            = $13,"+
+            " gateo                             = $14,"+
+            " edad_comienzo_caminar             = $15,"+
+            " edad_comienzo_esfinteres          = $16,"+
+            " edad_balbuceo                     = $17,"+
+            " primer_palabra_con_significado    = $18,"+
+            " primeras_senas                    = $19,"+
+            " enfermedades                      = $20,"+
+            " accidentes_graves                 = $21,"+
+            " dificultad_fisica                 = $22,"+
+            " uso_aparato                       = $23,"+
+            " tipo_terapia_especial             = $24,"+
+            " comportamiento_generales          = $25,"+
+            " duerme_con                        = $26,"+
+            " resp_sieta                        = $27,"+ 
+            " resp_horario_sieta                = $28,"+
+            " resp_promedio_horas_dueme         = $29,"+
+            " resp_numero_comidas_dia           = $30,"+
+            " resp_horas_tv                     = $31,"+
+            " resp_programas_favoritos          = $32,"+
+            " resp_actividades_fin_semana       = $33,"+
+            " resp_habilidades                  = $34"+
+            " informacion_adicional             = $35,"+
+            " nota_celebracion_dia              = $36"+             
+            " WHERE id = $1",
+            [
+                formato.id, 
+                formato.fecha_inscripcion, formato.hermanos, //-3
+                formato.estado_convivencia_padres, formato.servicio_contratar, formato.horario_servicio, //6
+                formato.direccion, formato.resp_escuela_guarderia, formato.resp_esperan_como_institucion, //9
+                formato.resp_circunstancia_especial_familia, formato.resp_participacion_padres, 
+                formato.estado_embarazo,//12
+                formato.resp_embarazo_planeado, formato.gateo, formato.edad_comienzo_caminar,
+                formato.edad_comienzo_esfinteres,//16
+                formato.edad_balbuceo, formato.primer_palabra_con_significado,
+                formato.primeras_senas,//19
+                formato.enfermedades, formato.accidentes_graves, formato.dificultad_fisica,//22
+                formato.uso_aparato, formato.tipo_terapia_especial, formato.comportamiento_generales,//25
+                formato.duerme_con, formato.resp_sieta, formato.resp_horario_sieta,//28
+                formato.resp_promedio_horas_dueme, formato.resp_numero_comidas_dia, formato.resp_horas_tv,//31
+                formato.resp_programas_favoritos, formato.resp_actividades_fin_semana, 
+                formato.resp_habilidades,//34
+                formato.informacion_adicional, formato.nota_celebracion_dia//37
+            ],
+            (error, results) => {
+                if (error) {
+                    console.log("Error al actualizar el formato de inscripcion "+error);
+                    return false;
+                }
+                return true;
+            })
+    } catch (e) {
+        //handle.callbackErrorNoControlado(e, response);
+        console.log("Error al actualizar el formato de inscripcion "+e);
+        return false;
+    }
+};
+/*
 const updateInscripcion = (request, response) => {
     console.log("@updateInscripcion");
     try {
@@ -199,7 +291,7 @@ const updateInscripcion = (request, response) => {
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
-};
+};*/
 
 
 // DELETE — /inscripcion/:id | deleteFormatoInscripcion()
@@ -250,6 +342,7 @@ const getParams = (body) => {
 
 module.exports = {
     getFormatoInscripcion,
+    createFormatoInscripcionInicial,
     createFormatoInscripcion,
     updateInscripcion,
     deleteFormatoInscripcion    
