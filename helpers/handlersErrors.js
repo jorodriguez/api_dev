@@ -5,7 +5,7 @@ const callbackErrorNoControlado = (ex, response) => {
 }
 
 const callbackError = (mensaje, response) => {
-    //console.log(mensaje);
+    console.log(mensaje);
     response.status(400).json({ mensaje: mensaje });
 }
 
