@@ -268,9 +268,13 @@ const getAlumnoById = (request, response) => {
                     return;
                 }
                 if (results.rowCount > 0) {
-                    response.status(200).json(results.rows[0]);
+                    
+                    var formatoJson = inscripcion.getFormatoInscripcion(id);
+                    var alumno = results.rows[0];
+
+                    response.status(200).json({ alumno : alumno, formato : formatoJson});
                 } else {
-                    response.status(400).json({});
+                    response.status(400).json({alumno : null, formato : null});
                 }
             });
 

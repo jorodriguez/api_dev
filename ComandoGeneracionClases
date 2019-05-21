@@ -261,15 +261,6 @@ values (1,'Biberón',1),
 insert into cat_sub_actividad(cat_actividad,nombre,genero)
 values (1,'Poco',1),(1,'Completo',1),(1,'Doble',1);
 
-<<<<<<< HEAD
-
-
-
-ALTER TABLE cat_registro_actividad RENAME TO co_registro_actividad;
-
-alter table co_registro_Actividad drop column icono; 
-alter table co_registro_Actividad drop column tiene_tipo_activ
-=======
 --ADD  COLUMN PARA RELACIONAR CON CAT_ACTIVIDAD (tabla principal)
 alter table co_registro_Actividad add column cat_actividad integer not null;
 ALTER TABLE co_registro_Actividad ADD FOREIGN KEY (cat_actividad) REFERENCES cat_actividad(id);
@@ -414,6 +405,5 @@ create table co_alumno_falimiar(
 
 // insert parentesco
 insert into co_parentesco(id,nombre,genero)
-values(1,'Papá',1),(2,'Mamá',1),(3,'Abuelo',1),(4,'Abuela',1),(5,'Tío',1),(6,'Hermamo',1);
+values(1,'Papá',1),(2,'Mamá',1),(3,'Abuelo',1),(4,'Abuela',1),(5,'Tío',1),(6,'Hermano',1);
 
->>>>>>> master
