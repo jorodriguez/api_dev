@@ -82,6 +82,8 @@ const createAlumno = (request, response) => {
              return;
          }*/
 
+         console.log("insertando alumno");
+
         pool.query("INSERT INTO CO_ALUMNO(" +
             "co_sucursal,co_grupo," +
             "nombre,apellidos,fecha_nacimiento," +
@@ -89,14 +91,14 @@ const createAlumno = (request, response) => {
             "hora_salida,costo_inscripcion,costo_colegiatura," +
             "minutos_gracia,foto,fecha_reinscripcion," +
             "genero" +
-            ")" +
-            "VALUES(" +
-            "$1,$2,$3," +
-            "$4,$5,$6," +
-            "$7,$8,$9," +
-            "$10,$11,$12," +
-            "$13,$14,$15," +            
-            ");"
+            " ) " +
+            " VALUES(" +
+            " $1,$2,$3," +
+            " $4,$5,$6," +
+            " $7,$8,$9," +
+            " $10,$11,$12," +
+            " $13,$14,$15" +            
+            ") RETURNING id;"
             , [
                 p.co_sucursal, p.co_grupo,
                 p.nombre, p.apellidos, p.fecha_nacimiento,
@@ -107,13 +109,25 @@ const createAlumno = (request, response) => {
             ],
             (error, results) => {
                 if (error) {
+                    /*pool.rollback(function() {
+                        console.log("ROLLBACK  fallo algo al insertar el alumno");
+                    });*/
                     handle.callbackError(error, response);
                     return;
                 }
+                  
                 
-                inscripcion.createFormatoInscripcionInicial(results.insertId);   
+                //console.log("se creo el alumno "+JSON.stringify(results));
 
-                response.status(200).json(results.rowCount)
+                if(results.rowCount > 0){
+                  //  console.log("creando el formato alumno "+JSON.stringify(results.rows[0]));
+                    
+                    inscripcion.createFormatoInscripcionInicial(results.rows[0].id,p.genero);                     
+
+                }else{
+                    response.status(200).json(0);
+                }                
+                
             })
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -132,15 +146,23 @@ const updateAlumno = (request, response) => {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
-        const id = parseInt(request.params.id)
+        const id = parseInt(request.params.id);
 
-        const alumno = getParams(request.body.alumno);
-        const formato = getParams(request.body.formato);
+     //   console.log("=====id "+id );
 
-        if(!alumno || !formato || !id){
+     //   console.log("FORMATO "+JSON.stringify(request.body));
+        const alumno = getParams(request.body);
+        const formato = getParams(request.body.formato_inscripcion);
+
+        //console.log("alumno "+JSON.stringify(alumno));
+        //console.log("formato "+JSON.stringify(formato));
+
+        /*if(alumno != unde || !formato || !id){
             console.log("!alumno || !formato || !id no van en el request");
             return response.status(400).send("valores requeridos");
-        }
+        }*/
+
+        //console.log("FORMATO "+JSON.stringify(formato));
 
         //const result = Joi.validate(p, schemaValidacionAlumno);        
         pool.query(
@@ -171,6 +193,7 @@ const updateAlumno = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
+                console.log("Se procede a modificar el formato");
                 //llamar al otro guardad
                 inscripcion.updateInscripcion(formato);
 
@@ -257,9 +280,11 @@ const getAlumnoById = (request, response) => {
         pool.query(
             "SELECT a.*," +
             " g.nombre as nombre_grupo," +
-            " s.nombre as nombre_sucursal" +            
+            " s.nombre as nombre_sucursal," +            
+            " to_json(f.*) as formato_inscripcion"+
             " FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id" +
             "                     inner join co_sucursal s on a.co_sucursal = s.id" +            
+            "                       left join co_formato_inscripcion f on a.co_formato_inscripcion = f.id"+
             " WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC",            
             [id],
             (error, results) => {
@@ -269,10 +294,12 @@ const getAlumnoById = (request, response) => {
                 }
                 if (results.rowCount > 0) {
                     
-                    var formatoJson = inscripcion.getFormatoInscripcion(id);
-                    var alumno = results.rows[0];
+                    var alumno = results.rows[0];                    
+                    
+                    console.log(" Alumno encontrado "+JSON.stringify(alumno));                                                            
 
-                    response.status(200).json({ alumno : alumno, formato : formatoJson});
+                    response.status(200).json(alumno);
+
                 } else {
                     response.status(400).json({alumno : null, formato : null});
                 }
@@ -282,7 +309,6 @@ const getAlumnoById = (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
-
 
 module.exports = {
     getAlumnos,

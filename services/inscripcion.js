@@ -21,8 +21,8 @@ const pool = new Pool({
 //GET — /inscripcion/:id_alumno | getFormatoInscripcion()
 const getFormatoInscripcion = (id) => {
     console.log("@getFormatoInscripcion");
-    try {                
-        
+    try {
+
         console.log("Consultando asistencia de la suc " + id_sucursal);
 
         pool.query(
@@ -33,12 +33,21 @@ const getFormatoInscripcion = (id) => {
             [id],
             (error, results) => {
                 if (error) {
-                    console.log(" error "+error);
+                    console.log(" error " + error);
                     return null;
                 }
-                return results.rows;
+                if (results.rowCount > 0) {
+                    console.log("results.rows[0] " + results.rows[0]);
+                    return results.rows[0];
+
+                } else {
+                    console.log("No se encuentra el formato de inscripcion");
+                    return null;
+                }
+
             })
     } catch (e) {
+        console.log("Error al buscar el formato de inscripcion");
         return null;
     }
 };
@@ -98,7 +107,7 @@ const createFormatoInscripcion = (request, response) => {
                 resp_promedio_horas_dueme, resp_numero_comidas_dia, resp_horas_tv,//30
                 resp_programas_favoritos, resp_actividades_fin_semana, resp_habilidades,//33
                 informacion_adicional, nota_celebracion_dia,//35
-                ,genero//36
+                , genero//36
             ],
             (error, results) => {
                 if (error) {
@@ -114,26 +123,57 @@ const createFormatoInscripcion = (request, response) => {
 
 const createFormatoInscripcionInicial = (id_alumno, genero) => {
     console.log("@create Formato inscripcion inicial");
-    try {        
+    try {
+        console.log(" ID ALUMNO = " + id_alumno);
+
         pool.query(
             "  INSERT INTO CO_FORMATO_INSCRIPCION(" +
             "    co_alumno,fecha_genero,genero" +
-            "  )" +
-            "  VALUES($1,current_date,$2)",
+            "  )  " +
+            "  VALUES($1,current_date,$2) RETURNING id;",
             [
-                id_alumno,               
-                ,genero
+                id_alumno,
+                genero
             ],
             (error, results) => {
                 if (error) {
-                    handle.callbackError(error, response);
+                    /*    pool.rollback(function() {
+                            console.log("ROLLBACK fallo algo al insertar el alumno");
+                        });*/
+                    console.log("Error al guardar el formato inicial " + error);
                     return false;
                 }
+
+                console.log(" returning de formtato  " + JSON.stringify(results));
+
+                if (results.rowCount > 0) {
+
+                    var id_formato_inscripcion = results.rows[0].id;
+
+                    pool.query(
+                        "UPDATE CO_ALUMNO  " +
+                        " SET co_formato_inscripcion = $2 " +
+                        " WHERE id = $1",
+                        [
+                            id_alumno, id_formato_inscripcion
+                        ],
+                        (error, results) => {
+                            if (error) {
+                                /*pool.rollback(function() {
+                                    console.log("ROLLBACK  fallo algo al insertar el alumno");
+                                });*/
+                                console.log("error al actualizar el formato en el alumno " + error);
+                                return;
+                            }
+                            console.log("Se modifico el alumno en la tabla co_formato_inscripcion");
+                        });
+                }
+
                 return true;
             })
-    } catch (e) {        
-        console.log("Error al crear el formato inical "+e);
-        return false;
+
+    } catch (e) {
+        console.log("error al actualizar el formato en el alumno " + e);
     }
 };
 
@@ -141,52 +181,52 @@ const createFormatoInscripcionInicial = (id_alumno, genero) => {
 // PUT — /inscripcion/:id | updateInscripcion()
 const updateInscripcion = (formato) => {
     console.log("@updateInscripcion");
-    try {             
-        
+    try {
+//        console.log("=========> "+JSON.stringify(formato));
         pool.query(
-            "UPDATE CO_ALUMNO  " +
-            " fecha_inscripcion                 = $2," +
-            " hermanos                          = $3, "+
-            " estado_convivencia_padres         = $4,"+
-             "servicio_contratar                = $5,"+
-            " horario_servicio                  = $6, "+
-            " direccion                         = $7,"+
-            " resp_escuela_guarderia            = $8,"+
-            " resp_esperan_como_institucion     = $9,"+
-            " resp_circunstancia_especial_familia = $10,"+
-            " resp_participacion_padres         = $11,"+
-            " estado_embarazo                   = $12,"+
-            " resp_embarazo_planeado            = $13,"+
-            " gateo                             = $14,"+
-            " edad_comienzo_caminar             = $15,"+
-            " edad_comienzo_esfinteres          = $16,"+
-            " edad_balbuceo                     = $17,"+
-            " primer_palabra_con_significado    = $18,"+
-            " primeras_senas                    = $19,"+
-            " enfermedades                      = $20,"+
-            " accidentes_graves                 = $21,"+
-            " dificultad_fisica                 = $22,"+
-            " uso_aparato                       = $23,"+
-            " tipo_terapia_especial             = $24,"+
-            " comportamiento_generales          = $25,"+
-            " duerme_con                        = $26,"+
-            " resp_sieta                        = $27,"+ 
-            " resp_horario_sieta                = $28,"+
-            " resp_promedio_horas_dueme         = $29,"+
-            " resp_numero_comidas_dia           = $30,"+
-            " resp_horas_tv                     = $31,"+
-            " resp_programas_favoritos          = $32,"+
-            " resp_actividades_fin_semana       = $33,"+
-            " resp_habilidades                  = $34"+
-            " informacion_adicional             = $35,"+
-            " nota_celebracion_dia              = $36"+             
+            "UPDATE CO_FORMATO_INSCRIPCION  SET " +
+          //  " fecha_inscripcion                 = $2," +
+            " hermanos                          = $2, " +
+            " estado_convivencia_padres         = $3," +
+            " servicio_contratar                = $4," +
+            " horario_servicio                  = $5, " +
+            " direccion                         = $6," +
+            " resp_escuela_guarderia            = $7," +
+            " resp_esperan_como_institucion     = $8," +
+            " resp_circunstancia_especial_familia = $9," +
+            " resp_participacion_padres         = $10," +
+            " estado_embarazo                   = $11," +
+            " resp_embarazo_planeado            = $12," +
+            " gateo                             = $13," +
+            " edad_comienzo_caminar             = $14," +
+            " edad_comienzo_esfinteres          = $15," +
+            " edad_balbuceo                     = $16," +
+            " primer_palabra_con_significado    = $17," +
+            " primeras_senas                    = $18," +
+            " enfermedades                      = $19," +
+            " accidentes_graves                 = $20," +
+            " dificultad_fisica                 = $21," +
+            " uso_aparato                       = $22," +
+            " tipo_terapia_especial             = $23," +
+            " comportamiento_generales          = $24," +
+            " duerme_con                        = $25," +
+            " resp_sieta                        = $26," +
+            " resp_horario_sieta                = $27," +
+            " resp_promedio_horas_dueme         = $28," +
+            " resp_numero_comidas_dia           = $29," +
+            " resp_horas_tv                     = $30," +
+            " resp_programas_favoritos          = $31," +
+            " resp_actividades_fin_semana       = $32," +
+            " resp_habilidades                  = $33," +
+            " informacion_adicional             = $34," +
+            " nota_celebracion_dia              = $35" +
             " WHERE id = $1",
             [
-                formato.id, 
-                formato.fecha_inscripcion, formato.hermanos, //-3
+                formato.id,
+                formato.hermanos, //-3
                 formato.estado_convivencia_padres, formato.servicio_contratar, formato.horario_servicio, //6
                 formato.direccion, formato.resp_escuela_guarderia, formato.resp_esperan_como_institucion, //9
-                formato.resp_circunstancia_especial_familia, formato.resp_participacion_padres, 
+                formato.resp_circunstancia_especial_familia, formato.resp_participacion_padres,
                 formato.estado_embarazo,//12
                 formato.resp_embarazo_planeado, formato.gateo, formato.edad_comienzo_caminar,
                 formato.edad_comienzo_esfinteres,//16
@@ -196,20 +236,21 @@ const updateInscripcion = (formato) => {
                 formato.uso_aparato, formato.tipo_terapia_especial, formato.comportamiento_generales,//25
                 formato.duerme_con, formato.resp_sieta, formato.resp_horario_sieta,//28
                 formato.resp_promedio_horas_dueme, formato.resp_numero_comidas_dia, formato.resp_horas_tv,//31
-                formato.resp_programas_favoritos, formato.resp_actividades_fin_semana, 
+                formato.resp_programas_favoritos, formato.resp_actividades_fin_semana,
                 formato.resp_habilidades,//34
                 formato.informacion_adicional, formato.nota_celebracion_dia//37
             ],
             (error, results) => {
                 if (error) {
-                    console.log("Error al actualizar el formato de inscripcion "+error);
+                    console.log("Error al actualizar el formato de inscripcion " + error);
                     return false;
                 }
                 return true;
             })
     } catch (e) {
+        console.log("ERROR " + e);
         //handle.callbackErrorNoControlado(e, response);
-        console.log("Error al actualizar el formato de inscripcion "+e);
+        console.log("Error al actualizar el formato de inscripcion " + e);
         return false;
     }
 };
@@ -345,5 +386,5 @@ module.exports = {
     createFormatoInscripcionInicial,
     createFormatoInscripcion,
     updateInscripcion,
-    deleteFormatoInscripcion    
+    deleteFormatoInscripcion
 }

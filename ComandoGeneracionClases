@@ -407,3 +407,17 @@ create table co_alumno_falimiar(
 insert into co_parentesco(id,nombre,genero)
 values(1,'Papá',1),(2,'Mamá',1),(3,'Abuelo',1),(4,'Abuela',1),(5,'Tío',1),(6,'Hermano',1);
 
+
+
+alter table co_formato_inscripcion ALTER COLUMN edad_comienzo_caminar TYPE text;
+alter table co_formato_inscripcion ALTER COLUMN edad_comienzo_esfinteres TYPE text;
+alter table co_formato_inscripcion ALTER COLUMN edad_balbuceo TYPE text;
+alter table co_formato_inscripcion ALTER COLUMN resp_horario_sieta TYPE text;
+
+--
+alter table co_alumno add column co_formato_inscripcion integer;
+ALTER TABLE co_alumno ADD FOREIGN KEY (co_formato_inscripcion) REFERENCES co_formato_inscripcion(id);
+
+
+
+alter table co_formato_inscripcion alter column co_alumno drop not null;
