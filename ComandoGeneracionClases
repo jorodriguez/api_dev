@@ -421,3 +421,20 @@ ALTER TABLE co_alumno ADD FOREIGN KEY (co_formato_inscripcion) REFERENCES co_for
 
 
 alter table co_formato_inscripcion alter column co_alumno drop not null;
+
+
+alter table co_alumno add column co_padre integer;
+alter table co_alumno add column co_madre integer;
+
+ALTER TABLE co_alumno ADD FOREIGN KEY (co_padre) REFERENCES co_familiar(id);
+ALTER TABLE co_alumno ADD FOREIGN KEY (co_madre) REFERENCES co_familiar(id);
+
+ALTER TABLE co_alumno_falimiar RENAME TO co_alumno_familiar;
+
+
+alter table co_familiar alter column fecha_nacimiento drop not null
+
+ALTER TABLE co_alumno_familiar RENAME COLUMN co_falimiar TO co_familiar;
+
+alter table co_alumno_familiar alter column co_parentesco drop not null;
+

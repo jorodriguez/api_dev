@@ -7,6 +7,7 @@ const helperToken = require('../helpers/helperToken');
 const Joi = require('@hapi/joi');
 
 const inscripcion = require('./inscripcion');
+const familiar = require('./familiar');
 
 const config = require('../config/config');
 const jwt = require('jsonwebtoken');
@@ -82,7 +83,7 @@ const createAlumno = (request, response) => {
              return;
          }*/
 
-         console.log("insertando alumno");
+        console.log("insertando alumno");
 
         pool.query("INSERT INTO CO_ALUMNO(" +
             "co_sucursal,co_grupo," +
@@ -98,7 +99,7 @@ const createAlumno = (request, response) => {
             " $4,$5,$6," +
             " $7,$8,$9," +
             " $10,$11,$12," +
-            " $13,$14,$15" +            
+            " $13,$14,$15,$16" +            
             ") RETURNING id;"
             , [
                 p.co_sucursal, p.co_grupo,
@@ -110,17 +111,15 @@ const createAlumno = (request, response) => {
                 p.genero
             ],
             (error, results) => {
-                if (error) {
-                    /*pool.rollback(function() {
-                        console.log("ROLLBACK  fallo algo al insertar el alumno");
-                    });*/
+                if (error) {                   
                     handle.callbackError(error, response);
                     return;
                 }                  
                 
                 if(results.rowCount > 0){
                                     
-                    inscripcion.createFormatoInscripcionInicial(results.rows[0].id,p.genero);                     
+                    inscripcion.createFormatoInscripcionInicial(results.rows[0].id,p.genero);                                         
+                   
 
                 }else{
                     response.status(200).json(0);
@@ -128,6 +127,7 @@ const createAlumno = (request, response) => {
                 
             })
     } catch (e) {
+        
         handle.callbackErrorNoControlado(e, response);
     }
 };
@@ -143,26 +143,17 @@ const updateAlumno = (request, response) => {
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
-
+       
         const id = parseInt(request.params.id);
-
-     //   console.log("=====id "+id );
-
-     //   console.log("FORMATO "+JSON.stringify(request.body));
-        const alumno = getParams(request.body);
-
-         const formato = getParams(request.body.formato_inscripcion);
-
-        //console.log("alumno "+JSON.stringify(alumno));
-        //console.log("formato "+JSON.stringify(formato));
-
-        /*if(alumno != unde || !formato || !id){
-            console.log("!alumno || !formato || !id no van en el request");
-            return response.status(400).send("valores requeridos");
-        }*/
-
-        //console.log("FORMATO "+JSON.stringify(formato));
-
+        console.log("id "+id);
+        const alumno = request.body;
+        
+        const formato = alumno.formato_inscripcion;
+        
+        const padre = alumno.padre;
+        
+        const madre = alumno.madre;
+        console.log("===> "+JSON.stringify(alumno));
         //const result = Joi.validate(p, schemaValidacionAlumno);        
         pool.query(
             "UPDATE CO_ALUMNO  " +
@@ -180,7 +171,8 @@ const updateAlumno = (request, response) => {
             "fecha_reinscripcion = $13," +
             "co_grupo = $14, " +
             "nombre_carino = $15, "+
-            "sexo = $16 "+            
+            "sexo = $16 ,"+            
+            "modifico = $17 "+            
             " WHERE id = $1",
             [
                 id,
@@ -188,7 +180,7 @@ const updateAlumno = (request, response) => {
                 alumno.nota,alumno.hora_entrada, alumno.hora_salida, 
                 alumno.costo_inscripcion,alumno.costo_colegiatura, alumno.minutos_gracia,
                 alumno.foto, alumno.fecha_reinscripcion,alumno.co_grupo,alumno.nombre_carino,
-                alumno.sexo
+                alumno.sexo,alumno.genero
             ],
             (error, results) => {
                 if (error) {
@@ -198,9 +190,24 @@ const updateAlumno = (request, response) => {
                 console.log("Se procede a modificar el formato");
                 //llamar al otro guardad
                 inscripcion.updateInscripcion(formato);
+              
 
+                if(alumno.co_padre !== null){                    
+                    familiar.updateFamiliar(alumno.co_padre,padre,alumno.genero);
+                }else{
+                    console.log("alumno.generoalumno.generoalumno.genero"+alumno.genero);
+                    familiar.createPadre(alumno.id,padre,alumno.genero);
+                }
+
+                if(alumno.co_madre !==null){
+                    familiar.updateFamiliar(alumno.co_madre,madre,alumno.genero);
+                }else{
+                    familiar.createMadre(alumno.id,madre,alumno.genero);
+                }                             
+                
                 response.status(200).send(`User modified with ID: ${id}`)
-            })
+            });                                             
+
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -253,7 +260,7 @@ const getParams = (body) => {
 
     const parametros = {
         co_sucursal, co_grupo,
-        snombre, apellidos, fecha_nacimiento,
+        nombre, apellidos, fecha_nacimiento,
         alergias, nota, hora_entrada,
         hora_salida, costo_inscripcion, costo_colegiatura,
         minutos_gracia, foto, fecha_inscripcion,
@@ -283,14 +290,19 @@ const getAlumnoById = (request, response) => {
             "SELECT a.*," +
             " g.nombre as nombre_grupo," +
             " s.nombre as nombre_sucursal," +            
-            " to_json(f.*) as formato_inscripcion"+
+            " to_json(f.*) as formato_inscripcion,"+
+            " to_json(padre.*) as padre,"+
+            " to_json(madre.*) as madre"+
             " FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id" +
             "                     inner join co_sucursal s on a.co_sucursal = s.id" +            
             "                       left join co_formato_inscripcion f on a.co_formato_inscripcion = f.id"+
+            "                       left join co_familiar padre on a.co_padre = padre.id "+
+            "                       left join co_familiar madre on a.co_madre = madre.id "+
             " WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC",            
             [id],
             (error, results) => {
                 if (error) {
+                    console.log("Error en getAlumnoid "+error);
                     response.status(400).json({});
                     return;
                 }
