@@ -90,6 +90,7 @@ const createAlumno = (request, response) => {
             "alergias,nota,hora_entrada," +
             "hora_salida,costo_inscripcion,costo_colegiatura," +
             "minutos_gracia,foto,fecha_reinscripcion," +
+            "sexo,"+
             "genero" +
             " ) " +
             " VALUES(" +
@@ -105,6 +106,7 @@ const createAlumno = (request, response) => {
                 p.alergias, p.nota, p.hora_entrada,
                 p.hora_salida, p.costo_inscripcion, p.costo_colegiatura,
                 p.minutos_gracia, p.foto, p.fecha_reinscripcion,
+                p.sexo,
                 p.genero
             ],
             (error, results) => {
@@ -114,14 +116,10 @@ const createAlumno = (request, response) => {
                     });*/
                     handle.callbackError(error, response);
                     return;
-                }
-                  
+                }                  
                 
-                //console.log("se creo el alumno "+JSON.stringify(results));
-
                 if(results.rowCount > 0){
-                  //  console.log("creando el formato alumno "+JSON.stringify(results.rows[0]));
-                    
+                                    
                     inscripcion.createFormatoInscripcionInicial(results.rows[0].id,p.genero);                     
 
                 }else{
@@ -152,7 +150,8 @@ const updateAlumno = (request, response) => {
 
      //   console.log("FORMATO "+JSON.stringify(request.body));
         const alumno = getParams(request.body);
-        const formato = getParams(request.body.formato_inscripcion);
+
+         const formato = getParams(request.body.formato_inscripcion);
 
         //console.log("alumno "+JSON.stringify(alumno));
         //console.log("formato "+JSON.stringify(formato));
@@ -179,14 +178,17 @@ const updateAlumno = (request, response) => {
             "minutos_gracia = $11," +
             "foto= $12," +
             "fecha_reinscripcion = $13," +
-            "co_grupo = $14 " +
+            "co_grupo = $14, " +
+            "nombre_carino = $15, "+
+            "sexo = $16 "+            
             " WHERE id = $1",
             [
                 id,
                 alumno.nombre, alumno.apellidos, alumno.fecha_nacimiento, alumno.alergias,
                 alumno.nota,alumno.hora_entrada, alumno.hora_salida, 
                 alumno.costo_inscripcion,alumno.costo_colegiatura, alumno.minutos_gracia,
-                alumno.foto, alumno.fecha_reinscripcion,alumno.co_grupo
+                alumno.foto, alumno.fecha_reinscripcion,alumno.co_grupo,alumno.nombre_carino,
+                alumno.sexo
             ],
             (error, results) => {
                 if (error) {
