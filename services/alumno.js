@@ -49,16 +49,16 @@ const getAlumnos = (request, response) => {
         pool.query(
             "SELECT a.*," +
             " g.nombre as nombre_grupo," +
-            " s.nombre as nombre_sucursal" +            
+            " s.nombre as nombre_sucursal" +
             " FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id" +
-            "                     inner join co_sucursal s on a.co_sucursal = s.id" +            
+            "                     inner join co_sucursal s on a.co_sucursal = s.id" +
             "  WHERE a.co_sucursal = $1 AND a.eliminado=false ORDER BY a.nombre ASC",
             [id_sucursal],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
-                }                                             
+                }
                 response.status(200).json(results.rows);
             })
     } catch (e) {
@@ -74,8 +74,8 @@ const createAlumno = (request, response) => {
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
-  
-        const p = getParams(request.body);              
+
+        const p = getParams(request.body);
 
         /* const result = Joi.validate(p, schemaValidacionAlumno);
  
@@ -85,14 +85,14 @@ const createAlumno = (request, response) => {
          }*/
 
         console.log("insertando alumno");
-
+        new Promise((resolve, reject) => {
         pool.query("INSERT INTO CO_ALUMNO(" +
             "co_sucursal,co_grupo," +
             "nombre,apellidos,fecha_nacimiento," +
             "alergias,nota,hora_entrada," +
             "hora_salida,costo_inscripcion,costo_colegiatura," +
             "minutos_gracia,foto,fecha_reinscripcion," +
-            "sexo,"+
+            "sexo," +
             "genero" +
             " ) " +
             " VALUES(" +
@@ -100,7 +100,7 @@ const createAlumno = (request, response) => {
             " $4,$5,$6," +
             " $7,$8,$9," +
             " $10,$11,$12," +
-            " $13,$14,$15,$16" +            
+            " $13,$14,$15,$16" +
             ") RETURNING id;"
             , [
                 p.co_sucursal, p.co_grupo,
@@ -112,23 +112,29 @@ const createAlumno = (request, response) => {
                 p.genero
             ],
             (error, results) => {
-                if (error) {                   
-                    handle.callbackError(error, response);
-                    return;
-                }                  
-                
-                if(results.rowCount > 0){
-                                    
-                    inscripcion.createFormatoInscripcionInicial(results.rows[0].id,p.genero);                                         
-                   
+                if (error) {
+                    //handle.callbackError(error, response);
+                    //return;
+                    reject(error);
+                }       
+                if (results.rowCount > 0) {
+
+                    resolve(results.rows[0].id);                   
 
                 }else{
-                    response.status(200).json(0);
-                }                
-                
-            })
+                    reject(null);
+                } 
+                resolve(null);                
+            });
+        }).then((id_alumno)=>{ 
+            if(id_alumno!=null)           
+                inscripcion.createFormatoInscripcionInicial(id_alumno, p.genero);
+            else response.status(200).json(0);
+        }).catch((e)=>{
+            response.status(200).json(0);
+        });
     } catch (e) {
-        
+
         handle.callbackErrorNoControlado(e, response);
     }
 };
@@ -144,70 +150,81 @@ const updateAlumno = (request, response) => {
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
-       
+
         const id = parseInt(request.params.id);
-        console.log("id "+id);
+        console.log("id " + id);
         const alumno = request.body;
-        
+
         const formato = alumno.formato_inscripcion;
-        
+
         const padre = alumno.padre;
-                
+
         const madre = alumno.madre;
-        console.log("===> "+JSON.stringify(alumno));
+
         //const result = Joi.validate(p, schemaValidacionAlumno);        
-        pool.query(
-            "UPDATE CO_ALUMNO  " +
-            "SET nombre = $2, " +
-            "apellidos = $3 ," +
-            "fecha_nacimiento = $4::date," +
-            "alergias = $5," +
-            "nota = $6," +
-            "hora_entrada = $7," +
-            "hora_salida=$8," +
-            "costo_inscripcion = $9," +
-            "costo_colegiatura = $10," +
-            "minutos_gracia = $11," +
-            "foto= $12," +
-            "fecha_reinscripcion = $13," +
-            "co_grupo = $14, " +
-            "nombre_carino = $15, "+
-            "sexo = $16 ,"+            
-            "modifico = $17 "+            
-            " WHERE id = $1",
-            [
-                id,
-                alumno.nombre, alumno.apellidos, alumno.fecha_nacimiento, alumno.alergias,
-                alumno.nota,alumno.hora_entrada, alumno.hora_salida, 
-                alumno.costo_inscripcion,alumno.costo_colegiatura, alumno.minutos_gracia,
-                alumno.foto, alumno.fecha_reinscripcion,alumno.co_grupo,alumno.nombre_carino,
-                alumno.sexo,alumno.genero
-            ],
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                console.log("Se procede a modificar el formato");
-                //llamar al otro guardad
-                inscripcion.updateInscripcion(formato);
 
-                if(alumno.co_padre !== null &&  !isEmpty(alumno.padre) ){                    
-                    familiar.updateFamiliar(alumno.co_padre,padre,alumno.genero);
-                }else{
-                    console.log("alumno.generoalumno.generoalumno.genero"+alumno.genero);
-                    familiar.createPadre(alumno.id,padre,alumno.genero);
-                }
+        new Promise((resolve, reject) => {
+            pool.query(
+                "UPDATE CO_ALUMNO  " +
+                "SET nombre = $2, " +
+                "apellidos = $3 ," +
+                "fecha_nacimiento = $4::date," +
+                "alergias = $5," +
+                "nota = $6," +
+                "hora_entrada = $7," +
+                "hora_salida=$8," +
+                "costo_inscripcion = $9," +
+                "costo_colegiatura = $10," +
+                "minutos_gracia = $11," +
+                "foto= $12," +
+                "fecha_reinscripcion = $13," +
+                "co_grupo = $14, " +
+                "nombre_carino = $15, " +
+                "sexo = $16 ," +
+                "modifico = $17 " +
+                " WHERE id = $1",
+                [
+                    id,
+                    alumno.nombre, alumno.apellidos, alumno.fecha_nacimiento, alumno.alergias,
+                    alumno.nota, alumno.hora_entrada, alumno.hora_salida,
+                    alumno.costo_inscripcion, alumno.costo_colegiatura, alumno.minutos_gracia,
+                    alumno.foto, alumno.fecha_reinscripcion, alumno.co_grupo, alumno.nombre_carino,
+                    alumno.sexo, alumno.genero
+                ],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                        //return;
+                    }
+                    console.log("Se procede a modificar el formato");
+                    //llamar al otro guardad
+                    inscripcion.updateInscripcion(formato).then((estatus) => {
+                        if (estatus) {
+                            if (alumno.co_padre !== null && !isEmpty(alumno.padre)) {
+                                familiar.updateFamiliar(alumno.co_padre, padre, alumno.genero);
+                            } else {
+                                console.log("alumno.generoalumno.generoalumno.genero" + alumno.genero);
+                                familiar.createPadre(alumno.id, padre, alumno.genero);
+                            }
 
-                if(alumno.co_madre !==null && !isEmpty(alumno.madre)){
-                    familiar.updateFamiliar(alumno.co_madre,madre,alumno.genero);
-                }else{
-                    familiar.createMadre(alumno.id,madre,alumno.genero);
-                }                             
-                
-                response.status(200).send(`User modified with ID: ${id}`)
-            });                                             
+                            if (alumno.co_madre !== null && !isEmpty(alumno.madre)) {
+                                familiar.updateFamiliar(alumno.co_madre, madre, alumno.genero);
+                            } else {
+                                familiar.createMadre(alumno.id, madre, alumno.genero);
+                            }
+                        }
+                    }).catch((e) => {
+                        reject(e);
+                    });
+                    resolve(true);
+                    // response.status(200).send(`User modified with ID: ${id}`)
+                });
 
+        }).then((estado) => {
+            response.status(200).send(`User modified with ID: ${id}`)
+        }).catch((error) => {
+            handle.callbackError(error, response);
+        });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -289,33 +306,33 @@ const getAlumnoById = (request, response) => {
         pool.query(
             "SELECT a.*," +
             " g.nombre as nombre_grupo," +
-            " s.nombre as nombre_sucursal," +            
-            " to_json(f.*) as formato_inscripcion,"+
-            " to_json(padre.*) as padre,"+
-            " to_json(madre.*) as madre"+
+            " s.nombre as nombre_sucursal," +
+            " to_json(f.*) as formato_inscripcion," +
+            " to_json(padre.*) as padre," +
+            " to_json(madre.*) as madre" +
             " FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id" +
-            "                     inner join co_sucursal s on a.co_sucursal = s.id" +            
-            "                       left join co_formato_inscripcion f on a.co_formato_inscripcion = f.id"+
-            "                       left join co_familiar padre on a.co_padre = padre.id "+
-            "                       left join co_familiar madre on a.co_madre = madre.id "+
-            " WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC",            
+            "                     inner join co_sucursal s on a.co_sucursal = s.id" +
+            "                       left join co_formato_inscripcion f on a.co_formato_inscripcion = f.id" +
+            "                       left join co_familiar padre on a.co_padre = padre.id " +
+            "                       left join co_familiar madre on a.co_madre = madre.id " +
+            " WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC",
             [id],
             (error, results) => {
                 if (error) {
-                    console.log("Error en getAlumnoid "+error);
+                    console.log("Error en getAlumnoid " + error);
                     response.status(400).json({});
                     return;
                 }
                 if (results.rowCount > 0) {
-                    
-                    var alumno = results.rows[0];                    
-                    
-                    console.log(" Alumno encontrado "+JSON.stringify(alumno));                                                            
+
+                    var alumno = results.rows[0];
+
+                    console.log(" Alumno encontrado " + JSON.stringify(alumno));
 
                     response.status(200).json(alumno);
 
                 } else {
-                    response.status(400).json({alumno : null, formato : null});
+                    response.status(400).json({ alumno: null, formato: null });
                 }
             });
 

@@ -182,7 +182,7 @@ const createFormatoInscripcionInicial = (id_alumno, genero) => {
 const updateInscripcion = (formato) => {
     console.log("@updateInscripcion");
     try {
-//        console.log("=========> "+JSON.stringify(formato));
+       return new Promise((resolve, reject) => {
         pool.query(
             "UPDATE CO_FORMATO_INSCRIPCION  SET " +
           //  " fecha_inscripcion                 = $2," +
@@ -219,7 +219,8 @@ const updateInscripcion = (formato) => {
             " resp_actividades_fin_semana       = $32," +
             " resp_habilidades                  = $33," +
             " informacion_adicional             = $34," +
-            " nota_celebracion_dia              = $35" +
+            " nota_celebracion_dia              = $35," +
+            " resp_motivo_inscripcion           = $36" +            
             " WHERE id = $1",
             [
                 formato.id,
@@ -239,17 +240,20 @@ const updateInscripcion = (formato) => {
                 formato.resp_programas_favoritos, formato.resp_actividades_fin_semana,
                 formato.resp_habilidades,//34
                 formato.informacion_adicional, formato.nota_celebracion_dia//37
+                ,formato.resp_motivo_inscripcion
             ],
             (error, results) => {
                 if (error) {
                     console.log("Error al actualizar el formato de inscripcion " + error);
-                    return false;
+                    reject(error);
                 }
-                return true;
-            })
+                resolve(true);
+                //return true;
+            });
+
+        });
     } catch (e) {
-        console.log("ERROR " + e);
-        //handle.callbackErrorNoControlado(e, response);
+        console.log("ERROR " + e);        
         console.log("Error al actualizar el formato de inscripcion " + e);
         return false;
     }

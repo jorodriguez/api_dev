@@ -438,3 +438,4 @@ ALTER TABLE co_alumno_familiar RENAME COLUMN co_falimiar TO co_familiar;
 
 alter table co_alumno_familiar alter column co_parentesco drop not null;
 
+alter table co_formato_inscripcion add column resp_motivo_inscripcion text;
