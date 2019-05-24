@@ -4,6 +4,7 @@ const Pool = require('pg').Pool
 const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
+const { isEmpty } = require('../helpers/Utils');
 const Joi = require('@hapi/joi');
 
 const inscripcion = require('./inscripcion');
@@ -151,7 +152,7 @@ const updateAlumno = (request, response) => {
         const formato = alumno.formato_inscripcion;
         
         const padre = alumno.padre;
-        
+                
         const madre = alumno.madre;
         console.log("===> "+JSON.stringify(alumno));
         //const result = Joi.validate(p, schemaValidacionAlumno);        
@@ -190,16 +191,15 @@ const updateAlumno = (request, response) => {
                 console.log("Se procede a modificar el formato");
                 //llamar al otro guardad
                 inscripcion.updateInscripcion(formato);
-              
 
-                if(alumno.co_padre !== null){                    
+                if(alumno.co_padre !== null &&  !isEmpty(alumno.padre) ){                    
                     familiar.updateFamiliar(alumno.co_padre,padre,alumno.genero);
                 }else{
                     console.log("alumno.generoalumno.generoalumno.genero"+alumno.genero);
                     familiar.createPadre(alumno.id,padre,alumno.genero);
                 }
 
-                if(alumno.co_madre !==null){
+                if(alumno.co_madre !==null && !isEmpty(alumno.madre)){
                     familiar.updateFamiliar(alumno.co_madre,madre,alumno.genero);
                 }else{
                     familiar.createMadre(alumno.id,madre,alumno.genero);

@@ -4,6 +4,7 @@ const Pool = require('pg').Pool
 const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
+const { isEmpty } = require('../helpers/Utils');
 const Joi = require('@hapi/joi');
 
 const config = require('../config/config');
@@ -19,10 +20,10 @@ const pool = new Pool({
 });
 
 const actualizarAlumno = (id_alumno, id_familiar, columna, genero) => {
-    console.log("@actualizar alumno en campo familiar");
+    console.log("@actualizar alumno en campo familiar " + id_alumno + " familiar " + id_familiar + " genero " + genero);
     try {
 
-        if (id_familiar != null && id_alumno !== null) {
+        if (id_familiar !== null && id_alumno !== null) {
 
             pool.query(
                 "UPDATE CO_ALUMNO  " +
@@ -36,7 +37,7 @@ const actualizarAlumno = (id_alumno, id_familiar, columna, genero) => {
                         console.log("error al actualizar el alumno " + error);
                         return;
                     }
-                    console.log("Se modifico el campo " + columna);
+                    console.log("****************************Se modifico el campo " + columna);
                 });
         }
 
@@ -49,10 +50,14 @@ const createPadre = (id_alumno, familiarPadre, genero) => {
     console.log("@create padre");
     try {
         console.log("Se inserta padre");
-        const idPadre = createFamiliar(id_alumno, familiarPadre, genero);
+        createFamiliar(id_alumno, familiarPadre, genero).then((idPadre)=>{
+
         if (idPadre != null) {
             actualizarAlumno(id_alumno, idPadre, 'co_padre', genero);
         }
+    }).catch((e)=>{
+            console.log("Error al tratar de crear un familiar "+e);
+    });
 
     } catch (e) {
         console.log("error al crear padres  " + e);
@@ -60,12 +65,15 @@ const createPadre = (id_alumno, familiarPadre, genero) => {
 }
 
 const createMadre = (id_alumno, familiarMadre, genero) => {
-    console.log("@create madre genera "+genero);
+    console.log("@create madre genera " + genero);
     try {
-        const idMadre = createFamiliar(id_alumno, familiarMadre, genero);
-        if (idMadre != null) {
-            actualizarAlumno(id_alumno, idMadre, 'co_madre', genero);
-        }
+        createFamiliar(id_alumno, familiarMadre, genero).then((idMadre)=>{
+            console.log("Dentro de promise madre");
+             actualizarAlumno(id_alumno, idMadre, 'co_madre', genero);
+            
+        }).catch((e)=>{
+            console.log("Error al tratar de crear un familiar "+e);
+    });;      
 
     } catch (e) {
         console.log("error al crear madre  " + e);
@@ -73,18 +81,23 @@ const createMadre = (id_alumno, familiarMadre, genero) => {
 }
 
 
+
+
 const createFamiliar = (id_alumno, familiar, genero) => {
     console.log("@create Familiar");
     try {
 
         console.log(" ID ALUMNO = " + id_alumno);
-        console.log(" genero "+genero);
+        console.log(" genero " + genero);
         if (id_alumno == null) {
             console.log("no se procede a crear el familiar faltan datos");
             throw error("id_alumn =es null ");
         }
 
-        if (familiar == null) {
+        console.log("Falmiliar en create familia " + JSON.stringify(familiar));
+
+        if (familiar == null || isEmpty(familiar)) {
+            console.log("Se genera un registro en empty");
             familiar = {
                 nombre: "",
                 telefono: "",
@@ -95,33 +108,42 @@ const createFamiliar = (id_alumno, familiar, genero) => {
                 religion: "",
                 nota_celebracion_dia: ""
             };
-        }  
+        }
         const p = getParams(familiar);
+
+        console.log("FAMILIAR " + JSON.stringify(familiar));
+        console.log(" P= " + JSON.stringify(p));
 
         var id_retorno = null;
 
-        pool.query(
-            "  INSERT INTO co_familiar(nombre,telefono,fecha_nacimiento,correo,password,celular,religion,nota_celebracion_dia,genero)" +
-            " VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id ",
-            [
-                p.nombre, p.telefono, p.fecha_nacimiento, p.correo, p.password, p.celular, p.religion,
-                p.nota_celebracion_dia,
-                genero
-            ],
-            (error, results) => {
-                if (error) {
-                    console.log("Error al guardar el familiar " + error);
-                    return false;
-                }
+        return new Promise((resolve, reject) => {
+            pool.query(
+                "  INSERT INTO co_familiar(nombre,telefono,fecha_nacimiento,correo,password,celular,religion,nota_celebracion_dia,genero)" +
+                " VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id ",
+                [
+                    p.nombre, p.telefono, p.fecha_nacimiento, p.correo, p.password, p.celular, p.religion,
+                    p.nota_celebracion_dia,
+                    genero
+                ],
+                (error, results) => {
+                    if (error) {
+                        console.log("Error al guardar el familiar " + error);
+                        reject(false);
+                    }
 
-                if (results.rowCount > 0) {
-                    id_retorno = results.rows[0].id;
-                    console.log("se procede a relacionar alumno familiar");
-                    relacionarAlumnoFamilia(id_alumno, id_retorno, genero);
-                }
+                    if (results.rowCount > 0) {
+                        id_retorno = results.rows[0].id;
+                        console.log("se procede a relacionar alumno familiar");
+                        relacionarAlumnoFamilia(id_alumno, id_retorno, genero);
 
-                return id_retorno;
-            })
+                    }
+
+                    console.log("Retornando el id del Familiar " + id_retorno);
+
+                    resolve(id_retorno);
+
+                })
+        });
 
     } catch (e) {
         console.log("error al guardar el familiar " + e);
@@ -162,10 +184,12 @@ const updateFamiliar = (id_familiar, familiar, genero) => {
 
         const p = getParams(familiar);
 
+        console.log("PARAMS "+JSON.stringify(p));
+
         pool.query(
             "  UPDATE co_familiar SET " +
-            " nombre = $2, telefono = $3,fecha_nacimiento = $4,correo,password = $5," +
-            " celular = $6,religion = $7, nota_celebracion = $8,modifico = $9)" +
+            " nombre = $2, telefono = $3,fecha_nacimiento = $4,correo=$5,password = $6," +
+            " celular = $7,religion = $8, nota_celebracion_dia = $9,modifico = $10" +
             " WHERE id = $1  ",
             [
                 id_familiar,
