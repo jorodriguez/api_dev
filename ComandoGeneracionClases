@@ -439,3 +439,73 @@ ALTER TABLE co_alumno_familiar RENAME COLUMN co_falimiar TO co_familiar;
 alter table co_alumno_familiar alter column co_parentesco drop not null;
 
 alter table co_formato_inscripcion add column resp_motivo_inscripcion text;
+
+
+
+
+create table co_valor_esperado_empresa(
+	id serial not null,
+	concepto text not null,
+	descripcion text,
+	fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+       fecha_modifico timestamp without time zone,
+       genero integer NOT NULL,
+       modifico integer,
+       eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT co_valor_esperado_pkey PRIMARY KEY (id),        
+    CONSTRAINT co_valor_esperado_genero_fkey FOREIGN KEY (genero)
+        REFERENCES usuario (id),
+    CONSTRAINT co_alumno_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id)         	
+);
+
+create table co_formato_valor_esperado_empresa(
+	id serial not null,
+	co_formato_inscripcion integer not null,	
+	co_valor_esperado_empresa integer not null,	
+	fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+       fecha_modifico timestamp without time zone,
+       genero integer NOT NULL,
+       modifico integer,
+       eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT co_formato_valor_esperado_pkey PRIMARY KEY (id),        
+    CONSTRAINT co_formato_valor_esperado_genero_fkey FOREIGN KEY (genero)
+        REFERENCES usuario (id),
+    CONSTRAINT co_formato_valor_esperado_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),
+    CONSTRAINT co_formato_valor_esperado_empresa_fkey FOREIGN KEY (co_valor_esperado_empresa)
+        REFERENCES co_valor_esperado_empresa (id),
+    CONSTRAINT co_formato_inscripcion_empresa_fkey FOREIGN KEY (co_formato_inscripcion)
+        REFERENCES co_formato_inscripcion (id)               	
+);
+
+
+create table co_empresa(
+	id serial not null,
+	nombre text not null,
+	direccion text,
+	telefono text,
+	nombre_representante text,
+	fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+        fecha_modifico timestamp without time zone,
+        genero integer NOT NULL,
+        modifico integer,
+       eliminado boolean NOT NULL DEFAULT false,
+       CONSTRAINT co_empresa_pkey PRIMARY KEY (id),        
+       CONSTRAINT co_empresa_genero_fkey FOREIGN KEY (genero)
+        REFERENCES usuario (id),
+       CONSTRAINT co_empresa_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id)         	
+);
+
+
+alter table co_familiar add column co_empresa integer;
+
+alter table co_familiar add FOREIGN KEY (co_empresa) REFERENCES co_empresa(id);
+
+
+insert into co_valor_esperado_empresa(concepto,genero)
+values('Más información sobre cómo educar a mi hijo',1)
+	,('Que mi hijo sea más introvertido o extrovertido',1)
+	,('Que mi hijo logre tener valores establecidos',1)
+	,('Que mi hijo respete las normas',1);

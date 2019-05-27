@@ -99,15 +99,14 @@ const registrarEntradaAlumnos = (request, response) => {
         }
 
         const { ids,genero } = request.body;
-        console.log("genero "+JSON.stringify(genero));
-      
+              
         var sqlComplete = " values ";
         for (var i = 0; i < ids.length; i++) {
 
             if (i > 0) {
                 sqlComplete += ",";
             }
-            //sqlComplete += "(current_date," + ids[i] + ",current_time," + id_usuario + "," + id_usuario + ")";
+            
             sqlComplete += "(current_date," + ids[i] + ",getHora('')," + genero + "," + genero + ")";
         };
 

@@ -70,14 +70,7 @@ const registrarActividad = (request, response) => {
         const { alumnosIds,cat_actividad,tipo_actividad,sub_actividad,nota,genero } = request.body;
 
         console.log("=====>> "+JSON.stringify(request.body));
-
-        /*console.log("ids "+alumnosIds);
-        console.log("cat_tipo_actividad "+cat_actividad);
-        console.log("tipo_actividad "+tipo_actividad);
-        console.log("sub_actividad "+sub_actividad);
-        console.log("nota "+nota);
-        console.log("genero "+genero);*/
-        
+             
         var nullOrEmpty = (val)=>{ 
             if(val === null || val === -1 || val==='' || val===undefined) 
             return null

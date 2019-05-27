@@ -121,6 +121,7 @@ const createFormatoInscripcion = (request, response) => {
     }
 };
 
+
 const createFormatoInscripcionInicial = (id_alumno, genero) => {
     console.log("@create Formato inscripcion inicial");
     try {
@@ -247,8 +248,8 @@ const updateInscripcion = (formato) => {
                     console.log("Error al actualizar el formato de inscripcion " + error);
                     reject(error);
                 }
-                resolve(true);
-                //return true;
+                   resolve(true);
+    
             });
 
         });
@@ -258,85 +259,44 @@ const updateInscripcion = (formato) => {
         return false;
     }
 };
-/*
-const updateInscripcion = (request, response) => {
-    console.log("@updateInscripcion");
+
+//relacionar con co_valor_esperado_empresa
+
+
+const relacionarValorEsperadoEmpresa = (id_formato,valores_esperados_ids, genero) => {
+    console.log("@relacionarValorEsperadoEmpresa ");
     try {
+        return new Promise((resolve, reject) => {
 
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
-        const id = parseInt(request.params.id)
-
-        const p = getParams(request.body);
+        var sqlComplete = " VALUES ";
+        for (var i = 0; i < valores_esperados_array.length; i++) {
+                if (i > 0) {
+                    sqlComplete += ",";
+                }                      
+                sqlComplete += "(" + id_formato + ","+                                                                
+                                    valores_esperados_ids[i]+","+
+                                    genero                                    
+                                +")";
+        }; 
 
         pool.query(
-            "UPDATE CO_ALUMNO  " +
-            " fecha_inscripcion                 = $2," +
-            " hermanos                          = $3, "+
-            " estado_convivencia_padres         = $4,"+
-             "servicio_contratar                = $5,"+
-            " horario_servicio                  = $6, "+
-            " direccion                         = $7,"+
-            " resp_escuela_guarderia            = $8,"+
-            " resp_esperan_como_institucion     = $9,"+
-            " resp_circunstancia_especial_familia = $10,"+
-            " resp_participacion_padres         = $11,"+
-            " estado_embarazo                   = $12,"+
-            " resp_embarazo_planeado            = $13,"+
-            " gateo                             = $14,"+
-            " edad_comienzo_caminar             = $15,"+
-            " edad_comienzo_esfinteres          = $16,"+
-            " edad_balbuceo                     = $17,"+
-            " primer_palabra_con_significado    = $18,"+
-            " primeras_senas                    = $19,"+
-            " enfermedades                      = $20,"+
-            " accidentes_graves                 = $21,"+
-            " dificultad_fisica                 = $22,"+
-            " uso_aparato                       = $23,"+
-            " tipo_terapia_especial             = $24,"+
-            " comportamiento_generales          = $25,"+
-            " duerme_con                        = $26,"+
-            " resp_sieta                        = $27,"+ 
-            " resp_horario_sieta                = $28,"+
-            " resp_promedio_horas_dueme         = $29,"+
-            " resp_numero_comidas_dia           = $30,"+
-            " resp_horas_tv                     = $31,"+
-            " resp_programas_favoritos          = $32,"+
-            " resp_actividades_fin_semana       = $33,"+
-            " resp_habilidades                  = $34"+
-            " informacion_adicional             = $35,"+
-            " nota_celebracion_dia              = $36"+             
-            " WHERE id = $1",
-            [
-                id, 
-                fecha_inscripcion, hermanos, //-3
-                estado_convivencia_padres, servicio_contratar, horario_servicio, //6
-                direccion, resp_escuela_guarderia, resp_esperan_como_institucion, //9
-                resp_circunstancia_especial_familia, resp_participacion_padres, estado_embarazo,//12
-                resp_embarazo_planeado, gateo, edad_comienzo_caminar, edad_comienzo_esfinteres,//16
-                edad_balbuceo, primer_palabra_con_significado, primeras_senas,//19
-                enfermedades, accidentes_graves, dificultad_fisica,//22
-                uso_aparato, tipo_terapia_especial, comportamiento_generales,//25
-                duerme_con, resp_sieta, resp_horario_sieta,//28
-                resp_promedio_horas_dueme, resp_numero_comidas_dia, resp_horas_tv,//31
-                resp_programas_favoritos, resp_actividades_fin_semana, resp_habilidades,//34
-                informacion_adicional, nota_celebracion_dia//37
-            ],
+            "  INSERT INTO CO_FORMATO_VALOR_ESPERADO_EMPRESA (co_formato_inscripcion,co_valor_esperado_empresa,genero) "+ 
+            sqlComplete,            
             (error, results) => {
                 if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).send(`User modified with ID: ${id}`)
-            })
+                    console.log("Error al relacionar el valor de la empresa " + error);
+                    reject(error);
+                }                         
+                resolve(true);
+            });
+        });
+
     } catch (e) {
-        handle.callbackErrorNoControlado(e, response);
+        console.log("error al actualizar el formato en el alumno " + e);
     }
-};*/
+};
+
+
 
 
 // DELETE — /inscripcion/:id | deleteFormatoInscripcion()
@@ -390,5 +350,6 @@ module.exports = {
     createFormatoInscripcionInicial,
     createFormatoInscripcion,
     updateInscripcion,
+    relacionarValorEsperadoEmpresa,
     deleteFormatoInscripcion
 }

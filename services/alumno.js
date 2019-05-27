@@ -161,6 +161,8 @@ const updateAlumno = (request, response) => {
 
         const madre = alumno.madre;
 
+        const valores_esperados = alumno.valor
+
         //const result = Joi.validate(p, schemaValidacionAlumno);        
 
         new Promise((resolve, reject) => {
@@ -211,13 +213,17 @@ const updateAlumno = (request, response) => {
                                 familiar.updateFamiliar(alumno.co_madre, madre, alumno.genero);
                             } else {
                                 familiar.createMadre(alumno.id, madre, alumno.genero);
-                            }
+                            }                
+
+                            //actualizar el valor esperado seleccionado
+                            inscripcion.relacionarValorEsperadoEmpresa(formato.id,|);
+                            
+                            
                         }
                     }).catch((e) => {
                         reject(e);
                     });
-                    resolve(true);
-                    // response.status(200).send(`User modified with ID: ${id}`)
+                    resolve(true);                    
                 });
 
         }).then((estado) => {
@@ -304,7 +310,7 @@ const getAlumnoById = (request, response) => {
         console.log(" Alumno por id = " + id);
 
         pool.query(
-            "SELECT a.*," +
+            " SELECT a.*," +
             " g.nombre as nombre_grupo," +
             " s.nombre as nombre_sucursal," +
             " to_json(f.*) as formato_inscripcion," +
