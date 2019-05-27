@@ -1,0 +1,287 @@
+
+
+
+CREATE or replace FUNCTION guardarFamiliar(IN 										
+							 			nombre text,
+										telefono text,
+										fecha_nacimiento date,
+										correo text,
+										password text,
+										celular text,
+										religion text,
+										nota_celebracion_dia text,
+										genero integer
+							,OUT retorno integer) AS $$
+DECLARE
+	id_familiar integer;		
+    sqlerr_message_text TEXT;
+    sqlerr_exception_detail TEXT;
+    sqlerr_exception_hint TEXT;
+BEGIN    
+		raise notice 'Insertat familiar';
+	    INSERT INTO co_familiar(nombre,
+								telefono,
+								fecha_nacimiento,
+								correo,
+								password,
+								celular,
+								religion,
+								nota_celebracion_dia,
+								genero)
+		VALUES(nombre,telefono,fecha_nacimiento,correo,password,celular,religion,nota_celebracion_dia,genero)
+		RETURNING ID INTO id_familiar;
+	retorno := id_familiar;
+END;
+$$ 
+LANGUAGE 'plpgsql';
+
+
+
+
+CREATE or replace FUNCTION guardarAlumno(IN 
+									co_sucursal integer,
+    								co_grupo integer,
+    								nombre text,
+    							    apellidos text,
+	    							nombre_carino text,    
+	    							sexo character varying(15),
+        							fecha_nacimiento date,
+        							alergias text,
+        							nota text,
+        							hora_entrada time,
+        							hora_salida time,
+        							costo_inscripcion numeric,
+        							costo_colegiatura numeric,    							
+        							minutos_gracia integer,
+        							foto text,	        							
+									fecha_inscripcion date,
+									fecha_reinscripcion date,         										    								    							
+									genero integer
+								,OUT retorno integer) AS $$
+DECLARE
+	id_alumno integer;	
+	id_formato integer;	
+	id_padre integer;	
+	id_madre integer;	
+	-- Para los mensajes de diagnostico de la base de datos
+    -- en caso de ocurrir un error
+    sqlerr_message_text TEXT;
+    sqlerr_exception_detail TEXT;
+    sqlerr_exception_hint TEXT;
+BEGIN    
+
+INSERT INTO CO_ALUMNO(
+			co_sucursal,co_grupo,
+            nombre,apellidos,fecha_nacimiento,nombre_carino,
+            sexo,alergias,nota,
+			hora_entrada,hora_salida,costo_inscripcion,costo_colegiatura,
+            minutos_gracia,foto,fecha_inscripcion,fecha_reinscripcion,            
+            genero
+		)
+VALUES(co_sucursal,co_grupo,
+	   		nombre,apellidos,fecha_nacimiento,nombre_carino,
+			sexo,alergias,nota,
+	   		hora_entrada,hora_salida,costo_inscripcion,costo_colegiatura,
+	   		minutos_gracia,foto,fecha_inscripcion,fecha_reinscripcion,
+            genero) RETURNING id INTO id_alumno;
+
+/* insertar inscripcion iniciar*/			
+
+	raise notice 'insertar inscripcion iniciar';
+
+INSERT INTO CO_FORMATO_INSCRIPCION(co_alumno,fecha_genero,genero)  
+        VALUES(id_alumno,current_date,genero) RETURNING id INTO id_formato;
+	
+	raise notice 'modificar alumno - inscripcion';
+
+/* actualizar registro de alumno*/
+UPDATE CO_ALUMNO  SET co_formato_inscripcion = id_formato  WHERE id = id_alumno;
+
+/* agregar liga de padres */
+id_padre := (SELECT guardarFamiliar('','',null,'','','','','',genero));
+id_madre := (SELECT guardarFamiliar('','',null,'','','','','',genero));
+
+	UPDATE CO_ALUMNO  SET co_padre = id_padre,co_madre = id_madre WHERE id = id_alumno;
+
+   retorno := id_alumno;
+
+END;
+$$ 
+LANGUAGE 'plpgsql';
+
+
+
+
+
+
+
+
+CREATE or replace FUNCTION modificar_formato_inscripcion(IN 
+                _id integer,
+                fecha_inscripcion date,
+				id_servicio integer,
+             	hermanos text,                          
+             	estado_convivencia_padres text,             
+             	direccion text,
+             	resp_escuela_guarderia text,
+             	resp_esperan_como_institucion text,    
+             /*resp_circunstancia_especial_familia text,
+             resp_participacion_padres text,
+             estado_embarazo text,                  
+             resp_embarazo_planeado text,            
+             gateo text,                             
+             edad_comienzo_caminar text,
+             edad_comienzo_esfinteres  text,       
+             edad_balbuceo text,                     
+             primer_palabra_con_significado text,   
+             primeras_senas text,                    
+             enfermedades text,                      
+             accidentes_graves text,                
+             dificultad_fisica text,                
+             uso_aparato  text,                     
+             tipo_terapia_especial text,            
+             comportamiento_generales text,         
+             duerme_con text,                        
+             resp_sieta text,                       
+             resp_horario_sieta text,
+             resp_promedio_horas_dueme text,         
+             resp_numero_comidas_dia text,          
+             resp_horas_tv text,                    
+             resp_programas_favoritos text,          
+             resp_actividades_fin_semana  text,     
+             resp_habilidades text,                 
+             informacion_adicional text,            
+             nota_celebracion_dia   text,       
+             resp_motivo_inscripcion text,   */
+             modifico integer
+                  ,OUT retorno integer) AS $$
+DECLARE
+      id_inscripcion integer;       
+    sqlerr_message_text TEXT;
+    sqlerr_exception_detail TEXT;
+    sqlerr_exception_hint TEXT;
+BEGIN    
+            raise notice 'modificar  formato';
+			
+UPDATE CO_FORMATO_INSCRIPCION  SET  
+             fecha_inscripcion                 = fecha_inscripcion,
+			 co_servicio 						= id_servicio,
+             hermanos                          = hermanos,                          
+             estado_convivencia_padres         = estado_convivencia_padres,
+             servicio_contratar                = servicio_contratar,
+             horario_servicio                  = horario_servicio,                  
+             direccion                         = direccion,
+             resp_escuela_guarderia            =resp_escuela_guarderia,
+             resp_esperan_como_institucion     =resp_esperan_como_institucion
+			 
+             /*resp_circunstancia_especial_familia =resp_circunstancia_especial_familia,
+             resp_participacion_padres         = resp_participacion_padres,
+             estado_embarazo                   = estado_embarazo,
+             resp_embarazo_planeado            =resp_embarazo_planeado,
+             gateo                             =gateo,
+             edad_comienzo_caminar             =edad_comienzo_caminar,
+             edad_comienzo_esfinteres          =edad_comienzo_esfinteres,
+             edad_balbuceo                     =edad_balbuceo,
+             primer_palabra_con_significado    =primer_palabra_con_significado,
+             primeras_senas                    =primeras_senas,
+             enfermedades                      =enfermedades,
+             accidentes_graves                 =accidentes_graves,
+             dificultad_fisica                 =dificultad_fisica,
+             uso_aparato                       =uso_aparato,
+             tipo_terapia_especial             =tipo_terapia_especial,
+             comportamiento_generales          =comportamiento_generales,
+             duerme_con                        =duerme_con,
+             resp_sieta                        =resp_sieta,
+             resp_horario_sieta                =resp_horario_sieta,
+             resp_promedio_horas_dueme         =resp_promedio_horas_dueme,
+             resp_numero_comidas_dia           =resp_numero_comidas_dia,
+             resp_horas_tv                     =resp_horas_tv,
+             resp_programas_favoritos          =resp_programas_favoritos,
+             resp_actividades_fin_semana       =resp_actividades_fin_semana,
+             resp_habilidades                  =resp_habilidades,
+             informacion_adicional             =informacion_adicional,
+             nota_celebracion_dia              =nota_celebracion_dia,
+             resp_motivo_inscripcion           = nota_celebracion_dia     */         
+             WHERE id = _id RETURNING id INTO id_inscripcion;
+                  
+      retorno := id_inscripcion;
+END;
+$$ 
+LANGUAGE 'plpgsql';
+
+
+
+
+CREATE or replace FUNCTION modificar_alumno(IN 
+									id_alumno integer,
+									co_grupo integer,
+							 		nombre text,
+                					apellidos text,
+                					fecha_nacimiento date,
+									telefono text,
+                					alergias text,
+                					nota text,
+                					hora_entrada time,
+                					hora_salida time,
+                					costo_inscripcion numeric,
+                					costo_colegiatura numeric,
+                					minutos_gracia integer,
+                					foto text,
+                					fecha_inscripcion date,
+									fecha_reinscripcion date,                					
+                					nombre_carino text,
+				                	sexo text,
+									--
+									id_formato integer,	
+									id_servicio integer,
+									hermanos text,		
+									estado_convivencia_padres text,
+									servicio_contratar text,
+									direccion text,
+									resp_escuela_guarderia text,
+									resp_esperan_como_institucion text,
+                					modifico integer									
+							,OUT retorno integer) AS $$
+DECLARE
+	id_familiar integer;		
+    sqlerr_message_text TEXT;
+    sqlerr_exception_detail TEXT;
+    sqlerr_exception_hint TEXT;
+BEGIN    
+		raise notice 'Insertat familiar';
+	   
+	   UPDATE CO_ALUMNO  
+                SET
+				nombre = nombre,
+                apellidos =apellidos,
+                fecha_nacimiento = fecha_nacimiento,
+				telefono = telefono,
+                alergias = alergias,
+                nota = nota,
+                hora_entrada = nora_entrada,
+                hora_salida = hora_salida,
+                costo_inscripcion = costo_inscripcion,
+                costo_colegiatura = costo_colegiatura,
+                minutos_gracia = minutos_gracia,
+                foto= foto,
+                fecha_inscripcion = fecha_inscripcion,
+				fecha_reinscripcion = fecha_reinscripcion,
+                co_grupo = co_grupo,
+                nombre_carino = nombre_carino,
+                sexo = sexo,
+                modifico = genero
+           WHERE id = id_alumno;			
+		
+----------------------------------
+	--perform modificar_formato_inscripcion();
+	
+	
+	select modificar_formato_inscripcion(id_formato,fecha_inscripcion,
+										id_servicio,hermanos,estado_convivencia_padres,
+										direccion,resp_escuela_guarderia,resp_esperan_como_institucion,
+										genero);
+	
+	retorno := id_familiar;
+END;
+$$ 
+LANGUAGE 'plpgsql';

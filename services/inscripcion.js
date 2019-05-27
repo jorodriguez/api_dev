@@ -52,74 +52,6 @@ const getFormatoInscripcion = (id) => {
     }
 };
 
-const createFormatoInscripcion = (request, response) => {
-    console.log("@create Formato inscripcion");
-    try {
-
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
-        const p = getParams(request.body);
-
-        pool.query(
-            "  INSERT INTO CO_FORMATO_INSCRIPCION(" +
-            "    co_alumno,fecha_inscripcion,hermanos, --3" +
-            "    estado_convivencia_padres,servicio_contratar,horario_servicio,--6" +
-            "    direccion,resp_escuela_guarderia,resp_esperan_como_institucion,--9" +
-            "    resp_circunstancia_especial_familia,resp_participacion_padres,estado_embarazo,--12" +
-            "    resp_embarazo_planeado,gateo,edad_comienzo_caminar,edad_comienzo_esfinteres,--15" +
-            "    edad_balbuceo,primer_palabra_con_significado,primeras_senas,--18" +
-            "    enfermedades,accidentes_graves,dificultad_fisica,--21" +
-            "    uso_aparato,tipo_terapia_especial,comportamiento_generales, --24" +
-            "    duerme_con,resp_sieta,resp_horario_sieta,--27" +
-            "    resp_promedio_horas_dueme,resp_numero_comidas_dia,resp_horas_tv,--30" +
-            "    resp_programas_favoritos,resp_actividades_fin_semana,resp_habilidades, --33" +
-            "    informacion_adicional,nota_celebracion_dia,--35" +
-            "    fecha_genero,genero --37" +
-            "  )" +
-            "  VALUES($1,$2,$3," +
-            "       $4,$5,$6," +
-            "       $7,$8,$9," +
-            "       $10,$11,$12," +
-            "       $13,$14,$15," +
-            "       $16,$17,$18," +
-            "       $19,$20,$21," +
-            "       $22,$23,$24," +
-            "       $25,$26,$27," +
-            "       $28,$29,$30," +
-            "       $31,$32,$33," +
-            "       $34,$35," +
-            "       current_date,$36 " +
-            "   )",
-            [
-                co_alumno, fecha_inscripcion, hermanos, //-3
-                estado_convivencia_padres, servicio_contratar, horario_servicio, //6
-                direccion, resp_escuela_guarderia, resp_esperan_como_institucion, //9
-                resp_circunstancia_especial_familia, resp_participacion_padres, estado_embarazo,//13
-                resp_embarazo_planeado, gateo, edad_comienzo_caminar, edad_comienzo_esfinteres,//15
-                edad_balbuceo, primer_palabra_con_significado, primeras_senas,//18
-                enfermedades, accidentes_graves, dificultad_fisica,//21
-                uso_aparato, tipo_terapia_especial, comportamiento_generales,//24
-                duerme_con, resp_sieta, resp_horario_sieta,//27
-                resp_promedio_horas_dueme, resp_numero_comidas_dia, resp_horas_tv,//30
-                resp_programas_favoritos, resp_actividades_fin_semana, resp_habilidades,//33
-                informacion_adicional, nota_celebracion_dia,//35
-                , genero//36
-            ],
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).json(results.rowCount)
-            })
-    } catch (e) {
-        handle.callbackErrorNoControlado(e, response);
-    }
-};
 
 
 const createFormatoInscripcionInicial = (id_alumno, genero) => {
@@ -347,8 +279,7 @@ const getParams = (body) => {
 
 module.exports = {
     getFormatoInscripcion,
-    createFormatoInscripcionInicial,
-    createFormatoInscripcion,
+    createFormatoInscripcionInicial,    
     updateInscripcion,
     relacionarValorEsperadoEmpresa,
     deleteFormatoInscripcion
