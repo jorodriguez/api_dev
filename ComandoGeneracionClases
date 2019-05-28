@@ -503,12 +503,36 @@ alter table co_familiar add column co_empresa integer;
 
 alter table co_familiar add FOREIGN KEY (co_empresa) REFERENCES co_empresa(id);
 
+create table co_servicio(
+	id serial not null,
+	nombre text not null,
+	descripcion text,
+	fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+        fecha_modifico timestamp without time zone,
+        genero integer NOT NULL,
+        modifico integer,
+       eliminado boolean NOT NULL DEFAULT false,
+       CONSTRAINT co_servicio_pkey PRIMARY KEY (id),        
+       CONSTRAINT co_servicio_genero_fkey FOREIGN KEY (genero)
+        REFERENCES usuario (id),
+       CONSTRAINT co_servicio_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id)       
+	
+);
+
+
+alter table CO_FORMATO_INSCRIPCION add column co_servicio integer;
+
+alter table CO_FORMATO_INSCRIPCION add FOREIGN KEY (co_servicio) REFERENCES co_servicio(id);
+
+
 
 insert into co_valor_esperado_empresa(concepto,genero)
 values('Más información sobre cómo educar a mi hijo',1)
 	,('Que mi hijo sea más introvertido o extrovertido',1)
 	,('Que mi hijo logre tener valores establecidos',1)
 	,('Que mi hijo respete las normas',1);
+
 
 
 

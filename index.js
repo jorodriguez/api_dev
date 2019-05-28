@@ -75,7 +75,7 @@ app.post('/actividad/registrar', actividad.registrarActividad);
 
 //inscripcion
 app.get('/inscripcion/:id_alumno', inscripcion.getFormatoInscripcion);
-app.post('/inscripcion/registrar', inscripcion.createFormatoInscripcion);
+//app.post('/inscripcion/registrar', inscripcion.createFormatoInscripcion);
 app.put('/inscripcion/:id', inscripcion.updateInscripcion);
 app.delete('/inscripcion/:id', inscripcion.deleteFormatoInscripcion);
 
