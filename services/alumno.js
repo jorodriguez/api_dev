@@ -216,9 +216,8 @@ const updateAlumno = (request, response) => {
                             }                
 
                             //actualizar el valor esperado seleccionado
-                            inscripcion.relacionarValorEsperadoEmpresa(formato.id,|);
-                            
-                            
+                            inscripcion.relacionarValorEsperadoEmpresa(formato.id);
+                                                        
                         }
                     }).catch((e) => {
                         reject(e);

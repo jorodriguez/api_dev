@@ -509,3 +509,9 @@ values('Más información sobre cómo educar a mi hijo',1)
 	,('Que mi hijo sea más introvertido o extrovertido',1)
 	,('Que mi hijo logre tener valores establecidos',1)
 	,('Que mi hijo respete las normas',1);
+
+
+
+alter table co_familiar add column co_parentesco integer;
+
+alter table co_familiar add FOREIGN KEY (co_parentesco) REFERENCES co_parentesco(id);

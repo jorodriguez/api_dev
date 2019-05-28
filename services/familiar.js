@@ -46,6 +46,41 @@ const actualizarAlumno = (id_alumno, id_familiar, columna, genero) => {
     }
 }
 
+
+
+const crearFamiliar = (request, response) => {
+    console.log("@create familiar");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        var id_alumno = request.params.id_alumno;
+
+        const p = getParams(request.body);
+   
+        console.log("insertando familiar");
+
+        this.createFamiliar(id_alumno, p , p.genero).then((id_alumno)=>{
+            console.log(" creado familiar");
+            response.status(200).json(id_alumno);
+
+        }).catch((e)=>{
+            console.log(" Error al tratar de guardar un familiar ");
+            response.status(200).json(0);
+        });                
+
+    } catch (e) {
+
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+
+
+
 const createPadre = (id_alumno, familiarPadre, genero) => {
     console.log("@create padre");
     try {
@@ -81,14 +116,13 @@ const createMadre = (id_alumno, familiarMadre, genero) => {
 }
 
 
-
-
 const createFamiliar = (id_alumno, familiar, genero) => {
     console.log("@create Familiar");
     try {
 
         console.log(" ID ALUMNO = " + id_alumno);
         console.log(" genero " + genero);
+        
         if (id_alumno == null) {
             console.log("no se procede a crear el familiar faltan datos");
             throw error("id_alumn =es null ");
@@ -109,6 +143,8 @@ const createFamiliar = (id_alumno, familiar, genero) => {
                 nota_celebracion_dia: ""
             };
         }
+
+
         const p = getParams(familiar);
 
         console.log("FAMILIAR " + JSON.stringify(familiar));
@@ -212,6 +248,31 @@ const updateFamiliar = (id_familiar, familiar, genero) => {
     }
 };
 
+const getFamiliaresAlumno = (request, response) => {
+    console.log("@getFamiliaresAlumno");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if(!validacion.tokenValido){
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        var id_alumno = request.params.id_alumno;
+
+        pool.query("SELECT * from co_familiar WHERE co_alumno = $1 and eliminado = false",
+                [id_alumno],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
 const getParams = (body) => {
     const parametros = {
         nombre,
@@ -227,6 +288,8 @@ const getParams = (body) => {
 module.exports = {
     createPadre,
     createMadre,
-    updateFamiliar
+    crearFamiliar,
+    updateFamiliar,
+    getFamiliaresAlumno
 
 }

@@ -9,6 +9,8 @@ const grupo = require('./services/grupo');
 const authController = require('./auth/AuthController');
 const actividad = require('./services/actividad');
 const inscripcion = require('./services/inscripcion');
+const familiar = require('./services/familiar');
+const parentesco = require('./services/parentesco');
 
 const port = process.env.PORT || 5000;
 
@@ -76,6 +78,14 @@ app.get('/inscripcion/:id_alumno', inscripcion.getFormatoInscripcion);
 app.post('/inscripcion/registrar', inscripcion.createFormatoInscripcion);
 app.put('/inscripcion/:id', inscripcion.updateInscripcion);
 app.delete('/inscripcion/:id', inscripcion.deleteFormatoInscripcion);
+
+//familiar
+app.get('/familiar/:id_alumno', familiar.getFamiliaresAlumno);
+app.post('/familiar/registrar', familiar.crearFamiliar);
+
+//parentesco
+app.get('/parentesco', parentesco.getParentesco);
+
 
 app.get('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API v1.0.3' })
