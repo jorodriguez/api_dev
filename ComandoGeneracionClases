@@ -535,7 +535,3 @@ values('Más información sobre cómo educar a mi hijo',1)
 
 
 
-
-alter table co_familiar add column co_parentesco integer;
-
-alter table co_familiar add FOREIGN KEY (co_parentesco) REFERENCES co_parentesco(id);

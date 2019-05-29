@@ -27,7 +27,7 @@ const getParentesco = (request, response) => {
         if(!validacion.tokenValido){
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
-        pool.query("SELECT * from co_parentesco WHEgetGgetParentescoruposRE eliminado = false",
+        pool.query("SELECT * from co_parentesco WHERE eliminado = false",
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);

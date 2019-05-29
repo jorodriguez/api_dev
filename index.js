@@ -81,7 +81,8 @@ app.delete('/inscripcion/:id', inscripcion.deleteFormatoInscripcion);
 
 //familiar
 app.get('/familiar/:id_alumno', familiar.getFamiliaresAlumno);
-app.post('/familiar/registrar', familiar.crearFamiliar);
+app.post('/familiar/:id_alumno', familiar.crearFamiliar);
+app.put('/familiar/:id_familiar', familiar.modificarFamiliar);
 
 //parentesco
 app.get('/parentesco', parentesco.getParentesco);
