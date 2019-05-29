@@ -156,9 +156,9 @@ const updateAlumno = (request, response) => {
 
         const formato = alumno.formato_inscripcion;
 
-        const padre = alumno.padre;
+        //const padre = alumno.padre;
 
-        const madre = alumno.madre;
+        //const madre = alumno.madre;
 
         const valores_esperados = alumno.valor
 
@@ -201,7 +201,7 @@ const updateAlumno = (request, response) => {
                     //llamar al otro guardad
                     inscripcion.updateInscripcion(formato).then((estatus) => {
                         if (estatus) {
-                            if (alumno.co_padre !== null && !isEmpty(alumno.padre)) {
+                            /*if (alumno.co_padre !== null && !isEmpty(alumno.padre)) {
                                     padre.co_parentesco = 1;
                                 familiar.updateFamiliar(alumno.co_padre, padre, alumno.genero);
                             } else {
@@ -214,7 +214,7 @@ const updateAlumno = (request, response) => {
                                 familiar.updateFamiliar(alumno.co_madre, madre, alumno.genero);
                             } else {
                                 familiar.createMadre(alumno.id, madre, alumno.genero);
-                            }
+                            }*/
 
                             //actualizar el valor esperado seleccionado
                             //inscripcion.relacionarValorEsperadoEmpresa(formato.id);
