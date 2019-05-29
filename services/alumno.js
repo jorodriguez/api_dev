@@ -332,7 +332,7 @@ const getAlumnoById = (request, response) => {
 
                     var alumno = results.rows[0];
 
-                    console.log(" Alumno encontrado " + JSON.stringify(alumno));
+//                    console.log(" Alumno encontrado " + JSON.stringify(alumno));
 
                     response.status(200).json(alumno);
 

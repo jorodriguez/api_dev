@@ -19,33 +19,6 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-const actualizarAlumno = (id_alumno, id_familiar, columna, genero) => {
-    console.log("@actualizar alumno en campo familiar " + id_alumno + " familiar " + id_familiar + " genero " + genero);
-    try {
-
-        if (id_familiar !== null && id_alumno !== null) {
-
-            pool.query(
-                "UPDATE CO_ALUMNO  " +
-                " SET " + columna + " = $2, modifico = $3" +
-                " WHERE id = $1",
-                [
-                    id_alumno, id_familiar, genero
-                ],
-                (error, results) => {
-                    if (error) {
-                        console.log("error al actualizar el alumno " + error);
-                        return;
-                    }
-                    console.log("****************************Se modifico el campo " + columna);
-                });
-        }
-
-    } catch (e) {
-        console.log("error al actualizar el formato en el alumno " + e);
-    }
-}
-
 
 
 const crearFamiliar = (request, response) => {
@@ -87,8 +60,6 @@ const crearFamiliar = (request, response) => {
 };
 
 
-
-
 const modificarFamiliar = (request, response) => {
     console.log("@modificar familiar autorizado");
     try {
@@ -120,8 +91,67 @@ const modificarFamiliar = (request, response) => {
 };
 
 
+const eliminarFamiliar = (request, response) => {
+    console.log("@elimiar familiar autorizado");
+    try {
+        console.log("eliminar familiar");
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        var id_relacion = request.params.id_relacion;
+
+        if(id_relacion == null || id_relacion==undefined){
+            handle.callbackError("id_relacion es null", response);
+            return;
+        }
+
+        const { id, genero } = request.body;
+
+        console.log("eliminar familiar"+JSON.stringify(request.body));
+
+        return new Promise((resolve, reject) => {                 
+
+            pool.query(
+                "  UPDATE co_familiar SET " +
+                "  modifico = $2,fecha_modifico = current_timestamp," +
+                "  eliminado = true " +
+                "  WHERE id = $1  ",
+                [
+                    id,
+                    genero
+                ],
+                (error, results) => {
+                    if (error) {
+                        console.log("Error al actualizar el familiar " + error);
+                        reject(null);
+                        return;
+                    }
+                    resolve(id);
+                });
+        }).then((id) => {
+            //eliminar relacion
+            eliminarRelacionarAlumnoFamilia(id_relacion, genero).then((id_rel) => {
+                response.status(200).json(id);
+            }).catch((error) => {
+                console.error("erorr al elimiar la relacion con la familia " + error);
+                response.status(200).json(null);
+            });;
+        }).catch((error) => {
+            console.error("erorr al elimiar el familiar " + error);
+            response.status(200).json(null);
+        });
+
+    } catch (e) {
+
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
 
 
+/*
 const createPadre = (id_alumno, familiarPadre, genero) => {
     console.log("@create padre");
     try {
@@ -162,7 +192,7 @@ const createMadre = (id_alumno, familiarMadre, genero) => {
     } catch (e) {
         console.log("error al crear madre  " + e);
     }
-}
+}*/
 
 
 const createFamiliar = (id_alumno, familiar, genero) => {
@@ -233,6 +263,8 @@ const createFamiliar = (id_alumno, familiar, genero) => {
 };
 
 
+
+
 const relacionarAlumnoFamilia = (id_alumno, id_familiar, id_parentesco, genero) => {
     console.log("@Relacion alumno familia");
 
@@ -250,9 +282,10 @@ const relacionarAlumnoFamilia = (id_alumno, id_familiar, id_parentesco, genero) 
                 (error, results) => {
                     if (error) {
                         console.log("error al insertar la relacion alumno familia " + error);
+                        reject(null);
                         return;
                     }
-                                       
+
                     console.log("Se agrego la relacion alumno familia ");
                     resolve(id_familiar);
                 });
@@ -267,6 +300,44 @@ const relacionarAlumnoFamilia = (id_alumno, id_familiar, id_parentesco, genero) 
 
     }*/
 }
+
+
+const eliminarRelacionarAlumnoFamilia = (id_relacion, genero) => {
+    console.log("@Eliminar Relacion alumno familia " +id_relacion+"     "+genero);
+
+    //try {
+    return new Promise((resolve, reject) => {
+
+        if (id_relacion != null) {
+
+            pool.query(
+                "UPDATE CO_ALUMNO_FAMILIAR SET eliminado = true, modifico = $2, fecha_modifico = current_timestamp " +
+                " WHERE id= $1",
+                [
+                    id_relacion,genero
+                ],
+                (error, results) => {
+                    if (error) {
+                        console.log("error al eliminar la relacion alumno familia " + error);
+                        reject(null);
+                        return;
+                    }
+
+                    console.log("Se elimino la relacion alumno familia ");
+                    resolve(id_relacion);
+                });
+
+        } else {
+            reject(null);
+        }
+    });
+
+    /*} catch (e) {
+        console.log("error al guardar la realacion alumno materia " + e);
+
+    }*/
+}
+
 
 const updateFamiliar = (id_familiar, familiar, genero) => {
     console.log("@updateFamiliar");
@@ -295,7 +366,7 @@ const updateFamiliar = (id_familiar, familiar, genero) => {
                         reject(null);
                         return;
                     }
-                    
+
                     resolve(id_familiar);
 
                     //return true;
@@ -323,12 +394,18 @@ const getFamiliaresAlumno = (request, response) => {
 
         pool.query(
             " SELECT rel.id as id_relacion," +
-            "        p.nombre AS parentesco," +
-            "        rel.co_parentesco, " +
-            "        fam.*" +
+            "   p.nombre AS parentesco," +
+            "   p.sistema," +
+            "   rel.co_parentesco, 		" +
+            "   rel.autorizado_para_entrega," +
+            "   rel.orden_autorizado_para_entrega," +
+            "   rel.orden_aviso_emergencia," +
+            "   rel.envio_avisos," +
+            "   rel.envio_recibos," +
+            "   fam.*" +
             " FROM co_alumno_familiar rel inner join co_familiar fam on rel.co_familiar = fam.id" +
             "                            inner join co_parentesco p on rel.co_parentesco = p.id" +
-            " WHERE rel.co_alumno = $1 and rel.eliminado = false",
+            " WHERE rel.co_alumno = $1 and rel.eliminado = false and fam.eliminado = false",
             [id_alumno],
             (error, results) => {
                 if (error) {
@@ -355,11 +432,12 @@ const getParams = (body) => {
 
 
 module.exports = {
-    createPadre,
-    createMadre,
+    //    createPadre,
+    //    createMadre,
     crearFamiliar,
     updateFamiliar,
     getFamiliaresAlumno,
-    modificarFamiliar
+    modificarFamiliar,
+    eliminarFamiliar
 
 }

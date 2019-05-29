@@ -11,6 +11,7 @@ const actividad = require('./services/actividad');
 const inscripcion = require('./services/inscripcion');
 const familiar = require('./services/familiar');
 const parentesco = require('./services/parentesco');
+const servicio = require('./services/servicio');
 
 const port = process.env.PORT || 5000;
 
@@ -83,9 +84,15 @@ app.delete('/inscripcion/:id', inscripcion.deleteFormatoInscripcion);
 app.get('/familiar/:id_alumno', familiar.getFamiliaresAlumno);
 app.post('/familiar/:id_alumno', familiar.crearFamiliar);
 app.put('/familiar/:id_familiar', familiar.modificarFamiliar);
+app.put('/familiar/eliminar/:id_relacion', familiar.eliminarFamiliar);
 
 //parentesco
-app.get('/parentesco', parentesco.getParentesco);
+app.get('/parentesco/:id_alumno', parentesco.getCatalogoParentescoAlumno);
+
+//Servicios
+app.get('/servicio', servicio.getCatalogoServicios);
+app.get('/servicio/:id_alumno', servicio.getServiciosAlumno);
+app.post('/servicio', servicio.registrarServicio);
 
 
 app.get('/', (request, response) => {
