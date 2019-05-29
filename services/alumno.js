@@ -205,12 +205,6 @@ const updateAlumno = (request, response) => {
 
                             //actualizar el valor esperado seleccionado
                             inscripcion.relacionarValorEsperadoEmpresa(formato.id);
-<<<<<<< HEAD
-                                                        
-=======
-
-
->>>>>>> c1562a1e6353f499fd6cc0f903a0ba07d7bba615
                         }
                     }).catch((e) => {
                         reject(e);
@@ -314,7 +308,7 @@ const getAlumnoById = (request, response) => {
             "                       left join co_familiar padre on a.co_padre = padre.id " +
             "                       left join co_familiar madre on a.co_madre = madre.id " +
             " WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC",
-            [id],
+            [id],            
             (error, results) => {
                 if (error) {
                     console.log("Error en getAlumnoid " + error);
