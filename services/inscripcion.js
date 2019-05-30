@@ -26,9 +26,10 @@ const getFormatoInscripcion = (id) => {
         console.log("Consultando asistencia de la suc " + id_sucursal);
 
         pool.query(
-            " SELECT c.*,a.nombre as nombre_alumno,g.nombre as nombre_grupo" +
+            " SELECT c.*,s.nombre as nombre_servicio,a.nombre as nombre_alumno,g.nombre as nombre_grupo" +
             " FROM co_formato_inscripcion c inner join co_alumno a on c.co_alumno = a.id" +
             "                                inner join co_grupo g on a.co_grupo = g.id" +
+            "                                inner join cat_servicio s on a.cat_servicio = s.id" +
             " WHERE c.id = $1 AND c.eliminado = false",
             [id],
             (error, results) => {
@@ -153,7 +154,8 @@ const updateInscripcion = (formato) => {
             " resp_habilidades                  = $33," +
             " informacion_adicional             = $34," +
             " nota_celebracion_dia              = $35," +
-            " resp_motivo_inscripcion           = $36" +            
+            " resp_motivo_inscripcion           = $36," +            
+            " cat_servicio                     = $37" +            
             " WHERE id = $1",
             [
                 formato.id,
@@ -173,7 +175,7 @@ const updateInscripcion = (formato) => {
                 formato.resp_programas_favoritos, formato.resp_actividades_fin_semana,
                 formato.resp_habilidades,//34
                 formato.informacion_adicional, formato.nota_celebracion_dia//37
-                ,formato.resp_motivo_inscripcion
+                ,formato.resp_motivo_inscripcion,formato.cat_servicio
             ],
             (error, results) => {
                 if (error) {
@@ -269,7 +271,7 @@ const getParams = (body) => {
         duerme_con, resp_sieta, resp_horario_sieta,
         resp_promedio_horas_dueme, resp_numero_comidas_dia, resp_horas_tv,
         resp_programas_favoritos, resp_actividades_fin_semana, resp_habilidades,
-        informacion_adicional, nota_celebracion_dia,
+        informacion_adicional, nota_celebracion_dia,cat_servicio,
         fecha_genero, genero
     } = body;
 
