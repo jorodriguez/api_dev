@@ -13,6 +13,7 @@ const familiar = require('./services/familiar');
 const parentesco = require('./services/parentesco');
 const cargo = require('./services/cargos');
 const servicio = require('./services/servicio');
+const formato_complemento = require('./services/formato_complemento');
 
 const port = process.env.PORT || 5000;
 
@@ -96,8 +97,10 @@ app.get('/producto/:id_alumno', cargo.getProductosAlumno);
 app.post('/producto', cargo.registrarCargoProducto);
 
 //servicios
-app.post('/servicios', servicio.getCatalogoServicios);
+app.get('/servicios', servicio.getCatalogoServicios);
 
+//complementos del formato de inscripcion
+app.get('/valores_esperados/:id_formato', formato_complemento.getCatalogoValoresEsperados);
 
 app.get('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API v1.0.3' })

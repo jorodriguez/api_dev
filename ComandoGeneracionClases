@@ -680,5 +680,5 @@ create table cat_servicio(
 
 alter table  co_formato_inscripcion add column cat_servicio integer;
 
-
+alter table co_formato_valor_esperado_empresa add column seleccionado boolean not null default false;
 

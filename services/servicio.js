@@ -15,9 +15,7 @@ const pool = new Pool({
 });
 
 const getCatalogoServicios = (request, response) => {
-
     console.log("@getCatalogoServicios");
-
     try {
         var validacion = helperToken.validarToken(request);
 

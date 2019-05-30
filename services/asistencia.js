@@ -26,13 +26,15 @@ const getAlumnosRecibidos = (request, response) => {
 
         const id_sucursal = parseInt(request.params.id_sucursal);
 
-        pool.query("SELECT asistencia.id," +
+        pool.query(
+            "SELECT asistencia.id," +
             " asistencia.fecha," +
             " asistencia.hora_entrada," +
             " asistencia.hora_salida," +
             " alumno.id as id_alumno," +
-            " alumno.nombre as nombre_alumno,	 " +
-            " alumno.apellidos as apellido_alumno, " +
+            " alumno.nombre as nombre_alumno," +
+            " alumno.apellidos as apellido_alumno," +
+            " grupo.id as co_grupo,"+
             " grupo.nombre as nombre_grupo"+
             " FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id " +
             "                               inner join co_grupo grupo on alumno.co_grupo = grupo.id "+

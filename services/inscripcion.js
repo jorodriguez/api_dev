@@ -116,6 +116,7 @@ const createFormatoInscripcionInicial = (id_alumno, genero) => {
 const updateInscripcion = (formato) => {
     console.log("@updateInscripcion");
     try {
+        
        return new Promise((resolve, reject) => {
         pool.query(
             "UPDATE CO_FORMATO_INSCRIPCION  SET " +
@@ -155,7 +156,7 @@ const updateInscripcion = (formato) => {
             " informacion_adicional             = $34," +
             " nota_celebracion_dia              = $35," +
             " resp_motivo_inscripcion           = $36," +            
-            " cat_servicio                     = $37" +            
+            " cat_servicio                      = $37" +                        
             " WHERE id = $1",
             [
                 formato.id,

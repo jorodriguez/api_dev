@@ -9,6 +9,7 @@ const Joi = require('@hapi/joi');
 
 const inscripcion = require('./inscripcion');
 const familiar = require('./familiar');
+const formato_complemento = require('./formato_complemento');
 
 const config = require('../config/config');
 const jwt = require('jsonwebtoken');
@@ -77,6 +78,8 @@ const createAlumno = (request, response) => {
 
         const p = getParams(request.body);
 
+        console.log(""+JSON.stringify(p));
+
         /* const result = Joi.validate(p, schemaValidacionAlumno);
  
          if (result.error !== null) {
@@ -117,7 +120,7 @@ const createAlumno = (request, response) => {
                         //return;
                         reject(error);
                     }
-                    if (results.rowCount > 0) {
+                    if (results && results.rowCount > 0) {
 
                         resolve(results.rows[0].id);
 
@@ -127,11 +130,13 @@ const createAlumno = (request, response) => {
                     resolve(null);
                 });
         }).then((id_alumno) => {
+            console.log("alumno creado")
             if (id_alumno != null)
                 inscripcion.createFormatoInscripcionInicial(id_alumno, p.genero);
             else response.status(200).json(0);
         }).catch((e) => {
-            response.status(200).json(0);
+            handle.callbackError(e, response);            
+            //response.status(200).json(0);
         });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -149,19 +154,19 @@ const updateAlumno = (request, response) => {
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
-
+        
         const id = parseInt(request.params.id);
-        console.log("id " + id);
+
         const alumno = request.body;
 
-        const formato = alumno.formato_inscripcion;
+        console.log(" CCCC "+JSON.stringify(alumno));
 
+        const formato = alumno.formato_inscripcion;
+        
         //const padre = alumno.padre;
 
         //const madre = alumno.madre;
-
-        const valores_esperados = alumno.valor
-
+        
         //const result = Joi.validate(p, schemaValidacionAlumno);        
 
         new Promise((resolve, reject) => {
@@ -201,6 +206,8 @@ const updateAlumno = (request, response) => {
                     //llamar al otro guardad
                     inscripcion.updateInscripcion(formato).then((estatus) => {
                         if (estatus) {
+                            //acatualizar valores esperado                           
+                            formato_complemento.actualizarValoresEsperados(formato);
                             /*if (alumno.co_padre !== null && !isEmpty(alumno.padre)) {
                                     padre.co_parentesco = 1;
                                 familiar.updateFamiliar(alumno.co_padre, padre, alumno.genero);
