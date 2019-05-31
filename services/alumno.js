@@ -78,7 +78,7 @@ const createAlumno = (request, response) => {
 
         const p = getParams(request.body);
 
-        console.log(""+JSON.stringify(p));
+        console.log("" + JSON.stringify(p));
 
         /* const result = Joi.validate(p, schemaValidacionAlumno);
  
@@ -135,7 +135,7 @@ const createAlumno = (request, response) => {
                 inscripcion.createFormatoInscripcionInicial(id_alumno, p.genero);
             else response.status(200).json(0);
         }).catch((e) => {
-            handle.callbackError(e, response);            
+            handle.callbackError(e, response);
             //response.status(200).json(0);
         });
     } catch (e) {
@@ -154,19 +154,19 @@ const updateAlumno = (request, response) => {
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
-        
+
         const id = parseInt(request.params.id);
 
         const alumno = request.body;
 
-        console.log(" CCCC "+JSON.stringify(alumno));
+        console.log(" CCCC " + JSON.stringify(alumno));
 
         const formato = alumno.formato_inscripcion;
-        
+
         //const padre = alumno.padre;
 
         //const madre = alumno.madre;
-        
+
         //const result = Joi.validate(p, schemaValidacionAlumno);        
 
         new Promise((resolve, reject) => {
@@ -191,49 +191,39 @@ const updateAlumno = (request, response) => {
                 " WHERE id = $1",
                 [
                     id,
-                    alumno.nombre, alumno.apellidos, alumno.fecha_nacimiento, alumno.alergias,
+                    alumno.nombre, alumno.apellidos, (alumno.fecha_nacimiento == "" ? null : alumno.fecha_nacimiento), alumno.alergias,
                     alumno.nota, alumno.hora_entrada, alumno.hora_salida,
                     alumno.costo_inscripcion, alumno.costo_colegiatura, alumno.minutos_gracia,
-                    alumno.foto, alumno.fecha_reinscripcion, alumno.co_grupo, alumno.nombre_carino,
+                    alumno.foto, (alumno.fecha_reinscripcion == "" ? null : alumno.fecha_reinscripcion),
+                    alumno.co_grupo, alumno.nombre_carino,
                     alumno.sexo, alumno.genero
                 ],
                 (error, results) => {
                     if (error) {
                         reject(error);
-                        //return;
+                        return;
                     }
-                    console.log("Se procede a modificar el formato");
-                    //llamar al otro guardad
-                    inscripcion.updateInscripcion(formato).then((estatus) => {
-                        if (estatus) {
-                            //acatualizar valores esperado                           
-                            formato_complemento.actualizarValoresEsperados(formato);
-                            /*if (alumno.co_padre !== null && !isEmpty(alumno.padre)) {
-                                    padre.co_parentesco = 1;
-                                familiar.updateFamiliar(alumno.co_padre, padre, alumno.genero);
-                            } else {
-                                console.log("alumno.generoalumno.generoalumno.genero" + alumno.genero);
-                                familiar.createPadre(alumno.id, padre, alumno.genero);
-                            }
 
-                            if (alumno.co_madre !== null && !isEmpty(alumno.madre)) {
-                                madre.co_parentesco = 2;
-                                familiar.updateFamiliar(alumno.co_madre, madre, alumno.genero);
-                            } else {
-                                familiar.createMadre(alumno.id, madre, alumno.genero);
-                            }*/
-
-                            //actualizar el valor esperado seleccionado
-                            //inscripcion.relacionarValorEsperadoEmpresa(formato.id);
-                        }
-                    }).catch((e) => {
-                        reject(e);
-                    });
                     resolve(true);
                 });
 
         }).then((estado) => {
-            response.status(200).send(`User modified with ID: ${id}`)
+            if (estado) {
+                console.log("Se procede a modificar el formato");                
+                inscripcion.updateInscripcion(formato).then((id) => {
+                    if (id != null) {                
+                        formato_complemento.actualizarValoresEsperados(formato);
+
+                        response.status(200).send(`${id}`)
+                    }else{
+                        handle.callbackError("Error al intentar actualizar la inscripcion", response);
+                    }
+                }).catch((e) => {                    
+                    reject(e);
+                    handle.callbackError(error, response);
+                });
+            }
+            
         }).catch((error) => {
             handle.callbackError(error, response);
         });
@@ -328,7 +318,7 @@ const getAlumnoById = (request, response) => {
             "                       left join co_familiar padre on a.co_padre = padre.id " +
             "                       left join co_familiar madre on a.co_madre = madre.id " +
             " WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC",
-            [id],            
+            [id],
             (error, results) => {
                 if (error) {
                     console.log("Error en getAlumnoid " + error);
@@ -339,7 +329,7 @@ const getAlumnoById = (request, response) => {
 
                     var alumno = results.rows[0];
 
-//                    console.log(" Alumno encontrado " + JSON.stringify(alumno));
+                    //                    console.log(" Alumno encontrado " + JSON.stringify(alumno));
 
                     response.status(200).json(alumno);
 

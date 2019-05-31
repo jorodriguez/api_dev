@@ -157,7 +157,7 @@ const updateInscripcion = (formato) => {
             " nota_celebracion_dia              = $35," +
             " resp_motivo_inscripcion           = $36," +            
             " cat_servicio                      = $37" +                        
-            " WHERE id = $1",
+            " WHERE id = $1 RETURNING id",
             [
                 formato.id,
                 formato.hermanos, //-3
@@ -183,7 +183,19 @@ const updateInscripcion = (formato) => {
                     console.log("Error al actualizar el formato de inscripcion " + error);
                     reject(error);
                 }
-                   resolve(true);
+
+                if (results.rowCount > 0) {
+
+                    var id_retorno = results.rows[0].id;
+                    
+                    console.log("Retornando el id del alumno  " + id_retorno);
+
+                    resolve(id_retorno);
+                } else {
+                    reject(null);
+                }
+
+                   //resolve(true);
     
             });
 
@@ -191,7 +203,7 @@ const updateInscripcion = (formato) => {
     } catch (e) {
         console.log("ERROR " + e);        
         console.log("Error al actualizar el formato de inscripcion " + e);
-        return false;
+        return null;
     }
 };
 
