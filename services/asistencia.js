@@ -35,7 +35,9 @@ const getAlumnosRecibidos = (request, response) => {
             " alumno.nombre as nombre_alumno," +
             " alumno.apellidos as apellido_alumno," +
             " grupo.id as co_grupo,"+
-            " grupo.nombre as nombre_grupo"+
+            " grupo.nombre as nombre_grupo,"+
+            " true as visible,"+
+            " false as seleccionado"+
             " FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id " +
             "                               inner join co_grupo grupo on alumno.co_grupo = grupo.id "+
             " WHERE asistencia.fecha = current_date AND asistencia.hora_salida is null AND alumno.eliminado=false " +
