@@ -131,9 +131,21 @@ const createAlumno = (request, response) => {
                 });
         }).then((id_alumno) => {
             console.log("alumno creado")
-            if (id_alumno != null)
-                inscripcion.createFormatoInscripcionInicial(id_alumno, p.genero);
-            else response.status(200).json(0);
+            if (id_alumno != null){
+                inscripcion.createFormatoInscripcionInicial(id_alumno, p.genero)
+                .then((id_formato)=>{
+                    //invocar
+                    inscripcion.actualizarFormatoAlumno(id_alumno,id_formato).then((id)=>{
+                        response.status(200).json(id_alumno);
+                    }).catch((e)=>{
+                        handle.callbackError(e, response);
+                    });
+                }).catch((e)=>{
+                    handle.callbackError(e, response);        
+                });                
+            }else{
+                response.status(200).json(0);
+            }
         }).catch((e) => {
             handle.callbackError(e, response);
             //response.status(200).json(0);

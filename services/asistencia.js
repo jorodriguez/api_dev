@@ -141,7 +141,10 @@ const registrarSalidaAlumnos = (request, response) => {
         }
 
         const { ids, genero  } = request.body;
-       
+        
+       console.log("IDS recibidos "+ids);
+
+
         var sqlComplete = " ( ";
         for (var i = 0; i < ids.length; i++) {
 
