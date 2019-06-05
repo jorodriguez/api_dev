@@ -4,6 +4,7 @@ const Pool = require('pg').Pool
 const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
+const mensajeria  = require('./mensajesFirebase');
 
 const pool = new Pool({
     user: dbParams.user,
@@ -108,6 +109,7 @@ const registrarActividad = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }                
+                mensajeria.enviarMensaje("Actvidad ",(nota==null || nota=='' ? 'sin nota':nota));
                 response.status(200).json(results.rowCount)
             });
     } catch (e) {

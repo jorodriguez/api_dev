@@ -14,6 +14,7 @@ const parentesco = require('./services/parentesco');
 const cargo = require('./services/cargos');
 const servicio = require('./services/servicio');
 const formato_complemento = require('./services/formato_complemento');
+const mensajeria = require('./services/mensajesFirebase');
 
 const port = process.env.PORT || 5000;
 
@@ -101,6 +102,10 @@ app.get('/servicios', servicio.getCatalogoServicios);
 
 //complementos del formato de inscripcion
 app.get('/valores_esperados/:id_formato', formato_complemento.getCatalogoValoresEsperados);
+
+
+//Mensajes
+app.get('/mensaje',mensajeria.sendMessage);
 
 app.get('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API v1.0.3' })
