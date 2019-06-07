@@ -14,6 +14,7 @@ const parentesco = require('./services/parentesco');
 const cargo = require('./services/cargos');
 const servicio = require('./services/servicio');
 const formato_complemento = require('./services/formato_complemento');
+const pagos = require('./services/pagos');
 const mensajeria = require('./services/mensajesFirebase');
 
 const port = process.env.PORT || 5000;
@@ -102,6 +103,11 @@ app.get('/servicios', servicio.getCatalogoServicios);
 
 //complementos del formato de inscripcion
 app.get('/valores_esperados/:id_formato', formato_complemento.getCatalogoValoresEsperados);
+
+
+
+//pagos
+app.get('/pago', pagos.registrarPago);
 
 
 //Mensajes

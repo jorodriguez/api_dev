@@ -788,6 +788,7 @@ END;
 $$ 
 LANGUAGE 'plpgsql';
 
+
 CREATE TABLE co_detalle_balance_alumno
 (
     id serial not null,
@@ -866,3 +867,28 @@ alter table co_balance_alumno add column fecha_inicio date not null;
 alter table co_balance_alumno add column fecha_fin date not null;
 alter table co_balance_alumno add column anio integer not null;
 alter table co_balance_alumno add column mes integer not null;
+
+
+
+
+
+CREATE TABLE co_pago_balance_alumno
+(
+    id serial not null,
+	co_balance_alumno integer not null,	
+	fecha timestamp not null,		
+	pago numeric not null default 1 CHECK (pago > 0),	
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,    
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT co_det_balance_pago_alumno_pkey PRIMARY KEY (id),
+    CONSTRAINT co_det_balance_pago_alumno_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),        
+    CONSTRAINT co_det_balance_alumno_pago_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id),
+	CONSTRAINT co_det_balance_alumno_pago_alumno_fkey FOREIGN KEY (co_balance_alumno)
+        REFERENCES co_balance_alumno (id)	    
+);
+
