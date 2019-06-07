@@ -109,7 +109,7 @@ const registrarActividad = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }                
-                mensajeria.enviarMensaje("Actvidad ",(nota==null || nota=='' ? 'sin nota':nota));
+                mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
                 response.status(200).json(results.rowCount)
             });
     } catch (e) {

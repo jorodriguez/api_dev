@@ -682,3 +682,187 @@ alter table  co_formato_inscripcion add column cat_servicio integer;
 
 alter table co_formato_valor_esperado_empresa add column seleccionado boolean not null default false;
 
+
+
+
+
+
+
+CREATE TABLE cat_tipo_cargo
+(
+    id serial not null,
+    nombre text not null,	
+	afectacion text not null,
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,    
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT cat_tipo_cargo_pkey PRIMARY KEY (id),
+    CONSTRAINT cat_tipo_cargo_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),        
+    CONSTRAINT cat_tipo_cargo_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id)        
+);
+
+
+
+
+
+CREATE TABLE cat_cargo
+(
+    id serial not null,
+	cat_tipo_cargo integer not null,
+    nombre text not null,
+	descripcion text not null,
+	precio numeric not null default 1,
+	notificar boolean default true,	
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,	
+    CONSTRAINT cat_cargo_pkey PRIMARY KEY (id),
+    CONSTRAINT cat_cargo_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),
+    CONSTRAINT cat_cargo_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id),
+	CONSTRAINT cat_cargo_tipo_cargo_fkey FOREIGN KEY (cat_tipo_cargo)
+        REFERENCES cat_tipo_cargo (id)
+);
+
+
+
+
+-- set valor de sequence 
+ 
+CREATE TABLE co_periodo
+(
+    id serial not null,	
+    nombre text not null,	
+	fecha_inicio date not null,
+	fecha_fin date not null,
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,    
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT co_periodo_pkey PRIMARY KEY (id),
+    CONSTRAINT co_periodo_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),        
+    CONSTRAINT co_periodo_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id)        
+);
+
+CREATE TABLE co_balance_alumno
+(
+    id serial not null,
+	co_alumno integer not null,
+	co_periodo integer not null,
+	total numeric default 0,
+	pagado boolean default false,
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,    
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT co_balance_alumno_pkey PRIMARY KEY (id),
+    CONSTRAINT co_balance_alumno_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),        
+    CONSTRAINT co_balance_alumno_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id),
+	CONSTRAINT co_balance_alumno_alumno_fkey FOREIGN KEY (co_alumno)
+        REFERENCES co_alumno (id),
+	CONSTRAINT co_balance_alumno_periodo_fkey FOREIGN KEY (co_periodo)
+        REFERENCES co_periodo (id)        
+	
+);
+
+CREATE or replace FUNCTION getTimestamp(IN zona text,OUT fecha date) AS $$
+BEGIN    
+	IF zona IS NULL OR zona = '' THEN
+		zona := 'America/Monterrey';	    	
+		select current_timestamp at time zone zona INTO fecha;		 
+	END IF;
+END;
+$$ 
+LANGUAGE 'plpgsql';
+
+CREATE TABLE co_detalle_balance_alumno
+(
+    id serial not null,
+	co_balance_alumno integer not null,
+	cat_cargo integer not null,
+	fecha timestamp not null,	
+	cantidad int not null default 1 CHECK (cantidad > 0),
+	cargo numeric not null default 1 CHECK (cargo > 0),
+	total numeric not null default 1 CHECK (total > 0),
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,    
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT co_det_balance_alumno_pkey PRIMARY KEY (id),
+    CONSTRAINT co_det_balance_alumno_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),        
+    CONSTRAINT co_det_balance_alumno_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id),
+	CONSTRAINT co_det_balance_alumno_alumno_fkey FOREIGN KEY (co_balance_alumno)
+        REFERENCES co_balance_alumno (id),
+	CONSTRAINT co_det_balance_alumno_periodo_fkey FOREIGN KEY (cat_cargo)
+        REFERENCES cat_cargo (id)        
+);
+
+
+alter table cat_cargo add column sistema boolean not null default false;
+
+insert into cat_tipo_cargo(id,nombre,afectacion,genero)
+values (1,'CARGO','-',1), (2,'ABONO','+',1);
+
+
+insert into cat_cargo(id,cat_tipo_cargo,nombre,descripcion,precio,sistema,genero)
+values(1,1,'Mensualidad','Mensualidad.',1,true,1),
+		(2,1,'Cargo extra','Cargo por pago a destiempo de mensualidad. ',200,true,1),
+	  	(3,1,'Hora Extra','Cargo por hora extra.',100,true,1);
+	  
+
+ALTER SEQUENCE cat_cargo_id_seq RESTART WITH 1000;
+
+
+ alter table co_periodo rename to co_balance_mensual 
+ 
+ALTER TABLE co_balance_alumno RENAME COLUMN co_periodo TO co_balance_mensual;
+
+
+	alter table co_balance_mensual add column numero_anio int not null;
+	alter table co_balance_mensual add column numero_mes int not null;
+
+
+ALTER TABLE co_balance_mensual ADD CONSTRAINT unique_balance_mensual_month UNIQUE (co_alumno,co_balance_mensual);
+
+ALTER TABLE co_balance_mensual ADD CONSTRAINT unique_balance_mensual_month UNIQUE (numero_anio,numero_mes);
+
+
+CREATE or replace FUNCTION getDate(IN zona text,OUT fecha date) AS $$
+BEGIN    
+	IF zona IS NULL OR zona = '' THEN
+		zona := 'America/Monterrey';	
+    	--select current_date at time zone 'America/Monterrey' INTO fecha;
+		--select current_date at time zone zona INTO fecha;
+		select current_date INTO fecha;
+	END IF;
+END;
+$$ 
+LANGUAGE 'plpgsql';
+
+
+
+alter table co_balance_alumno drop column co_balance_mensual;
+drop table co_balance_mensual;
+
+
+
+alter table co_balance_alumno add column fecha_inicio date not null;
+alter table co_balance_alumno add column fecha_fin date not null;
+alter table co_balance_alumno add column anio integer not null;
+alter table co_balance_alumno add column mes integer not null;
