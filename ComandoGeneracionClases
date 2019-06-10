@@ -892,3 +892,19 @@ CREATE TABLE co_pago_balance_alumno
         REFERENCES co_balance_alumno (id)	    
 );
 
+
+
+
+alter table co_balance_alumno drop column co_alumno;
+alter table co_balance_alumno drop column pagado;
+alter table co_balance_alumno drop column fecha_inicio;
+alter table co_balance_alumno drop column fecha_fin;
+alter table co_balance_alumno drop column anio;
+alter table co_balance_alumno drop column mes;
+alter table co_balance_alumno drop column nombre_mes;
+
+
+
+alter table co_alumno add column co_balance_alumno integer;
+			alter table co_alumno add CONSTRAINT fk_balance FOREIGN KEY (co_balance_alumno)
+			REFERENCES co_balance_alumno (id);
