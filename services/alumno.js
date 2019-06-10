@@ -139,7 +139,8 @@ const createAlumno = (request, response) => {
                     handle.callbackError(e, response);        
                 });                
                 
-                //generare el balance
+                //generare el balanceconsol
+                console.log("Iniciando crear el balance ");
                 balance_alumno.registrarBalanceAlumno(id_alumno,genero);
 
             }else{
