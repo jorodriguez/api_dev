@@ -126,8 +126,7 @@ const updateInscripcion = (formato) => {
 
         return new Promise((resolve, reject) => {
             pool.query(
-                "UPDATE CO_FORMATO_INSCRIPCION  SET " +
-                //  " fecha_inscripcion                 = $2," +
+                "UPDATE CO_FORMATO_INSCRIPCION  SET " +                
                 " hermanos                          = $2, " +
                 " estado_convivencia_padres         = $3," +
                 " servicio_contratar                = $4," +

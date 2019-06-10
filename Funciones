@@ -791,7 +791,8 @@ LANGUAGE 'plpgsql';
 
 ________________________
 
-CREATE or replace FUNCTION agregar_cargo_alumno(IN id_balance integer, id_alumno integer,id_cargo integer ,cantidad integer ,nota text ,id_genero integer,OUT retorno boolean) AS $$
+
+CREATE or replace FUNCTION agregar_cargo_alumno(IN id_alumno integer, id_cargo integer ,cantidad integer ,nota text ,id_genero integer,OUT retorno boolean) AS $$
 DECLARE
 	alumno_record RECORD;
 	cargo_record RECORD;
@@ -822,7 +823,10 @@ BEGIN
 	raise notice 'AGREGAR CARGO';	
 	fecha_current := getDate('');
 		--balance alumno
-	select * from co_balance_alumno where id = id_balance and co_alumno = id_alumno and eliminado = false 
+
+	select * from co_alumno where id = id_alumno INTO alumno_record;		
+		
+	select * from co_balance_alumno where id = alumno_record.co_balance_alumno and eliminado = false 
 			INTO balance_record;
 			
 	--IF balance_record is not null THEN
@@ -832,7 +836,7 @@ BEGIN
 		WHERE cargo.id = id_cargo
 		INTO cargo_record;		
 		
-		select * from co_alumno where id = id_alumno INTO alumno_record;		
+		
 	
 		--aplicar cargo
 		IF id_cargo = CARGO_MENSUALIDAD THEN
@@ -879,7 +883,7 @@ BEGIN
 				UPDATE CO_BALANCE_ALUMNO
 				SET TOTAL_CARGOS = (TOTAL_CARGOS + (cargo_aplicar * cantidad_aplicar)),
 					TOTAL_ADEUDO = (TOTAL_ADEUDO + (cargo_aplicar * cantidad_aplicar))				
-				where id = id_balance;		
+				where id = balance_record.id ;		
 		END IF;
 	
 	ELSE
@@ -896,67 +900,49 @@ LANGUAGE 'plpgsql';
 
 
 
-
-CREATE or replace FUNCTION iniciar_balance_mensual_alumnos(OUT retorno boolean) AS $$
+CREATE or replace FUNCTION insertar_balance_alumno(IN id_alumno INTEGER,id_genero integer,OUT retorno boolean) AS $$
 DECLARE
-	alumno_loop RECORD;
-	fecha_current date;
-	fecha_inicio date;
-	fecha_fin date;	
-	_numero_anio int;
-	_numero_mes int;	
-	_nombre_mes text;	
+	alumno_record RECORD;
 	existe_registro boolean := false;
 	CARGO_MENSUALIDAD int := 1;
 	retorno boolean := false;
-    sqlerr_message_text TEXT;
-    sqlerr_exception_detail TEXT;
-    sqlerr_exception_hint TEXT;
+	sqlerr_message_text TEXT;
+	sqlerr_exception_detail TEXT;
+	sqlerr_exception_hint TEXT;
 	id_balance_alumno integer;
 BEGIN    
-	raise notice 'INICIANDO GENERACION DE BALANCE';
-	-- obtener la fecha actual
-	fecha_current := getDate('');
-	select date_trunc('month', fecha_current)::date INTO fecha_inicio;	
-	select (date_trunc('month',fecha_current) -'1sec' ::interval)::date  INTO fecha_fin;
-	select date_part('month',getDate('')) INTO _numero_mes;
-	select date_part('year',getDate('')) INTO _numero_anio;
-	SELECT to_char(to_timestamp (4::text, 'MM'), 'TMmon') INTO _nombre_mes;
-		
-		raise notice 'Fecha %',fecha_current;
-		
-		raise notice 'Revisar registros de alumnos';	
-		raise notice 'mes % anio %',_numero_mes,_numero_anio;	
-		FOR alumno_loop IN ( 
-			SELECT a.*
-				FROM CO_ALUMNO  a
-			WHERE a.ID NOT IN(
-								SELECT CO_ALUMNO
-								FROM CO_BALANCE_ALUMNO 
-								where mes = _numero_mes and anio = _numero_anio and eliminado = false
-			) AND date_part('month',a.fecha_inscripcion) = date_part('month',fecha_current)
-				AND date_part('day',a.fecha_inscripcion) <= date_part('day',fecha_current)
-  				AND a.eliminado = false
-		) LOOP 		
-			raise notice '/////////////////////////balance del alumno % fecha Ini % fecha Fin %////////////////////////////',alumno_loop.nombre,fecha_inicio,fecha_fin;
-		
-			INSERT INTO co_balance_alumno(co_alumno,fecha_inicio,fecha_fin,anio,mes,nombre_mes,total_adeudo,total_pagos,total_cargos,pagado,genero,fecha_genero)
-			values(alumno_loop.id,fecha_inicio,fecha_fin,_numero_anio,_numero_mes,_nombre_mes,0,0,0,false,1,(getDate('')+getHora(''))::timestamp) 
+
+	raise notice 'INSERTAR BALANCE DEL ALUMNO ';
+		--validar si existe el alumno y la relacion con un balance
+		select * from co_alumno where id = id_alumno and eliminado = false INTO alumno_record;
+		IF FOUND THEN 
+			IF alumno_record.co_balance_alumno IS NULL THEN 
+	
+			INSERT INTO co_balance_alumno(total_adeudo,total_pagos,total_cargos,genero,fecha_genero)
+			values(0,0,0,id_genero,(getDate('')+getHora(''))::timestamp) 
 			RETURNING ID INTO id_balance_alumno;
+			--actualizar el alumno 
 			--Aplicar la mensualidad 
-			raise notice 'Agregando cargo de mensualidad al balance %',id_balance_alumno;
+			raise notice 'Se inserto el registro ';
+
+			UPDATE CO_ALUMNO SET CO_BALANCE_ALUMNO = id_balance_alumno WHERE ID = id_alumno;
+			raise notice 'se relaciono con el nuevo registro';
+
+			/*raise notice 'Agregando cargo de mensualidad al balance %',id_balance_alumno;
 			PERFORM agregar_cargo_alumno(id_balance_alumno,
 										alumno_loop.id,
 										CARGO_MENSUALIDAD,
 										1,
 										'Cargo generado Automáticamente.',
 										1);	
-										
-			--EXCEPTION
-    		--	WHEN unique_violation THEN
-        --		RAISE 'Email address % already registered', eml;
-										
-  		END LOOP;   	
+			*/	
+			ELSE RAISE NOTICE 'EL ALUMNO YA TIENE UN BALANCE CREADO';
+			END IF;
+		ELSE 
+			RAISE NOTICE 'NO SE ENCUENTRA EL ALUMNO ';
+		END IF;
+		
+								
 		retorno := true;
 END;
 $$ 
@@ -965,9 +951,13 @@ LANGUAGE 'plpgsql';
 
 
 
-CREATE or replace FUNCTION agregar_pago_alumno(IN id_balance integer,pago_param numeric ,nota text ,id_genero integer,OUT retorno boolean) AS $$
+DROP FUNCTION agregar_pago_alumno(integer,numeric,text,integer)
+
+
+CREATE or replace FUNCTION agregar_pago_alumno(IN id_alumno integer,pago_param numeric ,nota text ,id_genero integer,OUT retorno boolean) AS $$
 DECLARE
 	fecha_current date;
+	alumno_record RECORD;
 	balance_record co_balance_alumno%ROWTYPE;
 	retorno boolean := false;
     sqlerr_message_text TEXT;
@@ -977,10 +967,14 @@ DECLARE
 	sqlInsertPago TEXT := 'INSERT INTO co_pago_balance_alumno(CO_BALANCE_ALUMNO,FECHA,PAGO,NOTA,GENERO)
 							VALUES($1,$2,$3,$4,$5)';								
 BEGIN    
+
 	raise notice 'AGREGAR PAGO';	
-	fecha_current := getDate('');		
-	select * from co_balance_alumno where id = id_balance and eliminado = false 
+	fecha_current := getDate('');	
+	select * from co_alumno where id = id_alumno INTO alumno_record;		
+		
+	select * from co_balance_alumno where id = alumno_record.co_balance_alumno and eliminado = false 
 			INTO balance_record;
+	
 	raise notice 'pass 1';
 			
 	--IF balance_record is not null THEN
@@ -997,7 +991,7 @@ BEGIN
 				UPDATE co_balance_alumno 
 					SET TOTAL_PAGOS = (TOTAL_PAGOS + pago_param),
 						TOTAL_ADEUDO = (TOTAL_ADEUDO - pago_param)				
-				where id = id_balance;		
+				where id = balance_record.id;		
 			raise notice 'se registro el pago ';
 	
 	
@@ -1009,11 +1003,6 @@ BEGIN
 END;
 $$ 
 LANGUAGE 'plpgsql';
-
-
-
-
-
 
 
 

@@ -10,6 +10,8 @@ const Joi = require('@hapi/joi');
 const inscripcion = require('./inscripcion');
 const familiar = require('./familiar');
 const formato_complemento = require('./formato_complemento');
+const balance_alumno = require('./balance_alumno');
+
 
 const config = require('../config/config');
 const jwt = require('jsonwebtoken');
@@ -80,13 +82,6 @@ const createAlumno = (request, response) => {
 
         console.log("" + JSON.stringify(p));
 
-        /* const result = Joi.validate(p, schemaValidacionAlumno);
- 
-         if (result.error !== null) {
-             response.status(200).json(result.error);
-             return;
-         }*/
-
         console.log("insertando alumno");
         new Promise((resolve, reject) => {
             pool.query("INSERT INTO CO_ALUMNO(" +
@@ -143,6 +138,10 @@ const createAlumno = (request, response) => {
                 }).catch((e)=>{
                     handle.callbackError(e, response);        
                 });                
+                
+                //generare el balance
+                balance_alumno.registrarBalanceAlumno(id_alumno,genero);
+
             }else{
                 response.status(200).json(0);
             }
@@ -199,7 +198,8 @@ const updateAlumno = (request, response) => {
                 "co_grupo = $14, " +
                 "nombre_carino = $15, " +
                 "sexo = $16 ," +
-                "modifico = $17 " +
+                "modifico = $17, " +
+                "fecha_inscripcion = $18 " +
                 " WHERE id = $1",
                 [
                     id,
@@ -208,7 +208,8 @@ const updateAlumno = (request, response) => {
                     alumno.costo_inscripcion, alumno.costo_colegiatura, alumno.minutos_gracia,
                     alumno.foto, (alumno.fecha_reinscripcion == "" ? null : alumno.fecha_reinscripcion),
                     alumno.co_grupo, alumno.nombre_carino,
-                    alumno.sexo, alumno.genero
+                    alumno.sexo, alumno.genero,
+                    (alumno.fecha_inscripcion == "" ? null : alumno.fecha_inscripcion)
                 ],
                 (error, results) => {
                     if (error) {

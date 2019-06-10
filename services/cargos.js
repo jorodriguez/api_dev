@@ -107,6 +107,8 @@ const registrarCargoProducto = (request, response) => {
 };
 
 
+
+
 module.exports = {
     getCatProductos,
     getProductosAlumno,

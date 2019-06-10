@@ -38,8 +38,6 @@ const getCatalogoServicios = (request, response) => {
 };
 
 
-
-
 module.exports = {
     getCatalogoServicios
 }
