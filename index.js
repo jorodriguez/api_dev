@@ -107,9 +107,12 @@ app.get('/servicios', servicio.getCatalogoServicios);
 app.get('/valores_esperados/:id_formato', formato_complemento.getCatalogoValoresEsperados);
 
 //pagos
-app.get('/pagos/registrar', pagos.registrarPago);
-app.get('/cargos/registrar', pagos.registrarCargo);
+app.post('/pagos/registrar', pagos.registrarPago);
+app.post('/pagos/id_alumno', pagos.registrarPago);
+
+app.post('/cargos/registrar', pagos.registrarCargo);
 app.get('/cargos', pagos.getCatalogoCargos);
+app.get('/cargos/:id_alumno', pagos.getCatalogoCargos);
 
 //Mensajes
 app.get('/mensaje',mensajeria.sendMessage);

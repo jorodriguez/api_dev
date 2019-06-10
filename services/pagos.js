@@ -136,6 +136,32 @@ const getCargosAlumno = (request, response) => {
 };
 
 
+const getPagosAlumno = (request, response) => {
+    console.log("@getPagosAlumno");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        pool.query(
+            " select * "+
+            " from co_pago_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno"+
+            " where a.id = $1 and b.eliminado = false and a.eliminado = false  ",+
+            [id_alumno],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
 
 module.exports = {
     registrarPago,
