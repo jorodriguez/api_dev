@@ -14,7 +14,7 @@ const validarToken = (request) => {
         const respuestaOk = { tokenValido: true, status: 200, mensajeRetorno: {} };      
         var token = request.headers['x-access-token'];        
         if (!token) {
-            console.log("respuestaNoToken ");
+            console.log(" x x x x x respuestaNoToken x x x x x");
             return respuestaNoToken;
         };
 
@@ -23,7 +23,7 @@ const validarToken = (request) => {
         jwt.verify(token, config.secret, function (err, decoded) {
             console.log("Validando token con store");
             if (err) {
-                console.log("respuestaFail "+respuestaFail.mensajeRetorno.message);                
+                console.log("x x x x x respuestaFail "+respuestaFail.mensajeRetorno.message+" x x x x x x ");                
                 respuesta = respuestaFail;                
             }            
             console.log("Token OK");

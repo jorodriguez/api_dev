@@ -118,11 +118,25 @@ const getCargosAlumno = (request, response) => {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
-        pool.query(
-            " select b.* "+
+        console.log("request.params.id_alumno "+request.params.id_alumno);
+
+        var id_alumno = request.params.id_alumno;
+
+          /*" select cargo.nombre as nombre_cargo,b.* "+
             " from co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno" +
-            " where a.id = $1 and b.eliminado = false and a.eliminado = false ",
-            [id_alumno],
+            "                               inner join cat_cargo cargo on b.cat_cargo = cargo.id"+
+            " where a.id = $1 and b.eliminado = false and a.eliminado = false ",*/
+
+        pool.query(          
+            " select a.co_balance_alumno,b.fecha,b.cantidad,cargo.nombre as nombre_cargo,cat_cargo as id_cargo,b.total as total,b.nota,'cargo' as tipo"+
+            " from co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno "+
+            "                               inner join cat_cargo cargo on b.cat_cargo = cargo.id"+
+            " where a.id = $1 and b.eliminado = false and a.eliminado = false"+
+            " union all		"+
+            " select a.co_balance_alumno,b.fecha,null as cantidad,'pago' as nombre_cargo,null as id_cargo,b.pago as total,b.nota,'pago' as tipo"+
+            " from co_pago_balance_alumno b	inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno	"+				
+            " where a.id = $2 and b.eliminado = false and a.eliminado = false",
+            [id_alumno,id_alumno],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -136,8 +150,8 @@ const getCargosAlumno = (request, response) => {
 };
 
 
-const getPagosAlumno = (request, response) => {
-    console.log("@getPagosAlumno");
+const getBalanceAlumno = (request, response) => {
+    console.log("@getBalanceAlumno");
     try {
         var validacion = helperToken.validarToken(request);
 
@@ -145,17 +159,33 @@ const getPagosAlumno = (request, response) => {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
+        console.log("request.params.id_alumno "+request.params.id_alumno);
+
+        var id_alumno = request.params.id_alumno;
+
         pool.query(
-            " select * "+
-            " from co_pago_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno"+
-            " where a.id = $1 and b.eliminado = false and a.eliminado = false  ",+
+            " SELECT al.nombre as nombre_alumno,al.apellidos as apellidos_alumno, bal.* "+
+			" FROM co_alumno al inner join  co_balance_alumno bal on al.co_balance_alumno = bal.id and bal.eliminado = false"+
+			" WHERE al.id = $1 and al.eliminado = false ",
             [id_alumno],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
                 }
-                response.status(200).json(results.rows);
+
+                if (results.rowCount > 0) {
+
+                    let balance_alumno = results.rows[0];                    
+
+                    response.status(200).json(balance_alumno);
+
+                } else {
+
+                    response.status(400).json(null);
+                }
+
+                //response.status(200).json(results.rows);
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -166,6 +196,8 @@ const getPagosAlumno = (request, response) => {
 module.exports = {
     registrarPago,
     registrarCargo,
-    getCatalogoCargos
+    getCatalogoCargos,
+    getCargosAlumno,
+    getBalanceAlumno
     
 }

@@ -788,7 +788,6 @@ END;
 $$ 
 LANGUAGE 'plpgsql';
 
-
 CREATE TABLE co_detalle_balance_alumno
 (
     id serial not null,
@@ -867,44 +866,21 @@ alter table co_balance_alumno add column fecha_inicio date not null;
 alter table co_balance_alumno add column fecha_fin date not null;
 alter table co_balance_alumno add column anio integer not null;
 alter table co_balance_alumno add column mes integer not null;
+alter table co_balance_alumno add column nombre_mes text not null;
+
+
+drop function iniciar_balance_mensual;
+
+ALTER TABLE co_balance_alumno ADD CONSTRAINT unique_balance_mensual_alumno UNIQUE (co_alumno,anio,mes);
 
 
 
+alter table CO_DETALLE_BALANCE_ALUMNO add column nota text;
 
 
-CREATE TABLE co_pago_balance_alumno
-(
-    id serial not null,
-	co_balance_alumno integer not null,	
-	fecha timestamp not null,		
-	pago numeric not null default 1 CHECK (pago > 0),	
-    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    fecha_modifico timestamp without time zone,    
-    genero integer NOT NULL,
-    modifico integer,
-    eliminado boolean NOT NULL DEFAULT false,
-    CONSTRAINT co_det_balance_pago_alumno_pkey PRIMARY KEY (id),
-    CONSTRAINT co_det_balance_pago_alumno_modifico_fkey FOREIGN KEY (modifico)
-        REFERENCES usuario (id),        
-    CONSTRAINT co_det_balance_alumno_pago_genero_fkey FOREIGN KEY (genero)
-        REFERENCES public.usuario (id),
-	CONSTRAINT co_det_balance_alumno_pago_alumno_fkey FOREIGN KEY (co_balance_alumno)
-        REFERENCES co_balance_alumno (id)	    
-);
+ALTER TABLE co_balance_alumno ADD COLUMN TOTAL_ADEUDO NUMERIC NOT NULL DEFAULT 0; 
+		ALTER TABLE co_balance_alumno ADD COLUMN TOTAL_PAGOS NUMERIC NOT NULL DEFAULT 0; 
+		ALTER TABLE co_balance_alumno ADD COLUMN TOTAL_CARGOS NUMERIC NOT NULL DEFAULT 0; 
 
 
-
-
-alter table co_balance_alumno drop column co_alumno;
-alter table co_balance_alumno drop column pagado;
-alter table co_balance_alumno drop column fecha_inicio;
-alter table co_balance_alumno drop column fecha_fin;
-alter table co_balance_alumno drop column anio;
-alter table co_balance_alumno drop column mes;
-alter table co_balance_alumno drop column nombre_mes;
-
-
-
-alter table co_alumno add column co_balance_alumno integer;
-			alter table co_alumno add CONSTRAINT fk_balance FOREIGN KEY (co_balance_alumno)
-			REFERENCES co_balance_alumno (id);
+alter table co_detalle_balance_alumno add column pagado boolean not null default false ;

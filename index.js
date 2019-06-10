@@ -112,7 +112,8 @@ app.post('/pagos/id_alumno', pagos.registrarPago);
 
 app.post('/cargos/registrar', pagos.registrarCargo);
 app.get('/cargos', pagos.getCatalogoCargos);
-app.get('/cargos/:id_alumno', pagos.getCatalogoCargos);
+app.get('/cargos/:id_alumno', pagos.getCargosAlumno);
+app.get('/balance/:id_alumno', pagos.getBalanceAlumno);
 
 //Mensajes
 app.get('/mensaje',mensajeria.sendMessage);
