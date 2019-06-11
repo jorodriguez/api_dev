@@ -28,12 +28,12 @@ const registrarCargo = (request, response) => {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 */
-        const { id_alumno,id_cargo,cantidad,nota,genero } = request.body;
+        const { id_alumno,cat_cargo,cantidad,nota,genero } = request.body;
 
         console.log("=====>> "+JSON.stringify(request.body));
-                   
-        pool.query("select agregar_cargo_alumno($1,$2,$3,$4,$5,$6);",                               
-            [id_alumno,id_cargo,cantidad,nota,genero],
+        //select agregar_cargo_alumno(62, 2 ,1 ,'hhhhh' ,1);
+        pool.query("select agregar_cargo_alumno($1,$2,$3,$4,$5);",                               
+            [id_alumno,cat_cargo,cantidad,nota,genero],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -181,8 +181,9 @@ const getBalanceAlumno = (request, response) => {
                     response.status(200).json(balance_alumno);
 
                 } else {
+                    console.log("No existe balance para el alumno "+id_alumno);
 
-                    response.status(400).json(null);
+                    response.status(200).json({});
                 }
 
                 //response.status(200).json(results.rows);
