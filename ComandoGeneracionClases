@@ -884,3 +884,35 @@ ALTER TABLE co_balance_alumno ADD COLUMN TOTAL_ADEUDO NUMERIC NOT NULL DEFAULT 0
 
 
 alter table co_detalle_balance_alumno add column pagado boolean not null default false ;
+
+
+
+----------------
+
+CREATE TABLE co_pago_cargo_balance_alumno
+(
+    id serial not null,
+	fecha timestamp not null,	
+	co_pago_balance_alumno integer not null,
+	co_cargo_balance_alumno integer not null,	
+	pago numeric not null,
+	fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,    
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT co_pag_carg_balance_alumno_pkey PRIMARY KEY (id),
+    CONSTRAINT co_pag_cargbalance_alumno_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),        
+    CONSTRAINT co_pag_cargbalance_alumno_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id),
+	CONSTRAINT co_pag_carg_balance_alumno_pago_fkey FOREIGN KEY (co_pago_balance_alumno)
+        REFERENCES co_pago_balance_alumno (id),
+	CONSTRAINT co_pag_carg_balance_alumno_cargo_fkey FOREIGN KEY (co_cargo_balance_alumno)
+        REFERENCES co_cargo_balance_alumno (id)	
+);
+
+
+
+
+--							alter table co_pago_cargo_balance_alumno add column pago numeric not null;

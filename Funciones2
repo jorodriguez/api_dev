@@ -1,0 +1,267 @@
+
+
+CREATE OR REPLACE FUNCTION public.agregar_cargo_alumno(id_alumno integer, id_cargo integer, cantidad integer, nota text, id_genero integer, OUT retorno boolean)
+ RETURNS boolean
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+	alumno_record RECORD;
+	cargo_record RECORD;
+	balance_record co_balance_alumno%ROWTYPE;
+	fecha_current date;
+	fecha_inicio date;
+	cargo_monetario numeric;
+	fecha_fin date;	
+	_numero_anio int;
+	_numero_mes int;	
+	_nombre_mes text;	
+	CARGO_MENSUALIDAD int := 1;
+	CARGO_HORA_EXTRA int := 3;
+	suma_total numeric;
+	cargo_aplicar numeric := 0;
+	cantidad_aplicar integer := 1;
+	existe_registro boolean := false;
+	retorno boolean := false;
+    sqlerr_message_text TEXT;
+    sqlerr_exception_detail TEXT;
+    sqlerr_exception_hint TEXT;
+	id_balance_alumno integer;
+	existe_cargo boolean := false;
+	proceder_insert boolean := true;
+	sqlInsertDetalle TEXT := 'INSERT INTO co_cargo_balance_alumno(CO_BALANCE_ALUMNO,Cat_Cargo,FECHA,CANTIDAD,CARGO,TOTAL,NOTA,GENERO)
+							VALUES($1,$2,$3,$4,$5,$6,$7,$8)';								
+BEGIN    
+	raise notice 'AGREGAR CARGO';	
+	fecha_current := getDate('');
+		--balance alumno
+
+	select * from co_alumno where id = id_alumno INTO alumno_record;		
+		
+	select * from co_balance_alumno where id = alumno_record.co_balance_alumno and eliminado = false 
+			INTO balance_record;
+			
+	--IF balance_record is not null THEN
+	IF FOUND THEN
+		SELECT cargo.nombre,cargo.descripcion,cargo.precio
+		FROM cat_cargo cargo 
+		WHERE cargo.id = id_cargo
+		INTO cargo_record;		
+		
+		
+	
+		--aplicar cargo
+		IF id_cargo = CARGO_MENSUALIDAD THEN
+			raise notice 'Aplicando cargo de mensualidad ';											
+			cargo_aplicar := alumno_record.costo_colegiatura;					
+		ELSE 
+			IF id_cargo = CARGO_HORA_EXTRA THEN
+				-- validar si existe la hora
+				--select * from co_detalle_balance_alumno where cat_cargo = CARGO_HORA_EXTRA INTO 
+				raise notice 'Cargo por hora extra';
+					cargo_aplicar := cargo_record.precio;					
+			ELSE 
+				--Es un cargo de otra cosa
+				raise notice 'Cargo generico';				
+					cargo_aplicar := cargo_record.precio;
+			
+			END IF;				
+		END IF;
+		-- registrar detalle				
+		IF id_cargo = CARGO_MENSUALIDAD THEN
+			select true from co_cargo_balance_alumno where cat_cargo = CARGO_MENSUALIDAD AND co_balance_alumno = balance_record.id 
+			INTO existe_cargo;		
+			raise notice 'el cargo de mensualidad existe ? %',existe_cargo;
+			IF existe_cargo THEN
+				proceder_insert = false;
+			END IF;			
+		END IF;
+		
+		raise notice 'PROCEDER AL INSERRT %',proceder_insert;
+		
+		IF proceder_insert THEN 
+		
+				EXECUTE sqlInsertDetalle
+					USING balance_record.ID,
+							id_cargo,
+							(getDate('')+getHora(''))::timestamp,
+							cantidad_aplicar,
+							cargo_aplicar,
+							(cargo_aplicar * cantidad_aplicar),					
+							nota,
+							id_genero;						
+		
+				---actualizar total balance alumno Agregar cargos								
+				UPDATE CO_BALANCE_ALUMNO
+				SET TOTAL_CARGOS = (TOTAL_CARGOS + (cargo_aplicar * cantidad_aplicar)),
+					TOTAL_ADEUDO = (TOTAL_ADEUDO + (cargo_aplicar * cantidad_aplicar))				
+				where id = balance_record.id ;		
+		END IF;
+	
+	ELSE
+		raise notice 'NO EXISTE EL BALANCE';
+	
+	END IF;		
+	retorno := true;
+END;
+$function$
+
+
+
+
+
+CREATE OR REPLACE FUNCTION public.agregar_pago_alumno(id_alumno integer, pago_param numeric, nota text, id_genero integer, OUT retorno boolean)
+ RETURNS boolean
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+	fecha_current date;
+	alumno_record RECORD;
+	balance_record co_balance_alumno%ROWTYPE;
+	retorno boolean := false;
+    sqlerr_message_text TEXT;
+    sqlerr_exception_detail TEXT;
+    sqlerr_exception_hint TEXT;
+	id_balance_alumno integer;
+	sqlInsertPago TEXT := 'INSERT INTO co_pago_balance_alumno(CO_BALANCE_ALUMNO,FECHA,PAGO,NOTA,GENERO)
+							VALUES($1,$2,$3,$4,$5)';								
+BEGIN    
+
+	raise notice 'AGREGAR PAGO';	
+	fecha_current := getDate('');	
+	select * from co_alumno where id = id_alumno INTO alumno_record;		
+		
+	select * from co_balance_alumno where id = alumno_record.co_balance_alumno and eliminado = false 
+			INTO balance_record;
+	
+	raise notice 'pass 1';
+			
+	--IF balance_record is not null THEN
+	IF FOUND THEN			
+		
+				EXECUTE sqlInsertPago
+					USING balance_record.ID,							
+							(getDate('')+getHora(''))::timestamp,
+							pago_param,														
+							nota,
+							id_genero;						
+		raise notice 'pass 2';
+				---actualizar total balance alumno Agregar cargos								
+				UPDATE co_balance_alumno 
+					SET TOTAL_PAGOS = (TOTAL_PAGOS + pago_param),
+						TOTAL_ADEUDO = (TOTAL_ADEUDO - pago_param)				
+				where id = balance_record.id;		
+			raise notice 'se registro el pago ';
+	
+	
+	ELSE
+		raise notice 'NO EXISTE EL BALANCE';
+	
+	END IF;		
+	retorno := true;
+END;
+$function$
+
+
+
+
+
+
+
+
+
+CREATE OR REPLACE FUNCTION agregar_pago_alumno(ids_cargos text,cargos_desglose text, id_alumno integer, pago_param numeric, nota text, id_genero integer, OUT retorno boolean)
+ RETURNS boolean
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+	fecha_current timestamp;
+	ids_cargos_relacionar integer[];
+	cargos_desglose_relacionar numeric[];
+	id_pago_balance_alumno integer;
+	alumno_record RECORD;
+	balance_record co_balance_alumno%ROWTYPE;
+	retorno boolean := false;
+    sqlerr_message_text TEXT;
+    sqlerr_exception_detail TEXT;
+    sqlerr_exception_hint TEXT;
+	id_balance_alumno integer;
+	ind int := 0;
+	sqlInsertPago TEXT := 'INSERT INTO co_pago_balance_alumno(CO_BALANCE_ALUMNO,FECHA,PAGO,NOTA,GENERO)
+							VALUES($1,$2,$3,$4,$5) RETURNING id INTO id_pago';	
+							
+	sqlInsertRelacion TEXT := 'INSERT INTO co_pago_cargo_balance_alumno(fecha,co_pago_balance_alumno,co_cargo_balance_alumno,pago,genero)
+							VALUES($1,$2,$3,$4,$5)';		
+							
+
+BEGIN    
+
+	raise notice 'REGISTRAR PAGOS';	
+	
+	 ids_cargos_relacionar = string_to_array(ids_cargos,','); 
+	 cargos_desglose_relacionar =  string_to_array(cargos_desglose,',');
+	 
+	 raise notice 'cargos a relacionar %',ids_cargos_relacionar;
+	 raise notice 'cargos desglose a relacionar %',cargos_desglose_relacionar;
+	 
+	fecha_current := getDate('');	
+	select * from co_alumno where id = id_alumno INTO alumno_record;		
+		
+	select * from co_balance_alumno where id = alumno_record.co_balance_alumno and eliminado = false 
+			INTO balance_record;
+	
+	raise notice 'pass 1';			
+	--IF balance_record is not null THEN
+	IF FOUND THEN			
+		fecha_current := ((getDate('')+getHora(''))::timestamp);
+				/*EXECUTE sqlInsertPago
+					USING balance_record.ID,							
+							fecha_current,
+							pago_param,														
+							nota,
+							id_genero
+					;	*/					
+				INSERT INTO co_pago_balance_alumno(CO_BALANCE_ALUMNO,FECHA,PAGO,NOTA,GENERO)
+							VALUES(balance_record.ID,fecha_current,pago_param,nota,id_genero) 
+				RETURNING id INTO id_pago_balance_alumno;
+									
+									raise notice 'id_pago_balance insertartado %',id_pago_balance_alumno;
+				raise notice 'pass 2';
+				---actualizar total balance alumno Agregar cargos								
+				UPDATE co_balance_alumno 
+					SET TOTAL_PAGOS = (TOTAL_PAGOS + pago_param),
+						TOTAL_ADEUDO = (TOTAL_ADEUDO - pago_param)				
+				where id = balance_record.id;		
+				
+			raise notice 'se registro el pago ';
+			raise notice 'relacionar ';
+			
+			FOR i IN 1 .. array_upper(ids_cargos_relacionar, 1)
+   			LOOP
+			  --co_pago_cargo_balance_alumno(fecha,co_pago_balance_alumno,co_cargo_balance_alumno,pago,genero)
+						
+      				RAISE NOTICE 'relacionando id_cargo % id_pago % cantidad %',ids_cargos_relacionar[i],id_pago_balance_alumno,cargos_desglose_relacionar[i];
+					EXECUTE sqlInsertRelacion 
+						USING fecha_current,
+								id_pago_balance_alumno,
+							    ids_cargos_relacionar[i],
+								cargos_desglose_relacionar[i],								
+								id_genero;		
+					raise notice 'guardado..';			
+					
+					--actualizar total en cargo
+					UPDATE co_cargo_balance_alumno
+					SET TOTAL_PAGADO = (TOTAL_PAGADO + cargos_desglose_relacionar[i]),
+						TOTAL = (TOTAL - cargos_desglose_relacionar[i])				
+					WHERe id = ids_cargos_relacionar[i];		
+					raise notice 'total actualizado..';									
+   			END LOOP;
+			
+	ELSE
+		raise notice 'NO EXISTE EL BALANCE';
+	
+	END IF;		
+	retorno := true;
+END;
+$function$
+
+
