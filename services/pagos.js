@@ -22,12 +22,12 @@ const pool = new Pool({
 const registrarCargo = (request, response) => {
     console.log("@registrarCargo");
     try {
-        /*      var validacion = helperToken.validarToken(request);
-      
-              if (!validacion.tokenValido) {
-                  return response.status(validacion.status).send(validacion.mensajeRetorno);;
-              }
-      */
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
         const { id_alumno, cat_cargo, cantidad, nota, genero } = request.body;
 
         console.log("=====>> " + JSON.stringify(request.body));
@@ -56,30 +56,29 @@ const registrarCargo = (request, response) => {
 const registrarPago = (request, response) => {
     console.log("@registrarPago");
     try {
-        /*      var validacion = helperToken.validarToken(request);
-      
-              if (!validacion.tokenValido) {
-                  return response.status(validacion.status).send(validacion.mensajeRetorno);;
-              }
-      */
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
 
         console.log("=====>> " + JSON.stringify(request.body));
-        const { id_alumno, pago, nota, ids_cargos,cargos_desglosados, genero } = request.body;      
-        
+        const { id_alumno, pago, nota, ids_cargos, cargos_desglosados, genero } = request.body;
+
 
         //pool.query("select agregar_pago_alumno($1,$2,$3,$4);",                               
         //pool.query("select agregar_pago_alumno('48,50','20,100',62,130,'',);",
-        pool.query("select agregar_pago_alumno('"+ids_cargos+"','"+cargos_desglosados+"',"+id_alumno+","+pago+",'"+nota+"',"+genero+");",
-        //    [id_alumno ,pago,nota,genero],
+        pool.query("select agregar_pago_alumno('" + ids_cargos + "','" + cargos_desglosados + "'," + id_alumno + "," + pago + ",'" + nota + "'," + genero + ");",
+            //    [id_alumno ,pago,nota,genero],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
-                }                
+                }
                 console.log("Se llamo a la function de pago");
                 //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
                 response.status(200).json(results.rowCount)
-            });        
+            });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
 
@@ -123,7 +122,7 @@ const getCargosAlumno = (request, response) => {
         console.log("request.params.id_alumno " + request.params.id_alumno);
 
         var id_alumno = request.params.id_alumno;
-     
+
         pool.query(
             " SELECT a.co_balance_alumno," +
             "   b.id as id_cargo_balance_alumno," +
@@ -140,8 +139,9 @@ const getCargosAlumno = (request, response) => {
             "   0 as pago " +
             " FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno " +
             "                               inner join cat_cargo cargo on b.cat_cargo = cargo.id					" +
-            " WHERE a.id = $1 and b.eliminado = false and a.eliminado = false"+
-            "  ORDER by b.pagado, b.fecha desc",
+            " WHERE a.id = $1 and b.eliminado = false and a.eliminado = false" +
+            "  ORDER by b.pagado, b.fecha desc"+
+            " LIMIT 20",
             [id_alumno],
             (error, results) => {
                 if (error) {
@@ -156,8 +156,8 @@ const getCargosAlumno = (request, response) => {
 };
 
 
-const getCargoAlumnoById = (request, response) => {
-    console.log("@getCargoAlumnoById");
+const getPagosByCargoId = (request, response) => {
+    console.log("@getPagosByCargoId");
     try {
         var validacion = helperToken.validarToken(request);
 
@@ -165,29 +165,16 @@ const getCargoAlumnoById = (request, response) => {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
-        console.log("request.params.id_alumno " + request.params.id_alumno);
+        console.log("request.params.id_cargo_balance_alumno " + request.params.id_cargo_balance_alumno);
 
-        var id_alumno = request.params.id_alumno;
-     
+        var id_cargo_balance_alumno = request.params.id_cargo_balance_alumno;
+
         pool.query(
-            " SELECT a.co_balance_alumno," +
-            "   b.id as id_cargo_balance_alumno," +
-            "   b.fecha," +
-            "   b.cantidad," +
-            "   cargo.nombre as nombre_cargo," +
-            "   cat_cargo as id_cargo," +
-            "   b.total as total," +
-            "   b.cargo," +
-            "   b.total_pagado," +
-            "   b.nota," +
-            "   b.pagado ," +
-            "   false as checked ," +
-            "   0 as pago " +
-            " FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno " +
-            "                               inner join cat_cargo cargo on b.cat_cargo = cargo.id					" +
-            " WHERE a.id = $1  and b.eliminado = false and a.eliminado = false"+
-            "  ORDER by b.fecha desc",
-            [id_alumno],
+            " SELECT r.*" +
+            " FROM co_pago_cargo_balance_alumno r inner join co_pago_balance_alumno pago on r.co_pago_balance_alumno = pago.id" +
+            " WHERE r.co_cargo_balance_alumno = $1 and r.eliminado = false and pago.eliminado = false" +
+            " ORDER BY pago.fecha DESC ",
+            [id_cargo_balance_alumno],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -251,6 +238,7 @@ module.exports = {
     registrarCargo,
     getCatalogoCargos,
     getCargosAlumno,
-    getBalanceAlumno
+    getBalanceAlumno,
+    getPagosByCargoId
 
 }

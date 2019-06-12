@@ -108,7 +108,8 @@ app.get('/valores_esperados/:id_formato', formato_complemento.getCatalogoValores
 
 //pagos
 app.post('/pagos/registrar', pagos.registrarPago);
-app.post('/pagos/id_alumno', pagos.registrarPago);
+app.post('/pagos/:id_alumno', pagos.registrarPago);
+app.get('/pagos/:id_cargo_balance_alumno', pagos.getPagosByCargoId);
 
 app.post('/cargos/registrar', pagos.registrarCargo);
 app.get('/cargos', pagos.getCatalogoCargos);

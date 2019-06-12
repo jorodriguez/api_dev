@@ -51,10 +51,12 @@ const getAlumnos = (request, response) => {
 
         pool.query(
             "SELECT a.*," +
+            "  balance.total_adeudo > 0 As adeuda,"+
             " g.nombre as nombre_grupo," +
             " s.nombre as nombre_sucursal" +
             " FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id" +
             "                     inner join co_sucursal s on a.co_sucursal = s.id" +
+            "                       left join co_balance_alumno balance on balance.id = a.co_balance_alumno "+
             "  WHERE a.co_sucursal = $1 AND a.eliminado=false ORDER BY a.nombre ASC",
             [id_sucursal],
             (error, results) => {
