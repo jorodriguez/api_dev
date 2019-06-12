@@ -87,7 +87,6 @@ const registrarPago = (request, response) => {
 };
 
 
-
 const getCatalogoCargos = (request, response) => {
     console.log("@getCatalogoCargos");
     try {
