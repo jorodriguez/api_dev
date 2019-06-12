@@ -123,7 +123,6 @@ const getCargosAlumno = (request, response) => {
         console.log("request.params.id_alumno " + request.params.id_alumno);
 
         var id_alumno = request.params.id_alumno;
-
      
         pool.query(
             " SELECT a.co_balance_alumno," +
@@ -141,7 +140,8 @@ const getCargosAlumno = (request, response) => {
             "   0 as pago " +
             " FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno " +
             "                               inner join cat_cargo cargo on b.cat_cargo = cargo.id					" +
-            " WHERE a.id = $1 and b.eliminado = false and a.eliminado = false",
+            " WHERE a.id = $1 and b.eliminado = false and a.eliminado = false"+
+            "  ORDER by b.pagado, b.fecha desc",
             [id_alumno],
             (error, results) => {
                 if (error) {
@@ -154,6 +154,52 @@ const getCargosAlumno = (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
+
+
+const getCargoAlumnoById = (request, response) => {
+    console.log("@getCargoAlumnoById");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        console.log("request.params.id_alumno " + request.params.id_alumno);
+
+        var id_alumno = request.params.id_alumno;
+     
+        pool.query(
+            " SELECT a.co_balance_alumno," +
+            "   b.id as id_cargo_balance_alumno," +
+            "   b.fecha," +
+            "   b.cantidad," +
+            "   cargo.nombre as nombre_cargo," +
+            "   cat_cargo as id_cargo," +
+            "   b.total as total," +
+            "   b.cargo," +
+            "   b.total_pagado," +
+            "   b.nota," +
+            "   b.pagado ," +
+            "   false as checked ," +
+            "   0 as pago " +
+            " FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno " +
+            "                               inner join cat_cargo cargo on b.cat_cargo = cargo.id					" +
+            " WHERE a.id = $1  and b.eliminado = false and a.eliminado = false"+
+            "  ORDER by b.fecha desc",
+            [id_alumno],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
 
 
 const getBalanceAlumno = (request, response) => {

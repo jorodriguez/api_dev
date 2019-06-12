@@ -109,62 +109,6 @@ $function$
 
 
 
-CREATE OR REPLACE FUNCTION public.agregar_pago_alumno(id_alumno integer, pago_param numeric, nota text, id_genero integer, OUT retorno boolean)
- RETURNS boolean
- LANGUAGE plpgsql
-AS $function$
-DECLARE
-	fecha_current date;
-	alumno_record RECORD;
-	balance_record co_balance_alumno%ROWTYPE;
-	retorno boolean := false;
-    sqlerr_message_text TEXT;
-    sqlerr_exception_detail TEXT;
-    sqlerr_exception_hint TEXT;
-	id_balance_alumno integer;
-	sqlInsertPago TEXT := 'INSERT INTO co_pago_balance_alumno(CO_BALANCE_ALUMNO,FECHA,PAGO,NOTA,GENERO)
-							VALUES($1,$2,$3,$4,$5)';								
-BEGIN    
-
-	raise notice 'AGREGAR PAGO';	
-	fecha_current := getDate('');	
-	select * from co_alumno where id = id_alumno INTO alumno_record;		
-		
-	select * from co_balance_alumno where id = alumno_record.co_balance_alumno and eliminado = false 
-			INTO balance_record;
-	
-	raise notice 'pass 1';
-			
-	--IF balance_record is not null THEN
-	IF FOUND THEN			
-		
-				EXECUTE sqlInsertPago
-					USING balance_record.ID,							
-							(getDate('')+getHora(''))::timestamp,
-							pago_param,														
-							nota,
-							id_genero;						
-		raise notice 'pass 2';
-				---actualizar total balance alumno Agregar cargos								
-				UPDATE co_balance_alumno 
-					SET TOTAL_PAGOS = (TOTAL_PAGOS + pago_param),
-						TOTAL_ADEUDO = (TOTAL_ADEUDO - pago_param)				
-				where id = balance_record.id;		
-			raise notice 'se registro el pago ';
-	
-	
-	ELSE
-		raise notice 'NO EXISTE EL BALANCE';
-	
-	END IF;		
-	retorno := true;
-END;
-$function$
-
-
-
-
-
 
 
 
@@ -212,19 +156,12 @@ BEGIN
 	raise notice 'pass 1';			
 	--IF balance_record is not null THEN
 	IF FOUND THEN			
-		fecha_current := ((getDate('')+getHora(''))::timestamp);
-				/*EXECUTE sqlInsertPago
-					USING balance_record.ID,							
-							fecha_current,
-							pago_param,														
-							nota,
-							id_genero
-					;	*/					
+		fecha_current := ((getDate('')+getHora(''))::timestamp);							
 				INSERT INTO co_pago_balance_alumno(CO_BALANCE_ALUMNO,FECHA,PAGO,NOTA,GENERO)
 							VALUES(balance_record.ID,fecha_current,pago_param,nota,id_genero) 
 				RETURNING id INTO id_pago_balance_alumno;
 									
-									raise notice 'id_pago_balance insertartado %',id_pago_balance_alumno;
+				raise notice 'id_pago_balance insertartado %',id_pago_balance_alumno;
 				raise notice 'pass 2';
 				---actualizar total balance alumno Agregar cargos								
 				UPDATE co_balance_alumno 
@@ -251,9 +188,12 @@ BEGIN
 					--actualizar total en cargo
 					UPDATE co_cargo_balance_alumno
 					SET TOTAL_PAGADO = (TOTAL_PAGADO + cargos_desglose_relacionar[i]),
-						TOTAL = (TOTAL - cargos_desglose_relacionar[i])				
-					WHERe id = ids_cargos_relacionar[i];		
+						TOTAL = (TOTAL - cargos_desglose_relacionar[i]),
+						pagado = ((TOTAL - cargos_desglose_relacionar[i]) = 0)
+						--PAGADO = ( (TOTAL - cargos_desglose_relacionar[i]) = 0 ) 						
+					WHERE id = ids_cargos_relacionar[i];		
 					raise notice 'total actualizado..';									
+					
    			END LOOP;
 			
 	ELSE
@@ -263,5 +203,7 @@ BEGIN
 	retorno := true;
 END;
 $function$
+
+
 
 
