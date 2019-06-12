@@ -62,15 +62,14 @@ const registrarPago = (request, response) => {
                   return response.status(validacion.status).send(validacion.mensajeRetorno);;
               }
       */
-        const { id_alumno, pago, nota, lista_cargos, genero } = request.body;
-
-        // lista_cargos.map(e=>e.id);
 
         console.log("=====>> " + JSON.stringify(request.body));
+        const { id_alumno, pago, nota, ids_cargos,cargos_desglosados, genero } = request.body;      
+        
 
         //pool.query("select agregar_pago_alumno($1,$2,$3,$4);",                               
         //pool.query("select agregar_pago_alumno('48,50','20,100',62,130,'',);",
-        /*pool.query("select agregar_pago_alumno('','20',"+id_alumno+","+pago+",'"+nota+"',"+genero+");",
+        pool.query("select agregar_pago_alumno('"+ids_cargos+"','"+cargos_desglosados+"',"+id_alumno+","+pago+",'"+nota+"',"+genero+");",
         //    [id_alumno ,pago,nota,genero],
             (error, results) => {
                 if (error) {
@@ -80,8 +79,7 @@ const registrarPago = (request, response) => {
                 console.log("Se llamo a la function de pago");
                 //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
                 response.status(200).json(results.rowCount)
-            });*/
-        response.status(200).json(1);
+            });        
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
 
