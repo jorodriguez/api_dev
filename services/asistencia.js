@@ -40,7 +40,8 @@ const getAlumnosRecibidos = (request, response) => {
             " false as seleccionado"+
             " FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id " +
             "                               inner join co_grupo grupo on alumno.co_grupo = grupo.id "+
-            " WHERE asistencia.fecha = current_date AND asistencia.hora_salida is null AND alumno.eliminado=false " +
+            //" WHERE asistencia.fecha = current_date AND asistencia.hora_salida is null AND alumno.eliminado=false " +
+            " WHERE asistencia.hora_salida is null AND alumno.eliminado=false " +
             "           AND alumno.co_sucursal = $1" +
             " ORDER BY alumno.hora_salida DESC",
             [id_sucursal],
@@ -72,7 +73,8 @@ const getAlumnosPorRecibir = (request, response) => {
             "  WHERE id not in (" +
             "               SELECT asistencia.co_alumno" +
             "                   FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno=alumno.id" +
-            "                   WHERE asistencia.fecha = current_date AND asistencia.hora_salida is null   " +
+            //"                   WHERE asistencia.fecha = current_date AND asistencia.hora_salida is null   " +
+            "                   WHERE asistencia.hora_salida is null and  asistencia.eliminado = false " +
             "  AND alumno.co_sucursal = $1" +
             "  AND asistencia.eliminado=false" +
             ") " +

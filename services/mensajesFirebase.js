@@ -72,7 +72,7 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
             }
         };
 
-        return firebase.messaging().sendToDevice(token, payloadMensaje, options);
+     return firebase.messaging().sendToDevice(token, payloadMensaje, options);
             
 
     } catch (e) {
