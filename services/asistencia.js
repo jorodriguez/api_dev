@@ -111,7 +111,7 @@ const registrarEntradaAlumnos = (request, response) => {
                 sqlComplete += ",";
             }
             
-            sqlComplete += "(current_date," + ids[i] + ",getHora('')," + genero + "," + genero + ")";
+            sqlComplete += "(getDate('')," + ids[i] + ",getHora('')," + genero + "," + genero + ")";
         };
 
         pool.query("INSERT INTO CO_ASISTENCIA(fecha,co_alumno,hora_entrada,usuario,genero) " +

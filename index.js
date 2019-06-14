@@ -16,7 +16,7 @@ const servicio = require('./services/servicio');
 const formato_complemento = require('./services/formato_complemento');
 const pagos = require('./services/pagos');
 const mensajeria = require('./services/mensajesFirebase');
-const tareas = require('./services/tareas_programadas');
+const tareas_programadas = require('./services/tareas_programadas');
 const schedule = require('node-schedule');
 
 const port = process.env.PORT || 5000;
@@ -138,13 +138,15 @@ app.listen(port, () => {
 
 //--Calcular horas extras . proceso que corre cada 30 min
 
-schedule.scheduleJob('0 1 * * * *', function(){
+//schedule.scheduleJob('0 */30 * * * 1-5', function(){
+schedule.scheduleJob('0 */5 * * * 1-5', function(){
 	console.log('CALCULANDO CARGOS DE HORAS EXTRAS DE ALUMNOS '+new Date());
+	tareas_programadas.ejecutarProcesoHorasExtrasAuto();
 });
 
 // Sec,Min,Hor,D,M,Y
-schedule.scheduleJob('0 1 0 * * *', function(){
-	console.log('CALCULANDO EL BALANCE DE LOS ALUMNOS '+new Date());
-	tareas.generarBalanceAlumnos();
+schedule.scheduleJob('0 1 0 1 * *', function(){
+	console.log('Agregar cargo de mensualidad '+new Date());
+	//tareas.generarBalanceAlumnos();
 });
 

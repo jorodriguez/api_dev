@@ -61,6 +61,29 @@ const enviarMensaje = (titulo, cuerpo) => {
 
 }
 
+
+const enviarMensajeToken = (token, titulo, cuerpo) => {
+    try {
+        console.log("Enviando mensaje "+titulo+" "+cuerpo);
+        const payloadMensaje = {
+            notification: {
+                title: titulo,
+                body: cuerpo,
+            }
+        };
+
+        return firebase.messaging().sendToDevice(token, payloadMensaje, options);
+            
+
+    } catch (e) {
+        console.log("Erorr al enviar mensaje "+e);
+        return false;
+    }
+
+}
+
+
+
 const sendMessage = (request, response) => {
     console.log("@Enviando mensaje");
     try {
@@ -78,9 +101,8 @@ const sendMessage = (request, response) => {
     }
 };
 
-
-
 module.exports = {
     enviarMensaje,
-    sendMessage
+    sendMessage,
+    enviarMensajeToken
 }

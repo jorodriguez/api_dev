@@ -938,3 +938,82 @@ values(1,'Mensualidad','Mensualidad.',1,true,1),
 		(3,'Hora Extra','Cargo por hora extra.',100,true,1),
 		(4,'Cargo extra','Cargo por pago a destiempo de mensualidad. ',200,true,1);
 	  	
+---
+
+/*
+WITH asistencias AS(
+	select id as id_asistencia,
+			co_alumno,
+			fecha as fecha_entrada_asistencia,
+		    hora_entrada as hora_entrada_asistencia ,
+			hora_salida	
+	from co_asistencia 	
+	where fecha = getDate('') or hora_salida is null and eliminado = false	
+) select  
+		al.hora_salida,
+		(al.hora_salida + interval  '1 minute' * al.minutos_gracia) as hora_salida_limite,		
+		al.minutos_gracia,
+		getHora(''),
+		(al.hora_salida + interval  '1 minute' * al.minutos_gracia) < getHora(''),
+		age((getDate('') + getHora(''))::timestamp, (getDate('') +  (al.hora_salida + interval  '1 minute' * al.minutos_gracia))::timestamp ) as diferencia,
+		* 
+from co_alumno al inner join asistencias asis on al.id = asis.co_alumno
+where al.eliminado = false 
+order by diferencia desc
+
+
+
+*/
+
+CREATE TABLE co_hora_extra
+(
+    id serial not null,
+	co_asistencia integer not null,
+	fecha timestamp not null,		
+	hora_inicio timestamp,
+	hora_fin timestamp,
+	fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,    
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT co_hora_extra_pkey PRIMARY KEY (id),
+    CONSTRAINT co_hora_extra_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),        
+    CONSTRAINT co_hora_extra_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id),
+	CONSTRAINT co_hora_extra_fkey FOREIGN KEY (co_asistencia)
+        REFERENCES co_asistencia (id)
+);
+
+
+
+CREATE TABLE si_notificacion
+(
+    id serial not null,
+	fecha timestamp not null,		
+	titulo text not null,		
+	cuerpo text not null,
+	icon text,
+	token text not null,
+	notificado boolean not null default false,	
+	fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,    
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT si_notificacion_pkey PRIMARY KEY (id),
+    CONSTRAINT si_notificacion_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),        
+    CONSTRAINT si_notificacion_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id)	
+);
+
+
+
+alter table co_familiar add column token text;
+
+alter table si_notificacion add column fallo boolean default false;	
+ alter table si_notificacion add column mensaje_fallo text;		
+
+ alter table si_notificacion add column mensajeId text

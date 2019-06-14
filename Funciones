@@ -650,8 +650,6 @@ $function$
 
 
 
-
-
 CREATE OR REPLACE FUNCTION public.agregar_pago_alumno(id_alumno integer, pago_param numeric, nota text, id_genero integer, OUT retorno boolean)
  RETURNS boolean
  LANGUAGE plpgsql
@@ -703,3 +701,120 @@ BEGIN
 	retorno := true;
 END;
 $function$
+
+
+
+/*
+
+
+--CREATE or replace FUNCTION iniciar_balance_mensual_alumnos(OUT retorno boolean) AS $$
+do
+$$
+DECLARE
+	item RECORD;	
+	hora TIMESTAMP;
+	hora_inicio_generate timestamp;
+	ID_HORA_EXTRA integer := 3;
+	ID_GENERO integer := 1;
+	papas_record RECORD;
+	fallo boolean := false;
+	mensaje_fallo text :='';
+	token_familiar text := '';
+BEGIN    
+	raise notice 'INICIANDO GENERACION DE HORAS EXTRAS';
+			
+	fOR item IN ( 
+			WITH asistencias AS(
+				select a.id as id_asistencia,
+						a.co_alumno,
+						a.fecha as fecha_entrada_asistencia,
+		    			a.hora_entrada as hora_entrada_asistencia ,
+						a.hora_salida,
+						(select hora_inicio from co_hora_extra where co_asistencia = a.id order by hora_fin desc limit 1) as hora_inicio_hora_extra,
+						(select hora_fin from co_hora_extra where co_asistencia = a.id order by hora_fin desc limit 1) as hora_fin_hora_extra						
+				from co_asistencia 	a
+				where a.fecha = getDate('') or a.hora_salida is null and a.eliminado = false	
+			) select  
+					CASE WHEN asis.hora_inicio_hora_extra is null THEN					
+						(getDate('')+al.hora_salida)::timestamp
+					ELSE asis.hora_inicio_hora_extra
+					END AS hora_inicio_hora_extra_ultima,																
+					
+					CASE WHEN asis.hora_fin_hora_extra is null THEN					
+						(getDate('')+al.hora_salida + interval '1 hour')::timestamp
+					ELSE asis.hora_fin_hora_extra
+					END AS hora_fin_hora_extra_ultima,																												
+					
+					CASE WHEN asis.hora_fin_hora_extra is null THEN					
+						age((getDate('') +  (al.hora_salida + interval  '1 minute' * al.minutos_gracia))::timestamp,(getDate('') + getHora(''))::timestamp)
+					ELSE 
+						age(hora_fin_hora_extra,(getDate('') + getHora(''))::timestamp)
+					END 
+						AS diferencia,			
+											
+					(asis.hora_fin_hora_extra is  null) as no_existe_registro_hora_extra,
+					(al.hora_salida + interval  '1 minute' * al.minutos_gracia) as hora_salida_limite,												
+					al.id as id_alumno,
+					al.nombre as nombre_alumno,					
+					asis.*
+			from co_alumno al inner join asistencias asis on al.id = asis.co_alumno
+			where al.eliminado = false 
+			order by diferencia desc											
+		) LOOP 																		
+				raise notice 'calcular horas de la hora salida a la hora actual ';							
+				IF item.no_existe_registro_hora_extra THEN 
+					hora_inicio_generate:=item.hora_inicio_hora_extra_ultima;
+				ELSE
+					hora_inicio_generate:=item.hora_fin_hora_extra_ultima;
+				END IF;
+					raise notice 'generando inserts de % a la hora actual ',hora_inicio_generate;
+					FOR hora IN ( 
+							SELECT * FROM generate_series(hora_inicio_generate, (getDate('')+getHora(''))::timestamp, '1 hour')
+					) LOOP 	
+						raise notice ' hora para insertar de % a % ',hora,(hora+ interval '1 hour');
+							INSERT INTO CO_HORA_EXTRA (CO_ASISTENCIA,FECHA,HORA_INICIO,HORA_FIN,FECHA_GENERO,GENERO)
+							VALUES(item.id_asistencia,((getDate('')+getHora(''))::timestamp),hora, (hora+ interval '1 hour'),((getDate('')+getHora(''))::timestamp),ID_GENERO);
+							-- generar cargos
+							--id_alumno, cat_cargo, cantidad, nota, genero
+							PERFORM agregar_cargo_alumno(item.id_alumno,ID_HORA_EXTRA,1,'Cargo por Hora Extra de '||hora||' a '||(hora+ interval '1 hour')||'.',ID_GENERO);
+							-- insertar en la table de notificaciones
+							select rel.envio_avisos,rel.co_alumno,f.token,f.*
+									from co_alumno_familiar rel inner join co_familiar f on rel.co_familiar = f.id
+									where co_alumno = 34 
+									and rel.autorizado_para_entrega = true
+									and rel.eliminado = false
+									and f.eliminado = false
+									and rel.co_parentesco in (1,2) INTO papas_record ;							
+							IF FOUND THEN
+								IF papas_record.token is null THEN
+									fallo := true;
+									mensaje_fallo := 'EL FAMILIAR NO CUENTA CON UN TOKEN. [ALUMNO '||item.nombre_alumno||']';									
+								ELSE
+									token_familiar := papas_record.token;
+								END IF;																	
+								
+							ELSE
+									fallo := true;
+									mensaje_fallo := 'NO SE ENCONTRÓ UN FAMILIAR PARA EL ALUMNO '||item.nombre_alumno;									
+							END IF;
+							
+							INSERT INTO SI_NOTIFICACION (FECHA,TITULO,CUERPO,ICON,TOKEN,fallo,mensaje_fallo,FECHA_GENERO,GENERO)
+								VALUES( (getDate('')+getHora(''))::timestamp,											
+											'Cargo por Hora Extra',
+											'Cargo por Hora Extra de '||hora||' a '||(hora+ interval '1 hour')||'.',
+											'DEFAULT',
+											token_familiar,
+											fallo,
+											mensaje_fallo,
+											(getDate('')+getHora(''))::timestamp,
+											1
+										);
+							
+					END LOOP;					
+  		END LOOP;   	
+	END;
+$$ 
+LANGUAGE 'plpgsql';
+
+
+*/
