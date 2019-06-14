@@ -66,8 +66,8 @@ var everyFiveMin = schedule.scheduleJob('1 * * *', function(fireDate){
 
 //Registrar horas extras
 const ejecutarProcesoHorasExtrasAuto = () => {
+    console.log("==============================PROCESO DE HORAS EXTRAS===================================");
     console.log("@registrarHorasExtrasAuto");
-
 
     new Promise((resolve, reject) => {
         try {
@@ -77,7 +77,7 @@ const ejecutarProcesoHorasExtrasAuto = () => {
 
                         reject(null);
                     }
-                    console.log("Se llamo a la function de generar horas extras ");
+                    console.log("Se llamo a la function de generar horas extras "+results);
                     resolve(true);
                 });
         } catch (e) {
@@ -91,47 +91,42 @@ const ejecutarProcesoHorasExtrasAuto = () => {
             
             //enviar mensaje
             try {
-                pool.query("select id,fecha,titulo,cuerpo,icon,token from si_notificacion where notificado = false and fallo = false and eliminado = false",
+                 pool.query("select id,fecha,titulo,cuerpo,icon,token from si_notificacion where notificado = false and fallo = false and eliminado = false",
                     (error, results) => {
                         if (error) {
                             console.log("Error en la consulta de notificaciones ");
                             return;
                         }
                         if (results != null && results.rowCount > 0) {
-                            new Promise((resolve, reject) => {
+                           new Promise((resolve, reject) => {
                                 var lista = [];
                                 //results.rows.forEach(e => {
-                                for (var i = 0; i < results.rows.length; i++) {
+                                      for (var i = 0; i < results.rows.length; i++) {
                                     var e = results.rows[i];
                                     console.log("Enviando mensaje ");
 
-                                    mensajeria.enviarMensajeToken(e.token, e.titulo, e.cuerpo).then((response) => {
-                                        // console.log(" result" + JSON.stringify(response));
+                                     mensajeria.enviarMensajeToken(e.token, e.titulo, e.cuerpo)
+                                    .then((response) => {                                        
                                         console.log("Envio correcto");                                        
-                                        console.log("mensaje " + JSON.stringify(e));
-                                        lista.push({respuesta:response.messageId,notificado:(response.successCount > 0)});
-
+                                        console.log("mensaje " + JSON.stringify(response));                                           
+                                        silenciarNotificaciones(e.id,(response.successCount > 0),response.results[0].messageId,false);
+                                        
                                     }).catch((e) => {
-                                        console.log("Error en la mensajeria " + e);
-                                        //return e;
-                                        e.respuesta = '';
-                                        e.notificado = false;
-                                        lista.push({respuesta:'',notificado:false});
+                                        console.log("Error en la mensajeria " + e);                                       
+                                        silenciarNotificaciones(e.id,false,"Error:"+e,true);
+                                        
                                     });
                                 }
                                 //});
-                                console.log("antes de dar resolve "+JSON.stringify(lista));
+                              //  console.log("antes de dar resolve "+JSON.stringify(lista));
                                 resolve(lista);
                             }).then((list) => {
                                 console.log("Resolve THEN " + JSON.stringify(list));
-
-                                silenciarNotificaciones(list);
-
                             }).catch((e) => {
                                 console.log("Error al enviar mensajes en el for de envios " + e);
                                 reject(null);
                             });
-                        }
+                        }else{console.log("NO EXISTEN MENSAJES POR ENVIAR");}
                     });
 
             } catch (e) {
@@ -144,57 +139,40 @@ const ejecutarProcesoHorasExtrasAuto = () => {
 
 //FIXME: falta modificar el procedimiento para guardar las respuestas
 
-const silenciarNotificaciones = (listaNotificaciones) => {
-    console.log("silenciar notificaciones " + JSON.stringify(listaNotificaciones));
-    //var listaIds = listaNotificaciones.map(e=>e.id);
+const silenciarNotificaciones = (idNotificacion,resultado,mensajeIdRespuesta,fallo) => {
 
-    if (listaNotificaciones == null || listaNotificaciones.length > 0) {
-        console.log("La lista de notificaciones e null o empty");
-        return;
-    } else {
+    console.log(" idNotificacion,resultado,mensajeIdRespuesta,fallo "+idNotificacion+"   - " +resultado+"   - " +mensajeIdRespuesta+"   - " +fallo);
 
-        var ids = '';
-        var respuestas = '';
-        var mensajes_ids = '';
-
-        //var ids = '';
-        var first = true;
-
-        for (var i = 0; i < listaNotificaciones.length; i++) {
-            var element = listaNotificaciones[i];
-            if (first) {
-                ids += element.id;
-                respuestas += element.notificado;
-                mensajes_ids += element.respuesta;
-
-                first = false;
-            } else {
-                ids += (',' + element.id);
-                respuestas += (',' + element.notificado);
-                mensajes_ids += (',' + element.respuesta);
-            }
+    if(idNotificacion == null ||
+        idNotificacion ==undefined){
+            console.log("El id de la notificacion es null  ");
+            return;
         }
 
-
-        console.log("Ids " + ids);
-        console.log("respuestas " + respuestas);
-        console.log("mensajes ids " + mensajes_ids);
-
-
-
         try {
-            pool.query("select silenciar_notificaciones('" + ids + "','" + respuestas + "','" + mensajes_ids + "');",
+            //pool.query("select silenciar_notificaciones('" + ids + "','" + respuestas + "','" + (mensajes_ids == undefined ? '':mensajes_ids) + "');",
+            pool.query("UPDATE SI_NOTIFICACION SET 	notificado = $2, "+
+                        " mensajeId = $3,"+
+                        " fallo=$4,"+
+                        " fecha_modifico = (getDate('')+getHora(''))::timestamp"+
+                        " where id =  $1;",
+                            [idNotificacion,
+                                (resultado == undefined ? true:resultado),                                
+                                (mensajeIdRespuesta == undefined ? '':mensajeIdRespuesta),                                
+                                (fallo == undefined ? true:fallo)
+                            ],
                 (error, results) => {
                     if (error) {
                         console.log("ERROR al silenciar notificaciones " + error);
                     }
-                    console.log("Se llamo a la function para silenciar las notificaciones");
+                    console.log("Se llamo a la function para silenciar las notificaciones "+JSON.stringify(results));
+                    console.log("TODO BIEN AL MODIFICAR LA NOTIFICACION");
                 });
         } catch (e) {
             console.log("Error al correr el proceso de silenciar las notificaciones " + e); dez
         }
 
-    }
+    
 };
 
 
