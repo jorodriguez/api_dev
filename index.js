@@ -138,8 +138,8 @@ app.listen(port, () => {
 
 //--Calcular horas extras . proceso que corre cada 30 min
 
-//schedule.scheduleJob('0 */30 * * * 1-5', function(){
-schedule.scheduleJob('0 */2 * * * 1-5', function(){
+schedule.scheduleJob('0 */30 * * * 1-5', function(){
+//schedule.scheduleJob('0 */2 * * * 1-5', function(){
 	console.log('CALCULANDO CARGOS DE HORAS EXTRAS DE ALUMNOS '+new Date());
 	tareas_programadas.ejecutarProcesoHorasExtrasAuto();
 });

@@ -102,6 +102,7 @@ const registrarActividad = (request, response) => {
 
         console.log(" SQL "+sqlComplete);
 
+        // crear un procedimoento almacenado para generar 2 registros, uno de actividad y otro de notificacion
         pool.query("INSERT INTO co_registro_actividad(co_alumno,cat_actividad,cat_tipo_actividad,cat_sub_actividad,fecha,hora,nota,url_foto,genero) " +            
             sqlComplete,
             (error, results) => {
@@ -109,6 +110,8 @@ const registrarActividad = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }                
+                // Enviar notificacion de actividad pero enviando el id del alumno
+
                 mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
                 response.status(200).json(results.rowCount)
             });

@@ -107,6 +107,7 @@ const registrarEntradaAlumnos = (request, response) => {
         const { ids,genero } = request.body;
               
         var sqlComplete = " values ";
+        
         for (var i = 0; i < ids.length; i++) {
 
             if (i > 0) {
@@ -115,6 +116,8 @@ const registrarEntradaAlumnos = (request, response) => {
             
             sqlComplete += "(getDate('')," + ids[i] + ",getHora('')," + genero + "," + genero + ")";
         };
+        
+        console.log("Ids para calcular horas extras ");
 
         pool.query("INSERT INTO CO_ASISTENCIA(fecha,co_alumno,hora_entrada,usuario,genero) " +
             sqlComplete,
@@ -123,6 +126,7 @@ const registrarEntradaAlumnos = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
+
                 response.status(200).json(results.rowCount)
             });
     } catch (e) {
@@ -157,6 +161,19 @@ const registrarSalidaAlumnos = (request, response) => {
         };
         sqlComplete += ")";
 
+        // obtener para el proceso de horas extras
+        var idsForHorasExtras = '';
+        var first = true;
+
+        ids.forEach(element => {
+          if (first) {
+            idsForHorasExtras += (element+"");            
+            first = false;
+          } else {
+            idsForHorasExtras += (',' + element);            
+          }
+        });
+        
         pool.query("UPDATE CO_ASISTENCIA "+
                     " SET hora_salida = getHora('') ,"+
                     "  modifico = $1 " +
@@ -167,12 +184,43 @@ const registrarSalidaAlumnos = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
+                
+                // FIXME : Arreglar la llamada del proceso de horas extras                
+                if(results.rowCount>0){
+                    
+                    ejecutarProcedimientoCalculoHorasExtra(idsForHorasExtras);
+                }
+
                 response.status(200).json(results.rowCount)
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
 };
+
+
+
+const ejecutarProcedimientoCalculoHorasExtra = (ids_alumnos) => {
+    console.log("@ejecutarProcedimeintoCalculoHorasExtra");
+
+    try {   
+ 
+       console.log("IDS recibidos "+ids_alumnos);
+
+       pool.query("SELECT generar_horas_extras_alumno('"+ids_alumnos+"')",                    
+            (error, results) => {
+                if (error) {
+                    console.log("Error al ejecutar el procedimiento calculo extra "+error);
+                    return;
+                }
+                console.log("Se ejecuto el procedimiento de horas extras "+ JSON.stringify(results));
+            });
+    } catch (e) {
+        console.log("Error al ejecutar el procedimiento calculo extra "+error);
+    }
+};
+
+
 
 module.exports = {
     getAlumnosRecibidos,
