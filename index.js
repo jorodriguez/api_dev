@@ -147,6 +147,7 @@ schedule.scheduleJob('0 */30 * * * 1-5', function () {
 	} catch (e) {
 		console.log("Error al ejecutar el proceso de calculo de horas extras " + e);
 	}
+
 });
 
 
