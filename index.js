@@ -41,10 +41,10 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
 	console.log("==========================================");
 	if (res.headersSent) {
-    return next(err);
-  }
-  res.status(500);
-  res.render('error', { error: err });
+		return next(err);
+	}
+	res.status(500);
+	res.render('error', { error: err });
 });
 
 
@@ -117,7 +117,7 @@ app.get('/cargos/:id_alumno', pagos.getCargosAlumno);
 app.get('/balance/:id_alumno', pagos.getBalanceAlumno);
 
 //Mensajes
-app.get('/mensaje',mensajeria.sendMessage);
+app.get('/mensaje', mensajeria.sendMessage);
 
 app.get('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API v1.0.3' })
@@ -139,14 +139,31 @@ app.listen(port, () => {
 //--Calcular horas extras . proceso que corre cada 30 min
 
 //schedule.scheduleJob('0 */30 * * * 1-5', function(){
-schedule.scheduleJob('0 */2 * * * 1-5', function(){
-	console.log('CALCULANDO CARGOS DE HORAS EXTRAS DE ALUMNOS '+new Date());
-	tareas_programadas.ejecutarProcesoHorasExtrasAuto();
+schedule.scheduleJob('0 */30 * * * 1-5', function () {
+	console.log('CALCULANDO CARGOS DE HORAS EXTRAS DE ALUMNOS ' + new Date());
+	try {
+		tareas_programadas.ejecutarProcesoHorasExtrasAuto();
+
+	} catch (e) {
+		console.log("Error al ejecutar el proceso de calculo de horas extras " + e);
+	}
 });
 
+
+schedule.scheduleJob('0 */31 * * * 1-5', function () {
+	console.log('PROCESO DE REVISION DE SALIDA DE ALUMNOS ' + new Date());
+	//FIXME : para pruebas
+	try {
+		tareas_programadas.ejecutarProcesoNotificacionProximaSalidaAlumnoMain();
+	} catch (e) {
+		console.log("Error al ejecutar el proceso de revision de salida y expiración " + e);
+	}
+});
+
+
 // Sec,Min,Hor,D,M,Y
-schedule.scheduleJob('0 1 0 1 * *', function(){
-	console.log('Agregar cargo de mensualidad '+new Date());
+schedule.scheduleJob('0 1 0 1 * *', function () {
+	console.log('Agregar cargo de mensualidad ' + new Date());
 	//tareas.generarBalanceAlumnos();
 });
 

@@ -55,7 +55,7 @@ const enviarMensaje = (titulo, cuerpo) => {
             });
 
     } catch (e) {
-        console.log("Erorr al enviar mensaje "+e);
+        console.log("Erorr al enviar mensaje " + e);
         return false;
     }
 
@@ -64,7 +64,7 @@ const enviarMensaje = (titulo, cuerpo) => {
 
 const enviarMensajeToken = (token, titulo, cuerpo) => {
     try {
-        console.log("Enviando mensaje "+titulo+" "+cuerpo);
+        console.log("Enviando mensaje " + titulo + " " + cuerpo);
         const payloadMensaje = {
             notification: {
                 title: titulo,
@@ -72,11 +72,11 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
             }
         };
 
-     return firebase.messaging().sendToDevice(token, payloadMensaje, options);
-            
+        return firebase.messaging().sendToDevice(token, payloadMensaje, options);
+
 
     } catch (e) {
-        console.log("Erorr al enviar mensaje "+e);
+        console.log("Erorr al enviar mensaje " + e);
         return false;
     }
 
@@ -101,8 +101,56 @@ const sendMessage = (request, response) => {
     }
 };
 
+
+
+const enviarMensajePorTema = (alumnosArray,id_tema, co_sucursal,handler) => {
+    try {
+
+        
+        if(alumnosArray == null || alumnosArray.length == 0){
+            console.log("el array es empty o null");
+            return; 
+        }
+        
+        console.log("Iniciando proceso de envio de notificacion por salida del alumno tema"+id_tema+" suc "+co_sucursal);
+
+        pool.query("SELECT distinct u.token,u.correo,u.nombre " +
+            "   FROM CO_USUARIO_NOTIFICACION n inner join usuario u on n.usuario = u.id" +
+            "   where n.co_sucursal = $1 " +
+            "   and n.co_tema_notificacion in (1,$2) " +
+            "   and n.eliminado = false   " +
+            "   and u.eliminado = false",
+            [co_sucursal, id_tema],
+            (error, results) => {
+                if (error) {
+                    console.log("Error en query de usuario notificacion " + error);
+                    return;
+                }
+                if (results.rowCount > 0) {
+                    console.log("inciando envio de notificaciones ");
+                    results.rows.forEach(e => {                       
+
+                        alumnosArray.forEach(alumno=>{
+                            console.log("Enviar notificacion del alumno "+alumno.nombre);
+                            //crear un handler
+                            handler(e.token,alumno);
+                        });                        
+                    });
+                } else {
+                    console.log("No existen alumnos proximos  a salir ");
+                }
+
+            });
+    } catch (e) {
+        console.log("Error al correr el proceso de generacion de horas extras " + e);
+
+    }
+
+};
+
 module.exports = {
     enviarMensaje,
     sendMessage,
-    enviarMensajeToken
+    enviarMensajeToken,
+    enviarMensajePorTema
 }

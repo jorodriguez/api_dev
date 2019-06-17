@@ -1017,3 +1017,59 @@ alter table si_notificacion add column fallo boolean default false;
  alter table si_notificacion add column mensaje_fallo text;		
 
  alter table si_notificacion add column mensajeId text
+
+
+
+
+
+
+					
+CREATE TABLE co_tema_notificacion
+(
+    id serial not null,	
+	nombre text not null,
+	fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,    
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT co_tema_notificacion_pkey PRIMARY KEY (id),
+    CONSTRAINT co_tema_notificacion_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),        
+    CONSTRAINT co_tema_notificacion_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id)
+);
+			
+			
+CREATE TABLE co_usuario_notificacion
+(
+    id serial not null,	
+	usuario integer not null,
+	co_tema_notificacion integer not null,	
+	co_sucursal integer not null,
+	fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,    
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT co_usuario_notificacion_pkey PRIMARY KEY (id),
+    CONSTRAINT co_usuario_notificacion_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),        
+    CONSTRAINT co_usuario_notificacion_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id),	
+	CONSTRAINT co_usuario_notificacion_usuario_fkey FOREIGN KEY (usuario)
+        REFERENCES public.usuario (id),	
+	CONSTRAINT co_usuario_notificacion_tema_fkey FOREIGN KEY (co_tema_notificacion)
+        REFERENCES public.co_tema_notificacion (id),	
+	CONSTRAINT co_usuario_notificacion_sucursal_fkey FOREIGN KEY (co_sucursal)
+        REFERENCES co_sucursal (id)
+);
+
+
+		insert into co_tema_notificacion(id,nombre,genero) 
+		values(1,'TODAS LAS NOTIFICACIONES',1),(2,'PAGOS DE ALUMNOS',1),(3,'SALIDA DE ALUMNOS',1);;
+		
+			
+			INSERT INTO CO_USUARIO_NOTIFICACION(usuario,co_tema_notificacion,co_sucursal,genero)
+		values(10,1,1,1),(10,2,1,1),(10,3,1,1);
+	
