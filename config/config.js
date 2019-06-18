@@ -7,7 +7,7 @@ dotenv.config();
 //port: process.env.PORT
 //cinectarme con psql
 //heroku pg:psql postgresql-sinuous-19615 --app develop1
-
+/*
 module.exports = {
     dbParams:{
         user: 'yjkrazzuttzfei',
@@ -19,9 +19,9 @@ module.exports = {
     },
     'secret': 'supersecret'
 };
+*/
 
 
-/*
 module.exports = {
     dbParams:{
         user: 'vbkxmhcwhsnoxe',
@@ -32,7 +32,7 @@ module.exports = {
         ssl: { rejectUnauthorized: false }
     },
     'secret': 'supersecret'
-};*/
+};
 
 
 //conect con psql
