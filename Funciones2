@@ -590,7 +590,7 @@ BEGIN
 									and rel.autorizado_para_entrega = true
 									and rel.eliminado = false
 									and f.eliminado = false
-									and rel.co_parentesco in (1,2) INTO papas_record ;							
+									and rel.co_parentesco in (1,2)  order by rel.co_parentesco desc limit 1 INTO papas_record ;							
 							IF FOUND THEN
 								IF papas_record.token is null THEN
 									fallo := true;
@@ -625,7 +625,5 @@ BEGIN
 		END IF;
 	END;
 $$ 
-
-
 
 

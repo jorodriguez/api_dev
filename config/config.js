@@ -8,6 +8,19 @@ dotenv.config();
 
 module.exports = {
     dbParams:{
+        user: 'yjkrazzuttzfei',
+        host: 'ec2-54-83-201-84.compute-1.amazonaws.com',
+        database: 'de232uj6c5qmh1',
+        password: '3e50556f001db0d30a43432bfd09be8ae2211ac41ecf935fb62f6d663bafc394',
+        port: 5432,
+        ssl: { rejectUnauthorized: false }
+    },
+    'secret': 'supersecret'
+};
+
+/*
+module.exports = {
+    dbParams:{
         user: 'vbkxmhcwhsnoxe',
         host: 'ec2-54-243-197-120.compute-1.amazonaws.com',
         database: 'd3cledlk3uuch6',
@@ -16,7 +29,9 @@ module.exports = {
         ssl: { rejectUnauthorized: false }
     },
     'secret': 'supersecret'
-};
+};*/
+
+
 //conect con psql
 
 //psql --set=sslmode=require -h ec2-54-243-197-120.compute-1.amazonaws.com -p 5432 -U vbkxmhcwhsnoxe -d d3cledlk3uuch6
