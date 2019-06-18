@@ -120,11 +120,11 @@ app.get('/balance/:id_alumno', pagos.getBalanceAlumno);
 app.get('/mensaje', mensajeria.sendMessage);
 
 app.get('/', (request, response) => {
-	response.json({ info: 'MagicIntelligence API v1.0.3' })
+	response.json({ info: 'MagicIntelligence API v1.0.5' })
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.3`)
+	console.log(`App corriendo en el puerto ${port} v1.0.5`)
 });
 
 
@@ -151,13 +151,25 @@ schedule.scheduleJob('0 */30 * * * 1-5', function () {
 });
 
 
-schedule.scheduleJob('0 */31 * * * 1-5', function () {
+schedule.scheduleJob('0 */32 * * * 1-5', function () {
 	console.log('PROCESO DE REVISION DE SALIDA DE ALUMNOS ' + new Date());
 	//FIXME : para pruebas
 	try {
-		tareas_programadas.ejecutarProcesoNotificacionProximaSalidaAlumnoMain();
+		tareas_programadas.ejecutarProcesoNotificacionProximaSalidaAlumno();
 	} catch (e) {
-		console.log("Error al ejecutar el proceso de revision de salida y expiración " + e);
+		console.log("Error al ejecutar el proceso de revision de salida " + e);
+	}
+});
+
+
+
+schedule.scheduleJob('0 */34 * * * 1-5', function () {
+	console.log('PROCESO DE REVISION DE EXPIRACION DE TIEMPO DE ALUMNOS ' + new Date());
+	//FIXME : para pruebas
+	try {
+		tareas_programadas.ejecutarProcesoNotificacionExpiracionTiempoAlumno();
+	} catch (e) {
+		console.log("Error al ejecutar el proceso de revision de expiración " + e);
 	}
 });
 

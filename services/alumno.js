@@ -12,7 +12,6 @@ const familiar = require('./familiar');
 const formato_complemento = require('./formato_complemento');
 const balance_alumno = require('./balance_alumno');
 
-
 const config = require('../config/config');
 const jwt = require('jsonwebtoken');
 

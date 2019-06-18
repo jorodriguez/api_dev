@@ -169,7 +169,7 @@ const silenciarNotificaciones = (idNotificacion, resultado, mensajeIdRespuesta, 
                 console.log("TODO BIEN AL MODIFICAR LA NOTIFICACION");
             });
     } catch (e) {
-        console.log("Error al correr el proceso de silenciar las notificaciones " + e); dez
+        console.log("Error al correr el proceso de silenciar las notificaciones " + e); 
     }
 
 
@@ -280,7 +280,7 @@ const ejecutarProcesoNotificacionExpiracionSalidaAlumnoPorSucursal = (co_sucursa
 
 
 
-const ejecutarProcesoNotificacionProximaSalidaAlumnoMain = () => {
+const ejecutarProcesoNotificacionProximaSalidaAlumno = () => {
 
     try {
         pool.query(" select * from co_sucursal where eliminado = false",
@@ -293,6 +293,32 @@ const ejecutarProcesoNotificacionProximaSalidaAlumnoMain = () => {
                     results.rows.forEach(e => {
                         console.log("inciando envio de notificaciones por sucursal "+e.nombre);
                         ejecutarProcesoNotificacionProximaSalidaAlumnoPorSucursal(e.id);
+                        
+                    });
+                } else {
+                    console.log("No existen sucursales ");
+                }
+
+            });
+    } catch (e) {
+        console.log("Error al correr el proceso de generacion de horas extras " + e);
+
+    }
+};
+
+
+const ejecutarProcesoNotificacionExpiracionTiempoAlumno = () => {
+
+    try {
+        pool.query(" select * from co_sucursal where eliminado = false",
+            (error, results) => {
+                if (error) {
+                    console.log("Error al enviar notificacion de expiracion salir " + error);
+                    return;
+                }
+                if (results.rowCount > 0) {                    
+                    results.rows.forEach(e => {
+                        console.log("inciando envio de  expiracion notificaciones por sucursal "+e.nombre);                        
                         ejecutarProcesoNotificacionExpiracionSalidaAlumnoPorSucursal(e.id);
                     });
                 } else {
@@ -311,5 +337,6 @@ const ejecutarProcesoNotificacionProximaSalidaAlumnoMain = () => {
 module.exports = {
     //generarBalanceAlumnos
     ejecutarProcesoHorasExtrasAuto,
-    ejecutarProcesoNotificacionProximaSalidaAlumnoMain
+    ejecutarProcesoNotificacionProximaSalidaAlumno,
+    ejecutarProcesoNotificacionExpiracionTiempoAlumno
 }
