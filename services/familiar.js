@@ -116,7 +116,7 @@ const eliminarFamiliar = (request, response) => {
 
             pool.query(
                 "  UPDATE co_familiar SET " +
-                "  modifico = $2,fecha_modifico = current_timestamp," +
+                "  modifico = $2,fecha_modifico = (getDate('')+geHora(''))::timestamp," +
                 "  eliminado = true " +
                 "  WHERE id = $1  ",
                 [
@@ -311,7 +311,7 @@ const eliminarRelacionarAlumnoFamilia = (id_relacion, genero) => {
         if (id_relacion != null) {
 
             pool.query(
-                "UPDATE CO_ALUMNO_FAMILIAR SET eliminado = true, modifico = $2, fecha_modifico = current_timestamp " +
+                "UPDATE CO_ALUMNO_FAMILIAR SET eliminado = true, modifico = $2, fecha_modifico = (getDate('')+getHora(''))::timestamp " +
                 " WHERE id= $1",
                 [
                     id_relacion,genero

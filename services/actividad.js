@@ -92,7 +92,7 @@ const registrarActividad = (request, response) => {
                             cat_actividad+","+
                             nullOrEmpty(tipo_actividad)+","+
                             nullOrEmpty(sub_actividad)+","+
-                            "current_date,"+
+                            "getDate(''),"+
                             "getHora(''),"+
                             "'"+nullOrEmptyStr(nota)+"',"+
                             "'',"+

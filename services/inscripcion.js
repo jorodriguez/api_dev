@@ -64,7 +64,7 @@ const createFormatoInscripcionInicial = (id_alumno, genero) => {
                 "  INSERT INTO CO_FORMATO_INSCRIPCION(" +
                 "    co_alumno,fecha_genero,genero" +
                 "  )  " +
-                "  VALUES($1,current_date,$2) RETURNING id;",
+                "  VALUES($1,getDate(''),$2) RETURNING id;",
                 [
                     id_alumno,
                     genero
