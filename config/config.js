@@ -5,6 +5,8 @@ dotenv.config();
 //endpoint: process.env.API_URL,
 //masterKey: process.env.API_KEY,
 //port: process.env.PORT
+//cinectarme con psql
+//heroku pg:psql postgresql-sinuous-19615 --app develop1
 
 module.exports = {
     dbParams:{

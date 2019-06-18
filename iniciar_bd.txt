@@ -1,0 +1,37 @@
+
+
+delete from co_registro_actividad;
+ALTER SEQUENCE cat_registro_actividad_id_seq restart 1;
+
+delete from co_alumno;
+ALTER SEQUENCE co_alumno_id_seq restart 1;
+
+delete from si_notificacion;
+ALTER SEQUENCE si_notificacion_id_seq restart 1;
+
+delete from co_hora_extra;
+ALTER SEQUENCE co_hora_extra_id_seq restart 1;
+
+delete from co_pago_cargo_balance_alumno;
+ALTER SEQUENCE co_pago_cargo_balance_alumno_id_seq restart 1;
+
+delete from co_cargo_balance_alumno;
+ALTER SEQUENCE co_detalle_balance_alumno_id_seq restart 1;
+
+delete from co_pago_balance_alumno;
+ALTER SEQUENCE co_pago_balance_alumno_id_seq restart 1;
+
+delete from co_balance_alumno;
+ALTER SEQUENCE co_balance_alumno_id_seq restart 1;
+
+delete from co_asistencia;
+ALTER SEQUENCE co_asistencia_id_seq restart 1;
+
+delete from co_alumno_familiar;
+ALTER SEQUENCE co_alumno_falimiar_id_seq restart 1;
+
+delete from co_formato_inscripcion;
+ALTER SEQUENCE co_formato_inscripcion_id_seq restart 1;
+
+delete from co_formato_valor_esperado_empresa;
+ALTER SEQUENCE co_formato_valor_esperado_empresa_id_seq restart 1;
