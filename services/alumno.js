@@ -90,7 +90,7 @@ const createAlumno = (request, response) => {
                 "nombre,apellidos,fecha_nacimiento," +
                 "alergias,nota,hora_entrada," +
                 "hora_salida,costo_inscripcion,costo_colegiatura," +
-                "minutos_gracia,foto,fecha_reinscripcion," +
+                "minutos_gracia,foto,fecha_inscripcion,fecha_reinscripcion," +
                 "sexo," +
                 "genero" +
                 " ) " +
@@ -99,14 +99,14 @@ const createAlumno = (request, response) => {
                 " $4,$5,$6," +
                 " $7,$8,$9," +
                 " $10,$11,$12," +
-                " $13,$14,$15,$16" +
+                " $13,$14,(getDate('') + interval '1 year'),$15,$16" +
                 ") RETURNING id;"
                 , [
                     p.co_sucursal, p.co_grupo,
                     p.nombre, p.apellidos, p.fecha_nacimiento,
                     p.alergias, p.nota, p.hora_entrada,
                     p.hora_salida, p.costo_inscripcion, p.costo_colegiatura,
-                    p.minutos_gracia, p.foto, p.fecha_reinscripcion,
+                    p.minutos_gracia, p.foto, p.fecha_inscripcion,
                     p.sexo,
                     p.genero
                 ],

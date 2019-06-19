@@ -1,0 +1,22 @@
+
+CREATE or replace FUNCTION getDate(IN zona text,OUT fecha date) AS $$
+BEGIN    	
+	IF zona IS NULL OR zona = '' THEN
+		zona := 'America/Monterrey';	
+    	--select current_date at time zone 'America/Monterrey' INTO fecha;
+		--select current_date at time zone zona INTO fecha;
+			select current_date INTO fecha;
+	END IF;
+END;
+$$ 
+LANGUAGE 'plpgsql';
+
+select current_date at time zone 'America/Monterrey'
+
+SET TIMEZONE='America/Monterrey';
+SET TIMEZONE='UTC';
+
+select now() 
+
+select getDate('')
+select getHora('')
