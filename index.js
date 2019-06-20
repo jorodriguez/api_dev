@@ -139,7 +139,7 @@ app.listen(port, () => {
 //--Calcular horas extras . proceso que corre cada 30 min
 
 //schedule.scheduleJob('0 */30 * * * 1-5', function(){
-schedule.scheduleJob('0 */30 * * * 1-5', function () {
+schedule.scheduleJob('0 */31 * * * 1-5', function () {
 	console.log('CALCULANDO CARGOS DE HORAS EXTRAS DE ALUMNOS ' + new Date());
 	try {
 		tareas_programadas.ejecutarProcesoHorasExtrasAuto();
@@ -151,7 +151,7 @@ schedule.scheduleJob('0 */30 * * * 1-5', function () {
 });
 
 
-schedule.scheduleJob('0 */32 * * * 1-5', function () {
+schedule.scheduleJob('0 */33 * * * 1-5', function () {
 	console.log('PROCESO DE REVISION DE SALIDA DE ALUMNOS ' + new Date());
 	//FIXME : para pruebas
 	try {
@@ -163,7 +163,7 @@ schedule.scheduleJob('0 */32 * * * 1-5', function () {
 
 
 
-schedule.scheduleJob('0 */34 * * * 1-5', function () {
+schedule.scheduleJob('0 */35 * * * 1-5', function () {
 	console.log('PROCESO DE REVISION DE EXPIRACION DE TIEMPO DE ALUMNOS ' + new Date());
 	//FIXME : para pruebas
 	try {

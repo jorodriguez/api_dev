@@ -1076,3 +1076,8 @@ CREATE TABLE co_usuario_notificacion
 			INSERT INTO CO_USUARIO_NOTIFICACION(usuario,co_tema_notificacion,co_sucursal,genero)
 		values(10,1,1,1),(10,2,1,1),(10,3,1,1);
 	
+
+
+
+alter table co_hora_extra add column co_alumno integer not null;
+alter table co_hora_extra add FOREIGN KEY (co_alumno) REFERENCES co_alumno(id);
