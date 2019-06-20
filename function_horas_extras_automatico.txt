@@ -1,5 +1,4 @@
 
-
 CREATE or replace FUNCTION generar_horas_extras(OUT retorno boolean) 
 	RETURNS boolean
  	LANGUAGE plpgsql 	
@@ -15,7 +14,7 @@ DECLARE
 	hora_extra_encontrada RECORD;
 	INTERVALO_TIEMPO_HORA_EXTRA text := '30 minutes';
 	ID_HORA_EXTRA integer := 3;
-	--ID_GENERO integer := 1;
+	ID_GENERO integer := 1;
 	papas_record RECORD;	
 	fallo boolean := false;
 	mensaje_fallo text :='';
@@ -60,15 +59,15 @@ bEGIN
 												and eliminado = false
 								INTO hora_extra_encontrada;
 						IF NOT FOUND THEN		
-							raise notice 'SE PROCEDE A LA INSERCIÓN';
+							raise notice 'SE PROCEDE A LA INSERCIÓN';							
 							INSERT INTO CO_HORA_EXTRA (CO_ASISTENCIA,CO_ALUMNO,FECHA,HORA_INICIO,HORA_FIN,FECHA_GENERO,GENERO)
 							VALUES(asistencia.id_asistencia,
 									asistencia.co_alumno,
-									fecha_current,
-								  	hora_inicio_hora_extra,hora_fin_hora_extra,fecha_current,ID_GENERO);							
+									fecha_hora_current,
+								  	hora_inicio_hora_extra,hora_fin_hora_extra,fecha_hora_current,ID_GENERO);							
 							
 							PERFORM agregar_cargo_alumno(asistencia.co_alumno,ID_HORA_EXTRA,1,
-														'Cargo por Hora Extra del '||fecha_current::date||', de '||hora_inicio_hora_extra::time||' a '||(hora_fin_hora_extra)::time||', alumno '
+														'Cargo por Hora Extra del '||fecha_hora_current::date||', de '||hora_inicio_hora_extra::time||' a '||(hora_fin_hora_extra)::time||', alumno '
 														||asistencia.nombre_alumno||'.'
 														,ID_GENERO);
 								
@@ -90,15 +89,15 @@ bEGIN
 										END IF;	
 									
 										INSERT INTO SI_NOTIFICACION (FECHA,TITULO,CUERPO,ICON,TOKEN,fallo,mensaje_fallo,FECHA_GENERO,GENERO)
-											VALUES(fecha_current,											
+											VALUES(fecha_hora_current,											
 														'Cargo por Hora Extra',
-														'Cargo por Hora Extra del '||fecha_current::date||', de '||hora_inicio_hora_extra::time||' a '||(hora_fin_hora_extra)::time||', alumno '
+														'Cargo por Hora Extra del '||fecha_hora_current::date||', de '||hora_inicio_hora_extra::time||' a '||(hora_fin_hora_extra)::time||', alumno '
 														||asistencia.nombre_alumno||'.',
 														'DEFAULT',
 														token_familiar,
 														fallo,
 														mensaje_fallo,
-														fecha_current,
+														fecha_hora_current,
 														ID_GENERO);			
 										raise notice 'INSERCION DE HORA EXTRA EXISTOSA';
 								END LOOP;																							

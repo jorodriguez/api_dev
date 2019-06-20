@@ -124,7 +124,7 @@ app.get('/', (request, response) => {
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.6`)
+	console.log(`App corriendo en el puerto ${port} v1.0.8`)
 });
 
 
@@ -138,8 +138,8 @@ app.listen(port, () => {
 
 //--Calcular horas extras . proceso que corre cada 30 min
 
-//schedule.scheduleJob('0 */30 * * * 1-5', function(){
-schedule.scheduleJob('0 */31 * * * 1-5', function () {
+schedule.scheduleJob('0 */31 * * * 1-5', function(){
+//schedule.scheduleJob('0 */31 * * * 1-5', function () {
 	console.log('CALCULANDO CARGOS DE HORAS EXTRAS DE ALUMNOS ' + new Date());
 	try {
 		tareas_programadas.ejecutarProcesoHorasExtrasAuto();

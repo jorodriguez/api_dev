@@ -62,14 +62,50 @@ var everyFiveMin = schedule.scheduleJob('1 * * *', function(fireDate){
     console.log('This job was supposed to run at ' + fireDate + ', but actually ran at ' + new Date());
   });*/
 
-
-
 //Registrar horas extras
+
 const ejecutarProcesoHorasExtrasAuto = () => {
     console.log("==============================PROCESO DE HORAS EXTRAS===================================");
     console.log("@registrarHorasExtrasAuto");
 
-    new Promise((resolve, reject) => {
+    pool.query("select generar_horas_extras();")
+        .then((results) => {
+            console.log("Resultado " + JSON.stringify(results));
+            
+            if (results.rowCount > 0) {
+                console.log("Iniciando el envio de mensajes ");
+
+                //enviar mensaje
+                pool.query("select id,fecha,titulo,cuerpo,icon,token from si_notificacion where notificado = false and fallo = false and eliminado = false")
+                    .then((results) => {
+                        if (results != null && results.rowCount > 0) {                        
+                            
+                            for (var i = 0; i < results.rows.length; i++) {
+                                var e = results.rows[i];
+                                console.log("Enviando mensaje ");
+
+                                mensajeria.enviarMensajeToken(e.token, e.titulo, e.cuerpo)
+                                    .then((response) => {
+                                        console.log("Envio correcto");
+                                        console.log("mensaje " + JSON.stringify(response));
+                                        silenciarNotificaciones(e.id, (response.successCount > 0), response.results[0].messageId, false);
+
+                                    }).catch((e) => {
+                                        console.log("Error en la mensajeria " + e);
+                                        silenciarNotificaciones(e.id, false, "Error:" + e, true);
+
+                                    });
+                            }                                                        
+                        } else { console.log("NO EXISTEN MENSAJES POR ENVIAR"); }
+                    }).catch((e) => {
+                        console.log("Error al correr el proceso de generacion de horas extras " + e);
+                    });
+            }
+        }).catch((e) => {
+            console.log("EXCEPCION AL EJECUTAR EL PROCESO AUTOMATICO DE GENERAR HORAS EXTRAS " + e);
+        });
+
+    /*new Promise((resolve, reject) => {
         try {
             pool.query("select generar_horas_extras();",
                 (error, results) => {
@@ -134,7 +170,7 @@ const ejecutarProcesoHorasExtrasAuto = () => {
                 reject(null);
             }
         }
-    });
+    });*/
 };
 
 //FIXME: falta modificar el procedimiento para guardar las respuestas
@@ -169,7 +205,7 @@ const silenciarNotificaciones = (idNotificacion, resultado, mensajeIdRespuesta, 
                 console.log("TODO BIEN AL MODIFICAR LA NOTIFICACION");
             });
     } catch (e) {
-        console.log("Error al correr el proceso de silenciar las notificaciones " + e); 
+        console.log("Error al correr el proceso de silenciar las notificaciones " + e);
     }
 
 
@@ -229,7 +265,7 @@ const ejecutarProcesoNotificacionProximaSalidaAlumnoPorSucursal = (co_sucursal) 
 
 
 const ejecutarProcesoNotificacionExpiracionSalidaAlumnoPorSucursal = (co_sucursal) => {
-   console.log("@Ejecucion de expiracion de tiempo de alumnos");
+    console.log("@Ejecucion de expiracion de tiempo de alumnos");
     try {
         pool.query(" 	 SELECT alumno.id," +
             " alumno.nombre||' '||alumno.apellidos as nombre," +
@@ -243,7 +279,7 @@ const ejecutarProcesoNotificacionExpiracionSalidaAlumnoPorSucursal = (co_sucursa
             " AND (getHora('') - alumno.hora_salida) >= interval '1 minute'" +
             "                AND alumno.eliminado=false" +
             " ORDER BY alumno.hora_salida DESC",
-            [co_sucursal],                       
+            [co_sucursal],
             (error, results) => {
                 if (error) {
                     console.log("Error al enviar notificacion tiempo expirado " + error);
@@ -254,11 +290,11 @@ const ejecutarProcesoNotificacionExpiracionSalidaAlumnoPorSucursal = (co_sucursa
                     var ID_TEMA_SALIDA_ALUMNO = 3;
                     mensajeria.enviarMensajePorTema(results.rows, ID_TEMA_SALIDA_ALUMNO, co_sucursal,
                         (token, alumno) => {
-                            console.log("JSO "+JSON.stringify(alumno));
+                            console.log("JSO " + JSON.stringify(alumno));
                             mensajeria.enviarMensajeToken(
                                 token,
                                 alumno.nombre + " aun no ha salido.",
-                                " Tiempo después de su hora de salida " + alumno.tiempo_expirado+".")
+                                " Tiempo después de su hora de salida " + alumno.tiempo_expirado + ".")
                                 .then((response) => {
                                     console.log("Envio correcto notificacion expirado ok " + response);
                                 }).catch((e) => {
@@ -289,11 +325,11 @@ const ejecutarProcesoNotificacionProximaSalidaAlumno = () => {
                     console.log("Error al enviar notificacion proxima salir " + error);
                     return;
                 }
-                if (results.rowCount > 0) {                    
+                if (results.rowCount > 0) {
                     results.rows.forEach(e => {
-                        console.log("inciando envio de notificaciones por sucursal "+e.nombre);
+                        console.log("inciando envio de notificaciones por sucursal " + e.nombre);
                         ejecutarProcesoNotificacionProximaSalidaAlumnoPorSucursal(e.id);
-                        
+
                     });
                 } else {
                     console.log("No existen sucursales ");
@@ -316,9 +352,9 @@ const ejecutarProcesoNotificacionExpiracionTiempoAlumno = () => {
                     console.log("Error al enviar notificacion de expiracion salir " + error);
                     return;
                 }
-                if (results.rowCount > 0) {                    
+                if (results.rowCount > 0) {
                     results.rows.forEach(e => {
-                        console.log("inciando envio de  expiracion notificaciones por sucursal "+e.nombre);                        
+                        console.log("inciando envio de  expiracion notificaciones por sucursal " + e.nombre);
                         ejecutarProcesoNotificacionExpiracionSalidaAlumnoPorSucursal(e.id);
                     });
                 } else {
