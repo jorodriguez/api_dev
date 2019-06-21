@@ -116,11 +116,11 @@ app.get('/balance/:id_alumno', pagos.getBalanceAlumno);
 //app.get('/mensaje', mensajeria.sendMessage);
 
 app.get('/', (request, response) => {
-	response.json({ info: 'MagicIntelligence API v1.0.9' })
+	response.json({ info: 'MagicIntelligence API v1.0.10' })
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.9`)
+	console.log(`App corriendo en el puerto ${port} v1.0.10`)
 });
 
 

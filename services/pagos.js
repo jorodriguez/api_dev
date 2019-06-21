@@ -65,7 +65,7 @@ const registrarPago = (request, response) => {
         console.log("=====>> " + JSON.stringify(request.body));
         const { id_alumno, pago, nota, ids_cargos, cargos_desglosados, cat_forma_pago, genero } = request.body;
 
-        pool.query("select agregar_pago_alumno('" + ids_cargos + "','" + cargos_desglosados + "'," + id_alumno + "," + pago + ",'" + nota + "',"+ cat_forma_pago +","+ genero +" );",
+        pool.query("select agregar_pago_alumno('" + ids_cargos + "','" + cargos_desglosados + "'," + id_alumno + "," + pago + ",'" + nota + "'," + cat_forma_pago + "," + genero + " );",
             //    [id_alumno ,pago,nota,genero],
             (error, results) => {
                 if (error) {
@@ -137,7 +137,7 @@ const getCargosAlumno = (request, response) => {
             " FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno " +
             "                               inner join cat_cargo cargo on b.cat_cargo = cargo.id					" +
             " WHERE a.id = $1 and b.eliminado = false and a.eliminado = false" +
-            "  ORDER by b.pagado, b.fecha desc"+
+            "  ORDER by b.pagado, b.fecha desc" +
             " LIMIT 20",
             [id_alumno],
             (error, results) => {
@@ -167,10 +167,10 @@ const getPagosByCargoId = (request, response) => {
         var id_cargo_balance_alumno = request.params.id_cargo_balance_alumno;
 
         pool.query(
-            " 	 SELECT forma_pago.id as id_forma_pago,forma_pago.nombre as nombre_forma_pago,r.*"+
-            "   FROM co_pago_cargo_balance_alumno r inner join co_pago_balance_alumno pago on r.co_pago_balance_alumno = pago.id"+
-            "                                       inner join co_forma_pago forma_pago on pago.co_forma_pago = forma_pago.id"+
-            "   WHERE r.co_cargo_balance_alumno = $1 and r.eliminado = false and pago.eliminado = false"+
+            " 	 SELECT forma_pago.id as id_forma_pago,forma_pago.nombre as nombre_forma_pago,r.*" +
+            "   FROM co_pago_cargo_balance_alumno r inner join co_pago_balance_alumno pago on r.co_pago_balance_alumno = pago.id" +
+            "                                       inner join co_forma_pago forma_pago on pago.co_forma_pago = forma_pago.id" +
+            "   WHERE r.co_cargo_balance_alumno = $1 and r.eliminado = false and pago.eliminado = false" +
             "   ORDER BY pago.fecha DESC",
             [id_cargo_balance_alumno],
             (error, results) => {
@@ -190,12 +190,12 @@ const getPagosByCargoId = (request, response) => {
 const getBalanceAlumno = (request, response) => {
     console.log("@getBalanceAlumno");
     try {
-  /*      var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-*/
+        /*      var validacion = helperToken.validarToken(request);
+      
+              if (!validacion.tokenValido) {
+                  return response.status(validacion.status).send(validacion.mensajeRetorno);;
+              }
+      */
         console.log("request.params.id_alumno " + request.params.id_alumno);
 
         var id_alumno = request.params.id_alumno;
@@ -234,7 +234,17 @@ const getBalanceAlumno = (request, response) => {
 const getFormasPago = (request, response) => {
     console.log("@getFormasPago");
     try {
-        var validacion = helperToken.validarToken(request);
+
+        pool.query("SELECT * FROM CO_FORMA_PAGO WHERE ELIMINADO = FALSE",
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).json(results.rows);
+            });
+
+        /*var validacion = helperToken.validarToken(request);
 
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
@@ -248,7 +258,7 @@ const getFormasPago = (request, response) => {
                 handle.callbackError(error, response);
                 console.log("Excepcion al obtener la forma de pago "+error);
             });                                
-            
+          */
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
