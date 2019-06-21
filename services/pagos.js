@@ -190,12 +190,12 @@ const getPagosByCargoId = (request, response) => {
 const getBalanceAlumno = (request, response) => {
     console.log("@getBalanceAlumno");
     try {
-        var validacion = helperToken.validarToken(request);
+  /*      var validacion = helperToken.validarToken(request);
 
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
-
+*/
         console.log("request.params.id_alumno " + request.params.id_alumno);
 
         var id_alumno = request.params.id_alumno;
