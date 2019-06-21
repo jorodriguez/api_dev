@@ -17,7 +17,7 @@ const pagos = require('./services/pagos');
 const mensajeria = require('./services/mensajesFirebase');
 const tareas_programadas = require('./services/tareas_programadas');
 const schedule = require('node-schedule');
-
+const formas_pago = require('./services/formas_pago');
 const port = process.env.PORT || 5000;
 
 //es un middleware que serializa los cuerpos de las respuestas 
@@ -104,13 +104,14 @@ app.get('/valores_esperados/:id_formato', formato_complemento.getCatalogoValores
 app.post('/pagos/registrar', pagos.registrarPago);
 app.post('/pagos/:id_alumno', pagos.registrarPago);
 app.get('/pagos/:id_cargo_balance_alumno', pagos.getPagosByCargoId);
-app.get('/formas_pago', pagos.getFormasPago);
+
 
 app.post('/cargos/registrar', pagos.registrarCargo);
 app.get('/cargos', pagos.getCatalogoCargos);
 app.get('/cargos/:id_alumno', pagos.getCargosAlumno);
 app.get('/balance/:id_alumno', pagos.getBalanceAlumno);
 
+app.get('/formas_pago', formas_pago.getFormasPago);
 
 //Mensajes
 //app.get('/mensaje', mensajeria.sendMessage);

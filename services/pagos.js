@@ -231,50 +231,13 @@ const getBalanceAlumno = (request, response) => {
 };
 
 
-const getFormasPago = (request, response) => {
-    console.log("@getFormasPago");
-    try {
-
-        pool.query("SELECT * FROM CO_FORMA_PAGO WHERE ELIMINADO = FALSE",
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).json(results.rows);
-            });
-
-        /*var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }      
-        
-        pool.query("SELECT * FROM CO_FORMA_PAGO WHERE ELIMINADO = FALSE")
-            .then((results)=>{                     
-                response.status(200).json(results.rows);
-                
-            }).catch((error)=>{
-                handle.callbackError(error, response);
-                console.log("Excepcion al obtener la forma de pago "+error);
-            });                                
-          */
-    } catch (e) {
-        handle.callbackErrorNoControlado(e, response);
-    }
-};
-
-
-
-
-
 module.exports = {
     registrarPago,
     registrarCargo,
     getCatalogoCargos,
     getCargosAlumno,
     getBalanceAlumno,
-    getPagosByCargoId,
-    getFormasPago
+    getPagosByCargoId
+    
 
 }
