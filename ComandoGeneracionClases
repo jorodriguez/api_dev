@@ -1081,3 +1081,7 @@ CREATE TABLE co_usuario_notificacion
 
 alter table co_hora_extra add column co_alumno integer not null;
 alter table co_hora_extra add FOREIGN KEY (co_alumno) REFERENCES co_alumno(id);
+
+
+INSERT INTO co_forma_pago(NOMBRE,GENERO)
+VALUES('EFECTIVO',1),('TRANSFERENCIA',1),('DEPÓSITO',1),('TARJETA',1);

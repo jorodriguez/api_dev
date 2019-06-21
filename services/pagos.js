@@ -63,12 +63,9 @@ const registrarPago = (request, response) => {
         }
 
         console.log("=====>> " + JSON.stringify(request.body));
-        const { id_alumno, pago, nota, ids_cargos, cargos_desglosados, genero } = request.body;
+        const { id_alumno, pago, nota, ids_cargos, cargos_desglosados, cat_forma_pago, genero } = request.body;
 
-
-        //pool.query("select agregar_pago_alumno($1,$2,$3,$4);",                               
-        //pool.query("select agregar_pago_alumno('48,50','20,100',62,130,'',);",
-        pool.query("select agregar_pago_alumno('" + ids_cargos + "','" + cargos_desglosados + "'," + id_alumno + "," + pago + ",'" + nota + "'," + genero + ");",
+        pool.query("select agregar_pago_alumno('" + ids_cargos + "','" + cargos_desglosados + "'," + id_alumno + "," + pago + ",'" + nota + "',"+ cat_forma_pago +","+ genero +" );",
             //    [id_alumno ,pago,nota,genero],
             (error, results) => {
                 if (error) {
@@ -170,10 +167,11 @@ const getPagosByCargoId = (request, response) => {
         var id_cargo_balance_alumno = request.params.id_cargo_balance_alumno;
 
         pool.query(
-            " SELECT r.*" +
-            " FROM co_pago_cargo_balance_alumno r inner join co_pago_balance_alumno pago on r.co_pago_balance_alumno = pago.id" +
-            " WHERE r.co_cargo_balance_alumno = $1 and r.eliminado = false and pago.eliminado = false" +
-            " ORDER BY pago.fecha DESC ",
+            " 	 SELECT forma_pago.id as id_forma_pago,forma_pago.nombre as nombre_forma_pago,r.*"+
+            "   FROM co_pago_cargo_balance_alumno r inner join co_pago_balance_alumno pago on r.co_pago_balance_alumno = pago.id"+
+            "                                       inner join co_forma_pago forma_pago on pago.co_forma_pago = forma_pago.id"+
+            "   WHERE r.co_cargo_balance_alumno = $1 and r.eliminado = false and pago.eliminado = false"+
+            "   ORDER BY pago.fecha DESC",
             [id_cargo_balance_alumno],
             (error, results) => {
                 if (error) {
@@ -233,12 +231,40 @@ const getBalanceAlumno = (request, response) => {
 };
 
 
+const getFormasPago = (request, response) => {
+    console.log("@getFormasPago");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }      
+        
+        pool.query("SELECT * FROM CO_FORMA_PAGO WHERE ELIMINADO = FALSE")
+            .then((results)=>{                     
+                response.status(200).json(results.rows);
+                
+            }).catch((error)=>{
+                handle.callbackError(error, response);
+                console.log("Excepcion al obtener la forma de pago "+error);
+            });                                
+            
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+
+
+
+
 module.exports = {
     registrarPago,
     registrarCargo,
     getCatalogoCargos,
     getCargosAlumno,
     getBalanceAlumno,
-    getPagosByCargoId
+    getPagosByCargoId,
+    getFormasPago
 
 }

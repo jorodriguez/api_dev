@@ -11,7 +11,6 @@ const actividad = require('./services/actividad');
 const inscripcion = require('./services/inscripcion');
 const familiar = require('./services/familiar');
 const parentesco = require('./services/parentesco');
-const cargo = require('./services/cargos');
 const servicio = require('./services/servicio');
 const formato_complemento = require('./services/formato_complemento');
 const pagos = require('./services/pagos');
@@ -95,11 +94,6 @@ app.put('/familiar/eliminar/:id_relacion', familiar.eliminarFamiliar);
 //parentesco
 app.get('/parentesco/:id_alumno', parentesco.getCatalogoParentescoAlumno);
 
-//Cargos - Productos
-app.get('/producto', cargo.getCatProductos);
-app.get('/producto/:id_alumno', cargo.getProductosAlumno);
-app.post('/producto', cargo.registrarCargoProducto);
-
 //servicios
 app.get('/servicios', servicio.getCatalogoServicios);
 
@@ -110,21 +104,23 @@ app.get('/valores_esperados/:id_formato', formato_complemento.getCatalogoValores
 app.post('/pagos/registrar', pagos.registrarPago);
 app.post('/pagos/:id_alumno', pagos.registrarPago);
 app.get('/pagos/:id_cargo_balance_alumno', pagos.getPagosByCargoId);
+app.get('/formas_pago', pagos.getFormasPago);
 
 app.post('/cargos/registrar', pagos.registrarCargo);
 app.get('/cargos', pagos.getCatalogoCargos);
 app.get('/cargos/:id_alumno', pagos.getCargosAlumno);
 app.get('/balance/:id_alumno', pagos.getBalanceAlumno);
 
+
 //Mensajes
-app.get('/mensaje', mensajeria.sendMessage);
+//app.get('/mensaje', mensajeria.sendMessage);
 
 app.get('/', (request, response) => {
-	response.json({ info: 'MagicIntelligence API v1.0.6' })
+	response.json({ info: 'MagicIntelligence API v1.0.9' })
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.8`)
+	console.log(`App corriendo en el puerto ${port} v1.0.9`)
 });
 
 

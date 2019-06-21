@@ -116,7 +116,7 @@ const eliminarFamiliar = (request, response) => {
 
             pool.query(
                 "  UPDATE co_familiar SET " +
-                "  modifico = $2,fecha_modifico = (getDate('')+geHora(''))::timestamp," +
+                "  modifico = $2,fecha_modifico = (getDate('')+getHora(''))::timestamp," +
                 "  eliminado = true " +
                 "  WHERE id = $1  ",
                 [

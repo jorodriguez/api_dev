@@ -1,4 +1,5 @@
 
+
 CREATE or replace FUNCTION generar_horas_extras(OUT retorno boolean) 
 	RETURNS boolean
  	LANGUAGE plpgsql 	
@@ -21,6 +22,7 @@ DECLARE
 	token_familiar text := '';
 	ids_alumnos integer[];
 bEGIN
+	raise notice 'CALCULAR HORAS EXTRAS AUTOMATICAS';
 		
 		fecha_hora_current := (getDate('')+getHora(''))::timestamp;
 		
@@ -116,3 +118,4 @@ bEGIN
 	
 END; --END FUNCTION 
 $$ 
+
