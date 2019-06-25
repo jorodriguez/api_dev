@@ -7,21 +7,23 @@ dotenv.config();
 //port: process.env.PORT
 //cinectarme con psql
 //heroku pg:psql postgresql-sinuous-19615 --app develop1
-/*
+
+//BASE DE DATOS DE DESARROLLO
 module.exports = {
     dbParams:{
-        user: 'yjkrazzuttzfei',
-        host: 'ec2-54-83-201-84.compute-1.amazonaws.com',
-        database: 'de232uj6c5qmh1',
-        password: '3e50556f001db0d30a43432bfd09be8ae2211ac41ecf935fb62f6d663bafc394',
+        user: 'pffyesodvpvsrp',
+        host: 'ec2-174-129-242-183.compute-1.amazonaws.com',
+        database: 'd83inhs3bq9ufb',
+        password: 'f4de35950e23261169a79f8ac3007630aaefc8ff887c147b9283a8f68b165019',
         port: 5432,
         ssl: { rejectUnauthorized: false }
     },
     'secret': 'supersecret'
 };
-*/
 
 
+/*
+//BASE DE DATOS DE PRODUCCION
 module.exports = {
     dbParams:{
         user: 'vbkxmhcwhsnoxe',
@@ -33,7 +35,7 @@ module.exports = {
     },
     'secret': 'supersecret'
 };
-
+*/
 
 //conect con psql
 
