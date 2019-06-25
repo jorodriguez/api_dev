@@ -103,7 +103,30 @@ const login = (request, response) => {
 };
 
 
+const encriptar = (request, response) => {
+    
+    var pass = request.params.clave;
+
+    var hashedPassword = bcrypt.hashSync(pass, 8);
+/*    var hashedPassword="sin hash";
+
+    console.log("Clave "+pass);
+
+    bcrypt.hash(pass, 8, function(err, hash) {
+        // Store hash in your password DB.
+
+        hashedPassword = hash;
+        console.log(""+hash);
+        console.log("error "+err);
+    
+    });
+*/
+    
+    response.status(400).send(hashedPassword);
+}
+
 module.exports = {
     createUser,
-    login
+    login,
+    encriptar
 };

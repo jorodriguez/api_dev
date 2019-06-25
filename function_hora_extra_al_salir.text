@@ -74,7 +74,7 @@ bEGIN
 								  	hora_inicio_hora_extra,hora_fin_hora_extra,fecha_current,ID_GENERO);							
 							
 							PERFORM agregar_cargo_alumno(asistencia.co_alumno,ID_HORA_EXTRA,1,
-														'Cargo por Hora Extra del '||fecha_current::date||', de '||hora_inicio_hora_extra::time||' a '||(hora_fin_hora_extra)::time||', alumno '
+														'Cargo por Tiempo Extra del '||fecha_current::date||', de '||hora_inicio_hora_extra::time||' a '||(hora_fin_hora_extra)::time||', alumno '
 														||asistencia.nombre_alumno||'.'
 														,ID_GENERO);
 								
@@ -97,8 +97,8 @@ bEGIN
 									
 										INSERT INTO SI_NOTIFICACION (FECHA,TITULO,CUERPO,ICON,TOKEN,fallo,mensaje_fallo,FECHA_GENERO,GENERO)
 											VALUES(fecha_current,											
-														'Cargo por Hora Extra',
-														'Cargo por Hora Extra del '||fecha_current::date||', de '||hora_inicio_hora_extra::time||' a '||(hora_fin_hora_extra)::time||', alumno '
+														'Cargo por Tiempo Extra',
+														'Cargo por Tiempo Extra del '||fecha_current::date||', de '||hora_inicio_hora_extra::time||' a '||(hora_fin_hora_extra)::time||', alumno '
 														||asistencia.nombre_alumno||'.',
 														'DEFAULT',
 														token_familiar,
@@ -124,7 +124,6 @@ bEGIN
 	
 END; --END FUNCTION 
 $$ 
-
 
 
 

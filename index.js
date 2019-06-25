@@ -125,6 +125,8 @@ app.listen(port, () => {
 });
 
 
+app.get('/encriptar/:clave', authController.encriptar);
+
 
 //--- TAREAS PROGRAMADAS ------
 //https://www.npmjs.com/package/node-cron
