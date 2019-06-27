@@ -5,6 +5,7 @@ const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
 const firebase = require("firebase-admin");
+const ambiente = require('../config/ambiente');
 
 const serviceAccount = require('./../config/google_service_messages.json');
 
@@ -17,7 +18,7 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-const firebaseToken = 'cn-FW4DpdkA:APA91bF_WOFoytM4x-ZPJgEmqLXU6oTQ-BJcfnoT4AUAXHXYde0XvCvlpEHRruZoeE3ykgR9OWCgXkF7blWSPInmTMRUuW1aXi_9yV3RQ_I21veVfq3E4GXI-8wlkci447tv27Nj9wep';
+const firebaseToken = 'fxjTJg3jQPc:APA91bHDuS-ESYDWoPgxNTn67XmE_7iKsQJpebS4_YJvx4YAcBno03WDwiMHdHE0KOXgkEJT54_whgeWHdIhFf10op_AX0Ia04bPz1qrbSAAtIRSQNhY6ThF9DjAV5k7hVKsHsKFip2j';
 
 firebase.initializeApp({
     credential: firebase.credential.cert(serviceAccount),
@@ -45,14 +46,16 @@ const enviarMensaje = (titulo, cuerpo) => {
             }
         };
 
-        firebase.messaging().sendToDevice(firebaseToken, payloadMensaje, options)
-            .then((response) => {
-                console.log(" result" + JSON.stringify(response));
-                return response;
-            }).catch((e) => {
-                console.log("Error en la mensajeria " + e);
-                return e;
-            });
+        if (ambiente.enviar_mensajes) {
+            firebase.messaging().sendToDevice(firebaseToken, payloadMensaje, options)
+                .then((response) => {
+                    console.log(" result" + JSON.stringify(response));
+                    return response;
+                }).catch((e) => {
+                    console.log("Error en la mensajeria " + e);
+                    return e;
+                });
+        } else { console.log("====> NO SE ENVIO EL MENSAJE FIREBASE CONFIGURACION [" + config.dbParams.enviar_mensajes + "] <<<===="); }
 
     } catch (e) {
         console.log("Erorr al enviar mensaje " + e);
@@ -72,30 +75,39 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
             }
         };
 
-        return firebase.messaging().sendToDevice(token, payloadMensaje, options);
+        var retorno = {};
 
+        if (ambiente.enviar_mensajes) {            
+            retorno = firebase.messaging().sendToDevice(token, payloadMensaje, options);
+        } else {
+            retorno =  new Promise((resolve, reject) => {                
+                setTimeout(function(){ resolve("¡Éxito!");}, 250);
+              });
+            console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG " + config.dbParams.enviar_mensajes);
+        }
+        return retorno;
 
     } catch (e) {
         console.log("Erorr al enviar mensaje " + e);
         return false;
     }
-
 }
-
-
 
 const sendMessage = (request, response) => {
     console.log("@Enviando mensaje");
     try {
-        firebase.messaging().sendToDevice(firebaseToken, payload, options)
-            .then((response) => {
-                console.log(" result" + JSON.stringify(response));
-                response.status(200).json(response);
-            }).catch((e) => {
-                console.log("Error en la mensajeria " + e);
-                handle.callbackError(e, response);
-            });
-
+        if (ambiente.enviar_mensajes) {
+            firebase.messaging().sendToDevice(firebaseToken, payload, options)
+                .then((response) => {
+                    console.log(" result" + JSON.stringify(response));
+                    response.status(200).json(response);
+                }).catch((e) => {
+                    console.log("Error en la mensajeria " + e);
+                    handle.callbackError(e, response);
+                });
+        } else {
+            console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG " + config.dbParams.enviar_mensajes);
+        }
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -103,16 +115,15 @@ const sendMessage = (request, response) => {
 
 
 
-const enviarMensajePorTema = (alumnosArray,id_tema, co_sucursal,handler) => {
+const enviarMensajePorTema = (alumnosArray, id_tema, co_sucursal, handler) => {
     try {
 
-        
-        if(alumnosArray == null || alumnosArray.length == 0){
+        if (alumnosArray == null || alumnosArray.length == 0) {
             console.log("el array es empty o null");
-            return; 
+            return;
         }
-        
-        console.log("Iniciando proceso de envio de notificacion por salida del alumno tema"+id_tema+" suc "+co_sucursal);
+
+        console.log("Iniciando proceso de envio de notificacion por salida del alumno tema" + id_tema + " suc " + co_sucursal);
 
         pool.query("SELECT distinct u.token,u.correo,u.nombre " +
             "   FROM CO_USUARIO_NOTIFICACION n inner join usuario u on n.usuario = u.id" +
@@ -128,13 +139,13 @@ const enviarMensajePorTema = (alumnosArray,id_tema, co_sucursal,handler) => {
                 }
                 if (results.rowCount > 0) {
                     console.log("inciando envio de notificaciones ");
-                    results.rows.forEach(e => {                       
+                    results.rows.forEach(e => {
 
-                        alumnosArray.forEach(alumno=>{
-                            console.log("Enviar notificacion del alumno "+alumno.nombre);
+                        alumnosArray.forEach(alumno => {
+                            console.log("Enviar notificacion del alumno " + alumno.nombre);
                             //crear un handler
-                            handler(e.token,alumno);
-                        });                        
+                            handler(e.token, alumno);
+                        });
                     });
                 } else {
                     console.log("No existen alumnos proximos  a salir ");

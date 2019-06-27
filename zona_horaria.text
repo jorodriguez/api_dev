@@ -11,6 +11,18 @@ END;
 $$ 
 LANGUAGE 'plpgsql';
 
+
+
+
+CREATE or replace FUNCTION getHora(IN zona text,OUT hora time without time zone ) AS $$
+BEGIN  
+ select current_time at time zone 'America/Monterrey' INTO hora;
+END;
+$$ 
+LANGUAGE 'plpgsql';
+
+
+
 select current_date at time zone 'America/Monterrey'
 
 SET TIMEZONE='America/Monterrey';

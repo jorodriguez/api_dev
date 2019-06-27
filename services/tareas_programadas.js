@@ -6,6 +6,7 @@ const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
 const mensajeria = require('./mensajesFirebase');
 
+
 var schedule = require('node-schedule');
 
 const pool = new Pool({
@@ -51,16 +52,6 @@ const generarBalanceAlumnos = () => {
     }
 };*/
 
-/*
-var taskGenerarBalanceAlumnos = schedule.scheduleJob('1 0 * * *', function(){    
-    console.log("Se generan los registros de balances ");
-    generarBalanceAlumnos();
-});*/
-
-/*
-var everyFiveMin = schedule.scheduleJob('1 * * *', function(fireDate){
-    console.log('This job was supposed to run at ' + fireDate + ', but actually ran at ' + new Date());
-  });*/
 
 //Registrar horas extras
 
@@ -71,15 +62,15 @@ const ejecutarProcesoHorasExtrasAuto = () => {
     pool.query("select generar_horas_extras();")
         .then((results) => {
             console.log("Resultado " + JSON.stringify(results));
-            
+
             if (results.rowCount > 0) {
                 console.log("Iniciando el envio de mensajes ");
 
                 //enviar mensaje
                 pool.query("select id,fecha,titulo,cuerpo,icon,token from si_notificacion where notificado = false and fallo = false and eliminado = false")
                     .then((results) => {
-                        if (results != null && results.rowCount > 0) {                        
-                            
+                        if (results != null && results.rowCount > 0) {
+
                             for (var i = 0; i < results.rows.length; i++) {
                                 var e = results.rows[i];
                                 console.log("Enviando mensaje ");
@@ -95,7 +86,8 @@ const ejecutarProcesoHorasExtrasAuto = () => {
                                         silenciarNotificaciones(e.id, false, "Error:" + e, true);
 
                                     });
-                            }                                                        
+
+                            }
                         } else { console.log("NO EXISTEN MENSAJES POR ENVIAR"); }
                     }).catch((e) => {
                         console.log("Error al correr el proceso de generacion de horas extras " + e);
@@ -272,7 +264,7 @@ const ejecutarProcesoNotificacionExpiracionSalidaAlumnoPorSucursal = (co_sucursa
             " alumno.co_sucursal, " +
             " alumno.hora_salida,	" +
             " (alumno.hora_salida <= getHora('')) as notificar_tiempo_expirado," +
-            " getHora('') - alumno.hora_salida as tiempo_expirado					" +
+            "  date_trunc('minute',(getHora('') - alumno.hora_salida))::text as tiempo_expirado					" +
             " FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id                              " +
             " WHERE asistencia.hora_salida is null  and asistencia.fecha = getDate('')" +
             " AND alumno.co_sucursal = $1" +

@@ -18,7 +18,9 @@ const mensajeria = require('./services/mensajesFirebase');
 const tareas_programadas = require('./services/tareas_programadas');
 const schedule = require('node-schedule');
 const formas_pago = require('./services/formas_pago');
+const ambiente = require('./config/ambiente');
 const https = require("https");
+
 const port = process.env.PORT || 5000;
 
 //es un middleware que serializa los cuerpos de las respuestas 
@@ -129,6 +131,8 @@ app.listen(port, () => {
 app.get('/encriptar/:clave', authController.encriptar);
 
 
+
+
 //--- TAREAS PROGRAMADAS ------
 //https://www.npmjs.com/package/node-cron
 
@@ -138,36 +142,39 @@ app.get('/encriptar/:clave', authController.encriptar);
 
 //--Calcular horas extras . proceso que corre cada 30 min
 
-schedule.scheduleJob('0 */10 12-24 * * 1-5', function(){
-//schedule.scheduleJob('0 */2 * * * 1-5', function () {
+schedule.scheduleJob('0 */10 12-24 * * 1-5', function () {
+	//schedule.scheduleJob('0 */2 * * * 1-5', function () {
 	console.log("========== MANTENIENDO VIVA LA APP ==================");
 	try {
-		https.get('https://api-ambiente-produccion.herokuapp.com', (response) => {
-			let todo = '';		  
-			// called when a data chunk is received.
-			response.on('data', (chunk) => {
-			  console.log("Todo bien al accesar al API");
-			});		  			
-			response.on('end', () => {
-			  console.log("fin de la llamada  a la API");
-			});		  
-		  }).on("error", (error) => {
-			console.log("Error al acceesar al API: " + error.message);
-		  });	
-		  
-		  https.get('https://aplicacion-ambiente-produccion.herokuapp.com', (response) => {
-			let todo = '';		  
-			// called when a data chunk is received.
-			response.on('data', (chunk) => {
-			  console.log("Llamada a la APPLICATION OK");
-			});		  			
-			response.on('end', () => {
-			  console.log("Fin de llamada APPLICATION");
-			});		  
-		  }).on("error", (error) => {
-			console.log("Error en llamada a la APPLICATION: " + error.message);
-		  });	
-		  
+		if (ambiente.configuracion.env != 'DEV') {
+
+			https.get('https://api-ambiente-produccion.herokuapp.com', (response) => {
+				let todo = '';
+				// called when a data chunk is received.
+				response.on('data', (chunk) => {
+					console.log("Todo bien al accesar al API");
+				});
+				response.on('end', () => {
+					console.log("fin de la llamada  a la API");
+				});
+			}).on("error", (error) => {
+				console.log("Error al acceesar al API: " + error.message);
+			});
+
+			https.get('https://aplicacion-ambiente-produccion.herokuapp.com', (response) => {
+				let todo = '';
+				// called when a data chunk is received.
+				response.on('data', (chunk) => {
+					console.log("Llamada a la APPLICATION OK");
+				});
+				response.on('end', () => {
+					console.log("Fin de llamada APPLICATION");
+				});
+			}).on("error", (error) => {
+				console.log("Error en llamada a la APPLICATION: " + error.message);
+			});
+		}
+
 	} catch (e) {
 		console.log("Excepcion al hacer ping" + e);
 	}
@@ -203,6 +210,7 @@ schedule.scheduleJob('0 */35 * * * 1-5', function () {
 	//FIXME : para pruebas
 	try {
 		tareas_programadas.ejecutarProcesoNotificacionExpiracionTiempoAlumno();
+
 	} catch (e) {
 		console.log("Error al ejecutar el proceso de revision de expiración " + e);
 	}
