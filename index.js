@@ -19,6 +19,7 @@ const tareas_programadas = require('./services/tareas_programadas');
 const schedule = require('node-schedule');
 const formas_pago = require('./services/formas_pago');
 const ambiente = require('./config/ambiente');
+const reporteDeudas = require('./services/reporteDeudas');
 const https = require("https");
 
 const port = process.env.PORT || 5000;
@@ -116,6 +117,10 @@ app.get('/balance/:id_alumno', pagos.getBalanceAlumno);
 
 app.get('/formas_pago', formas_pago.getFormasPago);
 
+//Reporte
+app.get('/balance_sucursal', reporteDeudas.getReporteBalancePorSucursal);
+app.get('/balance_alumnos_sucursal/:id_sucursal', reporteDeudas.getReporteBalanceAlumnosSucursal);
+
 //Mensajes
 //app.get('/mensaje', mensajeria.sendMessage);
 
@@ -127,10 +132,7 @@ app.listen(port, () => {
 	console.log(`App corriendo en el puerto ${port} v1.0.10`)
 });
 
-
 app.get('/encriptar/:clave', authController.encriptar);
-
-
 
 
 //--- TAREAS PROGRAMADAS ------

@@ -67,6 +67,7 @@ const login = (request, response) => {
             " u.correo," +
             " u.password," +
             " u.co_sucursal," +
+            " u.permiso_gerente," +
             " su.nombre as nombre_sucursal" +
             " FROM usuario u inner join co_sucursal su on u.co_sucursal = su.id" +
             " WHERE u.correo = $1 AND u.eliminado = false",

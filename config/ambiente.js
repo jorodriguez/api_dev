@@ -5,7 +5,7 @@
 module.exports = {
     configuracion: {
         'secret': 'supersecret',
-        env: 'DEV',
+        env: '"DEV"',
         enviar_mensajes: false
     }
 };

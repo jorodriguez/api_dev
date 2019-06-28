@@ -1,0 +1,4 @@
+
+alter table  usuario add column permiso_gerente boolean default false;
+
+update usuario set permiso_gerente = true where id = 10
