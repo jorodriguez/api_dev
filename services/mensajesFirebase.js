@@ -83,7 +83,7 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
             retorno =  new Promise((resolve, reject) => {                
                 setTimeout(function(){ resolve("¡Éxito!");}, 250);
               });
-            console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG " + config.dbParams.enviar_mensajes);
+            console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG ");
         }
         return retorno;
 

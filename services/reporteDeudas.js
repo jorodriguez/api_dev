@@ -42,11 +42,13 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
             "   balance.id as id_balance," +
             "   balance.total_adeudo," +
             "   balance.total_pagos," +
-            "   balance.total_cargos" +
+            "   balance.total_cargos,"+
+            "   to_char(a.fecha_inscripcion,'YYYYMM') = to_char(getDate(''),'YYYYMM') AS nuevo_ingreso " +
             " From co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id" +
             "                 inner join co_grupo grupo on a.co_grupo = grupo.id" +
             "                 inner join co_sucursal suc on a.co_sucursal =suc.id" +
-            " WHERE a.co_sucursal = $1 and a.eliminado = false ",
+            " WHERE a.co_sucursal = $1 and a.eliminado = false " +
+            " ORDER BY balance.total_adeudo DESC ",
             [id_sucursal],
             (error, results) => {
                 if (error) {
@@ -71,17 +73,30 @@ const getReporteBalancePorSucursal = (request, response) => {
         }
 
         pool.query(
-            " SELECT suc.id, suc.nombre," +
-            "    sum(balance.total_adeudo) as total_adeuda," +
-            "    sum(balance.total_pagos) as total_pagos," +
-            "    sum(balance.total_cargos) as total_cargos" +
+            " with total_alumnos_count As( " +
+            "       select co_sucursal,count(*) AS contador_alumnos" +
+            "       from co_alumno " +
+            "       group by co_sucursal" +
+            "),total_ingreso_mes_actual AS(" +
+            "   select co_sucursal,count(*) AS contador_alumnos_ingresado_mes" +
+            "   from co_alumno " +
+            "   where to_char(fecha_inscripcion,'YYYYMM') = to_char(getDate(''),'YYYYMM')" +
+            "               and eliminado = false" +
+            "     group by co_sucursal" +
+            ") SELECT suc.id, suc.nombre," +
+            "       sum(balance.total_adeudo) as total_adeuda," +
+            "       sum(balance.total_pagos) as total_pagos," +
+            "       sum(balance.total_cargos) as total_cargos," +
+            "       total_alumnos.contador_alumnos," +
+            "       total_ingreso.contador_alumnos_ingresado_mes" +
             " FROM co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id" +
-            "                 inner join co_grupo grupo on a.co_grupo = grupo.id" +
-            "                 inner join co_sucursal suc on a.co_sucursal =suc.id" +
-            " WHERE a.eliminado = false " +
-            " GROUP by suc.id"
+            "           inner join co_grupo grupo on a.co_grupo = grupo.id" +
+            "           inner join co_sucursal suc on a.co_sucursal =suc.id" +
+            "           inner join total_alumnos_count total_alumnos on total_alumnos.co_sucursal = suc.id" +
+            "           inner join total_ingreso_mes_actual total_ingreso on total_ingreso.co_sucursal = suc.id " +
+            "   WHERE a.eliminado = false " +
+            "   GROUP by suc.id,total_alumnos.contador_alumnos,total_ingreso.contador_alumnos_ingresado_mes"
             ,
-            [id_sucursal],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
