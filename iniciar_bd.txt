@@ -35,3 +35,180 @@ ALTER SEQUENCE co_formato_inscripcion_id_seq restart 1;
 
 delete from co_formato_valor_esperado_empresa;
 ALTER SEQUENCE co_formato_valor_esperado_empresa_id_seq restart 1;
+
+
+
+
+---------------------- eliminar cargos de horas extras ---------------------
+
+select co_balance_alumno,* from co_alumno where nombre like '%Mar%'
+83
+
+select * from co_balance_alumno where id = 83
+
+select * 
+from co_cargo_balance_alumno 
+where co_balance_alumno = 83
+	and eliminado = false
+	and cat_cargo = 3
+
+-- eliminar los recargos de horas extras
+update co_cargo_balance_alumno set eliminado = true, nota = nota||' ELIMINADO POR EL FORMATO DE HORAS INCORRECTO '  --' ELIMINADO POR NO SACARLO A TIEMPO ' 
+where co_balance_alumno = 83
+	and cat_cargo = 3 
+	and fecha::date = '2019-07-01';
+
+
+
+--select * from co_cargo_balance_alumno where co_balance_alumno = 5 and cat_cargo = 3 and fecha::date = '2019-07-01';
+
+--suma de cargos UPDATE AL BALANCE
+update co_balance_alumno 
+set total_cargos =(select sum(total) from co_cargo_balance_alumno 
+									where co_balance_alumno = 83
+									and eliminado = false)
+	,total_adeudo = (select sum(total) from co_cargo_balance_alumno 
+									where co_balance_alumno = 83
+									and eliminado = false)
+where id = 83;	
+	
+--eliminar horas extras en la tabla co_hora_extra
+select * 
+from co_hora_extra 
+where co_alumno = 83
+and eliminado = false
+and fecha::date = '2019-06-25'
+
+update co_hora_extra set eliminado = true 
+	,fecha_modifico = (getDate('')+getHora(''))::timestamp
+where co_alumno = 83	 
+and eliminado = false;
+
+
+----------------------------------------------------------
+	with universo AS(
+				select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as fecha
+			) select 
+				to_char(u.fecha,'Mon-YYYY'),								
+				to_char(u.fecha,'YYYY') as numero_anio,
+				to_char(u.fecha,'MM') as numero_mes,
+				count(alumno.*) as count_alumno,
+			    coalesce(sum(alumno.costo_colegiatura),0) as suma_colegiaturas,
+				coalesce(sum(alumno.costo_inscripcion),0) as suma_inscripciones,
+				coalesce((sum(alumno.costo_colegiatura) + sum(alumno.costo_inscripcion)),0) as suma_total
+				from universo u left join co_alumno alumno on to_char(u.fecha,'YYYYMM') = to_char(alumno.fecha_inscripcion,'YYYYMM')
+											and alumno.eliminado = false
+			group by to_char(u.fecha,'Mon-YYYY'),
+						to_char(u.fecha,'MMYYYY'),
+						numero_anio,
+						numero_mes						
+			order by numero_anio desc,numero_mes desc
+			
+			
+
+
+
+
+
+
+------- querys
+
+			with universo AS(
+				select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as fecha
+			) select 
+				to_char(u.fecha,'Mon-YYYY'),								
+				to_char(u.fecha,'YYYY') as numero_anio,
+				to_char(u.fecha,'MM') as numero_mes,
+				count(alumno.*) as count_alumno,
+			    coalesce(sum(alumno.costo_colegiatura),0) as suma_colegiaturas,
+				coalesce(sum(alumno.costo_inscripcion),0) as suma_inscripciones,
+				coalesce((sum(alumno.costo_colegiatura) + sum(alumno.costo_inscripcion)),0) as suma_total
+				from universo u left join co_alumno alumno 
+								on to_char(u.fecha,'YYYYMM') = to_char(alumno.fecha_inscripcion,'YYYYMM')
+								and alumno.eliminado = false								
+			group by to_char(u.fecha,'Mon-YYYY'),
+						to_char(u.fecha,'MMYYYY'),
+						numero_anio,
+						numero_mes						
+			order by numero_anio desc,numero_mes desc
+			
+			
+			--- crecimiento global 
+			with universo AS(
+				select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as fecha
+			) select 
+			  	to_char(u.fecha,'Mon-YYYY') as mes_anio,								
+				to_char(u.fecha,'YYYY') as numero_anio,
+				to_char(u.fecha,'MM') as numero_mes,				
+				count(alumno.*) as count_alumno,					
+			    coalesce(sum(alumno.costo_colegiatura),0) as suma_colegiaturas,
+				coalesce(sum(alumno.costo_inscripcion),0) as suma_inscripciones,
+				coalesce((sum(alumno.costo_colegiatura) + sum(alumno.costo_inscripcion)),0) as suma_total							
+			 from universo u left join co_alumno alumno 
+								on to_char(u.fecha,'YYYYMM') = to_char(alumno.fecha_inscripcion,'YYYYMM')
+								and alumno.eliminado = false																							
+			group by to_char(u.fecha,'Mon-YYYY'),
+						to_char(u.fecha,'MMYYYY'),
+						numero_anio,
+						numero_mes					
+			order by numero_anio desc,numero_mes desc
+			
+			
+			
+			--crecimiento por sucursal
+			with universo AS(
+				select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as fecha
+			) select 
+			    suc.nombre,
+				to_char(u.fecha,'Mon-YYYY') as mes_anio,								
+				to_char(u.fecha,'YYYY') as numero_anio,
+				to_char(u.fecha,'MM') as numero_mes,				
+				count(alumno.*) as count_alumno,					
+			    coalesce(sum(alumno.costo_colegiatura),0) as suma_colegiaturas,
+				coalesce(sum(alumno.costo_inscripcion),0) as suma_inscripciones,
+				coalesce((sum(alumno.costo_colegiatura) + sum(alumno.costo_inscripcion)),0) as suma_total							
+			 from universo u left join co_alumno alumno 
+								on to_char(u.fecha,'YYYYMM') = to_char(alumno.fecha_inscripcion,'YYYYMM')
+								and alumno.eliminado = false																				
+								inner join co_sucursal suc on alumno.co_sucursal = suc.id									 
+			where suc.id = 1
+			group by to_char(u.fecha,'Mon-YYYY'),
+						to_char(u.fecha,'MMYYYY'),
+						numero_anio,
+						numero_mes
+						,suc.nombre	
+			order by 
+					suc.nombre, 
+			numero_anio desc,numero_mes desc
+			
+			
+			
+		
+			--cargos por mes 
+			with meses AS(
+				select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as fecha
+			) 
+			select to_char(m.fecha,'YYYYMM'),
+					to_char(m.fecha,'Mon-YYYY') as mes_anio,
+					coalesce(sum(cargo.total),0)
+			from meses m left join co_cargo_balance_alumno cargo on to_char(cargo.fecha,'Mon-YYYY') = to_char(m.fecha,'Mon-YYYY')															
+									and cargo.eliminado = false
+								--inner join co_sucursal suc on suc.id = al.co_sucursal																								
+			group by to_char(m.fecha,'YYYYMM'),mes_anio
+			order by to_char(m.fecha,'YYYYMM') desc
+			
+			
+			-- pagos por mes 
+			with meses AS(
+				select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as fecha
+			) 
+			select to_char(m.fecha,'YYYYMM'),
+					to_char(m.fecha,'Mon-YYYY') as mes_anio,
+				     coalesce(sum(pago.pago),0) 
+			from meses m left join co_pago_balance_alumno pago on to_char(pago.fecha,'Mon-YYYY') = to_char(m.fecha,'Mon-YYYY')																							
+														and pago.eliminado = false
+			group by to_char(m.fecha,'YYYYMM'),mes_anio
+			order by to_char(m.fecha,'YYYYMM') desc
+			
+				
+					

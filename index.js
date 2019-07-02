@@ -123,6 +123,10 @@ app.get('/balance_sucursal', reporteDeudas.getReporteBalancePorSucursal);
 app.get('/balance_alumnos_sucursal/:id_sucursal', reporteDeudas.getReporteBalanceAlumnosSucursal);
 
 app.get('/balance_crecimiento', reporteDeudas.getReporteCrecimientoBalancePorSucursal);
+app.get('/balance_crecimiento_alumnos/:id_sucursal', reporteDeudas.getReporteCrecimientoBalanceAlumnosSucursal);
+
+app.get('/balance_crecimiento_global', reporteDeudas.getReporteCrecimientoGlobal);
+app.get('/balance_crecimiento_mensual/:id_sucursal', reporteDeudas.getReporteCrecimientoMensualSucursal);
 
 
 //

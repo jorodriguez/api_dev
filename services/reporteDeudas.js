@@ -95,7 +95,8 @@ const getReporteBalancePorSucursal = (request, response) => {
             "           inner join total_alumnos_count total_alumnos on total_alumnos.co_sucursal = suc.id" +
             "           LEFT join total_ingreso_mes_actual total_ingreso on total_ingreso.co_sucursal = suc.id " +
             "   WHERE a.eliminado = false " +
-            "   GROUP by suc.id,total_alumnos.contador_alumnos,total_ingreso.contador_alumnos_ingresado_mes"
+            "   GROUP by suc.id,total_alumnos.contador_alumnos,total_ingreso.contador_alumnos_ingresado_mes" +
+            " ORDER BY suc.nombre DESC "
             ,
             (error, results) => {
                 if (error) {
@@ -136,7 +137,8 @@ const getReporteCrecimientoBalancePorSucursal = (request, response) => {
             "       coalesce(a.total_cargos_crecimiento,0) as total_cargos_crecimiento," +
             "       coalesce(a.total_adeuda_crecimiento,0) as total_adeuda_crecimiento," +
             "		coalesce(a.total_pagos_crecimiento,0) as total_pagos_crecimiento" +
-            " from co_sucursal s left join alumnos a on a.co_sucursal = s.id" ,
+            " from co_sucursal s left join alumnos a on a.co_sucursal = s.id" +
+            " ORDER BY s.nombre DESC  ",
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -148,6 +150,152 @@ const getReporteCrecimientoBalancePorSucursal = (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
+
+
+const getReporteCrecimientoBalanceAlumnosSucursal = (request, response) => {
+    console.log("@getReporteCrecimientoBalanceAlumnosSucursal");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        const id_sucursal = request.params.id_sucursal;
+
+        pool.query(
+            "  select a.id," +
+            "   a.nombre," +
+            "   a.apellidos," +
+            "   a.hora_entrada," +
+            "   a.hora_salida," +
+            "   a.costo_colegiatura," +
+            "   a.costo_inscripcion," +
+            "   a.minutos_gracia," +
+            "   a.fecha_inscripcion," +
+            "   a.fecha_reinscripcion," +
+            "   suc.nombre as nombre_sucursal, " +
+            "   balance.id as id_balance," +
+            "   balance.total_adeudo," +
+            "   balance.total_pagos," +
+            "   balance.total_cargos" +
+            " From co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id" +
+            "                 inner join co_grupo grupo on a.co_grupo = grupo.id" +
+            "                 inner join co_sucursal suc on a.co_sucursal =suc.id" +
+            " WHERE a.co_sucursal = $1 and a.eliminado = false " +
+            "       AND to_char(a.fecha_inscripcion,'YYYYMM') = to_char(getDate(''),'YYYYMM')" +
+            " ORDER BY balance.total_adeudo DESC ",
+            [id_sucursal],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+
+
+const getReporteCrecimientoGlobal = (request, response) => {
+    console.log("@getReporteCrecimientoGlobal");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        const id_sucursal = request.params.id_sucursal;
+
+        pool.query(
+            "  with universo AS( " +
+            "       select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as fecha" +
+            "       ) select " +
+            "           to_char(u.fecha,'Mon-YYYY') as mes_anio," +
+            "		     to_char(u.fecha,'YYYY') as numero_anio," +
+            "           to_char(u.fecha,'MM') as numero_mes," +
+            "           count(alumno.*) as count_alumno," +
+            "           coalesce(sum(alumno.costo_colegiatura),0) as suma_colegiaturas," +
+            "           coalesce(sum(alumno.costo_inscripcion),0) as suma_inscripciones," +
+            "           coalesce((sum(alumno.costo_colegiatura) + sum(alumno.costo_inscripcion)),0) as suma_total" +
+            "   from universo u left join co_alumno alumno " +
+            "           on to_char(u.fecha,'YYYYMM') = to_char(alumno.fecha_inscripcion,'YYYYMM')" +
+            "           and alumno.eliminado = false" +
+            "    group by to_char(u.fecha,'Mon-YYYY')," +
+            "   to_char(u.fecha,'MMYYYY')," +
+            "           numero_anio," +
+            "			numero_mes	" +
+            " order by numero_anio desc,numero_mes desc ",
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+
+
+
+const getReporteCrecimientoMensualSucursal = (request, response) => {
+    console.log("@getReporteCrecimientoMensualSucursal");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        const id_sucursal = request.params.id_sucursal;
+
+        pool.query(
+         ` with universo AS(
+                select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as fecha
+                --select generate_series((to_char(getDate(''),'YYYY') ||'-01-01')::timestamp,(getDate('')+getHora(''))::timestamp,'1 month') as fecha
+			) select 
+			    suc.nombre,
+				to_char(u.fecha,'Mon-YYYY') as mes_anio,								
+				to_char(u.fecha,'YYYY') as numero_anio,
+				to_char(u.fecha,'MM') as numero_mes,				
+				count(alumno.*) as count_alumno,					
+			    coalesce(sum(alumno.costo_colegiatura),0) as suma_colegiaturas,
+				coalesce(sum(alumno.costo_inscripcion),0) as suma_inscripciones,
+				coalesce((sum(alumno.costo_colegiatura) + sum(alumno.costo_inscripcion)),0) as suma_total							
+			 from universo u left join co_alumno alumno 
+								on to_char(u.fecha,'YYYYMM') = to_char(alumno.fecha_inscripcion,'YYYYMM')
+								and alumno.eliminado = false																				
+                                inner join co_sucursal suc on alumno.co_sucursal = suc.id								
+            where suc.id = $1 
+			group by to_char(u.fecha,'Mon-YYYY'),
+						to_char(u.fecha,'MMYYYY'),
+						numero_anio,
+						numero_mes
+						,suc.nombre	
+			order by 
+					suc.nombre, 
+            numero_anio desc,numero_mes desc `,
+            [id_sucursal],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+
 
 /*
  " 	with total_ingreso_mes_actual AS( " +
@@ -172,5 +320,8 @@ const getReporteCrecimientoBalancePorSucursal = (request, response) => {
 module.exports = {
     getReporteBalanceAlumnosSucursal,
     getReporteBalancePorSucursal,
-    getReporteCrecimientoBalancePorSucursal
+    getReporteCrecimientoBalancePorSucursal,
+    getReporteCrecimientoBalanceAlumnosSucursal,
+    getReporteCrecimientoGlobal,
+    getReporteCrecimientoMensualSucursal
 }
