@@ -1,0 +1,28 @@
+
+CREATE or replace FUNCTION registrar_cargo_mensualidad_alumnos() RETURNS VOID AS $$
+DECLARE 
+	alumno_loop RECORD;
+	id_cat_cargo integer := 1;
+	nota_cargo text := 'CARGO AUTOMÁTICO DE MENSUALIDAD ';
+	cantidad integer := 1;
+	id_genero integer :=1;
+	nombre_mes text := '';
+BEGIN  
+
+	raise notice 'registrar cargo de mensualidad de alumnos.';
+
+	  SELECT to_char((getDate('')+getHora(''))::timestamp, 'TMmon') INTO nombre_mes;
+		nota_cargo := nota_cargo ||UPPER(nombre_mes)||'.';
+		
+		FOR alumno_loop IN ( 
+			select * from co_alumno where eliminado = false
+		) LOOP 
+			raise notice 'Iniciando cargos de mensualidad aútomaticos, alumno % ',alumno_loop.nombre;		
+			
+			--agregar_cargo_alumno(id_alumno,cat_cargo,cantidad,nota,genero)
+			PERFORM agregar_cargo_alumno(alumno_loop.id,id_cat_cargo,cantidad,nota_cargo,id_genero);					
+			--agregar un item en la notificacion para enviar un mensaje al papa para que pase a pagar su mensualidad			
+		END LOOP; 	
+END;
+$$ 
+LANGUAGE 'plpgsql';

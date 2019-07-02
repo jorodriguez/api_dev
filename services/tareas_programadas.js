@@ -360,11 +360,22 @@ const ejecutarProcesoNotificacionExpiracionTiempoAlumno = () => {
     }
 };
 
+const ejecutarRegistroMensualidadAutomatica = () => {
+    console.log("==============================PROCESO DE HORAS EXTRAS===================================");
+    console.log("@ejecutarRegistroMensualidadAutomatica");
 
+    pool.query("select registrar_cargo_mensualidad_alumnos();")
+        .then((results) => {
+            console.log("Ejecucion del proceso de cargos de mensualidades automaticas ejecutado");
+        }).catch((e) => {
+            console.log("EXCEPCION AL EJECUTAR EL PROCESO AUTOMATICO DE CARGOS DE MENSUALIDAD " + e);
+        });
+}
 
 module.exports = {
     //generarBalanceAlumnos
     ejecutarProcesoHorasExtrasAuto,
     ejecutarProcesoNotificacionProximaSalidaAlumno,
-    ejecutarProcesoNotificacionExpiracionTiempoAlumno
+    ejecutarProcesoNotificacionExpiracionTiempoAlumno,
+    ejecutarRegistroMensualidadAutomatica
 }

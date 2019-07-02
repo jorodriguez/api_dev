@@ -20,6 +20,7 @@ const schedule = require('node-schedule');
 const formas_pago = require('./services/formas_pago');
 const ambiente = require('./config/ambiente');
 const reporteDeudas = require('./services/reporteDeudas');
+const utilerias = require('./services/utilerias');
 const https = require("https");
 
 const port = process.env.PORT || 5000;
@@ -121,6 +122,13 @@ app.get('/formas_pago', formas_pago.getFormasPago);
 app.get('/balance_sucursal', reporteDeudas.getReporteBalancePorSucursal);
 app.get('/balance_alumnos_sucursal/:id_sucursal', reporteDeudas.getReporteBalanceAlumnosSucursal);
 
+app.get('/balance_crecimiento', reporteDeudas.getReporteCrecimientoBalancePorSucursal);
+
+
+//
+app.get('/meses_activos', utilerias.getMesesActivos);
+
+
 //Mensajes
 //app.get('/mensaje', mensajeria.sendMessage);
 
@@ -132,7 +140,7 @@ app.listen(port, () => {
 	console.log(`App corriendo en el puerto ${port} v1.0.10`)
 });
 
-app.get('/encriptar/:clave', authController.encriptar);
+//app.get('/encriptar/:clave', authController.encriptar);
 
 
 //--- TAREAS PROGRAMADAS ------
@@ -223,5 +231,6 @@ schedule.scheduleJob('0 */35 * * * 1-5', function () {
 schedule.scheduleJob('0 1 0 1 * *', function () {
 	console.log('Agregar cargo de mensualidad ' + new Date());
 	//tareas.generarBalanceAlumnos();
+
 });
 
