@@ -120,7 +120,7 @@ const getReporteCrecimientoBalancePorSucursal = (request, response) => {
         }
 
         pool.query(
-            "		with alumnos AS (" +
+           /* "		with alumnos AS (" +
             "				select a.co_sucursal," +
             "               count(a.*) as contador_alumnos_ingresado_mes," +
             "               sum(balance.total_cargos) as total_cargos_crecimiento," +
@@ -138,7 +138,30 @@ const getReporteCrecimientoBalancePorSucursal = (request, response) => {
             "       coalesce(a.total_adeuda_crecimiento,0) as total_adeuda_crecimiento," +
             "		coalesce(a.total_pagos_crecimiento,0) as total_pagos_crecimiento" +
             " from co_sucursal s left join alumnos a on a.co_sucursal = s.id" +
-            " ORDER BY s.nombre DESC  ",
+            " ORDER BY s.nombre DESC  ",*/
+             `
+             with universo AS(
+                select getDate('') As fecha
+            ) select 
+                suc.id,
+			    suc.nombre,
+				to_char(getDate(''),'Mon-YYYY') as mes_anio,								
+				to_char(getDate(''),'YYYY') as numero_anio,
+				to_char(getDate(''),'MM') as numero_mes,				
+				count(alumno.*) as count_alumno,					
+			    coalesce(sum(alumno.costo_colegiatura),0) as suma_colegiaturas,
+				coalesce(sum(alumno.costo_inscripcion),0) as suma_inscripciones,
+				coalesce((sum(alumno.costo_colegiatura) + sum(alumno.costo_inscripcion)),0) as suma_total							
+			 from co_sucursal suc left join co_alumno alumno on alumno.co_sucursal = suc.id								            
+								    and to_char(getDate(''),'YYYYMM') = to_char(alumno.fecha_inscripcion,'YYYYMM')						 
+									and alumno.eliminado = false								   
+			group by suc.id,to_char(getDate(''),'Mon-YYYY'),
+						to_char(getDate(''),'MMYYYY'),
+						numero_anio,
+						numero_mes
+						,suc.nombre	
+			order by 
+					suc.nombre desc`,
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
