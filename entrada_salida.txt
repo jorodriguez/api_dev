@@ -1,8 +1,33 @@
 
-alter table  usuario add column permiso_gerente boolean default false;
-
-update usuario set permiso_gerente = true where id = 10;
-
+CREATE or replace FUNCTION registrar_salida_alumno(IN ids_alumnos_param text,ID_GENERO integer,OUT retorno boolean) 
+	RETURNS boolean
+ 	LANGUAGE plpgsql 	
+ AS
+$$
+DECLARE
+	ids_alumnos integer[];
+	id_alumnos_horas_extras text;
+BEGIN
+	IF ids_alumnos_param is null THEN		
+		raise notice 'Es null la lista de alumnos param ';
+		retorno := false;
+	ELSE
+		ids_alumnos := string_to_array(ids_alumnos_param,','); 
+		
+		UPDATE CO_ASISTENCIA 
+                     SET hora_salida = (getDate('')+getHora(''))::timestamp,
+                     	modifico = ID_GENERO
+        WHERE id = ANY(ids_alumnos::INT[]);
+		
+		select string_agg(co_alumno::text,',') from co_asistencia where id = ANY(ids_alumnos::INT[])
+		INTO id_alumnos_horas_extras;
+					
+		PERFORM generar_horas_extras_alumno(id_alumnos_horas_extras,ID_GENERO);		
+			
+	END IF;	
+	retorno := true;
+END; --END FUNCTION 
+$$ 
 
 
 CREATE or replace FUNCTION registrar_entrada_alumno(IN ids_alumnos_param text,ID_GENERO integer,OUT retorno boolean) 
