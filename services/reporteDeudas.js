@@ -36,8 +36,8 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
             "   a.costo_colegiatura," +
             "   a.costo_inscripcion," +
             "   a.minutos_gracia," +
-            "   a.fecha_inscripcion," +
-            "   a.fecha_reinscripcion," +
+            "   a.fecha_inscripcion::date," +
+            "   a.fecha_reinscripcion::date," +
             "   suc.nombre as nombre_sucursal, " +
             "   balance.id as id_balance," +
             "   balance.total_adeudo," +
@@ -195,8 +195,8 @@ const getReporteCrecimientoBalanceAlumnosSucursal = (request, response) => {
             "   a.costo_colegiatura," +
             "   a.costo_inscripcion," +
             "   a.minutos_gracia," +
-            "   a.fecha_inscripcion," +
-            "   a.fecha_reinscripcion," +
+            "   a.fecha_inscripcion::date," +
+            "   a.fecha_reinscripcion::date," +
             "   suc.nombre as nombre_sucursal, " +
             "   balance.id as id_balance," +
             "   balance.total_adeudo," +
@@ -325,19 +325,21 @@ const getReporteCrecimientoMensualSucursal = (request, response) => {
 const getReporteAlumnosMensualCrecimiento = (request, response) => {
     console.log("@getReporteAlumnosMensualCrecimiento");
     try {
-        console.log(" JSON "+JSON.stringify(request.params));
+        //console.log(" JSON "+JSON.stringify(request.body.json_param));
         var validacion = helperToken.validarToken(request);
 
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        
         }
 
-        
-        //const id_sucursal = request.params.id_sucursal;
-        const { id_sucursal,mes_anio } = request.params.json_param;
+        console.log(JSON.stringify(request.params));
 
-        pool.query(
-         `
+        const id_sucursal = request.params.id_sucursal;
+        const mes_anio = request.params.mes_anio;
+       // const { id_sucursal,mes_anio } = request.body.json_param;
+
+        pool.query(         `
          select a.id, 
               a.nombre,
                a.apellidos,
@@ -346,8 +348,8 @@ const getReporteAlumnosMensualCrecimiento = (request, response) => {
                a.costo_colegiatura,
               a.costo_inscripcion,
                a.minutos_gracia,
-               a.fecha_inscripcion,
-               a.fecha_reinscripcion,
+               a.fecha_inscripcion::date,
+               a.fecha_reinscripcion::date,
                suc.nombre as nombre_sucursal, 
                balance.id as id_balance,
                balance.total_adeudo,
@@ -358,7 +360,7 @@ const getReporteAlumnosMensualCrecimiento = (request, response) => {
                              inner join co_sucursal suc on a.co_sucursal =suc.id
              WHERE a.co_sucursal = $1 and a.eliminado = false 			
                    AND to_char(a.fecha_inscripcion,'Mon-YYYY') = $2
-             ORDER BY balance.total_adeudo DES
+             ORDER BY balance.total_adeudo DESC
          `,
             [id_sucursal,mes_anio],
             (error, results) => {
