@@ -127,7 +127,7 @@ app.get('/balance_crecimiento_alumnos/:id_sucursal', reporteDeudas.getReporteCre
 
 app.get('/balance_crecimiento_global', reporteDeudas.getReporteCrecimientoGlobal);
 app.get('/balance_crecimiento_mensual/:id_sucursal', reporteDeudas.getReporteCrecimientoMensualSucursal);
-
+app.get('/alumnos_balance_crecimiento_mensual_sucursal/:json_param', reporteDeudas.getReporteAlumnosMensualCrecimiento);
 
 //
 app.get('/meses_activos', utilerias.getMesesActivos);
