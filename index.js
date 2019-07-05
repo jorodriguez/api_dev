@@ -116,7 +116,7 @@ app.get('/cargos', pagos.getCatalogoCargos);
 app.get('/cargos/:id_alumno', pagos.getCargosAlumno);
 app.get('/balance/:id_alumno', pagos.getBalanceAlumno);
 
-app.get('/formas_pago', formas_pago.getFormasPago);
+app.get('/formas_pagos', formas_pago.getFormasPago);
 
 //Reporte
 app.get('/balance_sucursal', reporteDeudas.getReporteBalancePorSucursal);
