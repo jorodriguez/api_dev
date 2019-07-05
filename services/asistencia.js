@@ -43,7 +43,7 @@ const getAlumnosRecibidos = (request, response) => {
             //" WHERE asistencia.fecha = current_date AND asistencia.hora_salida is null AND alumno.eliminado=false " +
             " WHERE asistencia.hora_salida is null AND alumno.eliminado=false " +
             "           AND alumno.co_sucursal = $1" +
-            " ORDER BY alumno.hora_salida DESC",
+            " ORDER BY alumno.nombre ASC",
             [id_sucursal],
             (error, results) => {
                 if (error) {
