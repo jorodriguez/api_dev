@@ -27,8 +27,8 @@ firebase.initializeApp({
 
 const payload = {
     notification: {
-        title: 'Notification Title',
-        body: 'Ejemplo de cuerpo de mensaje',
+        title: 'Notification Test',
+        body: 'Ejemplo de mensaje',
     }
 };
 

@@ -134,14 +134,14 @@ app.get('/meses_activos', utilerias.getMesesActivos);
 
 
 //Mensajes
-//app.get('/mensaje', mensajeria.sendMessage);
+app.get('/mensaje', mensajeria.sendMessage);
 
 app.get('/', (request, response) => {
-	response.json({ info: 'MagicIntelligence API v1.0.10' })
+	response.json({ info: 'MagicIntelligence API v1.0.11' })
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.10`)
+	console.log(`App corriendo en el puerto ${port} v1.0.11`)
 });
 
 //app.get('/encriptar/:clave', authController.encriptar);
