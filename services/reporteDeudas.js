@@ -73,31 +73,45 @@ const getReporteBalancePorSucursal = (request, response) => {
         }
 
         pool.query(
-            " with total_alumnos_count As( " +
-            "       select co_sucursal,count(*) AS contador_alumnos" +
-            "       from co_alumno " +
-            "       group by co_sucursal" +
-            "),total_ingreso_mes_actual AS(" +
-            "   select co_sucursal,count(*) AS contador_alumnos_ingresado_mes" +
-            "   from co_alumno " +
-            "   where to_char(fecha_inscripcion,'YYYYMM') = to_char(getDate(''),'YYYYMM')" +
-            "               and eliminado = false" +
-            "     group by co_sucursal" +
-            ") SELECT suc.id, suc.nombre," +
-            "       sum(balance.total_adeudo) as total_adeuda," +
-            "       sum(balance.total_pagos) as total_pagos," +
-            "       sum(balance.total_cargos) as total_cargos," +
-            "       total_alumnos.contador_alumnos," +
-            "       total_ingreso.contador_alumnos_ingresado_mes" +
-            " FROM co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id" +
-            "           inner join co_grupo grupo on a.co_grupo = grupo.id" +
-            "           inner join co_sucursal suc on a.co_sucursal =suc.id" +
-            "           inner join total_alumnos_count total_alumnos on total_alumnos.co_sucursal = suc.id" +
-            "           LEFT join total_ingreso_mes_actual total_ingreso on total_ingreso.co_sucursal = suc.id " +
-            "   WHERE a.eliminado = false " +
-            "   GROUP by suc.id,total_alumnos.contador_alumnos,total_ingreso.contador_alumnos_ingresado_mes" +
-            " ORDER BY suc.nombre DESC "
-            ,
+            `
+            with total_alumnos_count As( 
+                select co_sucursal,count(*) AS contador_alumnos
+                    from co_alumno 
+                    group by co_sucursal
+             ),cargos_desglose AS (						
+                 with universo_cargos as (
+                         select suc.id as id_sucursal,									
+                                 count(cargos.id) as cargos_pendientes_pago,
+                                 tipo_cargo.nombre as tipo_cargo,
+                                 sum(cargos.total) as total_cargos_desglose,
+                                 sum(cargos.total_pagado) as total_cargos_pagados_desglose,
+                                 (sum(cargos.total) - sum(cargos.total_pagado)) as total_cargos_pendiente_desglose
+                         from co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id
+                                     inner join co_cargo_balance_alumno cargos on cargos.co_balance_alumno = balance.id			
+                                                 and cargos.pagado = false
+                                     inner join cat_cargo tipo_cargo on  cargos.cat_cargo = tipo_cargo.id
+                                     inner join co_sucursal suc on a.co_sucursal = suc.id
+                             group by suc.id,tipo_cargo.nombre
+                             order by suc.id
+                         ) select c.id_sucursal,
+                                 array_to_json(array_agg(row_to_json((c.*))))::text AS json_array
+                             from universo_cargos c
+                             group by c.id_sucursal						
+             ) SELECT suc.id, suc.nombre,
+                    sum(balance.total_adeudo) as total_adeuda,
+                    sum(balance.total_pagos) as total_pagos,
+                    sum(balance.total_cargos) as total_cargos,
+                    total_alumnos.contador_alumnos,
+                    COALESCE(cargos.json_array,'[]') AS cargos 
+              FROM co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id
+                        inner join co_grupo grupo on a.co_grupo = grupo.id
+                        inner join co_sucursal suc on a.co_sucursal =suc.id
+                        inner join total_alumnos_count total_alumnos on total_alumnos.co_sucursal = suc.id             
+                        left join cargos_desglose cargos on cargos.id_sucursal = suc.id																
+              WHERE a.eliminado = false 
+              GROUP by suc.id,total_alumnos.contador_alumnos,cargos.json_array
+              ORDER BY suc.nombre DESC 
+            `,
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
