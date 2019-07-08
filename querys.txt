@@ -38,3 +38,36 @@
              GROUP by suc.id,total_alumnos.contador_alumnos,cargos.json_array
              ORDER BY suc.nombre DESC
 			
+
+
+
+
+
+
+
+
+
+
+
+								with universo_cargos as (
+						select suc.id as co_sucursal,
+							cargos.*
+						from co_sucursal suc inner join co_alumno a on a.co_sucursal = suc.id								 
+								 inner join co_cargo_balance_alumno cargos on cargos.co_balance_alumno = a.co_balance_alumno			
+							where  cargos.pagado = false and cargos.eliminado = false
+								and a.eliminado = false								
+					),estadistica  AS (
+						select uc.co_sucursal,									
+								count(uc.id) as cargos_pendientes_pago,
+								tipo_cargo.nombre as tipo_cargo,
+								sum(uc.total) as total_cargos_desglose,
+								sum(uc.total_pagado) as total_cargos_pagados_desglose,
+								(sum(uc.total) - sum(uc.total_pagado)) as total_cargos_pendiente_desglose								
+						from cat_cargo tipo_cargo left join universo_cargos uc on uc.cat_cargo = tipo_cargo.id
+						where uc.eliminado = false 
+							group by tipo_cargo.nombre,uc.co_sucursal							
+						) select e.co_sucursal,
+							array_to_json(array_agg(row_to_json((e.*))))::text AS json_array
+							from estadistica e
+							group by e.co_sucursal
+
