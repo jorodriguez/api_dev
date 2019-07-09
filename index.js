@@ -132,6 +132,8 @@ app.get('/alumnos_balance_crecimiento_mensual_sucursal/:id_sucursal/:mes_anio', 
 //
 app.get('/meses_activos', utilerias.getMesesActivos);
 
+//alumnos crecimiento mes
+app.get('/alumnos_crecimiento_mes/:anio/:mes', reporteDeudas.getReporteAlumnosNuevosIngresosGlobal);
 
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);
