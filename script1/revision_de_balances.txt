@@ -1,0 +1,28 @@
+
+with balances AS (
+	select b.id as id_balance, a.id,a.nombre as nombre_alumno,b.*
+	from co_alumno a inner join co_balance_alumno b on a.co_balance_alumno = b.id
+	where a.eliminado = false
+) select bal.nombre_alumno,
+		 bal.total_adeudo, 
+		 bal.total_pagos, 
+		 bal.total_cargos, 
+		 sum(cargo.total) as cargos,
+		 sum(cargo.total_pagado) as pagado
+	from co_cargo_balance_alumno cargo inner join balances bal on cargo.co_balance_alumno = bal.id_balance
+	where cargo.eliminado = false
+  group by bal.nombre_alumno,bal.total_adeudo,bal.total_pagos,bal.total_cargos
+  having sum(cargo.total) <> bal.total_adeudo
+
+select * from co_alumno where nombre like '%Isaa%'
+id alumno = 17
+
+select * from co_balance_alumno where id = 17
+
+update co_balance_alumno 
+set total_adeudo = 3575, total_cargos = 3575
+where id = 17
+
+select sum(total) from co_cargo_balance_alumno where co_balance_alumno = 17 and eliminado = false
+
+
