@@ -97,19 +97,19 @@ const getReporteBalancePorSucursal = (request, response) => {
                                  array_to_json(array_agg(row_to_json((c.*))))::text AS json_array
                              from universo_cargos c
                              group by c.id_sucursal						
-             ) SELECT suc.id, suc.nombre,
+             ) SELECT suc.id, suc.nombre,suc.class_color,
                     sum(balance.total_adeudo) as total_adeuda,
                     sum(balance.total_pagos) as total_pagos,
                     sum(balance.total_cargos) as total_cargos,
                     total_alumnos.contador_alumnos,
-                    COALESCE(cargos.json_array,'[]') AS cargos 
+                    COALESCE(cargos.json_array::json,'[]'::json) AS array_desglose_cargos 
               FROM co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id
                         inner join co_grupo grupo on a.co_grupo = grupo.id
                         inner join co_sucursal suc on a.co_sucursal =suc.id
                         inner join total_alumnos_count total_alumnos on total_alumnos.co_sucursal = suc.id             
                         left join cargos_desglose cargos on cargos.id_sucursal = suc.id																
               WHERE a.eliminado = false 
-              GROUP by suc.id,total_alumnos.contador_alumnos,cargos.json_array
+              GROUP by suc.id,suc.class_color,total_alumnos.contador_alumnos,cargos.json_array
               ORDER BY suc.nombre DESC 
             `,
             (error, results) => {
@@ -158,7 +158,8 @@ const getReporteCrecimientoBalancePorSucursal = (request, response) => {
                 select getDate('') As fecha
             ) select 
                 suc.id,
-			    suc.nombre,
+                suc.nombre,
+                suc.class_color,
 				to_char(getDate(''),'Mon-YYYY') as mes_anio,								
 				to_char(getDate(''),'YYYY') as numero_anio,
 				to_char(getDate(''),'MM') as numero_mes,				
@@ -173,7 +174,8 @@ const getReporteCrecimientoBalancePorSucursal = (request, response) => {
 						to_char(getDate(''),'MMYYYY'),
 						numero_anio,
 						numero_mes
-						,suc.nombre	
+                        ,suc.nombre
+                        ,suc.class_color	
 			order by 
 					suc.nombre desc`,
             (error, results) => {
@@ -298,7 +300,8 @@ const getReporteCrecimientoMensualSucursal = (request, response) => {
                 select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as fecha
                 --select generate_series((to_char(getDate(''),'YYYY') ||'-01-01')::timestamp,(getDate('')+getHora(''))::timestamp,'1 month') as fecha
 			) select 
-			    suc.nombre,
+                suc.nombre,
+                suc.class_color,
 				to_char(u.fecha,'Mon-YYYY') as mes_anio,								
 				to_char(u.fecha,'YYYY') as numero_anio,
 				to_char(u.fecha,'MM') as numero_mes,				
@@ -315,7 +318,8 @@ const getReporteCrecimientoMensualSucursal = (request, response) => {
 						to_char(u.fecha,'MMYYYY'),
 						numero_anio,
 						numero_mes
-						,suc.nombre	
+                        ,suc.nombre
+                        ,suc.class_color
 			order by 
 					suc.nombre, 
             numero_anio desc,numero_mes desc `,
