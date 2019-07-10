@@ -106,9 +106,10 @@ const sendMessage = (request, response) => {
                     handle.callbackError(e, response);
                 });
         } else {
-            console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG ");
+            console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG "+JSON.stringify(ambiente));
         }
     } catch (e) {
+        console.log("error al enviar mensaje "+e);
         handle.callbackErrorNoControlado(e, response);
     }
 };
