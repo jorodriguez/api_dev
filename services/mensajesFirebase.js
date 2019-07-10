@@ -55,7 +55,7 @@ const enviarMensaje = (titulo, cuerpo) => {
                     console.log("Error en la mensajeria " + e);
                     return e;
                 });
-        } else { console.log("====> NO SE ENVIO EL MENSAJE FIREBASE CONFIGURACION [" + config.dbParams.enviar_mensajes + "] <<<===="); }
+        } else { console.log("====> NO SE ENVIO EL MENSAJE FIREBASE CONFIGURACION <<<===="); }
 
     } catch (e) {
         console.log("Erorr al enviar mensaje " + e);
@@ -106,7 +106,7 @@ const sendMessage = (request, response) => {
                     handle.callbackError(e, response);
                 });
         } else {
-            console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG " + config.dbParams.enviar_mensajes);
+            console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG ");
         }
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
