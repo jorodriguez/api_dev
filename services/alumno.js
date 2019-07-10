@@ -50,12 +50,12 @@ const getAlumnos = (request, response) => {
 
         pool.query(
             "SELECT a.*," +
-            "  balance.total_adeudo > 0 As adeuda,"+
+            "  balance.total_adeudo > 0 As adeuda," +
             " g.nombre as nombre_grupo," +
             " s.nombre as nombre_sucursal" +
             " FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id" +
             "                     inner join co_sucursal s on a.co_sucursal = s.id" +
-            "                       left join co_balance_alumno balance on balance.id = a.co_balance_alumno "+
+            "                       left join co_balance_alumno balance on balance.id = a.co_balance_alumno " +
             "  WHERE a.co_sucursal = $1 AND a.eliminado=false ORDER BY a.nombre ASC",
             [id_sucursal],
             (error, results) => {
@@ -127,24 +127,24 @@ const createAlumno = (request, response) => {
                 });
         }).then((id_alumno) => {
             console.log("alumno creado")
-            if (id_alumno != null){
+            if (id_alumno != null) {
                 inscripcion.createFormatoInscripcionInicial(id_alumno, p.genero)
-                .then((id_formato)=>{
-                    //invocar
-                    inscripcion.actualizarFormatoAlumno(id_alumno,id_formato).then((id)=>{
-                        response.status(200).json(id_alumno);
-                    }).catch((e)=>{
+                    .then((id_formato) => {
+                        //invocar
+                        inscripcion.actualizarFormatoAlumno(id_alumno, id_formato).then((id) => {
+                            response.status(200).json(id_alumno);
+                        }).catch((e) => {
+                            handle.callbackError(e, response);
+                        });
+                    }).catch((e) => {
                         handle.callbackError(e, response);
                     });
-                }).catch((e)=>{
-                    handle.callbackError(e, response);        
-                });                
-                
+
                 //generare el balanceconsol
                 console.log("Iniciando crear el balance ");
-                balance_alumno.registrarBalanceAlumno(id_alumno,genero);
+                balance_alumno.registrarBalanceAlumno(id_alumno, genero);
 
-            }else{
+            } else {
                 response.status(200).json(0);
             }
         }).catch((e) => {
@@ -224,21 +224,21 @@ const updateAlumno = (request, response) => {
 
         }).then((estado) => {
             if (estado) {
-                console.log("Se procede a modificar el formato");                
+                console.log("Se procede a modificar el formato");
                 inscripcion.updateInscripcion(formato).then((id) => {
-                    if (id != null) {                
+                    if (id != null) {
                         formato_complemento.actualizarValoresEsperados(formato);
 
                         response.status(200).send(`${id}`)
-                    }else{
+                    } else {
                         handle.callbackError("Error al intentar actualizar la inscripcion", response);
                     }
-                }).catch((e) => {                    
+                }).catch((e) => {
                     reject(e);
                     handle.callbackError(error, response);
                 });
             }
-            
+
         }).catch((error) => {
             handle.callbackError(error, response);
         });
@@ -321,19 +321,18 @@ const getAlumnoById = (request, response) => {
         console.log(" Alumno por id = " + id);
 
         pool.query(
-            " SELECT a.*," +
-            " g.nombre as nombre_grupo," +
-            " s.nombre as nombre_sucursal," +
-            " to_json(f.*) as formato_inscripcion," +
-            " to_json(padre.*) as padre," +
-            " to_json(madre.*) as madre" +
-            " FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id" +
-            "                     inner join co_sucursal s on a.co_sucursal = s.id" +
-            "                       left join co_formato_inscripcion f on a.co_formato_inscripcion = f.id" +
-            "                       left join co_familiar padre on a.co_padre = padre.id " +
-            "                       left join co_familiar madre on a.co_madre = madre.id " +
-            " WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC",
-            [id],
+            `
+            SELECT a.*,
+                g.nombre as nombre_grupo,
+                s.nombre as nombre_sucursal,
+                to_json(f.*) as formato_inscripcion,
+                coalesce(to_json(datos_facturacion.*),'{}'::json) as datos_facturacion
+            FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id
+                     inner join co_sucursal s on a.co_sucursal = s.id
+                       left join co_formato_inscripcion f on a.co_formato_inscripcion = f.id
+                       left join co_datos_facturacion datos_facturacion on a.co_datos_facturacion = datos_facturacion.id
+            WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC
+        `,[id],
             (error, results) => {
                 if (error) {
                     console.log("Error en getAlumnoid " + error);

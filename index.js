@@ -21,6 +21,7 @@ const formas_pago = require('./services/formas_pago');
 const ambiente = require('./config/ambiente');
 const reporteDeudas = require('./services/reporteDeudas');
 const utilerias = require('./services/utilerias');
+const datos_facturacion = require('./services/datos_facturacion');
 const https = require("https");
 
 const port = process.env.PORT || 5000;
@@ -134,6 +135,10 @@ app.get('/meses_activos', utilerias.getMesesActivos);
 
 //alumnos crecimiento mes
 app.get('/alumnos_crecimiento_mes/:anio/:mes', reporteDeudas.getReporteAlumnosNuevosIngresosGlobal);
+
+//Datos de facturacion
+app.post('/guardar_datos_facturacion', datos_facturacion.guardarDatosFacturacionAlumno);
+
 
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);
