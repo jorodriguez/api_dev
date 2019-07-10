@@ -4,39 +4,3 @@ update co_sucursal  set class_color = '#13CF13' where id = 1;
 update co_sucursal  set class_color = '#FF7E29' where id = 2;
 update co_sucursal  set class_color = '#0084FF' where id = 3;
 
-
-
---- Datos de facturacion en alumno 
-
-
-create table co_datos_facturacion(
-	id serial not null primary key,	
-	rfc text not null,	
-	razon_social text not null,
-	curp text not null,
-	calle text not null,
-	numero_exterior text not null,
-	colonia text not null,
-	ciudad text not null,
-	municipio text not null,
-	estado text not null,
-	codigo_postal text not null,
-	telefono_contacto text,
-	correo_contacto text,	
-	fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    fecha_modifico timestamp without time zone,
-    genero integer NOT NULL,
-    modifico integer,
-    eliminado boolean NOT NULL DEFAULT false,
-	 CONSTRAINT co_datos_facturaciongenero_fkey FOREIGN KEY (genero)
-        REFERENCES usuario (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
-    CONSTRAINT co_datos_facturacion_modifico_fkey FOREIGN KEY (modifico)
-        REFERENCES usuario (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-);
-
-
-alter table co_alumno add co_datos_facturacion integer;

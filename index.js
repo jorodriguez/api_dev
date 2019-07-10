@@ -137,7 +137,8 @@ app.get('/meses_activos', utilerias.getMesesActivos);
 app.get('/alumnos_crecimiento_mes/:anio/:mes', reporteDeudas.getReporteAlumnosNuevosIngresosGlobal);
 
 //Datos de facturacion
-app.post('/guardar_datos_facturacion', datos_facturacion.guardarDatosFacturacionAlumno);
+app.post('/datos_facturacion', datos_facturacion.guardarDatosFacturacionAlumno);
+app.put('/datos_facturacion', datos_facturacion.actualizarRequiereFacturacionAlumno);
 
 
 //Mensajes
