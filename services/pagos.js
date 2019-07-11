@@ -127,6 +127,7 @@ const getCargosAlumno = (request, response) => {
             "   b.cantidad," +
             "   cargo.nombre as nombre_cargo," +
             "   cat_cargo as id_cargo," +
+            "   cargo.es_facturable," +
             "   b.total as total," +
             "   b.cargo," +
             "   b.total_pagado," +

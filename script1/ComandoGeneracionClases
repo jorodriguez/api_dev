@@ -735,8 +735,6 @@ CREATE TABLE cat_cargo
 );
 
 
-
-
 -- set valor de sequence 
  
 CREATE TABLE co_periodo

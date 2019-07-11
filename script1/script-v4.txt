@@ -34,15 +34,14 @@ create table co_datos_facturacion(
 alter table co_alumno add co_datos_facturacion integer;
 alter table co_alumno add factura boolean not null default false;
 
-alter table co_pago_balance_alumno add column identificador_factura text;
+alter table co_pago_cargo_balance_alumno add column folio_factura text;
+
 
 
 
 ------- modificacion al procedimiento
 
-
 drop function agregar_pago_alumno(text,text, integer,numeric, text, integer,integer);
-
 
 CREATE OR REPLACE FUNCTION agregar_pago_alumno(ids_cargos text,cargos_desglose text, id_alumno integer,
 											pago_param numeric, nota text,forma_pago_param integer,
@@ -137,3 +136,62 @@ BEGIN
 	retorno := true;
 END;
 $function$
+
+
+alter table co_forma_pago add column permite_factura boolean default false;
+
+alter table cat_cargo add column es_facturable boolean default false;
+
+update cat_cargo set es_facturable = true where id = 1;
+
+update co_forma_pago set permite_factura = true where id in (2,3,4);
+
+
+
+
+--------------------------------gasto ----------------------
+
+
+CREATE TABLE cat_tipo_gasto
+(
+    id serial not null,
+    nombre text not null,
+    descripcion text,		
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,    
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT cat_tipo_gasto_pkey PRIMARY KEY (id),
+    CONSTRAINT cat_tipo_gasto_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),        
+    CONSTRAINT cat_tipo_gasto_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id)        
+);
+
+ CREATE TABLE cat_gasto
+(
+    id serial not null,
+	cat_tipo_gasto integer not null,    
+	co_forma_pago integer not null,
+	co_sucursal integer not null,
+	fecha date not null,			
+	gasto integer not null, 	
+	observaciones text not null,
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,	
+    CONSTRAINT cat_gasto_pkey PRIMARY KEY (id),
+    CONSTRAINT cat_gasto_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),
+    CONSTRAINT cat_gasto_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id),
+	CONSTRAINT cat_gasto_tipo_cargo_fkey FOREIGN KEY (cat_tipo_gasto)
+        REFERENCES cat_tipo_gasto (id),
+	CONSTRAINT co_forma_pago_fkey FOREIGN KEY (co_forma_pago)
+        REFERENCES co_forma_pago (id),
+	CONSTRAINT co_sucursal_fkey FOREIGN KEY (co_sucursal)
+        REFERENCES co_sucursal (id)
+);
