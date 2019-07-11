@@ -18,10 +18,11 @@ const mensajeria = require('./services/mensajesFirebase');
 const tareas_programadas = require('./services/tareas_programadas');
 const schedule = require('node-schedule');
 const formas_pago = require('./services/formas_pago');
-const ambiente = require('./config/ambiente');
+const { configuracion } = require('./config/ambiente');
 const reporteDeudas = require('./services/reporteDeudas');
 const utilerias = require('./services/utilerias');
 const datos_facturacion = require('./services/datos_facturacion');
+const gastos = require('./services/gastos');
 const https = require("https");
 
 const port = process.env.PORT || 5000;
@@ -140,6 +141,13 @@ app.get('/alumnos_crecimiento_mes/:anio/:mes', reporteDeudas.getReporteAlumnosNu
 app.post('/datos_facturacion', datos_facturacion.guardarDatosFacturacionAlumno);
 app.put('/datos_facturacion', datos_facturacion.actualizarRequiereFacturacionAlumno);
 
+//gastos
+app.get('/gastos/:co_sucursal', gastos.getGastosPorSucursal);
+app.post('/gastos', gastos.registrarGasto);
+app.put('/gastos', gastos.modificarGasto);
+app.delete('/gastos/:id', gastos.eliminarGasto);
+app.get('/tipos_gasto', gastos.getCatalogoTipoGasto);
+
 
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);
@@ -168,7 +176,7 @@ schedule.scheduleJob('0 */10 12-24 * * 1-5', function () {
 	//schedule.scheduleJob('0 */2 * * * 1-5', function () {
 	console.log("========== MANTENIENDO VIVA LA APP ==================");
 	try {
-		if (ambiente.configuracion.env != 'DEV') {
+		if (configuracion.env != 'DEV') {
 
 			https.get('https://api-ambiente-produccion.herokuapp.com', (response) => {
 				let todo = '';

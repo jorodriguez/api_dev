@@ -151,12 +151,10 @@ update co_forma_pago set permite_factura = true where id in (2,3,4);
 
 --------------------------------gasto ----------------------
 
-
 CREATE TABLE cat_tipo_gasto
 (
     id serial not null,
-    nombre text not null,
-    descripcion text,		
+    nombre text not null,			
     fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     fecha_modifico timestamp without time zone,    
     genero integer NOT NULL,
@@ -169,14 +167,15 @@ CREATE TABLE cat_tipo_gasto
         REFERENCES public.usuario (id)        
 );
 
- CREATE TABLE cat_gasto
+
+ CREATE TABLE co_gasto
 (
     id serial not null,
 	cat_tipo_gasto integer not null,    
 	co_forma_pago integer not null,
 	co_sucursal integer not null,
 	fecha date not null,			
-	gasto integer not null, 	
+	gasto numeric not null, 	
 	observaciones text not null,
     fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     fecha_modifico timestamp without time zone,
