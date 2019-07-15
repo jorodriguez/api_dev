@@ -23,6 +23,7 @@ const reporteDeudas = require('./services/reporteDeudas');
 const utilerias = require('./services/utilerias');
 const datos_facturacion = require('./services/datos_facturacion');
 const gastos = require('./services/gastos');
+const reporte_gastos = require('./services/reporteGastos');
 const https = require("https");
 
 const port = process.env.PORT || 5000;
@@ -149,6 +150,13 @@ app.put('/gastos', gastos.modificarGasto);
 app.delete('/gastos/:id', gastos.eliminarGasto);
 app.get('/tipos_gasto', gastos.getCatalogoTipoGasto);
 
+//Reporte de gastos
+//app.get('/reporte_gastos', reporte_gastos.getReporteGastosSucursalesMensual);
+app.get('/reporte_gastos', reporte_gastos.getReporteGastosSucursalesMensualActual);
+//app.get('/reporte_gastos/:mes_anio', reporte_gastos.getReporteGastosSucursalesMensual);
+app.get('/reporte_gastos/:id_sucursal', reporte_gastos.getReporteGastosMensualesPorSucursalTrend);
+app.get('/reporte_gastos/:id_sucursal/:mes_anio', reporte_gastos.getReporteGastosPorTipoYSucursal);
+app.get('/reporte_gastos_global', reporte_gastos.getReporteGastosGlobal);
 
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);
