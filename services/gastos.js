@@ -155,10 +155,9 @@ const getGastosPorSucursal = (request, response) => {
         console.log("request.params.co_sucursal" + request.params.co_sucursal);
 
         const co_sucursal = request.params.co_sucursal;
-
+        const anio_mes = request.params.anio_mes;
         pool.query(
             `
-
                 select 
                     tipo.nombre as nombre_tipo_gasto, 
                     fpago.nombre as nombre_tipo_pago,
@@ -167,8 +166,50 @@ const getGastosPorSucursal = (request, response) => {
                 from co_gasto g inner join cat_tipo_gasto tipo on g.cat_tipo_gasto = tipo.id
                     inner join co_forma_pago fpago on g.co_forma_pago = fpago.id
                     inner join co_sucursal suc on g.co_sucursal = suc.id
-                where suc.id = $1 and g.eliminado  = false
-                order by g.fecha desc
+                where suc.id = $1 and g.eliminado  = false  
+                        and to_char(g.fecha,'YYYYMM') = $2
+                order by g.fecha desc                
+            `,
+            [co_sucursal,anio_mes],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }        
+
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+
+const getSumaMesGastosPorSucursal = (request, response) => {
+    console.log("@getSumaMesGastosPorSucursal");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        console.log("request.params.co_sucursal" + request.params.co_sucursal);
+
+        const co_sucursal = request.params.co_sucursal;
+        
+        pool.query(
+            `
+            with meses AS(
+                select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as mes
+			) select
+					to_char(m.mes,'Mon-YYYY') as mes_anio,
+					to_char(m.mes,'YYYYMM') as anio_mes,
+					coalesce(sum(gasto.gasto),0) as suma
+              from meses m left join co_gasto gasto on to_char(m.mes,'YYYYMM') = to_char(gasto.fecha,'YYYYMM') and gasto.eliminado = false			
+                        and gasto.co_sucursal = $1
+			group by to_char(m.mes,'Mon-YYYY'),to_char(m.mes,'YYYYMM')
+			order by to_char(m.mes,'YYYYMM') desc                             
             `,
             [co_sucursal],
             (error, results) => {
@@ -183,6 +224,7 @@ const getGastosPorSucursal = (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
+
 
 
 //fix es por mes y sucursal
@@ -234,6 +276,7 @@ module.exports = {
     modificarGasto,
     getCatalogoTipoGasto,
     getGastosPorSucursal,
-    eliminarGasto
+    eliminarGasto,
+    getSumaMesGastosPorSucursal
 
 }

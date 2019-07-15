@@ -142,7 +142,8 @@ app.post('/datos_facturacion', datos_facturacion.guardarDatosFacturacionAlumno);
 app.put('/datos_facturacion', datos_facturacion.actualizarRequiereFacturacionAlumno);
 
 //gastos
-app.get('/gastos/:co_sucursal', gastos.getGastosPorSucursal);
+app.get('/gastos/:co_sucursal/:anio_mes', gastos.getGastosPorSucursal);
+app.get('/historico_gastos/:co_sucursal', gastos.getSumaMesGastosPorSucursal);
 app.post('/gastos', gastos.registrarGasto);
 app.put('/gastos', gastos.modificarGasto);
 app.delete('/gastos/:id', gastos.eliminarGasto);
