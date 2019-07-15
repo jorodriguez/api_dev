@@ -164,7 +164,7 @@ const getGastosPorSucursal = (request, response) => {
                     fpago.nombre as nombre_tipo_pago,
                     suc.nombre as nombre_sucursal,
                     g.*
-                from co_gasto g inner join cat_tipo_gasto tipo on g.cat_tipo_gasto = g.id
+                from co_gasto g inner join cat_tipo_gasto tipo on g.cat_tipo_gasto = tipo.id
                     inner join co_forma_pago fpago on g.co_forma_pago = fpago.id
                     inner join co_sucursal suc on g.co_sucursal = suc.id
                 where suc.id = $1 and g.eliminado  = false
