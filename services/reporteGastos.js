@@ -28,7 +28,7 @@ const getReporteGastosMensualesPorSucursalTrend = (request, response) => {
         const id_sucursal = request.params.id_sucursal;
 
         pool.query(
-             `
+            `
              with meses AS(
                 select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as mes
 			) select			
@@ -67,7 +67,7 @@ const getReporteGastosSucursalesMensual = (request, response) => {
         const mes_anio = request.params.mes_anio;
 
         pool.query(
-           `
+            `
            select
                 suc.id as id_sucursal,
                 suc.nombre,
@@ -78,7 +78,7 @@ const getReporteGastosSucursalesMensual = (request, response) => {
                            and gasto.eliminado = false
             group by suc.nombre,suc.id,suc.class_color
             order by  suc.nombre desc
-            `,[mes_anio],
+            `, [mes_anio],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -100,7 +100,7 @@ const getReporteGastosSucursalesMensualActual = (request, response) => {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
         pool.query(
-           `
+            `
            select
                 suc.id as id_sucursal,
                 suc.nombre,
@@ -134,8 +134,8 @@ const getReporteGastosPorTipoYSucursal = (request, response) => {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
-        const id_sucursal = request.params.id_sucursal;        
-        const mes_anio = request.params.mes_anio;        
+        const id_sucursal = request.params.id_sucursal;
+        const mes_anio = request.params.mes_anio;
 
         pool.query(
             `
@@ -148,7 +148,7 @@ const getReporteGastosPorTipoYSucursal = (request, response) => {
 						and g.eliminado = false
 				group by tipo.nombre
                 order by tipo.nombre asc
-            `,[id_sucursal,mes_anio],
+            `, [id_sucursal, mes_anio],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -172,8 +172,8 @@ const getReporteDetalleGastosPorSucursal = (request, response) => {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
-        const id_sucursal = request.params.id_sucursal;        
-        const mes_anio = request.params.mes_anio;        
+        const id_sucursal = request.params.id_sucursal;
+        const mes_anio = request.params.mes_anio;
 
         pool.query(
             `
@@ -187,10 +187,10 @@ const getReporteDetalleGastosPorSucursal = (request, response) => {
             from co_gasto g inner join cat_tipo_gasto tipo on g.cat_tipo_gasto = tipo.id                    		
                             inner join co_forma_pago f on f.id = g.co_forma_pago 
             where g.co_sucursal = $1
-                    and to_char(g.fecha,'YYYYMM') = to_char($2,'YYYYMM')
+                    and to_char(g.fecha,'YYYYMM') = $2
                     and g.eliminado = false				
                 order by  tipo.nombre asc        
-            `,[id_sucursal,mes_anio],
+            `, [id_sucursal, mes_anio],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -219,16 +219,14 @@ const getReporteGastosGlobal = (request, response) => {
             with meses AS(
                 select to_char(generate_series,'Mon-YYYY') as mes from generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') 
 			) select			
-					m.mes as mes_anio,	
-					tipo.nombre as tipo_gasto,
+					m.mes as mes_anio,				
 					suc.nombre as nombre_sucursal,
 					coalesce(sum(gasto.gasto),0) as suma
               from meses m left join co_gasto gasto on m.mes = to_char(gasto.fecha,'Mon-YYYY') 							
-							and gasto.eliminado = false			                        							
-							inner join cat_tipo_gasto tipo on gasto.cat_tipo_gasto = tipo.id
+							and gasto.eliminado = false			                        														
 							inner join co_sucursal suc on suc.id = gasto.co_sucursal
-			group by m.mes,tipo.nombre,suc.nombre
-			order by m.mes,suc.nombre desc     			
+			group by m.mes,suc.nombre
+			order by m.mes,suc.nombre desc  			
             `,
             (error, results) => {
                 if (error) {
@@ -243,10 +241,38 @@ const getReporteGastosGlobal = (request, response) => {
 };
 
 
-module.exports = {    
+const getReporteGastoMensualActual = (request, response) => {
+    console.log("@getReporteGastoMensualActual");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        pool.query(
+            `
+                select sum(gasto) as gasto_mes_actual
+                from co_gasto 
+                where  to_char(fecha,'Mon-YYYY') = to_char(getDate(''),'Mon-YYYY') 							
+                                    and  eliminado = false			
+            `,
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+module.exports = {
     getReporteGastosMensualesPorSucursalTrend,
     getReporteGastosSucursalesMensualActual,
     getReporteGastosSucursalesMensual,
-    getReporteGastosPorTipoYSucursal,
-    getReporteGastosGlobal
+    getReporteDetalleGastosPorSucursal,
+    getReporteGastosGlobal,
+    getReporteGastoMensualActual
 }

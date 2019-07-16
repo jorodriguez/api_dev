@@ -157,6 +157,8 @@ app.get('/reporte_gastos', reporte_gastos.getReporteGastosSucursalesMensualActua
 app.get('/reporte_gastos/:id_sucursal', reporte_gastos.getReporteGastosMensualesPorSucursalTrend);
 app.get('/reporte_gastos/:id_sucursal/:mes_anio', reporte_gastos.getReporteDetalleGastosPorSucursal);
 app.get('/reporte_gastos_global', reporte_gastos.getReporteGastosGlobal);
+app.get('/reporte_gastos_mes_actual', reporte_gastos.getReporteGastoMensualActual);
+
 
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);

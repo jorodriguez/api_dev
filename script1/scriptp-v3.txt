@@ -1,6 +1,0 @@
-alter table co_sucursal add column class_color text;
-
-update co_sucursal  set class_color = '#13CF13' where id = 1;
-update co_sucursal  set class_color = '#FF7E29' where id = 2;
-update co_sucursal  set class_color = '#0084FF' where id = 3;
-

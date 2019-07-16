@@ -36,7 +36,7 @@ alter table co_alumno add factura boolean not null default false;
 
 alter table co_pago_cargo_balance_alumno add column folio_factura text;
 
-
+alter table co_pago_balance_alumno add column IDENTIFICADOR_FACTURA text;
 
 
 ------- modificacion al procedimiento
