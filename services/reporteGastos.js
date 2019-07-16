@@ -162,6 +162,49 @@ const getReporteGastosPorTipoYSucursal = (request, response) => {
 };
 
 
+
+const getReporteDetalleGastosPorSucursal = (request, response) => {
+    console.log("@getReporteDetalleGastosPorSucursal");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        const id_sucursal = request.params.id_sucursal;        
+        const mes_anio = request.params.mes_anio;        
+
+        pool.query(
+            `
+            SELECT
+                g.id,
+                g.fecha,
+                tipo.nombre as nombre_tipo_gasto,                     
+                f.nombre as nombre_forma_pago,
+                g.gasto,
+                g.observaciones
+            from co_gasto g inner join cat_tipo_gasto tipo on g.cat_tipo_gasto = tipo.id                    		
+                            inner join co_forma_pago f on f.id = g.co_forma_pago 
+            where g.co_sucursal = $1
+                    and to_char(g.fecha,'YYYYMM') = to_char($2,'YYYYMM')
+                    and g.eliminado = false				
+                order by  tipo.nombre asc        
+            `,[id_sucursal,mes_anio],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+
+
 const getReporteGastosGlobal = (request, response) => {
     console.log("@getReporteGastosGlobal");
     try {

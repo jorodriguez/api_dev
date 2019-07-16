@@ -155,7 +155,7 @@ app.get('/tipos_gasto', gastos.getCatalogoTipoGasto);
 app.get('/reporte_gastos', reporte_gastos.getReporteGastosSucursalesMensualActual);
 //app.get('/reporte_gastos/:mes_anio', reporte_gastos.getReporteGastosSucursalesMensual);
 app.get('/reporte_gastos/:id_sucursal', reporte_gastos.getReporteGastosMensualesPorSucursalTrend);
-app.get('/reporte_gastos/:id_sucursal/:mes_anio', reporte_gastos.getReporteGastosPorTipoYSucursal);
+app.get('/reporte_gastos/:id_sucursal/:mes_anio', reporte_gastos.getReporteDetalleGastosPorSucursal);
 app.get('/reporte_gastos_global', reporte_gastos.getReporteGastosGlobal);
 
 //Mensajes
