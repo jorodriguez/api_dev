@@ -164,7 +164,6 @@ app.get('/reporte_gastos_mes_actual', reporte_gastos.getReporteGastoMensualActua
 //consultas para App
 app.get('/actividades/:id_alumno',actividad_reporte.getActividadesPorAlumno);
 
-
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);
 
