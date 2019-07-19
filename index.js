@@ -169,11 +169,11 @@ app.get('/actividades/:id_alumno',actividad_reporte.getActividadesPorAlumno);
 app.get('/mensaje', mensajeria.sendMessage);
 
 app.get('/', (request, response) => {
-	response.json({ info: 'MagicIntelligence API v1.0.11' })
+	response.json({ info: 'MagicIntelligence API v1.0.12' })
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.11`)
+	console.log(`App corriendo en el puerto ${port} v1.0.12`)
 });
 
 //app.get('/encriptar/:clave', authController.encriptar);
