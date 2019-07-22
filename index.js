@@ -164,6 +164,10 @@ app.get('/reporte_gastos_mes_actual', reporte_gastos.getReporteGastoMensualActua
 //consultas para App
 app.get('/actividades/:id_alumno',actividad_reporte.getActividadesPorAlumno);
 
+//Para movil
+app.get('/cargos_alumno/:id_alumno',actividad_reporte.getCargosAlumnoTemp);
+app.get('/balance_alumno/:id_alumno',actividad_reporte.getBalanceAlumnoTemp);
+
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);
 
