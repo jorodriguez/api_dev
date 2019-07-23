@@ -31,7 +31,8 @@ const getActividadesPorAlumno = (request, response) => {
             `
             select  r.fecha,
             date_trunc('minute', r.hora) as hora,
-		ac.nombre as actividad,
+        ac.nombre as actividad,
+        ac.icono as icono,
         tipo.nombre as tipo_actividad,
 		sub.nombre as sub_actividad,
 		r.nota,
