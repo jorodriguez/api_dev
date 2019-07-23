@@ -30,16 +30,16 @@ const getActividadesPorAlumno = (request, response) => {
         pool.query(
             `
             select  r.fecha,
-              date_trunc('minute',r.fecha+r.hora) as hora,
+                date_trunc('minute',r.fecha+r.hora) as hora,
                 ac.nombre as actividad,
-                  ac.icono as icono,
-               tipo.nombre as tipo_actividad,
+                ac.icono as icono,
+                tipo.nombre as tipo_actividad,
 	        	sub.nombre as sub_actividad,
 	        	r.nota,
 	        	a.nombre as nombre_alumno,
 	        	a.apellidos as apellidos_alumno,
 	        	r.url_foto,
-	        	r.*
+	        	r.id
 from co_registro_actividad r inner join cat_actividad ac on r.cat_actividad = ac.id 
 							left join cat_tipo_actividad tipo on r.cat_tipo_actividad = tipo.id
 							 left join cat_sub_actividad sub on r.cat_sub_actividad = sub.id
