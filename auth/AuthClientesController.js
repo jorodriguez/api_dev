@@ -49,8 +49,10 @@ const loginCliente = (request, response) => {
                     return;
                 }
 
-                if (results.rowCount > 0) {
+                console.log(JSON.stringify(results));
 
+                if (results.rowCount > 0) {
+                    
                     var usuario = results.rows[0];
 
                     var passwordIsValid = bcrypt.compareSync(password, usuario.password);
