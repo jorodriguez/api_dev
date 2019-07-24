@@ -25,6 +25,7 @@ const datos_facturacion = require('./services/datos_facturacion');
 const gastos = require('./services/gastos');
 const reporte_gastos = require('./services/reporteGastos');
 const actividad_reporte = require('./services/actividad_reporte');
+const authClientesController = require('./auth/AuthClientesController');
 const https = require("https");
 
 const port = process.env.PORT || 5000;
@@ -167,6 +168,9 @@ app.get('/actividades/:id_alumno',actividad_reporte.getActividadesPorAlumno);
 //Para movil
 app.get('/cargos_alumno/:id_alumno',actividad_reporte.getCargosAlumnoTemp);
 app.get('/balance_alumno/:id_alumno',actividad_reporte.getBalanceAlumnoTemp);
+
+//Login Clientes - Papas
+app.post('/auth_cliente/login', authClientesController.loginCliente);
 
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);
