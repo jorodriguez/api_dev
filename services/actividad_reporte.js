@@ -61,9 +61,8 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
     }
 };
 
-//se pone este query pero se quitara cuando ya tenga el login
-const getCargosAlumnoTemp = (request, response) => {
-    console.log("@getCargosAlumnoTemp");
+const getCargosAlumnosFamiliar = (request, response) => {
+    console.log("@getCargosFamiliarAlumnos");
     try {
 
         var validacion = helperToken.validarToken(request);
@@ -73,29 +72,36 @@ const getCargosAlumnoTemp = (request, response) => {
         }
 
 
-        var id_alumno = request.params.id_alumno;
+        var id_familiar = request.params.id_familiar;
 
         pool.query(
-            " SELECT a.co_balance_alumno," +
-            "   b.id as id_cargo_balance_alumno," +
-            "   b.fecha," +
-            "   b.cantidad," +
-            "   cargo.nombre as nombre_cargo," +
-            "   cat_cargo as id_cargo," +
-            "   cargo.es_facturable," +
-            "   b.total as total," +
-            "   b.cargo," +
-            "   b.total_pagado," +
-            "   b.nota," +
-            "   b.pagado ," +
-            "   false as checked ," +
-            "   0 as pago " +
-            " FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno " +
-            "                               inner join cat_cargo cargo on b.cat_cargo = cargo.id					" +
-            " WHERE a.id = $1 and b.eliminado = false and a.eliminado = false" +
-            "  ORDER by b.pagado, b.fecha desc" +
-            " LIMIT 20",
-            [id_alumno],
+                `
+                SELECT a.co_balance_alumno,
+  			        a.id as id_alumno,
+  			        a.nombre as nombre_alumno,  			
+                    b.id as id_cargo_balance_alumno,
+                    b.fecha,
+                    b.cantidad,
+                    cargo.nombre as nombre_cargo,
+                    cat_cargo as id_cargo,
+                    cargo.es_facturable,
+                    b.total as total,
+                    b.cargo,
+                    b.total_pagado,
+                    b.nota,
+                    b.pagado ,
+                    false as checked ,
+                    0 as pago               
+             FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
+                                           inner join cat_cargo cargo on b.cat_cargo = cargo.id			
+             WHERE a.id in
+             			(select co_alumno from co_alumno_familiar where co_familiar = $1 and eliminado = false)              		             		             		
+                 		and (to_char(b.fecha,'YYYYMM') = to_char(current_date,'YYYYMM') or pagado = false)             		             		
+                 		and b.eliminado = false and a.eliminado = false
+              ORDER by b.pagado,cargo.nombre,a.nombre, b.fecha desc
+             LIMIT 20
+                `,
+            [id_familiar],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -111,24 +117,83 @@ const getCargosAlumnoTemp = (request, response) => {
     }
 };
 
-const getBalanceAlumnoTemp = (request, response) => {
-    console.log("@getBalanceAlumnoTemp");
+
+const getCargosPagadosAlumnosFamiliar = (request, response) => {
+    console.log("@getCargosPagadosAlumnosFamiliar");
     try {
+
         var validacion = helperToken.validarToken(request);
 
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
-        console.log("request.params.id_alumno " + request.params.id_alumno);
 
-        var id_alumno = request.params.id_alumno;
+        var id_familiar = request.params.id_familiar;
 
         pool.query(
-            " SELECT al.nombre as nombre_alumno,al.apellidos as apellidos_alumno, bal.* " +
-            " FROM co_alumno al inner join  co_balance_alumno bal on al.co_balance_alumno = bal.id and bal.eliminado = false" +
-            " WHERE al.id = $1 and al.eliminado = false ",
-            [id_alumno],
+                `
+                SELECT a.co_balance_alumno,
+  			        a.id as id_alumno,
+  			        a.nombre as nombre_alumno,  			
+                    b.id as id_cargo_balance_alumno,
+                    b.fecha,
+                    b.cantidad,
+                    cargo.nombre as nombre_cargo,
+                    cat_cargo as id_cargo,
+                    cargo.es_facturable,
+                    b.total as total,
+                    b.cargo,
+                    b.total_pagado,
+                    b.nota,
+                    b.pagado ,
+                    false as checked ,
+                    0 as pago               
+             FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
+                                           inner join cat_cargo cargo on b.cat_cargo = cargo.id			
+             WHERE a.id in
+             			(select co_alumno from co_alumno_familiar where co_familiar = $1 and eliminado = false)              		             		             		
+                 		and to_char(b.fecha,'YYYYMM') = to_char(current_date,'YYYYMM') 
+             		    and pagado = true
+                 		and b.eliminado = false and a.eliminado = false
+              ORDER by b.pagado,cargo.nombre,a.nombre, b.fecha desc
+             LIMIT 20
+                `,
+            [id_familiar],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+
+                console.log("====> " + JSON.stringify(results.rows));
+
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+
+const getBalanceFamiliarAlumnos = (request, response) => {
+    console.log("@getBalanceFamiliarAlumnos");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+        var id_familiar = request.params.id_familiar;
+
+        pool.query(
+            `
+             SELECT al.nombre as nombre_alumno,al.apellidos as apellidos_alumno, bal.* 
+             FROM co_alumno al inner join  co_balance_alumno bal on al.co_balance_alumno = bal.id and bal.eliminado = false
+             WHERE al.id IN 
+                        (select co_alumno from co_alumno_familiar where co_familiar = $1 and eliminado = false)
+                and al.eliminado = false `,
+            [id_familiar],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -137,9 +202,9 @@ const getBalanceAlumnoTemp = (request, response) => {
 
                 if (results.rowCount > 0) {
 
-                    let balance_alumno = results.rows[0];
+                    //let balance_alumno = results.rows[0];
 
-                    response.status(200).json(balance_alumno);
+                    response.status(200).json(results);
 
                 } else {
                     console.log("No existe balance para el alumno " + id_alumno);
@@ -157,6 +222,7 @@ const getBalanceAlumnoTemp = (request, response) => {
 
 module.exports = {
     getActividadesRelacionadosFamiliar,
-    getCargosAlumnoTemp,
+    getCargosAlumnosFamiliar,
+    getCargosPagadosAlumnosFamiliar,
     getBalanceAlumnoTemp
 }
