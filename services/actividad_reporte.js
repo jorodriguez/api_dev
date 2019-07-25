@@ -269,7 +269,7 @@ const getBalanceFamiliarAlumnos = (request, response) => {
                         bal.total_adeudo,
                         bal.total_pagos,
                         bal.total_cargos,
-                        coalesce(c.json_cargos::text,'[]') as array_cargos
+                        c.json_cargos as array_cargos
                 FROM co_balance_alumno bal inner join cargos_group c on bal.id = c.co_balance_alumno
                                          inner join co_alumno al on bal.id = al.co_balance_alumno `,
             [id_familiar],
