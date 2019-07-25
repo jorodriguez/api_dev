@@ -21,7 +21,7 @@ const validarToken = (request) => {
         var respuesta = respuestaOk;
                
         jwt.verify(token, config.secret, function (err, decoded) {
-            console.log("Validando token con store");
+            console.log("Validando token con store "+token);
             if (err) {
                 console.log("x x x x x respuestaFail "+respuestaFail.mensajeRetorno.message+" x x x x x x ");                
                 respuesta = respuestaFail;                
