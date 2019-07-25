@@ -204,7 +204,7 @@ const getBalanceFamiliarAlumnos = (request, response) => {
 
                     //let balance_alumno = results.rows[0];
 
-                    response.status(200).json(results);
+                    response.status(200).json(results.rows);
 
                 } else {
                     console.log("No existe balance para el alumno " + id_alumno);
