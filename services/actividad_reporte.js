@@ -15,7 +15,7 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-const getActividadesPorAlumno = (request, response) => {
+const getActividadesRelacionadosFamiliar = (request, response) => {
     console.log("@getActividadesPorAlumno");
     try {
         var validacion = helperToken.validarToken(request);
@@ -24,28 +24,31 @@ const getActividadesPorAlumno = (request, response) => {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
-        const id_alumno = request.params.id_alumno;
+        const id_familiar = request.params.id_familiar;
 
         pool.query(
-            `
-            select  r.fecha,
-                date_trunc('minute',r.fecha+r.hora) as hora,
-                ac.nombre as actividad,
-                ac.icono as icono,
-                tipo.nombre as tipo_actividad,
-	        	sub.nombre as sub_actividad,
-	        	r.nota,
-	        	a.nombre as nombre_alumno,
-	        	a.apellidos as apellidos_alumno,
-	        	r.url_foto,
-	        	r.id
-from co_registro_actividad r inner join cat_actividad ac on r.cat_actividad = ac.id 
-							left join cat_tipo_actividad tipo on r.cat_tipo_actividad = tipo.id
-							 left join cat_sub_actividad sub on r.cat_sub_actividad = sub.id
-							 inner join co_alumno a on r.co_alumno = a.id
-where co_alumno = $1 and fecha = getDate('')
-order by r.fecha,r.hora desc
-            `, [id_alumno],
+            `           
+        select  r.fecha,
+            date_trunc('minute',r.fecha+r.hora) as hora,
+            ac.nombre as actividad,
+            ac.icono as icono,
+            tipo.nombre as tipo_actividad,
+            sub.nombre as sub_actividad,
+            r.nota,
+            a.nombre as nombre_alumno,
+            a.apellidos as apellidos_alumno,
+            r.url_foto,
+            r.id
+            from co_registro_actividad r inner join cat_actividad ac on r.cat_actividad = ac.id 
+                     left join cat_tipo_actividad tipo on r.cat_tipo_actividad = tipo.id
+                    left join cat_sub_actividad sub on r.cat_sub_actividad = sub.id
+                    inner join co_alumno a on r.co_alumno = a.id
+            where co_alumno IN
+                (select co_alumno from co_alumno_familiar where co_familiar = $1 and eliminado = false) 
+                and a.eliminado = false
+                and fecha = getDate('')
+            order by r.fecha,r.hora desc
+            `, [id_familiar],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -153,7 +156,7 @@ const getBalanceAlumnoTemp = (request, response) => {
 
 
 module.exports = {
-    getActividadesPorAlumno,
+    getActividadesRelacionadosFamiliar,
     getCargosAlumnoTemp,
     getBalanceAlumnoTemp
 }
