@@ -121,7 +121,7 @@ const getCargosAlumnosFamiliar = (request, response) => {
 const getCargosPagadosAlumnosFamiliar = (request, response) => {
     console.log("@getCargosPagadosAlumnosFamiliar");
     try {
-
+        
         var validacion = helperToken.validarToken(request);
 
         if (!validacion.tokenValido) {
@@ -224,5 +224,5 @@ module.exports = {
     getActividadesRelacionadosFamiliar,
     getCargosAlumnosFamiliar,
     getCargosPagadosAlumnosFamiliar,
-    getBalanceAlumnoTemp
+    getBalanceFamiliarAlumnos
 }
