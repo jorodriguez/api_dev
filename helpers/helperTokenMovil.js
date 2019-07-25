@@ -14,7 +14,7 @@ const validarToken = (request) => {
         const respuestaOk = { tokenValido: true, status: 200, mensajeRetorno: {} };      
         var token = request.headers['x-access-token'];        
         console.log("Antes : "+token);
-        token = token.replace("Token ",token);
+        token = token.replace("Token ",'');
         console.log("Despues : "+token);
         if (!token) {
             console.log(" x x x x x respuestaNoToken x x x x x");
