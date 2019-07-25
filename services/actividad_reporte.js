@@ -18,12 +18,11 @@ const pool = new Pool({
 const getActividadesPorAlumno = (request, response) => {
     console.log("@getActividadesPorAlumno");
     try {
-        /*var validacion = helperToken.validarToken(request);
+        var validacion = helperToken.validarToken(request);
 
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }*/
-        //agregar el parametro del padre
+        }
 
         const id_alumno = request.params.id_alumno;
 
@@ -63,6 +62,13 @@ order by r.fecha,r.hora desc
 const getCargosAlumnoTemp = (request, response) => {
     console.log("@getCargosAlumnoTemp");
     try {
+
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
 
         var id_alumno = request.params.id_alumno;
 
@@ -105,12 +111,12 @@ const getCargosAlumnoTemp = (request, response) => {
 const getBalanceAlumnoTemp = (request, response) => {
     console.log("@getBalanceAlumnoTemp");
     try {
-        /*      var validacion = helperToken.validarToken(request);
-      
-              if (!validacion.tokenValido) {
-                  return response.status(validacion.status).send(validacion.mensajeRetorno);;
-              }
-      */
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
         console.log("request.params.id_alumno " + request.params.id_alumno);
 
         var id_alumno = request.params.id_alumno;
