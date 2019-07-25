@@ -3,7 +3,7 @@ const Pool = require('pg').Pool
 
 const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
+const helperToken = require('../helpers/helperTokenMovil');
 const mensajeria = require('./mensajesFirebase');
 
 const pool = new Pool({
