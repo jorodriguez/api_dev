@@ -76,6 +76,7 @@ const getCargosAlumnosFamiliar = (request, response) => {
 
         pool.query(
                 `
+             
                 SELECT a.co_balance_alumno,
   			        a.id as id_alumno,
   			        a.nombre as nombre_alumno,  			
@@ -94,12 +95,13 @@ const getCargosAlumnosFamiliar = (request, response) => {
                     0 as pago               
              FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
                                            inner join cat_cargo cargo on b.cat_cargo = cargo.id			
-             WHERE a.id in
+             WHERE a.id 
+                        IN
              			(select co_alumno from co_alumno_familiar where co_familiar = $1 and eliminado = false)              		             		             		
-                 		and (to_char(b.fecha,'YYYYMM') = to_char(current_date,'YYYYMM') or pagado = false)             		             		
+                 		--and (to_char(b.fecha,'YYYYMM') = to_char(current_date,'YYYYMM') or pagado = false)             		             		
                  		and b.eliminado = false and a.eliminado = false
               ORDER by b.pagado,cargo.nombre,a.nombre, b.fecha desc
-             LIMIT 20
+             LIMIT 100
                 `,
             [id_familiar],
             (error, results) => {
