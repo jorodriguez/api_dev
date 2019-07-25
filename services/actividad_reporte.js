@@ -177,7 +177,7 @@ const getCargosPagadosAlumnosFamiliar = (request, response) => {
     }
 };
 
-
+/*
 const getBalanceFamiliarAlumnos = (request, response) => {
     console.log("@getBalanceFamiliarAlumnos");
     try {
@@ -220,7 +220,83 @@ const getBalanceFamiliarAlumnos = (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
+*/
 
+
+const getBalanceFamiliarAlumnos = (request, response) => {
+    console.log("@getBalanceFamiliarAlumnos");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+        var id_familiar = request.params.id_familiar;
+
+        pool.query(
+            `
+            with cargos as (
+                SELECT a.co_balance_alumno,
+                         a.id as id_alumno,
+                         a.nombre as nombre_alumno,  			
+                           b.id as id_cargo_balance_alumno,
+                           b.fecha,
+                           b.cantidad,
+                           cargo.nombre as nombre_cargo,
+                           cat_cargo as id_cargo,
+                           cargo.es_facturable,
+                           b.total as total,
+                           b.cargo,
+                           b.total_pagado,
+                           b.nota,
+                           b.pagado ,
+                           false as checked ,
+                           0 as pago               
+                FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
+                                              inner join cat_cargo cargo on b.cat_cargo = cargo.id			
+                WHERE a.id 
+                            in
+                            (select co_alumno from co_alumno_familiar where co_familiar = $1 and eliminado = false)              		             		             		                 		
+                            and b.eliminado = false and a.eliminado = false
+                 ORDER by b.pagado,cargo.nombre,a.nombre, b.fecha desc             
+                 LIMIT 100
+            ),cargos_group AS (
+                select c.co_balance_alumno,array_to_json(array_agg(to_json(c.*))) as json_cargos
+                from cargos c
+                 group by c.co_balance_alumno
+             ) SELECT al.nombre as nombre_alumno,al.apellidos as apellidos_alumno, 
+                        bal.id,
+                        bal.total_adeudo,
+                        bal.total_pagos,
+                        bal.total_cargos,
+                        coalesce(c.json_cargos::text,'[]') as array_cargos
+                FROM co_balance_alumno bal inner join cargos_group c on bal.id = c.co_balance_alumno
+                                         inner join co_alumno al on bal.id = al.co_balance_alumno `,
+            [id_familiar],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+
+                if (results.rowCount > 0) {
+
+                    //let balance_alumno = results.rows[0];
+
+                    response.status(200).json(results.rows);
+
+                } else {
+                    console.log("No existe balance para el alumno " + id_alumno);
+
+                    response.status(200).json({});
+                }
+
+                //response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
 
 module.exports = {
     getActividadesRelacionadosFamiliar,
