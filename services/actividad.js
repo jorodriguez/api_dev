@@ -112,7 +112,8 @@ const registrarActividad = (request, response) => {
                 }                
                 // Enviar notificacion de actividad pero enviando el id del alumno
 
-                mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
+                //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
+                mensajeria.enviarMensajeActividadTest("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));                
                 response.status(200).json(results.rowCount)
             });
     } catch (e) {

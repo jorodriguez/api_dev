@@ -64,6 +64,34 @@ const enviarMensaje = (titulo, cuerpo) => {
 
 }
 
+//TODO: el metodo solo se usa para pruebas despues de borrara
+const enviarMensajeActividadTest = (titulo, cuerpo) => {
+    try {
+        const payloadMensaje = {
+            notification: {
+                title: titulo,
+                body: cuerpo,
+            }
+        };
+        let tokenTemporal = 'eLLlbl-5V60:APA91bEcD5D32HeVhHxceIVO119m9rEONn6a7CMDYbVHTUQqKzOiWDpiNDN_ICs3jy_rjgihYy2C4yq1PKoT6Bu5ubGJqwpokuEKRX-JMSTJamVit_6_kz0H7mn98hEJNoO2WLAWeGhw';
+        
+            firebase.messaging().sendToDevice(tokenTemporal, payloadMensaje, options)
+                .then((response) => {
+                    console.log(" result" + JSON.stringify(response));
+                    return response;
+                }).catch((e) => {
+                    console.log("Error en la mensajeria " + e);
+                    return e;
+                });
+        
+
+    } catch (e) {
+        console.log("Erorr al enviar mensaje " + e);
+        return false;
+    }
+
+}
+
 
 const enviarMensajeToken = (token, titulo, cuerpo) => {
     try {
@@ -164,5 +192,6 @@ module.exports = {
     enviarMensaje,
     sendMessage,
     enviarMensajeToken,
-    enviarMensajePorTema
+    enviarMensajePorTema,
+    enviarMensajeActividadTest
 }

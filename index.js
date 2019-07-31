@@ -166,8 +166,8 @@ app.get('/reporte_gastos_mes_actual', reporte_gastos.getReporteGastoMensualActua
 app.get('/actividades/:id_familiar',actividad_reporte.getActividadesRelacionadosFamiliar);
 
 //Para movil
-app.get('/cargos_familiar/:id_familiar',actividad_reporte.getCargosAlumnosFamiliar);
-app.get('/cargos_pagados_familiar/:id_familiar',actividad_reporte.getCargosPagadosAlumnosFamiliar);
+//app.get('/cargos_familiar/:id_familiar',actividad_reporte.getCargosAlumnosFamiliar);
+//app.get('/cargos_pagados_familiar/:id_familiar',actividad_reporte.getCargosPagadosAlumnosFamiliar);
 app.get('/balance_familiar_alumno/:id_familiar',actividad_reporte.getBalanceFamiliarAlumnos);
 
 //Login Clientes - Papas
