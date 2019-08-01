@@ -170,6 +170,9 @@ app.get('/actividades/:id_familiar',actividad_reporte.getActividadesRelacionados
 //app.get('/cargos_pagados_familiar/:id_familiar',actividad_reporte.getCargosPagadosAlumnosFamiliar);
 app.get('/balance_familiar_alumno/:id_familiar',actividad_reporte.getBalanceFamiliarAlumnos);
 
+// modificar token de cliente
+app.post('/cliente/:id_familiar',actividad_reporte.updateTokenMensajeriaFamiliar);
+
 //Login Clientes - Papas
 app.post('/auth_cliente/login', authClientesController.loginCliente);
 
@@ -177,7 +180,7 @@ app.post('/auth_cliente/login', authClientesController.loginCliente);
 app.get('/mensaje', mensajeria.sendMessage);
 
 app.get('/', (request, response) => {
-	response.json({ info: 'MagicIntelligence API v1.0.12' })
+	response.json({ info: 'MagicIntelligence API v1.0.13' })
 });
 
 app.listen(port, () => {

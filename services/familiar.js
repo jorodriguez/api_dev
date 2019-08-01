@@ -103,16 +103,16 @@ const eliminarFamiliar = (request, response) => {
 
         var id_relacion = request.params.id_relacion;
 
-        if(id_relacion == null || id_relacion==undefined){
+        if (id_relacion == null || id_relacion == undefined) {
             handle.callbackError("id_relacion es null", response);
             return;
         }
 
         const { id, genero } = request.body;
 
-        console.log("eliminar familiar"+JSON.stringify(request.body));
+        console.log("eliminar familiar" + JSON.stringify(request.body));
 
-        return new Promise((resolve, reject) => {                 
+        return new Promise((resolve, reject) => {
 
             pool.query(
                 "  UPDATE co_familiar SET " +
@@ -303,7 +303,7 @@ const relacionarAlumnoFamilia = (id_alumno, id_familiar, id_parentesco, genero) 
 
 
 const eliminarRelacionarAlumnoFamilia = (id_relacion, genero) => {
-    console.log("@Eliminar Relacion alumno familia " +id_relacion+"     "+genero);
+    console.log("@Eliminar Relacion alumno familia " + id_relacion + "     " + genero);
 
     //try {
     return new Promise((resolve, reject) => {
@@ -314,7 +314,7 @@ const eliminarRelacionarAlumnoFamilia = (id_relacion, genero) => {
                 "UPDATE CO_ALUMNO_FAMILIAR SET eliminado = true, modifico = $2, fecha_modifico = (getDate('')+getHora(''))::timestamp " +
                 " WHERE id= $1",
                 [
-                    id_relacion,genero
+                    id_relacion, genero
                 ],
                 (error, results) => {
                     if (error) {
@@ -380,6 +380,9 @@ const updateFamiliar = (id_familiar, familiar, genero) => {
         return false;
     }
 };
+
+
+
 
 const getFamiliaresAlumno = (request, response) => {
     console.log("@getFamiliaresAlumno");

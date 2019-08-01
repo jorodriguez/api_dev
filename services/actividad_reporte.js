@@ -298,9 +298,48 @@ const getBalanceFamiliarAlumnos = (request, response) => {
     }
 };
 
+const updateTokenMensajeriaFamiliar = (request, response) => {
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        var id_familiar = request.params.id_familiar;
+
+        const { token } = request.body;
+
+        console.log("PARAMS " + JSON.stringify(p));
+
+        pool.query(
+            ` UPDATE co_familiar SET 
+                  token = $2,                  
+                  modifico = $3
+                  WHERE id = $1 `,
+            [
+                id_familiar,
+                token, id_familiar
+            ],
+            (error, results) => {
+                if (error) {
+                    console.log("Error al actualizar el token del  familiar " + error);                    
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).send({operacion:true});
+            });
+
+    } catch (e) {        
+        console.log("Error al actualizar el token familiar " + e);        
+        handle.callbackErrorNoControlado(e, response);        
+    }
+}
+
 module.exports = {
     getActividadesRelacionadosFamiliar,
     getCargosAlumnosFamiliar,
     getCargosPagadosAlumnosFamiliar,
-    getBalanceFamiliarAlumnos
+    getBalanceFamiliarAlumnos,
+    updateTokenMensajeriaFamiliar
 }
