@@ -333,10 +333,62 @@ const updateTokenMensajeriaFamiliar = (request, response) => {
     }
 }
 
+
+const updateDatosFamiliar = (request, response) => {
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        var id_familiar = request.params.id_familiar;
+
+        const { nombre, telefono, fecha_nacimiento, correo, password, celular, religion,cambio_password } = request.body;
+
+        var sqlUpdateConCambioPassword = 
+                 "UPDATE co_familiar SET "+
+                    " nombre = $2, telefono = $3,fecha_nacimiento = $4,correo=$5,celular = $6,religion = $7,"+
+                    " fecha_modifico = (getDate('')+getHora(''))::timestamp"+                    
+                     (cambio_password ? " password = $8 ":"") +
+                 " WHERE id = $1"
+        ;        
+        
+        var paramsConCambioPassword = [id_familiar,nombre, telefono, fecha_nacimiento, correo, celular, religion];
+        
+        if(!cambio_password){
+            var hashedPassword = bcrypt.hashSync(password, 8);
+        
+            console.log("hashedPassword "+hashedPassword);
+            paramsConCambioPassword.push(hashedPassword);           
+        }
+       
+
+        pool.query(sqlUpdateConCambioPassword,paramsConCambioPassword,
+            (error, results) => {
+                if (error) {
+                    console.log("Error al actualizar los datos del  familiar " + error);                    
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).send(id_familiar);
+            });
+
+    } catch (e) {        
+        console.log("Error al actualizar los datos del familiar " + e);        
+        handle.callbackErrorNoControlado(e, response);        
+    }
+}
+
+
+
+
+
 module.exports = {
     getActividadesRelacionadosFamiliar,
     getCargosAlumnosFamiliar,
     getCargosPagadosAlumnosFamiliar,
     getBalanceFamiliarAlumnos,
-    updateTokenMensajeriaFamiliar
+    updateTokenMensajeriaFamiliar,
+    updateDatosFamiliar
 }

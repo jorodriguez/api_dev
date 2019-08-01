@@ -115,7 +115,6 @@ app.post('/pagos/registrar', pagos.registrarPago);
 app.post('/pagos/:id_alumno', pagos.registrarPago);
 app.get('/pagos/:id_cargo_balance_alumno', pagos.getPagosByCargoId);
 
-
 app.post('/cargos/registrar', pagos.registrarCargo);
 app.get('/cargos', pagos.getCatalogoCargos);
 app.get('/cargos/:id_alumno', pagos.getCargosAlumno);
@@ -172,6 +171,7 @@ app.get('/balance_familiar_alumno/:id_familiar',actividad_reporte.getBalanceFami
 
 // modificar token de cliente
 app.post('/cliente/:id_familiar',actividad_reporte.updateTokenMensajeriaFamiliar);
+app.put('/cliente/:id_familiar',actividad_reporte.updateDatosFamiliar);
 
 //Login Clientes - Papas
 app.post('/auth_cliente/login', authClientesController.loginCliente);
