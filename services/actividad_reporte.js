@@ -310,8 +310,6 @@ const updateTokenMensajeriaFamiliar = (request, response) => {
 
         const { token } = request.body;
 
-        console.log("PARAMS " + JSON.stringify(p));
-
         pool.query(
             ` UPDATE co_familiar SET 
                   token = $2,                  
