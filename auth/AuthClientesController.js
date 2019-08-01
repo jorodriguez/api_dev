@@ -21,9 +21,7 @@ const loginCliente = (request, response) => {
     console.log("En el login del cliente  ");
     try {
         const { correo, password } = request.body;
-
         console.log("correo " + correo + " " + password);
-
         pool.query(
             `
             select 
