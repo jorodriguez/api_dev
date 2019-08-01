@@ -312,8 +312,8 @@ const updateTokenMensajeriaFamiliar = (request, response) => {
 
         pool.query(
             ` UPDATE co_familiar SET 
-                  token = $2,                  
-                  modifico = $3
+                  token = $2, 
+                  fecha_modifico = (getDate('')+getHora(''))::timestamp
                   WHERE id = $1 `,
             [
                 id_familiar,
