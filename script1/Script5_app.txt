@@ -11,3 +11,4 @@ update cat_actividad set icono = 'magic' where id = 7;
 alter table co_familiar add column recibir_notificacion_actividad boolean default false;
 alter table co_familiar add column recibir_notificacion_pagos boolean default false;
 alter table co_familiar add column recibir_notificacion_avisos boolean default false;
+alter table co_familiar add column token_mensajeria text;
