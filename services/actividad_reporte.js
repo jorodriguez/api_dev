@@ -316,8 +316,7 @@ const updateTokenMensajeriaFamiliar = (request, response) => {
                   fecha_modifico = (getDate('')+getHora(''))::timestamp
                   WHERE id = $1 `,
             [
-                id_familiar,
-                token, id_familiar
+                id_familiar,token
             ],
             (error, results) => {
                 if (error) {
