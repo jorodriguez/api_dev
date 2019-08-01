@@ -36,6 +36,9 @@ const loginCliente = (request, response) => {
             f.religion,
             f.password,
             f.token as token_mensajeria,
+            f.recibir_notificacion_actividad,
+			f.recibir_notificacion_pagos,
+			f.recibir_notificacion_avisos,
             count(rel.id) as numero_hijos
         FROM co_familiar f left join co_alumno_familiar rel on rel.co_familiar = f.id and co_parentesco in (1,2)  
         where correo =  $1            

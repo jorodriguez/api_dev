@@ -5,3 +5,9 @@ update cat_actividad set icono = 'newspaper-o' where id =4; --nota;
 update cat_actividad set icono = 'info-circle' where id = 5; --incidente
 update cat_actividad set icono = 'signing' where id = 6;
 update cat_actividad set icono = 'magic' where id = 7;
+
+
+-- columnas para permisos de mensajeria en la app
+alter table co_familiar add column recibir_notificacion_actividad boolean default false;
+alter table co_familiar add column recibir_notificacion_pagos boolean default false;
+alter table co_familiar add column recibir_notificacion_avisos boolean default false;
