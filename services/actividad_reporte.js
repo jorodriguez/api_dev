@@ -352,7 +352,14 @@ const updateDatosFamiliar = (request, response) => {
 
         console.log("id_familiar "+id_familiar);
 
-        console.log(" "+nombre +" "+ telefono +" "+ fecha_nacimiento +" "+ correo +" "+ password +" "+ celular +" "+ religion +" "+cambio_password);
+        console.log("nom = "+nombre 
+                    +" Tel = "+ telefono 
+                    +" fecha = "+ fecha_nacimiento 
+                    +" correo = "+ correo
+                     +" pass = "+ password 
+                     +" Cel = "+ celular 
+                     +" Relig= "+ religion 
+                     +" Cambio pass= "+cambio_password);
 
         var sqlUpdateConCambioPassword = 
                  "UPDATE co_familiar SET "+
@@ -361,10 +368,12 @@ const updateDatosFamiliar = (request, response) => {
                      (cambio_password ? " password = $8 ":"") +
                  " WHERE id = $1"
         ;        
+
+        console.log("SQL "+sqlUpdateConCambioPassword);
         
         var paramsConCambioPassword = [id_familiar,nombre, telefono, fecha_nacimiento, correo, celular, religion];
         
-        if(!cambio_password){
+        if(cambio_password){
             var hashedPassword = bcrypt.hashSync(password, 8);
         
             console.log("hashedPassword "+hashedPassword);
