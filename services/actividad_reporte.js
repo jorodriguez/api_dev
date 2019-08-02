@@ -342,7 +342,6 @@ const updateDatosFamiliar = (request, response) => {
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
-
         
         var id_familiar = request.params.id_familiar;
 

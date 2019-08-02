@@ -7,7 +7,7 @@ const noTokenProvider={ auth: false, message: 'No token provided.' };
 const failedAuthenticateToken = { auth: false, message: 'Failed to authenticate token.' };
 
 const validarToken = (request) => {
-    console.log("validar token");
+    console.log("validar token movil");
     try {
         const respuestaNoToken = { tokenValido: false, status: 401, mensajeRetorno: noTokenProvider };
         const respuestaFail = { tokenValido: false, status: 401, mensajeRetorno: failedAuthenticateToken };
@@ -27,9 +27,11 @@ const validarToken = (request) => {
             console.log("Validando token con store "+token);
             if (err) {
                 console.log("x x x x x respuestaFail "+respuestaFail.mensajeRetorno.message+" x x x x x x ");                
+                console.log(""+err);                
                 respuesta = respuestaFail;                
-            }            
-            console.log("Token OK");
+            }else{
+                console.log("Token OK");
+            }
         });
         //console.log("TERMINO VALIDACION TOKEN");
         return respuesta;        
