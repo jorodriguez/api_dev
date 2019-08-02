@@ -299,6 +299,7 @@ const getBalanceFamiliarAlumnos = (request, response) => {
 };
 
 const updateTokenMensajeriaFamiliar = (request, response) => {
+    console.log("@updateTokenMensajeriaFamiliar");
     try {
         var validacion = helperToken.validarToken(request);
 
@@ -335,7 +336,7 @@ const updateTokenMensajeriaFamiliar = (request, response) => {
 
 
 const updateDatosFamiliar = (request, response) => {
-    console.log("updateDatosFamilia");
+    console.log("@updateDatosFamilia");
     try {
         var validacion = helperToken.validarToken(request);
 
