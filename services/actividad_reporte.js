@@ -350,7 +350,7 @@ const updateDatosFamiliar = (request, response) => {
 
         console.log("id_familiar "+id_familiar);
 
-        console.log(" "+nombre +" "+ telefono +" "+ fecha_nacimiento +" "+ correo +" "+ password +" "+ celularv +" "+ religion +" "+cambio_password);
+        console.log(" "+nombre +" "+ telefono +" "+ fecha_nacimiento +" "+ correo +" "+ password +" "+ celular +" "+ religion +" "+cambio_password);
 
         var sqlUpdateConCambioPassword = 
                  "UPDATE co_familiar SET "+
@@ -368,8 +368,6 @@ const updateDatosFamiliar = (request, response) => {
             console.log("hashedPassword "+hashedPassword);
             paramsConCambioPassword.push(hashedPassword);           
         }
-       
-
         pool.query(sqlUpdateConCambioPassword,paramsConCambioPassword,
             (error, results) => {
                 if (error) {
