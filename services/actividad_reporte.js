@@ -335,6 +335,7 @@ const updateTokenMensajeriaFamiliar = (request, response) => {
 
 
 const updateDatosFamiliar = (request, response) => {
+    console.log("updateDatosFamilia");
     try {
         var validacion = helperToken.validarToken(request);
 
@@ -342,9 +343,14 @@ const updateDatosFamiliar = (request, response) => {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
+        
         var id_familiar = request.params.id_familiar;
 
         const { nombre, telefono, fecha_nacimiento, correo, password, celular, religion,cambio_password } = request.body;
+
+        console.log("id_familiar "+id_familiar);
+
+        console.log(" "+nombre +" "+ telefono +" "+ fecha_nacimiento +" "+ correo +" "+ password +" "+ celularv +" "+ religion +" "+cambio_password);
 
         var sqlUpdateConCambioPassword = 
                  "UPDATE co_familiar SET "+
@@ -371,6 +377,7 @@ const updateDatosFamiliar = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
+                console.log("Se actualizaron los datos del familiar");
                 response.status(200).send(id_familiar);
             });
 
