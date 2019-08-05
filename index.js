@@ -175,6 +175,7 @@ app.put('/cliente/:id_familiar',actividad_reporte.updateDatosFamiliar);
 
 //Login Clientes - Papas
 app.post('/auth_cliente/login', authClientesController.loginCliente);
+app.put('/auth_cliente/:id_familiar',authClientesController.cambioClaveFamiliar);
 
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);

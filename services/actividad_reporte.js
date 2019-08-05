@@ -77,7 +77,7 @@ const getCargosAlumnosFamiliar = (request, response) => {
         var id_familiar = request.params.id_familiar;
 
         pool.query(
-                `
+            `
              
                 SELECT a.co_balance_alumno,
   			        a.id as id_alumno,
@@ -125,7 +125,7 @@ const getCargosAlumnosFamiliar = (request, response) => {
 const getCargosPagadosAlumnosFamiliar = (request, response) => {
     console.log("@getCargosPagadosAlumnosFamiliar");
     try {
-        
+
         var validacion = helperToken.validarToken(request);
 
         if (!validacion.tokenValido) {
@@ -136,7 +136,7 @@ const getCargosPagadosAlumnosFamiliar = (request, response) => {
         var id_familiar = request.params.id_familiar;
 
         pool.query(
-                `
+            `
                 SELECT a.co_balance_alumno,
   			        a.id as id_alumno,
   			        a.nombre as nombre_alumno,  			
@@ -319,20 +319,20 @@ const updateTokenMensajeriaFamiliar = (request, response) => {
                   fecha_modifico = (getDate('')+getHora(''))::timestamp
                   WHERE id = $1 `,
             [
-                id_familiar,token
+                id_familiar, token
             ],
             (error, results) => {
                 if (error) {
-                    console.log("Error al actualizar el token del  familiar " + error);                    
+                    console.log("Error al actualizar el token del  familiar " + error);
                     handle.callbackError(error, response);
                     return;
                 }
-                response.status(200).send({operacion:true});
+                response.status(200).send({ operacion: true });
             });
 
-    } catch (e) {        
-        console.log("Error al actualizar el token familiar " + e);        
-        handle.callbackErrorNoControlado(e, response);        
+    } catch (e) {
+        console.log("Error al actualizar el token familiar " + e);
+        handle.callbackErrorNoControlado(e, response);
     }
 }
 
@@ -345,44 +345,34 @@ const updateDatosFamiliar = (request, response) => {
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
-        
+
         var id_familiar = request.params.id_familiar;
 
-        const { nombre, telefono, fecha_nacimiento, correo, password, celular, religion,cambio_password } = request.body;
+        const { nombre, telefono, fecha_nacimiento, correo, celular, religion } = request.body;
 
-        console.log("id_familiar "+id_familiar);
+        console.log("id_familiar " + id_familiar);
 
-        console.log("nom = "+nombre 
-                    +" Tel = "+ telefono 
-                    +" fecha = "+ fecha_nacimiento 
-                    +" correo = "+ correo
-                     +" pass = "+ password 
-                     +" Cel = "+ celular 
-                     +" Relig= "+ religion 
-                     +" Cambio pass= "+cambio_password);
+        console.log("nom = " + nombre
+            + " Tel = " + telefono
+            + " fecha = " + fecha_nacimiento
+            + " correo = " + correo
+            + " Cel = " + celular
+            + " Relig= " + religion);
 
-        var sqlUpdateConCambioPassword = 
-                 "UPDATE co_familiar SET "+
-                    " nombre = $2, telefono = $3,fecha_nacimiento = $4,correo=$5,celular = $6,religion = $7,"+
-                    " fecha_modifico = (getDate('')+getHora(''))::timestamp"+                    
-                     (cambio_password ? " password = $8 ":"") +
-                 " WHERE id = $1"
-        ;        
+        var sqlUpdateConCambioPassword =
+            "UPDATE co_familiar SET " +
+            " nombre = $2, telefono = $3,fecha_nacimiento = $4,correo=$5,celular = $6,religion = $7," +
+            " fecha_modifico = (getDate('')+getHora(''))::timestamp" +
+            " WHERE id = $1";
 
-        console.log("SQL "+sqlUpdateConCambioPassword);
-        
-        var paramsConCambioPassword = [id_familiar,nombre, telefono, fecha_nacimiento, correo, celular, religion];
-        
-        if(cambio_password){
-            var hashedPassword = bcrypt.hashSync(password, 8);
-        
-            console.log("hashedPassword "+hashedPassword);
-            paramsConCambioPassword.push(hashedPassword);           
-        }
-        pool.query(sqlUpdateConCambioPassword,paramsConCambioPassword,
+        console.log("SQL " + sqlUpdateConCambioPassword);
+
+        var paramsConCambioPassword = [id_familiar, nombre, telefono, fecha_nacimiento, correo, celular, religion];
+
+        pool.query(sqlUpdateConCambioPassword, paramsConCambioPassword,
             (error, results) => {
                 if (error) {
-                    console.log("Error al actualizar los datos del  familiar " + error);                    
+                    console.log("Error al actualizar los datos del  familiar " + error);
                     handle.callbackError(error, response);
                     return;
                 }
@@ -390,11 +380,15 @@ const updateDatosFamiliar = (request, response) => {
                 response.status(200).send(id_familiar);
             });
 
-    } catch (e) {        
-        console.log("Error al actualizar los datos del familiar " + e);        
-        handle.callbackErrorNoControlado(e, response);        
+    } catch (e) {
+        console.log("Error al actualizar los datos del familiar " + e);
+        handle.callbackErrorNoControlado(e, response);
     }
 }
+
+
+
+
 
 
 
