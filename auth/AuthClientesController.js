@@ -133,7 +133,7 @@ const cambioClaveFamiliar = (request, response) => {
                         console.log("hashedPassword " + hashedPassword);
 
                         pool.query("UPDATE co_familiar SET " +
-                            " password = $2 " +
+                            " password = $2, " +
                             " fecha_modifico = (getDate('')+getHora(''))::timestamp " +
                             " WHERE id = $1",
                             [id_familiar, hashedPassword],
