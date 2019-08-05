@@ -5,6 +5,9 @@ var bcrypt = require('bcryptjs');
 var config = require('../config/config');
 const handle = require('../helpers/handlersErrors');
 
+const helperToken = require('../helpers/helperTokenMovil');
+
+
 const Pool = require('pg').Pool;
 const pool = new Pool({
     user: dbParams.user,
