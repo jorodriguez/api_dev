@@ -366,10 +366,8 @@ const updateDatosFamiliar = (request, response) => {
             " WHERE id = $1";
 
         console.log("SQL " + sqlUpdateConCambioPassword);
-
-        var paramsConCambioPassword = [id_familiar, nombre, telefono, fecha_nacimiento, correo, celular, religion];
-
-        pool.query(sqlUpdateConCambioPassword, paramsConCambioPassword,
+        pool.query(sqlUpdateConCambioPassword, 
+            [id_familiar, nombre, telefono, fecha_nacimiento, correo, celular, religion],
             (error, results) => {
                 if (error) {
                     console.log("Error al actualizar los datos del  familiar " + error);
