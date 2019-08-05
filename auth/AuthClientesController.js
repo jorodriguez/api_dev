@@ -93,7 +93,7 @@ const cambioClaveFamiliar = (request, response) => {
     
         var id_familiar = request.params.id_familiar;
 
-        const { password, password_nuevo } = request.body;
+        const { password, password_nuevo,correo } = request.body;
 
         console.log("id_familiar " + id_familiar);
 
