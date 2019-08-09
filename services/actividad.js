@@ -130,7 +130,7 @@ const enviarMensajeActividad = (alumnosIds, cat_actividad, tipo_actividad, sub_a
         var values = "";
         tipo_actividad = ((tipo_actividad == undefined) ? null : tipo_actividad);
         sub_actividad = ((sub_actividad == undefined) ? null : sub_actividad);
-
+        console.log("Enviando..");
         if (alumnosIds != undefined && alumnosIds != null && alumnosIds.length > 0) {
             for (var i = 0; i < alumnosIds.length; i++) {
                 if (i > 0) {
@@ -138,6 +138,8 @@ const enviarMensajeActividad = (alumnosIds, cat_actividad, tipo_actividad, sub_a
                 }
                 values += alumnosIds[i];
             };
+            
+            console.log("VALUES : "+values);
 
             pool
                 .query(`SELECT
@@ -147,6 +149,7 @@ const enviarMensajeActividad = (alumnosIds, cat_actividad, tipo_actividad, sub_a
                     , [cat_actividad, tipo_actividad, sub_actividad])
                 .then(res => {
                     if (res.rowCount > 0) {
+                        console.log("Iniciando envio de actividad ");
                         let actividad = res.rows[0];
                         //envio de mensaje por padre de alumnos
                         pool
@@ -158,17 +161,18 @@ const enviarMensajeActividad = (alumnosIds, cat_actividad, tipo_actividad, sub_a
                                         string_agg(al.nombre,'/') as hijos	  
                                         from co_alumno_familiar rel inner join co_alumno al on rel.co_alumno = al.id and rel.eliminado = false and al.eliminado = false
                                              inner join co_familiar f on rel.co_familiar = f.id
-                                        where al.id IN (`+ values + `) 
+                                        where al.id IN (`+ values + `) AND f.token is not null
                                         group by f.id 
                                     `)
                             .then(res => {
                                 if (res.rowCount > 0) {
-                                    var alumnos = res.rows;
-                                    for (var i = 0; i < alumnos.length; i++) {                                     
+                                    var familiares = res.rows;
+                                    for (var i = 0; i < familiares.length; i++) {                                     
                                         mensajeria
                                         .enviarMensajeActividad(
-                                             actividad.nombre_actividad + " de " +alumnos[i].hijos, 
-                                            (nota == null || nota == '' ? 'sin nota' : nota)
+                                             actividad.nombre_actividad + " de " +familiares[i].hijos, 
+                                            (nota == null || nota == '' ? 'sin nota' : nota),
+                                            familiares[i].token
                                             );
                                     }
                                 }
