@@ -64,8 +64,7 @@ const enviarMensaje = (titulo, cuerpo) => {
 
 }
 
-//TODO: el metodo solo se usa para pruebas despues de borrara
-const enviarMensajeActividadTest = (titulo, cuerpo) => {
+const enviarMensajeActividad = (titulo, cuerpo, token) => {
     try {
         const payloadMensaje = {
             notification: {
@@ -73,17 +72,16 @@ const enviarMensajeActividadTest = (titulo, cuerpo) => {
                 body: cuerpo,
             }
         };
-        let tokenTemporal = 'eLLlbl-5V60:APA91bEcD5D32HeVhHxceIVO119m9rEONn6a7CMDYbVHTUQqKzOiWDpiNDN_ICs3jy_rjgihYy2C4yq1PKoT6Bu5ubGJqwpokuEKRX-JMSTJamVit_6_kz0H7mn98hEJNoO2WLAWeGhw';
-        
-            firebase.messaging().sendToDevice(tokenTemporal, payloadMensaje, options)
-                .then((response) => {
-                    console.log(" result" + JSON.stringify(response));
-                    return response;
-                }).catch((e) => {
-                    console.log("Error en la mensajeria " + e);
-                    return e;
-                });
-        
+
+        firebase.messaging().sendToDevice(token, payloadMensaje, options)
+            .then((response) => {
+                console.log(" result" + JSON.stringify(response));
+                return response;
+            }).catch((e) => {
+                console.log("Error en la mensajeria " + e);
+                return e;
+            });
+
 
     } catch (e) {
         console.log("Erorr al enviar mensaje " + e);
@@ -105,12 +103,12 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
 
         var retorno = {};
 
-        if (configuracion.enviar_mensajes) {            
+        if (configuracion.enviar_mensajes) {
             retorno = firebase.messaging().sendToDevice(token, payloadMensaje, options);
         } else {
-            retorno =  new Promise((resolve, reject) => {                
-                setTimeout(function(){ resolve("¡Éxito!");}, 250);
-              });
+            retorno = new Promise((resolve, reject) => {
+                setTimeout(function () { resolve("¡Éxito!"); }, 250);
+            });
             console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG ");
         }
         return retorno;
@@ -122,7 +120,7 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
 }
 
 const sendMessage = (request, response) => {
-    console.log("@Enviando mensaje "+JSON.stringify(configuracion));
+    console.log("@Enviando mensaje " + JSON.stringify(configuracion));
     try {
         if (configuracion.enviar_mensajes) {
             firebase.messaging().sendToDevice(firebaseToken, payload, options)
@@ -134,10 +132,10 @@ const sendMessage = (request, response) => {
                     handle.callbackError(e, response);
                 });
         } else {
-            console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG "+JSON.stringify(configuracion));
+            console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG " + JSON.stringify(configuracion));
         }
     } catch (e) {
-        console.log("error al enviar mensaje "+e);
+        console.log("error al enviar mensaje " + e);
         handle.callbackErrorNoControlado(e, response);
     }
 };
@@ -193,5 +191,6 @@ module.exports = {
     sendMessage,
     enviarMensajeToken,
     enviarMensajePorTema,
-    enviarMensajeActividadTest
+    enviarMensajeActividad
+
 }
