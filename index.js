@@ -100,6 +100,7 @@ app.get('/familiar/:id_alumno', familiar.getFamiliaresAlumno);
 app.post('/familiar/:id_alumno', familiar.crearFamiliar);
 app.put('/familiar/:id_familiar', familiar.modificarFamiliar);
 app.put('/familiar/eliminar/:id_relacion', familiar.eliminarFamiliar);
+app.get('/familiar/:id_parentesco/:apellidos_alumno/:id_sucursal', familiar.getFamiliareParaRelacionar);
 
 //parentesco
 app.get('/parentesco/:id_alumno', parentesco.getCatalogoParentescoAlumno);

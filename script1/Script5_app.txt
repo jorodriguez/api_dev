@@ -12,3 +12,6 @@ alter table co_familiar add column recibir_notificacion_actividad boolean defaul
 alter table co_familiar add column recibir_notificacion_pagos boolean default false;
 alter table co_familiar add column recibir_notificacion_avisos boolean default false;
 alter table co_familiar add column token_mensajeria text;
+
+--- Cambios de alumno familiar relacion para App
+ALTER TABLE co_alumno_familiar ADD CONSTRAINT fk_co_familiar FOREIGN KEY (co_familiar) REFERENCES co_familiar (id) MATCH FULL;
