@@ -418,8 +418,7 @@ const getFamiliareParaRelacionar = (request, response) => {
             select               
                 string_agg(SPLIT_PART(a.nombre,' ',1),' / ') as alumno_hijo,
                 parentesco.nombre as parentesco,
-                LOWER(SPLIT_PART(f.nombre,' ',$2)) like LOWER('%'||SPLIT_PART($3::text,' ',$4)||'%') AS posible_padre,
-                a.nombre as nombre_alumno,                               
+                LOWER(SPLIT_PART(f.nombre,' ',$2)) like LOWER('%'||SPLIT_PART($3::text,' ',$4)||'%') AS posible_padre,                
                 f.id, 
                 f.nombre,
                 f.telefono,
