@@ -34,25 +34,36 @@ const crearFamiliar = (request, response) => {
 
         const p = getParams(request.body);
 
-        console.log(" === => " + JSON.stringify(p));
-
-        console.log("insertando familiar");
-
-        createFamiliar(id_alumno, p, p.genero).then((id_familiar) => {
-            console.log(" creado familiar");
-
-            relacionarAlumnoFamilia(id_alumno, id_familiar, p.co_parentesco, p.genero).then((id) => {
-                response.status(200).json(id_familiar);
+        console.log(JSON.stringify(p));
+        
+        if (p.id != null && p.id != -1 && p.id != 0) {
+            console.log("Relacionar alumno y familiar ");
+            
+            relacionarAlumnoFamilia(id_alumno, p.id, p.co_parentesco, p.genero).then((id_resolve) => {
+                response.status(200).json(id_resolve);
             }).catch((e) => {
                 console.log("Excepcion al crear familia " + e);
                 response.status(200).json(0);
             });
+        } else {
 
-        }).catch((e) => {
-            console.log(" Error al tratar de guardar un familiar " + e);
-            response.status(200).json(0);
-        });
+            console.log("insertar  familiar");
 
+            createFamiliar(id_alumno, p, p.genero).then((id_familiar) => {
+                console.log(" creado familiar");
+
+                relacionarAlumnoFamilia(id_alumno, id_familiar, p.co_parentesco, p.genero).then((id) => {
+                    response.status(200).json(id_familiar);
+                }).catch((e) => {
+                    console.log("Excepcion al crear familia " + e);
+                    response.status(200).json(0);
+                });
+
+            }).catch((e) => {
+                console.log(" Error al tratar de guardar un familiar " + e);
+                response.status(200).json(0);
+            });
+        }
     } catch (e) {
 
         handle.callbackErrorNoControlado(e, response);
@@ -103,16 +114,16 @@ const eliminarFamiliar = (request, response) => {
 
         var id_relacion = request.params.id_relacion;
 
-        if(id_relacion == null || id_relacion==undefined){
+        if (id_relacion == null || id_relacion == undefined) {
             handle.callbackError("id_relacion es null", response);
             return;
         }
 
         const { id, genero } = request.body;
 
-        console.log("eliminar familiar"+JSON.stringify(request.body));
+        console.log("eliminar familiar" + JSON.stringify(request.body));
 
-        return new Promise((resolve, reject) => {                 
+        return new Promise((resolve, reject) => {
 
             pool.query(
                 "  UPDATE co_familiar SET " +
@@ -149,50 +160,6 @@ const eliminarFamiliar = (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
-
-
-/*
-const createPadre = (id_alumno, familiarPadre, genero) => {
-    console.log("@create padre");
-    try {
-        console.log("Se inserta padre");
-        const ID_PARENTESCO_PADRE = 1;
-
-        createFamiliar(id_alumno, familiarPadre, genero).then((idPadre) => {
-
-            relacionarAlumnoFamilia(id_alumno, idPadre, ID_PARENTESCO_PADRE, genero).then((id) => {
-                actualizarAlumno(id_alumno, idPadre, 'co_padre', genero);
-            });
-
-        }).catch((e) => {
-            console.log("Error al tratar de crear un familiar " + e);
-        });
-
-    } catch (e) {
-        console.log("error al crear padres  " + e);
-    }
-}
-
-const createMadre = (id_alumno, familiarMadre, genero) => {
-    console.log("@create madre genera " + genero);
-    try {
-        const ID_PARENTESCO_MADRE = 2;
-        createFamiliar(id_alumno, familiarMadre, genero).then((idMadre) => {
-            console.log("Dentro de promise madre");
-
-            relacionarAlumnoFamilia(id_alumno, idMadre, ID_PARENTESCO_MADRE, genero).then((id) => {
-
-                actualizarAlumno(id_alumno, idMadre, 'co_madre', genero);
-            });
-
-        }).catch((e) => {
-            console.log("Error al tratar de crear un familiar " + e);
-        });;
-
-    } catch (e) {
-        console.log("error al crear madre  " + e);
-    }
-}*/
 
 
 const createFamiliar = (id_alumno, familiar, genero) => {
@@ -262,9 +229,6 @@ const createFamiliar = (id_alumno, familiar, genero) => {
     }
 };
 
-
-
-
 const relacionarAlumnoFamilia = (id_alumno, id_familiar, id_parentesco, genero) => {
     console.log("@Relacion alumno familia");
 
@@ -303,7 +267,7 @@ const relacionarAlumnoFamilia = (id_alumno, id_familiar, id_parentesco, genero) 
 
 
 const eliminarRelacionarAlumnoFamilia = (id_relacion, genero) => {
-    console.log("@Eliminar Relacion alumno familia " +id_relacion+"     "+genero);
+    console.log("@Eliminar Relacion alumno familia " + id_relacion + "     " + genero);
 
     //try {
     return new Promise((resolve, reject) => {
@@ -314,7 +278,7 @@ const eliminarRelacionarAlumnoFamilia = (id_relacion, genero) => {
                 "UPDATE CO_ALUMNO_FAMILIAR SET eliminado = true, modifico = $2, fecha_modifico = (getDate('')+getHora(''))::timestamp " +
                 " WHERE id= $1",
                 [
-                    id_relacion,genero
+                    id_relacion, genero
                 ],
                 (error, results) => {
                     if (error) {
@@ -366,7 +330,6 @@ const updateFamiliar = (id_familiar, familiar, genero) => {
                         reject(null);
                         return;
                     }
-
                     resolve(id_familiar);
 
                     //return true;
@@ -380,6 +343,9 @@ const updateFamiliar = (id_familiar, familiar, genero) => {
         return false;
     }
 };
+
+
+
 
 const getFamiliaresAlumno = (request, response) => {
     console.log("@getFamiliaresAlumno");
@@ -419,6 +385,77 @@ const getFamiliaresAlumno = (request, response) => {
     }
 };
 
+
+
+const getFamiliareParaRelacionar = (request, response) => {
+    console.log("@getFamiliaresConApellidosParecidos");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        const SPLIT_APELLIDO_PATERNO = 2;
+        const SPLIT_APELLIDO_MATERNO = 3;
+
+        //saber si es familiar directo
+        var id_parentesco = request.params.id_parentesco;
+        var id_sucursal = request.params.id_sucursal;
+        var apellidos_alumno = request.params.apellidos_alumno;
+        var split_apellido_padre = (id_parentesco == 1 ? SPLIT_APELLIDO_PATERNO : SPLIT_APELLIDO_MATERNO);
+        var split_apellido_alumno = (id_parentesco == 1 ? 1 : 2);
+
+        console.log("Params "
+            + " suc " + id_sucursal
+            + " split padre " + split_apellido_padre
+            + " apellidos alum " + apellidos_alumno
+            + " split alumno " + split_apellido_alumno
+            + " id_parentesco " + id_parentesco
+        );
+        pool.query(
+            `
+            select               
+                string_agg(SPLIT_PART(a.nombre,' ',1),' / ') as alumno_hijo,
+                parentesco.nombre as parentesco,
+                LOWER(SPLIT_PART(f.nombre,' ',$2)) like LOWER('%'||SPLIT_PART($3::text,' ',$4)||'%') AS posible_padre,
+                a.nombre as nombre_alumno,                               
+                f.id, 
+                f.nombre,
+                f.telefono,
+                f.fecha_nacimiento,
+                f.correo,
+                f.celular,
+                f.religion,
+                f.recibir_notificacion_actividad,
+                f.recibir_notificacion_pagos,
+                f.recibir_notificacion_avisos
+            from co_familiar f inner join co_alumno_familiar rel on f.id = rel.co_familiar				
+                       inner join co_alumno a on rel.co_alumno = a.id
+                       inner join co_parentesco parentesco on rel.co_parentesco = parentesco.id
+            where  a.co_sucursal = $1 
+                AND rel.co_parentesco = $5
+                AND f.eliminado  = false		
+                AND rel.eliminado = false 	
+            GROUP BY  parentesco.nombre,rel.co_parentesco,f.nombre,f.id
+            ORDER BY posible_padre DESC
+           `,
+            [id_sucursal, split_apellido_padre, apellidos_alumno, split_apellido_alumno, id_parentesco],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+
+
+
 const getParams = (body) => {
     const parametros = {
         nombre,
@@ -438,6 +475,6 @@ module.exports = {
     updateFamiliar,
     getFamiliaresAlumno,
     modificarFamiliar,
-    eliminarFamiliar
-
+    eliminarFamiliar,
+    getFamiliareParaRelacionar
 }

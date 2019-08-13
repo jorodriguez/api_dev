@@ -307,7 +307,6 @@ const ejecutarProcesoNotificacionExpiracionSalidaAlumnoPorSucursal = (co_sucursa
 };
 
 
-
 const ejecutarProcesoNotificacionProximaSalidaAlumno = () => {
 
     try {

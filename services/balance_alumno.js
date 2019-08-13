@@ -18,8 +18,7 @@ const pool = new Pool({
 
 const registrarBalanceAlumno = (id_alumno,genero) => {
     console.log("@ragistrarBalanceAlumno");
-    try {
-                     
+    try {                     
         pool.query("select insertar_balance_alumno($1,$2)",                               
             [id_alumno,genero],
             (error, results) => {

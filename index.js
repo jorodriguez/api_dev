@@ -25,6 +25,7 @@ const datos_facturacion = require('./services/datos_facturacion');
 const gastos = require('./services/gastos');
 const reporte_gastos = require('./services/reporteGastos');
 const actividad_reporte = require('./services/actividad_reporte');
+const authClientesController = require('./auth/AuthClientesController');
 const https = require("https");
 
 const port = process.env.PORT || 5000;
@@ -99,6 +100,7 @@ app.get('/familiar/:id_alumno', familiar.getFamiliaresAlumno);
 app.post('/familiar/:id_alumno', familiar.crearFamiliar);
 app.put('/familiar/:id_familiar', familiar.modificarFamiliar);
 app.put('/familiar/eliminar/:id_relacion', familiar.eliminarFamiliar);
+app.get('/familiar/:id_parentesco/:apellidos_alumno/:id_sucursal', familiar.getFamiliareParaRelacionar);
 
 //parentesco
 app.get('/parentesco/:id_alumno', parentesco.getCatalogoParentescoAlumno);
@@ -113,7 +115,6 @@ app.get('/valores_esperados/:id_formato', formato_complemento.getCatalogoValores
 app.post('/pagos/registrar', pagos.registrarPago);
 app.post('/pagos/:id_alumno', pagos.registrarPago);
 app.get('/pagos/:id_cargo_balance_alumno', pagos.getPagosByCargoId);
-
 
 app.post('/cargos/registrar', pagos.registrarCargo);
 app.get('/cargos', pagos.getCatalogoCargos);
@@ -162,13 +163,26 @@ app.get('/reporte_gastos_mes_actual', reporte_gastos.getReporteGastoMensualActua
 
 
 //consultas para App
-app.get('/actividades/:id_alumno',actividad_reporte.getActividadesPorAlumno);
+app.get('/actividades/:id_familiar',actividad_reporte.getActividadesRelacionadosFamiliar);
+
+//Para movil
+//app.get('/cargos_familiar/:id_familiar',actividad_reporte.getCargosAlumnosFamiliar);
+//app.get('/cargos_pagados_familiar/:id_familiar',actividad_reporte.getCargosPagadosAlumnosFamiliar);
+app.get('/balance_familiar_alumno/:id_familiar',actividad_reporte.getBalanceFamiliarAlumnos);
+
+// modificar token de cliente
+app.post('/cliente/:id_familiar',actividad_reporte.updateTokenMensajeriaFamiliar);
+app.put('/cliente/:id_familiar',actividad_reporte.updateDatosFamiliar);
+
+//Login Clientes - Papas
+app.post('/auth_cliente/login', authClientesController.loginCliente);
+app.put('/auth_cliente/:id_familiar',authClientesController.cambioClaveFamiliar);
 
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);
 
 app.get('/', (request, response) => {
-	response.json({ info: 'MagicIntelligence API v1.0.12' })
+	response.json({ info: 'MagicIntelligence API v1.0.13' })
 });
 
 app.listen(port, () => {

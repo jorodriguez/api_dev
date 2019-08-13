@@ -1,0 +1,17 @@
+update cat_actividad set icono = 'cutlery' where id = 1;
+update cat_actividad set icono = 'user-md' where id = 2;
+update cat_actividad set icono = 'heart' where id = 3;
+update cat_actividad set icono = 'newspaper-o' where id =4; --nota;
+update cat_actividad set icono = 'info-circle' where id = 5; --incidente
+update cat_actividad set icono = 'signing' where id = 6;
+update cat_actividad set icono = 'magic' where id = 7;
+
+
+-- columnas para permisos de mensajeria en la app
+alter table co_familiar add column recibir_notificacion_actividad boolean default false;
+alter table co_familiar add column recibir_notificacion_pagos boolean default false;
+alter table co_familiar add column recibir_notificacion_avisos boolean default false;
+alter table co_familiar add column token_mensajeria text;
+
+--- Cambios de alumno familiar relacion para App
+ALTER TABLE co_alumno_familiar ADD CONSTRAINT fk_co_familiar FOREIGN KEY (co_familiar) REFERENCES co_familiar (id) MATCH FULL;
