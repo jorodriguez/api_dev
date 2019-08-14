@@ -26,6 +26,7 @@ const gastos = require('./services/gastos');
 const reporte_gastos = require('./services/reporteGastos');
 const actividad_reporte = require('./services/actividad_reporte');
 const authClientesController = require('./auth/AuthClientesController');
+const correo_service = require('./utils/MailService');
 const https = require("https");
 
 const port = process.env.PORT || 5000;
@@ -180,6 +181,9 @@ app.put('/auth_cliente/:id_familiar',authClientesController.cambioClaveFamiliar)
 
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);
+
+//Correos
+app.get('/enviar_correo',correo_service.enviarCorreoTest);
 
 app.get('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API v1.0.13' })
