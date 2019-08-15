@@ -182,9 +182,6 @@ app.put('/auth_cliente/:id_familiar',authClientesController.cambioClaveFamiliar)
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);
 
-//Correos
-app.get('/enviar_correo',correo_service.enviarCorreoTest);
-
 app.get('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API v1.0.13' })
 });
