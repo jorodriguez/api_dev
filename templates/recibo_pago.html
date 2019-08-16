@@ -8,8 +8,8 @@
 </head>
 
 <body>
-    <table width="800px">
-        <tr valign="center">
+    <table width="800px" style="align:center">
+        <tr valign="left">
             <td>
                 <table width="100%" style="background-color:#5ACA99">
                     <tr>
@@ -42,26 +42,34 @@
                     </tr>
                 </table>
                 <hr />
-                <h4>Lista de cargos pagados de {{nombre_alumno}}</h4>
-                </h4>
-                <table width="100%" height="100px" style="background-color:white">
+                <h4>Lista de cargos pagados de {{nombre_alumno}}</h4>                
+                <table width="100%" height="100px" style="background-color:white;">
                     <tr>
                         <th>Fecha de cargo</th>
                         <th>Concepto</th>
                         <th>Adeuda</th>
                         <th>Pagado</th>
-                        <th>Nota</th>
+                        <!--<th>Nota</th>-->
                     </tr>
                     <!-- {{#pagado}} PAGADO {{/pagado}}-->
                     {{#cargos}}
-                    <tr>
+                    <tr style="text-align:center">
                         <td>{{fecha_cargo}}</td>
                         <td>{{nombre_cargo}}</td>
                         <td>$ {{total}}</td>
                         <td>$ {{total_pagado}}</td>
-                        <td>{{nota}}</td>
+                        <!--<td>{{nota}}</td>-->
                     </tr>
                     {{/cargos}}
+                    <tr>
+                      <td colspan="3" style="text-align:right">
+                      
+                       <strong>Total:</strong> 
+                      </td>
+                      <td style="text-align:center;background-color:#F7F7F7">
+                      <h4><strong> $ {{monto}}</strong> </h4> 
+                      </td>
+                    </tr>
                 </table>
                 <br />
                 <br />
@@ -80,8 +88,5 @@
             </td>
         </tr>
     </table>
-
 </body>
-</body>
-
 </html>
