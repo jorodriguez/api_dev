@@ -448,10 +448,9 @@ const getReporteCargosFacturados = (request, response) => {
 
         pool.query(
             `   
-
             select 
                 rel.id,
-                al.nombre,
+                al.nombre as nombre_alumno,
                 rel.pago,	
                 cargo.fecha as fecha_cargo,
                 cargo.cargo,
@@ -461,17 +460,19 @@ const getReporteCargosFacturados = (request, response) => {
                 pago.pago,
                 pago.identificador_factura,
                 forma_pago.nombre as forma_pago,	
+                c.nombre as nombre_cargo,
                 cargo.pagado	
         from co_cargo_balance_alumno cargo  left join co_pago_cargo_balance_alumno rel on rel.co_cargo_balance_alumno = cargo.id
                 left join co_pago_balance_alumno pago on rel.co_pago_balance_alumno = pago.id and pago.eliminado = false 
                 left join co_forma_pago forma_pago on pago.co_forma_pago = forma_pago.id						
                 inner join co_alumno al on al.co_balance_alumno = cargo.co_balance_alumno
+                inner join cat_cargo c on c.id = cargo.cat_cargo
         where cargo.cat_cargo = 1 
             and al.co_sucursal = $1
             and to_char(cargo.fecha,'Mon-YYYY') = to_char(getDate(''),'Mon-YYYY') 
             and cargo.eliminado = false 
-        order by cargo.pagado desc, pago.fecha
-         `,[id_sucursal],(error, results) => {
+        order by cargo.pagado desc,al.nombre, pago.fecha
+         `, [id_sucursal], (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
@@ -485,6 +486,48 @@ const getReporteCargosFacturados = (request, response) => {
 
 
 
+const getReporteCargosFacturadosSucursal = (request, response) => {
+    console.log("@getReporteCargosFacturadosSucursal");
+    try {
+
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        let ID_CARGO_MENSUALIDAD = 1;
+
+        pool.query(
+            `              
+            SELECT 
+                suc.id as id_sucursal,
+                suc.nombre as sucursal,	
+                suc.class_color,		  
+                count(cargo.*) filter (where cargo.pagado) as cargos_pagados,			   
+                count(cargo.*) filter (where cargo.pagado = false) as cargos_no_pagados,			   			   
+                count(pago.identificador_factura) as pagos_facturados
+            from co_cargo_balance_alumno cargo  left join co_pago_cargo_balance_alumno rel on rel.co_cargo_balance_alumno = cargo.id
+                 left join co_pago_balance_alumno pago on rel.co_pago_balance_alumno = pago.id and pago.eliminado = false                 
+                inner join co_alumno al on al.co_balance_alumno = cargo.co_balance_alumno
+                left join co_sucursal suc on suc.id = al.co_sucursal
+            where cargo.cat_cargo = $1
+                and to_char(cargo.fecha,'Mon-YYYY') = to_char(getDate(''),'Mon-YYYY') 
+                and cargo.eliminado = false 
+            group by suc.id
+         `,[ID_CARGO_MENSUALIDAD],
+           (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
 
 module.exports = {
     getReporteBalanceAlumnosSucursal,
@@ -495,5 +538,6 @@ module.exports = {
     getReporteCrecimientoMensualSucursal,
     getReporteAlumnosMensualCrecimiento,
     getReporteAlumnosNuevosIngresosGlobal,
-    getReporteCargosFacturados
+    getReporteCargosFacturados,
+    getReporteCargosFacturadosSucursal
 }

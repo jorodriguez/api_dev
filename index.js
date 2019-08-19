@@ -175,12 +175,13 @@ app.get('/balance_familiar_alumno/:id_familiar',actividad_reporte.getBalanceFami
 app.post('/cliente/:id_familiar',actividad_reporte.updateTokenMensajeriaFamiliar);
 app.put('/cliente/:id_familiar',actividad_reporte.updateDatosFamiliar);
 
-//Login Clientes - Papas
+//Login Clientes - Papás
 app.post('/auth_cliente/login', authClientesController.loginCliente);
 app.put('/auth_cliente/:id_familiar',authClientesController.cambioClaveFamiliar);
 
-//reporte de mensualidades
+//reporte de mensualidades facturadas
 app.get('/reporte_mensualidades/:id_sucursal', reporteDeudas.getReporteCargosFacturados);
+app.get('/reporte_mensualidades', reporteDeudas.getReporteCargosFacturadosSucursal);
 
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);

@@ -385,8 +385,6 @@ const getFamiliaresAlumno = (request, response) => {
     }
 };
 
-
-
 const getFamiliareParaRelacionar = (request, response) => {
     console.log("@getFamiliaresConApellidosParecidos");
     try {
