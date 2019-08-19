@@ -19,28 +19,53 @@ const pool = new Pool({
 });
 
 const mailOptions = {
-    from: 'velocirraptor79.1@gmail.com',
+    from: 'joel@magicintelligence.com',
     to: 'myfriend@yahoo.com',
     subject: 'Sending Email using Node.js',
     text: 'That was easy!'
 };
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    //host:'smtp.magicintelligence.com',
+    //host: 'smtp.gmail.com',
+    host: 'mail.magicintelligence.com',
     port: 465,
     //secure:true,
     secureConnection: true,
-    service: 'gmail',
+    //service: 'gmail',
     auth: {
         //user: 'joel@magicintelligence.com',
-        user: 'velocirraptor79.1@gmail.com',
-        pass: '@@rmincesa'
+        user: 'joel@magicintelligence.com',
+        pass: 'Secreta.03'
     },
     tls: {
         ciphers: 'SSLv3'
     }
 });
+
+const enviarCorreoTest = (request, response) => {
+    const mailData = {
+        from: mailOptions.from,
+        to: 'joel.rod.roj@hotmail.com',
+        subject: 'Test',
+        html: "<h3>Test</h3>"
+    };
+    try {
+        transporter.sendMail(mailData, function (error, info) {
+            if (error) {
+                console.log("Error al enviar correo : " + error);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
+
+        transporter.close();
+
+        response.status(200).json({ envio: "Ok" });
+        console.log("Enviado OK");
+    } catch (e) {
+        console.log("Error " + e);
+    }
+};
 
 
 const notificarReciboPago = (id_alumno, pago, nota, ids_cargos, cat_forma_pago, identificador_factura) => {
@@ -67,12 +92,12 @@ const notificarReciboPago = (id_alumno, pago, nota, ids_cargos, cat_forma_pago, 
             if (results.rowCount > 0) {
                 //enviar a otro metord
                 let row = results.rows[0];
-                enviarReciboComplemento(row.correos, row.nombres_padres,row.nombre_alumno, pago, nota, ids_cargos, cat_forma_pago, identificador_factura);
+                enviarReciboComplemento(row.correos, row.nombres_padres, row.nombre_alumno, pago, nota, ids_cargos, cat_forma_pago, identificador_factura);
             }
         });
 };
 
-function enviarReciboComplemento(lista_correos, nombres_padres,nombre_alumno, pago, nota, ids_cargos, cat_forma_pago, identificador_factura) {
+function enviarReciboComplemento(lista_correos, nombres_padres, nombre_alumno, pago, nota, ids_cargos, cat_forma_pago, identificador_factura) {
 
     pool.query(
         ` 
@@ -95,15 +120,15 @@ function enviarReciboComplemento(lista_correos, nombres_padres,nombre_alumno, pa
             }
             if (results.rowCount > 0) {
                 enviarCorreoReciboPago(
-                    lista_correos, 
+                    lista_correos,
                     "Recibo de pago ",
                     {
                         nombre_cliente: nombres_padres,
-                        nombre_alumno : nombre_alumno,
+                        nombre_alumno: nombre_alumno,
                         fecha: new Date().toISOString().replace(/T/, ' ').replace(/\..+/, ''),
                         monto: pago,
                         folio_factura: identificador_factura ? identificador_factura : 'N/A',
-                        nota: nota,                        
+                        nota: nota,
                         cargos: results.rows
                     });
             }
@@ -170,7 +195,8 @@ function loadTemplateReciboPago(param) {
 }
 
 
-module.exports = {    
-    notificarReciboPago
+module.exports = {
+    notificarReciboPago,
+    enviarCorreoTest
     // enviarCorreo
 }

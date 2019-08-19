@@ -45,7 +45,7 @@
                 <h4>Lista de cargos pagados de {{nombre_alumno}}</h4>                
                 <table width="100%" height="100px" style="background-color:white;">
                     <tr>
-                        <th>Fecha de cargo</th>
+                        <th style="text-align:left">Fecha de cargo</th>
                         <th>Concepto</th>
                         <th>Adeuda</th>
                         <th>Pagado</th>
@@ -54,7 +54,7 @@
                     <!-- {{#pagado}} PAGADO {{/pagado}}-->
                     {{#cargos}}
                     <tr style="text-align:center">
-                        <td>{{fecha_cargo}}</td>
+                        <td style="text-align:left">{{fecha_cargo}}</td>
                         <td>{{nombre_cargo}}</td>
                         <td>$ {{total}}</td>
                         <td>$ {{total_pagado}}</td>

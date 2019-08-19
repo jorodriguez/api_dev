@@ -77,6 +77,7 @@ const getReporteBalancePorSucursal = (request, response) => {
             with total_alumnos_count As( 
                 select co_sucursal,count(*) AS contador_alumnos
                     from co_alumno 
+                    where eliminado = false
                     group by co_sucursal
              ),cargos_desglose AS (						
                  with universo_cargos as (
@@ -87,8 +88,9 @@ const getReporteBalancePorSucursal = (request, response) => {
                                  sum(cargos.total_pagado) as total_cargos_pagados_desglose,
                                  (sum(cargos.total) - sum(cargos.total_pagado)) as total_cargos_pendiente_desglose
                          from co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id
-                                     inner join co_cargo_balance_alumno cargos on cargos.co_balance_alumno = balance.id			
+                                     inner join co_cargo_balance_alumno cargos on cargos.co_balance_alumno = balance.id	and a.eliminado = false	
                                                  and cargos.pagado = false
+                                                 and cargos.eliminado = false
                                      inner join cat_cargo tipo_cargo on  cargos.cat_cargo = tipo_cargo.id
                                      inner join co_sucursal suc on a.co_sucursal = suc.id
                              group by suc.id,tipo_cargo.nombre
@@ -103,7 +105,7 @@ const getReporteBalancePorSucursal = (request, response) => {
                     sum(balance.total_cargos) as total_cargos,
                     total_alumnos.contador_alumnos,
                     COALESCE(cargos.json_array::json,'[]'::json) AS array_desglose_cargos 
-              FROM co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id
+              FROM co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id and a.eliminado = false
                         inner join co_grupo grupo on a.co_grupo = grupo.id
                         inner join co_sucursal suc on a.co_sucursal =suc.id
                         inner join total_alumnos_count total_alumnos on total_alumnos.co_sucursal = suc.id             
@@ -429,6 +431,61 @@ const getReporteAlumnosNuevosIngresosGlobal = (request, response) => {
 };
 
 
+
+const getReporteCargosFacturados = (request, response) => {
+    console.log("@getReporteCargosFacturados");
+    try {
+
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        const { id_sucursal } = request.params;
+
+        //const mes = request.params.mes;
+
+        pool.query(
+            `   
+
+            select 
+                rel.id,
+                al.nombre,
+                rel.pago,	
+                cargo.fecha as fecha_cargo,
+                cargo.cargo,
+                cargo.total as adeuda_de_cargo,
+                cargo.nota,
+                pago.fecha as fecha_pago,
+                pago.pago,
+                pago.identificador_factura,
+                forma_pago.nombre as forma_pago,	
+                cargo.pagado	
+        from co_cargo_balance_alumno cargo  left join co_pago_cargo_balance_alumno rel on rel.co_cargo_balance_alumno = cargo.id
+                left join co_pago_balance_alumno pago on rel.co_pago_balance_alumno = pago.id and pago.eliminado = false 
+                left join co_forma_pago forma_pago on pago.co_forma_pago = forma_pago.id						
+                inner join co_alumno al on al.co_balance_alumno = cargo.co_balance_alumno
+        where cargo.cat_cargo = 1 
+            and al.co_sucursal = $1
+            and to_char(cargo.fecha,'Mon-YYYY') = to_char(getDate(''),'Mon-YYYY') 
+            and cargo.eliminado = false 
+        order by cargo.pagado desc, pago.fecha
+         `,[id_sucursal],(error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+
+
+
 module.exports = {
     getReporteBalanceAlumnosSucursal,
     getReporteBalancePorSucursal,
@@ -437,5 +494,6 @@ module.exports = {
     getReporteCrecimientoGlobal,
     getReporteCrecimientoMensualSucursal,
     getReporteAlumnosMensualCrecimiento,
-    getReporteAlumnosNuevosIngresosGlobal
+    getReporteAlumnosNuevosIngresosGlobal,
+    getReporteCargosFacturados
 }

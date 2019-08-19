@@ -179,8 +179,13 @@ app.put('/cliente/:id_familiar',actividad_reporte.updateDatosFamiliar);
 app.post('/auth_cliente/login', authClientesController.loginCliente);
 app.put('/auth_cliente/:id_familiar',authClientesController.cambioClaveFamiliar);
 
+//reporte de mensualidades
+app.get('/reporte_mensualidades/:id_sucursal', reporteDeudas.getReporteCargosFacturados);
+
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);
+
+app.get('/enviar_correo', correo_service.enviarCorreoTest);
 
 app.get('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API v1.0.13' })
