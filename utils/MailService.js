@@ -20,20 +20,14 @@ const pool = new Pool({
 
 const mailOptions = {
     from: 'joel@magicintelligence.com',
-    to: 'myfriend@yahoo.com',
-    subject: 'Sending Email using Node.js',
-    text: 'That was easy!'
+    cc: 'joel@magicintelligence.com'    
 };
 
-const transporter = nodemailer.createTransport({
-    //host: 'smtp.gmail.com',
+const transporter = nodemailer.createTransport({    
     host: 'mail.magicintelligence.com',
-    port: 465,
-    //secure:true,
-    secureConnection: true,
-    //service: 'gmail',
-    auth: {
-        //user: 'joel@magicintelligence.com',
+    port: 465,    
+    secureConnection: true,    
+    auth: {        
         user: 'joel@magicintelligence.com',
         pass: 'Secreta.03'
     },
@@ -123,6 +117,7 @@ function enviarReciboComplemento(lista_correos, nombres_padres, nombre_alumno, p
                     lista_correos,
                     "Recibo de pago ",
                     {
+                        titulo:"Magic Intelligence",
                         nombre_cliente: nombres_padres,
                         nombre_alumno: nombre_alumno,
                         fecha: new Date().toISOString().replace(/T/, ' ').replace(/\..+/, ''),
@@ -174,11 +169,9 @@ function loadTemplateReciboPago(param) {
     return new Promise((resolve, reject) => {
         try {
             console.log("loadTemplateReciboPago");
-            fs.readFile(path.resolve(__dirname, "../templates/recibo_pago.html"), 'utf8', (err, data) => {
-                //console.log(data);
-                //html = mustache.render(data, {
+            fs.readFile(path.resolve(__dirname, "../templates/recibo_pago.html"), 'utf8', (err, data) => {                
                 html = mustache.to_html(data, {
-                    titulo: "Magic Intelligence",
+                    titulo: param.titulo,
                     nombre_cliente: param.nombre_cliente,
                     nombre_alumno: param.nombre_alumno,
                     fecha: param.fecha,
@@ -195,8 +188,60 @@ function loadTemplateReciboPago(param) {
 }
 
 
+// no se usa aun
+const enviarCorreoCambioSucursal = (para, asunto, params) => {
+    console.log("@enviarCorreoCambioSucursalComplemento");
+
+    loadTemplateGenerico(params)
+        .then((renderHtml) => {
+            console.log("Dentro de la promesa resuelta");
+            if (renderHtml != null) {
+
+                const mailData = {
+                    from: mailOptions.from,
+                    to: para,
+                    cc:mailOptions.cc,
+                    subject: asunto,
+                    html: renderHtml
+                };
+
+                transporter.sendMail(mailData, function (error, info) {
+                    if (error) {
+                        console.log("Error al enviar correo : " + error);
+                    } else {
+                        console.log('Email sent: ' + info.response);
+                    }
+                });
+
+                transporter.close();
+            } else {
+                console.log("No se envio el correo");
+            }
+        }).catch(e => {
+            console.log("Excepción en el envio de correo : " + e);
+        });
+};
+
+//mejorar esto param = {titulo:"",subtitulo:"",contenido:""}
+function loadTemplateGenerico(params) {
+    var html = null;
+    return new Promise((resolve, reject) => {
+        try {
+            console.log("loadTemplateReciboPago");
+            fs.readFile(path.resolve(__dirname, "../templates/generico.html"), 'utf8', (err, data) => {                
+                html = mustache.to_html(data,params);
+                resolve(html);
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
+
 module.exports = {
     notificarReciboPago,
-    enviarCorreoTest
-    // enviarCorreo
+    enviarCorreoTest,
+    enviarCorreoCambioSucursal
+    
 }

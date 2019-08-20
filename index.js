@@ -27,6 +27,8 @@ const reporte_gastos = require('./services/reporteGastos');
 const actividad_reporte = require('./services/actividad_reporte');
 const authClientesController = require('./auth/AuthClientesController');
 const correo_service = require('./utils/MailService');
+const sucursales = require('./services/sucursal');
+const alumnoSucursal = require('./services/alumno_sucursal');
 const https = require("https");
 
 const port = process.env.PORT || 5000;
@@ -187,6 +189,10 @@ app.get('/reporte_mensualidades', reporteDeudas.getReporteCargosFacturadosSucurs
 app.get('/mensaje', mensajeria.sendMessage);
 
 app.get('/enviar_correo', correo_service.enviarCorreoTest);
+
+//sucursales y cambios
+app.get('/sucursal',sucursales.getSucursales);
+app.put('/cambio_sucursal/:id_alumno',alumnoSucursal.cambiarSucursalAlumno);
 
 app.get('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API v1.0.13' })
