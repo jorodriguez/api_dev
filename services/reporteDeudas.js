@@ -278,16 +278,26 @@ const getReporteCrecimientoMensualSucursal = (request, response) => {
         const id_sucursal = request.params.id_sucursal;
 
         pool.query(
-            ` with universo AS(
-                select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as fecha
-                --select generate_series((to_char(getDate(''),'YYYY') ||'-01-01')::timestamp,(getDate('')+getHora(''))::timestamp,'1 month') as fecha
+            ` 
+            with universo AS(
+                select generate_series((select date_trunc('year', now())),(getDate('')+getHora(''))::timestamp,'1 month') as fecha                                
+			), gastos_mensuales AS(
+					  Select      
+							g.co_sucursal,
+							to_char(g.fecha,'YYYYMM') as mes,
+                			sum(g.gasto) as suma_gastos
+            			from co_gasto g left join universo u on to_char(g.fecha,'YYYYMM') =  to_char(u.fecha,'YYYYMM')
+			            where  g.co_sucursal = $2 and g.eliminado = false				
+						group by  g.co_sucursal,to_char(g.fecha,'YYYYMM')					
+								
 			) select 
                 suc.nombre,
                 suc.class_color,
 				to_char(u.fecha,'Mon-YYYY') AS mes_anio,								
 				to_char(u.fecha,'YYYY') AS numero_anio,
 				to_char(u.fecha,'MM') AS numero_mes,				
-				count(alumno.*) as count_alumno,					
+				count(alumno.*) as count_alumno,			
+				gastos.suma_gastos,
 			    coalesce(sum(alumno.costo_colegiatura),0) AS suma_colegiaturas,
 				coalesce(sum(alumno.costo_inscripcion),0) AS suma_inscripciones,
 				coalesce((sum(alumno.costo_colegiatura) + sum(alumno.costo_inscripcion)),0) AS suma_total							
@@ -295,6 +305,7 @@ const getReporteCrecimientoMensualSucursal = (request, response) => {
 								on to_char(u.fecha,'YYYYMM') = to_char(alumno.fecha_inscripcion,'YYYYMM')
 								and alumno.eliminado = false																				
                                 inner join co_sucursal suc on alumno.co_sucursal = suc.id								
+								left join gastos_mensuales gastos on gastos.co_sucursal = suc.id  and gastos.mes = to_char(u.fecha,'YYYYMM')
             where suc.id = $1 
 			group by to_char(u.fecha,'Mon-YYYY'),
 						to_char(u.fecha,'MMYYYY'),
@@ -302,10 +313,13 @@ const getReporteCrecimientoMensualSucursal = (request, response) => {
 						numero_mes
                         ,suc.nombre
                         ,suc.class_color
+						,gastos.suma_gastos
 			order by 
 					suc.nombre, 
-            numero_anio desc,numero_mes desc `,
-            [id_sucursal],
+            		numero_anio desc,
+					numero_mes desc 
+            `,
+            [id_sucursal, id_sucursal],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -515,8 +529,8 @@ const getReporteCargosFacturadosSucursal = (request, response) => {
                 and to_char(cargo.fecha,'Mon-YYYY') = to_char(getDate(''),'Mon-YYYY') 
                 and cargo.eliminado = false 
             group by suc.id
-         `,[ID_CARGO_MENSUALIDAD],
-           (error, results) => {
+         `, [ID_CARGO_MENSUALIDAD],
+            (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
@@ -526,6 +540,82 @@ const getReporteCargosFacturadosSucursal = (request, response) => {
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
+};
+
+
+const getReporteGastosIngresosSucursalPorMes = (request, response) => {
+    console.log("@getReporteGastosIngresosSucursalPorMes");
+    try {
+
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        let id_sucursal = request.params.id_sucursal;
+        let mes = request.params.mes;
+
+        console.log("id_sucursal "+id_sucursal);
+        console.log("mes "+mes);
+
+        let ID_CARGO_MENSUALIDAD = 1;
+
+        let sql =  `  with gastos_mes AS (
+            Select      
+                g.co_sucursal,							
+                sum(g.gasto) as suma_gastos
+            from co_gasto g 
+            where  g.co_sucursal = $3
+                    and  
+                    to_char(g.fecha,'Mon-YYYY') = `+(mes != 'null' ? "'"+mes+"'":"to_char(now(),'Mon-YYYY')") +
+                    ` and g.eliminado = false				
+            group by g.co_sucursal
+        )		
+            SELECT 
+                suc.id as id_sucursal,
+                suc.nombre as sucursal,	                
+                gastos.suma_gastos,
+                (sum(cargo.cargo) - gastos.suma_gastos) as ganancias,
+                count(cargo.*) as contador_total_cargos,
+                count(cargo.*) filter (where cargo.pagado) as contador_cargos_pagados,			   
+                count(cargo.*) filter (where not cargo.pagado) as contador_cargos_no_pagados,				
+                sum(cargo.cargo) as cargos,
+                sum(cargo.total_pagado) as pagados,               				
+                sum(cargo.cargo) filter (where cargo.pagado) as suma_cargos ,              				
+                sum(cargo.cargo) filter (where not cargo.pagado ) as suma_cargos_pendientes
+        from co_cargo_balance_alumno cargo  left join co_pago_cargo_balance_alumno rel on rel.co_cargo_balance_alumno = cargo.id
+                             left join co_pago_balance_alumno pago on rel.co_pago_balance_alumno = pago.id and pago.eliminado = false                 
+                            inner join co_alumno al on al.co_balance_alumno = cargo.co_balance_alumno
+                            left join co_sucursal suc on suc.id = al.co_sucursal
+                            left join gastos_mes gastos on gastos.co_sucursal = suc.id
+    WHERE cargo.cat_cargo = $1
+            and suc.id = $2
+            and to_char(cargo.fecha,'Mon-YYYY') = `+(mes != 'null' ?  "'"+mes+"'":"to_char(now(),'Mon-YYYY')") +
+            ` and cargo.eliminado = false 
+    GROUP BY suc.id,gastos.suma_gastos`;
+
+    console.log(sql);
+
+        pool.query(
+            sql
+           ,[ID_CARGO_MENSUALIDAD,id_sucursal,id_sucursal],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                if(results.rowCount > 0 ){
+                    response.status(200).json(results.rows[0]);
+                }else{
+                    response.status(200).json(null);
+                }                
+            });
+
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+
 };
 
 
@@ -539,5 +629,6 @@ module.exports = {
     getReporteAlumnosMensualCrecimiento,
     getReporteAlumnosNuevosIngresosGlobal,
     getReporteCargosFacturados,
-    getReporteCargosFacturadosSucursal
+    getReporteCargosFacturadosSucursal,
+    getReporteGastosIngresosSucursalPorMes
 }

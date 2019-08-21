@@ -194,6 +194,9 @@ app.get('/enviar_correo', correo_service.enviarCorreoTest);
 app.get('/sucursal',sucursales.getSucursales);
 app.put('/cambio_sucursal/:id_alumno',alumnoSucursal.cambiarSucursalAlumno);
 
+//reporte ingresos vs cargos
+app.get('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes',reporteDeudas.getReporteGastosIngresosSucursalPorMes);
+
 app.get('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API v1.0.13' })
 });
