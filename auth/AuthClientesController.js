@@ -46,6 +46,7 @@ const loginCliente = (request, response) => {
             and f.eliminado= false
             and rel.eliminado = false
         group by f.id
+
             `,
             [correo],
             (error, results) => {
@@ -56,9 +57,11 @@ const loginCliente = (request, response) => {
 
                 console.log(JSON.stringify(results));
 
-                if (results.rowCount > 0) {
+                if (results.rowCount > 0 && usuario.password != null && usuario.password != undefined && usuario.password != '') {
 
                     var usuario = results.rows[0];
+
+                    console.log("usuario login movil "+JSON.stringify(usuario));
 
                     var passwordIsValid = bcrypt.compareSync(password, usuario.password);
 
@@ -77,7 +80,8 @@ const loginCliente = (request, response) => {
 
     } catch (e) {
 
-        response.status(400).send({ auth: false, token: null });
+       // response.status(400).send({ auth: false, token: null });
+       handle.callbackErrorNoControlado(e, response);
     }
 };
 
