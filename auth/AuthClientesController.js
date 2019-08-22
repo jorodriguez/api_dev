@@ -76,7 +76,7 @@ const loginCliente = (request, response) => {
                         response.status(200).send({ auth: true, token: token, usuario: usuario });
                     } else { 
 
-                        response.status(400).send({ auth: false, token: null, usuario: null,mensaje:"Existe un detalle con la contraseña, se recomienda notificar este detalle a la sucursal." });    
+                        response.status(400).send({ auth: false, token: null, usuario: null,mensaje:"Existe un detalle con su registro, se recomienda notificar este mensaje a la sucursal." });    
                     }
 
                 } else {
