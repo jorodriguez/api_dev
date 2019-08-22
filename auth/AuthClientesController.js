@@ -57,21 +57,27 @@ const loginCliente = (request, response) => {
 
                 console.log(JSON.stringify(results));
 
-                if (results.rowCount > 0 && usuario.password != null && usuario.password != undefined && usuario.password != '') {
+                if (results.rowCount > 0) {
 
                     var usuario = results.rows[0];
 
-                    console.log("usuario login movil "+JSON.stringify(usuario));
+                    if (usuario.password != null && usuario.password != undefined && usuario.password != '') {
 
-                    var passwordIsValid = bcrypt.compareSync(password, usuario.password);
+                        console.log("usuario login movil " + JSON.stringify(usuario));
 
-                    if (!passwordIsValid) return response.status(401).send({ auth: false, token: null, usuario: null, mensaje: "Usuario no encontrado." });
+                        var passwordIsValid = bcrypt.compareSync(password, usuario.password);
 
-                    var token = jwt.sign({ id: results.id }, config.secret, {
-                        expiresIn: 86400 // expires in 24 hours
-                    });
+                        if (!passwordIsValid) return response.status(401).send({ auth: false, token: null, usuario: null, mensaje: "Usuario no encontrado." });
 
-                    response.status(200).send({ auth: true, token: token, usuario: usuario });
+                        var token = jwt.sign({ id: results.id }, config.secret, {
+                            expiresIn: 86400 // expires in 24 hours
+                        });
+
+                        response.status(200).send({ auth: true, token: token, usuario: usuario });
+                    } else { 
+                        response.status(400).send({ auth: false, token: null, usuario: null,mensaje:"Error en la contraseña." });    
+                    }
+
                 } else {
 
                     response.status(400).send({ auth: false, token: null, usuario: null });
@@ -80,8 +86,8 @@ const loginCliente = (request, response) => {
 
     } catch (e) {
 
-       // response.status(400).send({ auth: false, token: null });
-       handle.callbackErrorNoControlado(e, response);
+        // response.status(400).send({ auth: false, token: null });
+        handle.callbackErrorNoControlado(e, response);
     }
 };
 
@@ -94,10 +100,10 @@ const cambioClaveFamiliar = (request, response) => {
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
-    
+
         var id_familiar = request.params.id_familiar;
 
-        const { password, password_nuevo,correo } = request.body;
+        const { password, password_nuevo, correo } = request.body;
 
         console.log("id_familiar " + id_familiar);
 
@@ -111,7 +117,7 @@ const cambioClaveFamiliar = (request, response) => {
         	      and f.correo = $2
                 and f.eliminado= false
             `,
-            [id_familiar,correo],
+            [id_familiar, correo],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -120,7 +126,7 @@ const cambioClaveFamiliar = (request, response) => {
 
                 console.log(JSON.stringify(results));
 
-                if (results.rowCount > 0 && password_nuevo != "" && password_nuevo  != undefined ) {
+                if (results.rowCount > 0 && password_nuevo != "" && password_nuevo != undefined) {
 
                     var usuario = results.rows[0];
 
@@ -128,7 +134,7 @@ const cambioClaveFamiliar = (request, response) => {
 
                     if (!passwordIsValid) {
                         return response.status(401).send({ auth: false, mensaje: "La contraseña no es válida." });
-                    } else {                    
+                    } else {
 
                         var hashedPassword = bcrypt.hashSync(password_nuevo, 8);
 
@@ -149,12 +155,12 @@ const cambioClaveFamiliar = (request, response) => {
                                 }
                                 console.log("Se cambio el pass del familiar");
                                 response.status(200).send({ auth: true, mensaje: "Contraseña actualizada." });
-                            });                        
+                            });
                     }
                 } else {
                     response.status(400).send({ auth: false, mensaje: "No se encotró el usuario." });
                 }
-           });
+            });
 
     } catch (e) {
         console.log("Error al actualizar los datos del familiar " + e);
