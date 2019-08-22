@@ -262,9 +262,10 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
 //mejorar esto param = {titulo:"",subtitulo:"",contenido:""}
 function loadTemplateGenerico(params) {
     var html = null;
+    //fixme : ir a la bd
+    params.nombre_empresa ="Magic Intelligence";
     return new Promise((resolve, reject) => {
-        try {
-            console.log("loadTemplateReciboPago");
+        try {            
             fs.readFile(path.resolve(__dirname, "../templates/generico.html"), 'utf8', (err, data) => {                
                 html = mustache.to_html(data,params);
                 resolve(html);

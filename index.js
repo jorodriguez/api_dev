@@ -177,6 +177,9 @@ app.get('/balance_familiar_alumno/:id_familiar',actividad_reporte.getBalanceFami
 app.post('/cliente/:id_familiar',actividad_reporte.updateTokenMensajeriaFamiliar);
 app.put('/cliente/:id_familiar',actividad_reporte.updateDatosFamiliar);
 
+//reset password
+app.get('/reset_password/:id_familiar',familiar.resetPasswordFamiliar);
+
 //Login Clientes - Papás
 app.post('/auth_cliente/login', authClientesController.loginCliente);
 app.put('/auth_cliente/:id_familiar',authClientesController.cambioClaveFamiliar);
@@ -196,6 +199,8 @@ app.put('/cambio_sucursal/:id_alumno',alumnoSucursal.cambiarSucursalAlumno);
 
 //reporte ingresos vs cargos
 app.get('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes',reporteDeudas.getReporteGastosIngresosSucursalPorMes);
+
+
 
 app.get('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API v1.0.13' })

@@ -75,18 +75,40 @@ const crearFamiliar = (request, response) => {
     }
 };
 
+
+const resetPasswordFamiliar = (request, response) => {
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        var id_familiar = request.params.id_familiar;
+
+        enviarClaveFamiliar(id_familiar);
+
+        response.status(200).json(id_familiar);
+
+    } catch (e) {
+        console.log("Error al reseterar la clave " + e);
+        handle.callbackErrorNoControlado(e, response);
+    }
+}
+
 const enviarClaveFamiliar = (id_familiar) => {
     try {
 
         pool.query(
             `
-                SELECT passpass||(random() * 5000 + 1)::int AS password FROM random_pass  ORDER BY random() LIMIT 1;
+                SELECT pass||(random() * 5000 + 1)::int AS password FROM random_pass  ORDER BY random() LIMIT 1;
             `,
             (error, results) => {
                 if (results.rowCount > 0) {
-                   let password = results[0].password ;
+                    console.log(JSON.stringify( results.rows));
+                    let password = results.rows[0].password;
 
-                   let hashedPassword = bcrypt.hashSync(password, 8);
+                    let hashedPassword = bcrypt.hashSync(password, 8);
 
                     pool.query(
                         `
@@ -96,21 +118,21 @@ const enviarClaveFamiliar = (id_familiar) => {
                         (error, results) => {
                             if (error) {
                                 console.log("Error al actualizar el familiar " + error);
-                                handle.callbackError(error, response);
+                                return;
                             }
 
                             if (results.rowCount > 0) {
-                                let row = results[0];
+                                let row = results.rows[0];
                                 //enviar correo
                                 mailService
                                     .enviarCorreoClaveFamiliar(
                                         row.correo,
-                                        "Bienvenido a Magic Intelligence",
+                                        "Magic Intelligence",
                                         {
                                             titulo: "Hola " + row.nombre + " bienvenido a la familia Magic Intelligence",
                                             subtitulo: "Te enviamos tu contraseña de acceso",
-                                            contenido: " Contraseña : " +password 
-                                    }
+                                            contenido: " Contraseña : " + password
+                                        }
                                     );
                             }
 
@@ -119,7 +141,8 @@ const enviarClaveFamiliar = (id_familiar) => {
             });
     } catch (e) {
         console.log("Fallo al enviar el correo de la clave " + e);
-        handle.callbackErrorNoControlado(e, response);
+        //handle.callbackErrorNoControlado(e, response);
+        return;
     }
 }
 
@@ -526,5 +549,6 @@ module.exports = {
     getFamiliaresAlumno,
     modificarFamiliar,
     eliminarFamiliar,
-    getFamiliareParaRelacionar
+    getFamiliareParaRelacionar,
+    resetPasswordFamiliar
 }
