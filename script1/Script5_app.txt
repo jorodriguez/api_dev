@@ -15,3 +15,34 @@ alter table co_familiar add column token_mensajeria text;
 
 --- Cambios de alumno familiar relacion para App
 ALTER TABLE co_alumno_familiar ADD CONSTRAINT fk_co_familiar FOREIGN KEY (co_familiar) REFERENCES co_familiar (id) MATCH FULL;
+
+
+----
+	---contraseñas para enviar a clientes
+CREATE TABLE random_pass
+(
+    id serial not null,
+    pass text NOT NULL,
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,   
+    CONSTRAINT random_pass_pkey PRIMARY KEY (id),
+    CONSTRAINT random_pass_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT random_pass_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES public.usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+
+insert into random_pass(pass,genero)
+		values('cuidados',1),('travesura',1),('bueno',1),('atento',1),('feliz',1),('felicidad',1),
+				('aventura',1),('pelota',1),('papa',1),('mama',1),('patio',1),('buendia',1),('imaginacion',1)
+				,('magic',1),('logro',1),('pintar',1),('amar',1),('tequiero',1),('deseo',1),('hijo',1),('magico',1),
+				('sonrisa',1),('sonrie',1),('sonreir',1),('emocion',1),('atencion',1),('juguete',1),('imagina',1),
+				('crear',1),('inteligente',1);

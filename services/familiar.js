@@ -6,6 +6,9 @@ const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
 const { isEmpty } = require('../helpers/Utils');
 const Joi = require('@hapi/joi');
+const mailService = require('../utils/MailService');
+
+var bcrypt = require('bcryptjs');
 
 const config = require('../config/config');
 const jwt = require('jsonwebtoken');
@@ -18,7 +21,6 @@ const pool = new Pool({
     port: dbParams.port,
     ssl: { rejectUnauthorized: false }
 });
-
 
 
 const crearFamiliar = (request, response) => {
@@ -35,11 +37,12 @@ const crearFamiliar = (request, response) => {
         const p = getParams(request.body);
 
         console.log(JSON.stringify(p));
-        
+
         if (p.id != null && p.id != -1 && p.id != 0) {
             console.log("Relacionar alumno y familiar ");
-            
+
             relacionarAlumnoFamilia(id_alumno, p.id, p.co_parentesco, p.genero).then((id_resolve) => {
+                enviarClaveFamiliar(id_familiar);
                 response.status(200).json(id_resolve);
             }).catch((e) => {
                 console.log("Excepcion al crear familia " + e);
@@ -53,6 +56,8 @@ const crearFamiliar = (request, response) => {
                 console.log(" creado familiar");
 
                 relacionarAlumnoFamilia(id_alumno, id_familiar, p.co_parentesco, p.genero).then((id) => {
+                    //enviar correo
+                    enviarClaveFamiliar(id_familiar);
                     response.status(200).json(id_familiar);
                 }).catch((e) => {
                     console.log("Excepcion al crear familia " + e);
@@ -69,6 +74,54 @@ const crearFamiliar = (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
+
+const enviarClaveFamiliar = (id_familiar) => {
+    try {
+
+        pool.query(
+            `
+                SELECT passpass||(random() * 5000 + 1)::int AS password FROM random_pass  ORDER BY random() LIMIT 1;
+            `,
+            (error, results) => {
+                if (results.rowCount > 0) {
+                   let password = results[0].password ;
+
+                   let hashedPassword = bcrypt.hashSync(password, 8);
+
+                    pool.query(
+                        `
+                            UPDATE co_familiar SET password = $2 WHERE id = $1 RETURNING nombre,correo;            
+                        `,
+                        [id_familiar, hashedPassword],
+                        (error, results) => {
+                            if (error) {
+                                console.log("Error al actualizar el familiar " + error);
+                                handle.callbackError(error, response);
+                            }
+
+                            if (results.rowCount > 0) {
+                                let row = results[0];
+                                //enviar correo
+                                mailService
+                                    .enviarCorreoClaveFamiliar(
+                                        row.correo,
+                                        "Bienvenido a Magic Intelligence",
+                                        {
+                                            titulo: "Hola " + row.nombre + " bienvenido a la familia Magic Intelligence",
+                                            subtitulo: "Te enviamos tu contraseña de acceso",
+                                            contenido: " Contraseña : " +password 
+                                    }
+                                    );
+                            }
+
+                        });
+                }
+            });
+    } catch (e) {
+        console.log("Fallo al enviar el correo de la clave " + e);
+        handle.callbackErrorNoControlado(e, response);
+    }
+}
 
 
 const modificarFamiliar = (request, response) => {

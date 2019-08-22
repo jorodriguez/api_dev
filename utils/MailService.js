@@ -222,6 +222,43 @@ const enviarCorreoCambioSucursal = (para, asunto, params) => {
         });
 };
 
+
+
+// no se usa aun
+const enviarCorreoClaveFamiliar = (para, asunto, params) => {
+    console.log("@enviarCorreoClaveFamiliar");
+
+    loadTemplateGenerico(params)
+        .then((renderHtml) => {
+            console.log("Dentro d");
+            if (renderHtml != null) {
+
+                const mailData = {
+                    from: mailOptions.from,
+                    to: para,
+                    cc:mailOptions.cc,
+                    subject: asunto,
+                    html: renderHtml
+                };
+
+                transporter.sendMail(mailData, function (error, info) {
+                    if (error) {
+                        console.log("Error al enviar correo : " + error);
+                    } else {
+                        console.log('Email sent: ' + info.response);
+                    }
+                });
+
+                transporter.close();
+            } else {
+                console.log("No se envio el correo");
+            }
+        }).catch(e => {
+            console.log("Excepción en el envio de correo : " + e);
+        });
+};
+
+
 //mejorar esto param = {titulo:"",subtitulo:"",contenido:""}
 function loadTemplateGenerico(params) {
     var html = null;
@@ -242,6 +279,7 @@ function loadTemplateGenerico(params) {
 module.exports = {
     notificarReciboPago,
     enviarCorreoTest,
-    enviarCorreoCambioSucursal
+    enviarCorreoCambioSucursal,
+    enviarCorreoClaveFamiliar
     
 }
