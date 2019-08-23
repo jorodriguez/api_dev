@@ -2,9 +2,15 @@
 const Pool = require('pg').Pool
 
 const { dbParams } = require('../config/config');
+<<<<<<< HEAD
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperTokenMovil');
 const mensajeria = require('./mensajesFirebase');
+=======
+const handle = require('./handlersErrors');
+const helperToken = require('./helperTokenMovil');
+const mensajeria = require('../services/mensajesFirebase');
+>>>>>>> 1135d7235925bde25f7142d87c25a87e9a6f0d9a
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 

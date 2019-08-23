@@ -30,7 +30,7 @@ const getReporteGastosMensualesPorSucursalTrend = (request, response) => {
         pool.query(
             `
              with meses AS(
-                select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as mes
+                select generate_series((SELECT date_trunc('year', now())),(getDate('')+getHora(''))::timestamp,'1 month') as mes
 			) select			
 					to_char(m.mes,'Mon-YYYY') as mes_anio,
 					to_char(m.mes,'YYYYMM') as anio_mes, 
@@ -189,7 +189,7 @@ const getReporteDetalleGastosPorSucursal = (request, response) => {
             where g.co_sucursal = $1
                     and to_char(g.fecha,'YYYYMM') = $2
                     and g.eliminado = false				
-                order by  tipo.nombre asc        
+                order by  g.fecha asc        
             `, [id_sucursal, mes_anio],
             (error, results) => {
                 if (error) {

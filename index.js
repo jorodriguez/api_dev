@@ -26,6 +26,9 @@ const gastos = require('./services/gastos');
 const reporte_gastos = require('./services/reporteGastos');
 const actividad_reporte = require('./services/actividad_reporte');
 const authClientesController = require('./auth/AuthClientesController');
+const correo_service = require('./utils/MailService');
+const sucursales = require('./services/sucursal');
+const alumnoSucursal = require('./services/alumno_sucursal');
 const https = require("https");
 
 const port = process.env.PORT || 5000;
@@ -174,12 +177,30 @@ app.get('/balance_familiar_alumno/:id_familiar',actividad_reporte.getBalanceFami
 app.post('/cliente/:id_familiar',actividad_reporte.updateTokenMensajeriaFamiliar);
 app.put('/cliente/:id_familiar',actividad_reporte.updateDatosFamiliar);
 
-//Login Clientes - Papas
+//reset password
+app.get('/reset_password/:id_familiar',familiar.resetPasswordFamiliar);
+
+//Login Clientes - Papás
 app.post('/auth_cliente/login', authClientesController.loginCliente);
 app.put('/auth_cliente/:id_familiar',authClientesController.cambioClaveFamiliar);
 
+//reporte de mensualidades facturadas
+app.get('/reporte_mensualidades/:id_sucursal', reporteDeudas.getReporteCargosFacturados);
+app.get('/reporte_mensualidades', reporteDeudas.getReporteCargosFacturadosSucursal);
+
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);
+
+app.get('/enviar_correo', correo_service.enviarCorreoTest);
+
+//sucursales y cambios
+app.get('/sucursal',sucursales.getSucursales);
+app.put('/cambio_sucursal/:id_alumno',alumnoSucursal.cambiarSucursalAlumno);
+
+//reporte ingresos vs cargos
+app.get('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes',reporteDeudas.getReporteGastosIngresosSucursalPorMes);
+
+
 
 app.get('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API v1.0.13' })

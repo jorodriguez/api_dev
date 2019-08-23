@@ -6,6 +6,7 @@ const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
 const mensajeria = require('./mensajesFirebase');
+const mailService = require('../utils/MailService');
 
 const pool = new Pool({
     user: dbParams.user,
@@ -74,6 +75,9 @@ const registrarPago = (request, response) => {
                 }
                 console.log("Se llamo a la function de pago");
                 //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
+                
+                mailService.notificarReciboPago(id_alumno, pago, nota, ids_cargos, cat_forma_pago, identificador_factura);
+                
                 response.status(200).json(results.rowCount)
             });
     } catch (e) {
