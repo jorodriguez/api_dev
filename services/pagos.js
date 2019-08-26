@@ -66,19 +66,25 @@ const registrarPago = (request, response) => {
         console.log("=====>> " + JSON.stringify(request.body));
         const { id_alumno, pago, nota, ids_cargos, cargos_desglosados, cat_forma_pago,identificador_factura, genero } = request.body;
 
-        pool.query("select agregar_pago_alumno('" + ids_cargos + "','" + cargos_desglosados + "'," + id_alumno + "," + pago + ",'" + nota + "'," + cat_forma_pago + ",'"+identificador_factura+"',"+ genero + " );",
+        console.log("SELECT agregar_pago_alumno('" + ids_cargos + "','" + cargos_desglosados + "'," + id_alumno + "," + pago + ",'" + nota + "'," + cat_forma_pago + ",'"+identificador_factura+"',"+ genero + " )");        
+        
+        //response.status(200).json("ok");
+        pool.query("SELECT agregar_pago_alumno('" + ids_cargos + "','" + cargos_desglosados + "'," + id_alumno + "," + pago + ",'" + nota + "'," + cat_forma_pago + ",'"+identificador_factura+"',"+ genero + " );",
             //    [id_alumno ,pago,nota,genero],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
                 }
-                console.log("Se llamo a la function de pago");
-                //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
+
+                if(results.rowCount > 0){
+                    let retorno = results.rows[0];
+                    console.log("Retorno el ID "+ JSON.stringify(results.rows));
+                    mailService.notificarReciboPago(id_alumno,retorno.agregar_pago_alumno);    
+                   //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
+                }         
                 
-                mailService.notificarReciboPago(id_alumno, pago, nota, ids_cargos, cat_forma_pago, identificador_factura);
-                
-                response.status(200).json(results.rowCount)
+                response.status(200).json(results.rowCount);
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -151,7 +157,7 @@ const getCargosAlumno = (request, response) => {
                     return;
                 }
                 
-                console.log("====> "+JSON.stringify(results.rows));
+                //console.log("====> "+JSON.stringify(results.rows));
 
                 response.status(200).json(results.rows);
             });

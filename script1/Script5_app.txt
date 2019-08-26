@@ -46,3 +46,109 @@ insert into random_pass(pass,genero)
 				,('magic',1),('logro',1),('pintar',1),('amar',1),('tequiero',1),('deseo',1),('hijo',1),('magico',1),
 				('sonrisa',1),('sonrie',1),('sonreir',1),('emocion',1),('atencion',1),('juguete',1),('imagina',1),
 				('crear',1),('inteligente',1);
+
+
+
+
+
+-- modificacion en el procedimiento para guardar pagos
+
+drop function agregar_pago_alumno(text,text,integer,numeric,text,integer,text,integer );
+
+
+
+CREATE OR REPLACE FUNCTION agregar_pago_alumno(ids_cargos text,cargos_desglose text, id_alumno integer,
+											pago_param numeric, nota text,forma_pago_param integer,
+											identificador_factura_param text,id_genero integer)
+ RETURNS integer
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+	fecha_current timestamp;
+	ids_cargos_relacionar integer[];
+	cargos_desglose_relacionar numeric[];
+	id_pago_balance_alumno integer;
+	alumno_record RECORD;
+	balance_record co_balance_alumno%ROWTYPE;
+	retorno integer := 0;
+    sqlerr_message_text TEXT;
+    sqlerr_exception_detail TEXT;
+    sqlerr_exception_hint TEXT;
+	id_balance_alumno integer;
+	ind int := 0;
+	sqlInsertPago TEXT := 'INSERT INTO co_pago_balance_alumno(CO_BALANCE_ALUMNO,FECHA,PAGO,NOTA,GENERO)
+							VALUES($1,$2,$3,$4,$5) RETURNING id INTO id_pago';	
+							
+	sqlInsertRelacion TEXT := 'INSERT INTO co_pago_cargo_balance_alumno(fecha,co_pago_balance_alumno,co_cargo_balance_alumno,pago,genero)
+							VALUES($1,$2,$3,$4,$5)';		
+							
+
+BEGIN    
+
+	raise notice 'REGISTRAR PAGOS';	
+	
+	 ids_cargos_relacionar = string_to_array(ids_cargos,','); 
+	 cargos_desglose_relacionar =  string_to_array(cargos_desglose,',');
+	 
+	 raise notice 'cargos a relacionar %',ids_cargos_relacionar;
+	 raise notice 'cargos desglose a relacionar %',cargos_desglose_relacionar;
+	 
+	fecha_current := getDate('');	
+	select * from co_alumno where id = id_alumno INTO alumno_record;		
+		
+	select * from co_balance_alumno where id = alumno_record.co_balance_alumno and eliminado = false 
+			INTO balance_record;
+	
+	raise notice 'pass 1';			
+	--IF balance_record is not null THEN
+	IF FOUND THEN				
+		fecha_current := ((getDate('')+getHora(''))::timestamp);							
+				INSERT INTO co_pago_balance_alumno(CO_BALANCE_ALUMNO,FECHA,PAGO,NOTA,CO_FORMA_PAGO,IDENTIFICADOR_FACTURA,GENERO)
+							VALUES(balance_record.ID,fecha_current,pago_param,nota,forma_pago_param,identificador_factura_param, id_genero) 
+				RETURNING id INTO id_pago_balance_alumno;
+									
+				raise notice 'id_pago_balance insertartado %',id_pago_balance_alumno;
+				raise notice 'pass 2';
+				---actualizar total balance alumno Agregar cargos								
+				UPDATE co_balance_alumno 
+					SET TOTAL_PAGOS = (TOTAL_PAGOS + pago_param),
+						TOTAL_ADEUDO = (TOTAL_ADEUDO - pago_param)				
+				where id = balance_record.id;		
+				
+			raise notice 'se registro el pago ';
+			raise notice 'relacionar ';
+			
+			FOR i IN 1 .. array_upper(ids_cargos_relacionar, 1)
+   			LOOP
+			  --co_pago_cargo_balance_alumno(fecha,co_pago_balance_alumno,co_cargo_balance_alumno,pago,genero)
+						
+      				RAISE NOTICE 'relacionando id_cargo % id_pago % cantidad %',ids_cargos_relacionar[i],id_pago_balance_alumno,cargos_desglose_relacionar[i];
+					EXECUTE sqlInsertRelacion 
+						USING fecha_current,
+								id_pago_balance_alumno,
+							    ids_cargos_relacionar[i],
+								cargos_desglose_relacionar[i],								
+								id_genero;		
+					raise notice 'guardado..';			
+					
+					--actualizar total en cargo
+					UPDATE co_cargo_balance_alumno
+					SET TOTAL_PAGADO = (TOTAL_PAGADO + cargos_desglose_relacionar[i]),
+						TOTAL = (TOTAL - cargos_desglose_relacionar[i]),
+						pagado = ((TOTAL - cargos_desglose_relacionar[i]) = 0)
+						--PAGADO = ( (TOTAL - cargos_desglose_relacionar[i]) = 0 ) 						
+					WHERE id = ids_cargos_relacionar[i];		
+					raise notice 'total actualizado..';									
+					
+   			END LOOP;
+			
+	ELSE
+		raise notice 'NO EXISTE EL BALANCE';
+	
+	END IF;		
+	raise notice 'id_pago_balance_alumno %',id_pago_balance_alumno;
+	
+	return (select id_pago_balance_alumno);
+END;
+$function$
+

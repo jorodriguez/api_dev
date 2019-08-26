@@ -20,14 +20,14 @@ const pool = new Pool({
 
 const mailOptions = {
     from: 'joel@magicintelligence.com',
-    cc: 'joel@magicintelligence.com'    
+    cc: 'joel@magicintelligence.com'
 };
 
-const transporter = nodemailer.createTransport({    
+const transporter = nodemailer.createTransport({
     host: 'mail.magicintelligence.com',
-    port: 465,    
-    secureConnection: true,    
-    auth: {        
+    port: 465,
+    secureConnection: true,
+    auth: {
         user: 'joel@magicintelligence.com',
         pass: 'Secreta.03'
     },
@@ -62,7 +62,8 @@ const enviarCorreoTest = (request, response) => {
 };
 
 
-const notificarReciboPago = (id_alumno, pago, nota, ids_cargos, cat_forma_pago, identificador_factura) => {
+const notificarReciboPago = (id_alumno,id_pago) => {
+    console.log("notificarReciboPago "+id_alumno+"    "+id_pago);
     //ir por alumno
     pool.query(
         `
@@ -70,7 +71,7 @@ const notificarReciboPago = (id_alumno, pago, nota, ids_cargos, cat_forma_pago, 
             a.nombre as nombre_alumno,		 
             string_agg(fam.nombre,' / ') AS nombres_padres,
             string_agg( fam.correo,',' ) AS correos,
-            string_agg(fam.token,' ')as tokens
+            string_agg(fam.token,' ') as tokens
         from co_alumno_familiar rel inner join co_familiar fam on rel.co_familiar = fam.id
                                     inner join co_parentesco parentesco on parentesco.id = rel.co_parentesco
                                     inner join co_alumno a on a.id = rel.co_alumno
@@ -86,45 +87,86 @@ const notificarReciboPago = (id_alumno, pago, nota, ids_cargos, cat_forma_pago, 
             if (results.rowCount > 0) {
                 //enviar a otro metord
                 let row = results.rows[0];
-                enviarReciboComplemento(row.correos, row.nombres_padres, row.nombre_alumno, pago, nota, ids_cargos, cat_forma_pago, identificador_factura);
+                enviarReciboComplemento(row.correos, row.nombres_padres,id_pago);
+            }else{
+                console.log("No se encontraron registros de padres para el alumno "+id_alumno);
             }
         });
 };
 
-function enviarReciboComplemento(lista_correos, nombres_padres, nombre_alumno, pago, nota, ids_cargos, cat_forma_pago, identificador_factura) {
+function enviarReciboComplemento(lista_correos, nombres_padres,id_pago) {
 
-    pool.query(
-        ` 
-            select	 	  
-              TO_CHAR(pago_cargo.fecha, 'dd-mm-yyyy') as fecha_cargo,               
-              cargo.cantidad,
-              cat_cargo.nombre as nombre_cargo,	  
-              cargo.nota,
-              cargo.pagado,
-              pago_cargo.pago, 
-              cargo.total,
-              cargo.total_pagado	  
-            from co_pago_cargo_balance_alumno pago_cargo inner join co_cargo_balance_alumno cargo on pago_cargo.co_cargo_balance_alumno = cargo.id
-                                    inner join cat_cargo on cargo.cat_cargo =cat_cargo.id
-            where cargo.id IN (`+ ids_cargos + ')',
+    pool.query(`        
+            WITH relacion_cargos AS (
+	            SELECT  cargo.id,
+			        rel.pago,
+			        cat.nombre as nombre_cargo,			
+			        cargo.pagado,
+			        cargo.nota as nota_cargo,
+			        cargo.cantidad,
+			        cargo.cargo,
+			        cargo.total,
+			        cargo.total_pagado			
+		        FROM co_pago_cargo_balance_alumno rel inner join co_cargo_balance_alumno cargo on rel.co_cargo_balance_alumno = cargo.id									
+												inner join cat_cargo cat on cat.id = cargo.cat_cargo												
+ 		        WHERE rel.co_pago_balance_alumno = $1 and cargo.eliminado = false
+            ) select pago.id,
+ 		            pago.pago,
+		            fpago.nombre as forma_pago,
+                    pago.identificador_factura,
+		            pago.fecha,
+		            grupo.nombre as nombre_grupo,
+		            al.nombre as nombre_alumno,
+		            al.apellidos as apellidos_alumno,
+		            suc.nombre as nombre_sucursal,
+		            suc.direccion as direccion_sucursal,		
+		            count(cargo.id) as count_cargos,		
+                    array_to_json(array_agg(to_json(cargo.*))) AS cargos
+                from co_pago_balance_alumno pago inner join co_pago_cargo_balance_alumno rel on pago.id = rel.co_pago_balance_alumno
+    								inner join relacion_cargos cargo on rel.co_cargo_balance_alumno = cargo.id
+									inner join co_forma_pago fpago on fpago.id = pago.co_forma_pago
+									inner join co_balance_alumno bal on pago.co_balance_alumno = bal.id
+									inner join co_alumno al on al.co_balance_alumno = bal.id
+									inner join co_grupo grupo on al.co_grupo = grupo.id
+									inner join co_sucursal suc on al.co_sucursal = suc.id									
+	            where pago.id = $2
+                group by pago.id,fpago.nombre,al.nombre,al.apellidos,grupo.nombre,suc.nombre,suc.direccion 
+          `,[id_pago,id_pago],
         (error, results) => {
             if (error) {
                 console.log("No se envio el correo del recibo");
                 return;
             }
             if (results.rowCount > 0) {
+
+                let row = results.rows[0];
+                console.log("Enviando correo a "+JSON.stringify(lista_correos));
+                //console.log("info "+JSON.stringify(row));
                 enviarCorreoReciboPago(
                     lista_correos,
                     "Recibo de pago ",
                     {
-                        titulo:"Magic Intelligence",
+                        titulo: "Magic Intelligence",
+                        nombre_empresa: "Magic Intelligence",
                         nombre_cliente: nombres_padres,
-                        nombre_alumno: nombre_alumno,
-                        fecha: new Date().toISOString().replace(/T/, ' ').replace(/\..+/, ''),
-                        monto: pago,
-                        folio_factura: identificador_factura ? identificador_factura : 'N/A',
-                        nota: nota,
-                        cargos: results.rows
+                        pago : {
+                                fecha: row.fecha,
+                                pago:row.pago,
+                                forma_pago:row.forma_pago,
+                                factura: row.identificador_factura,
+                                numero_cargos: row.count_cargos,
+                                cargos : row.cargos
+                            },
+                        alumno : {
+                            nombre : row.nombre_alumno,
+                            apellidos : row.apellidos,
+                            grupo : row.nombre_grupo
+                        },
+                        sucursal :{
+                            nombre: row.nombre_sucursal,
+                            direccion : row.direccion_sucursal
+                        },
+                        mensaje_pie :"Agradecemos "
                     });
             }
         });
@@ -137,7 +179,7 @@ const enviarCorreoReciboPago = (para, asunto, params) => {
 
     loadTemplateReciboPago(params)
         .then((renderHtml) => {
-            console.log("Dentro de la promesa resuelta");
+            
             if (renderHtml != null) {
 
                 const mailData = {
@@ -169,16 +211,8 @@ function loadTemplateReciboPago(param) {
     return new Promise((resolve, reject) => {
         try {
             console.log("loadTemplateReciboPago");
-            fs.readFile(path.resolve(__dirname, "../templates/recibo_pago.html"), 'utf8', (err, data) => {                
-                html = mustache.to_html(data, {
-                    titulo: param.titulo,
-                    nombre_cliente: param.nombre_cliente,
-                    nombre_alumno: param.nombre_alumno,
-                    fecha: param.fecha,
-                    monto: param.monto,
-                    folio_factura: param.folio_factura,
-                    cargos: param.cargos
-                });
+            fs.readFile(path.resolve(__dirname, "../templates/recibo_pago.html"), 'utf8', (err, data) => {
+                html = mustache.to_html(data, param);
                 resolve(html);
             });
         } catch (e) {
@@ -200,7 +234,7 @@ const enviarCorreoCambioSucursal = (para, asunto, params) => {
                 const mailData = {
                     from: mailOptions.from,
                     to: para,
-                    cc:mailOptions.cc,
+                    cc: mailOptions.cc,
                     subject: asunto,
                     html: renderHtml
                 };
@@ -236,7 +270,7 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
                 const mailData = {
                     from: mailOptions.from,
                     to: para,
-                    cc:mailOptions.cc,
+                    cc: mailOptions.cc,
                     subject: asunto,
                     html: renderHtml
                 };
@@ -263,11 +297,11 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
 function loadTemplateGenerico(params) {
     var html = null;
     //fixme : ir a la bd
-    params.nombre_empresa ="Magic Intelligence";
+    params.nombre_empresa = "Magic Intelligence";
     return new Promise((resolve, reject) => {
-        try {            
-            fs.readFile(path.resolve(__dirname, "../templates/generico.html"), 'utf8', (err, data) => {                
-                html = mustache.to_html(data,params);
+        try {
+            fs.readFile(path.resolve(__dirname, "../templates/generico.html"), 'utf8', (err, data) => {
+                html = mustache.to_html(data, params);
                 resolve(html);
             });
         } catch (e) {
@@ -282,5 +316,5 @@ module.exports = {
     enviarCorreoTest,
     enviarCorreoCambioSucursal,
     enviarCorreoClaveFamiliar
-    
+
 }

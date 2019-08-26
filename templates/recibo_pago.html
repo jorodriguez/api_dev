@@ -1,92 +1,196 @@
-<!DOCTYPE html>
-<html>
 
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ 
 <head>
-    <meta name="viewport" content="width=device-width">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>{{titulo}}</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>{{nombre_empresa}}</title>
+  <style type="text/css">
+  body {margin: 0; padding: 0; min-width: 100%!important;}
+  img {height: auto;}
+  .content {width: 100%; max-width: 600px;}
+  .header {padding: 10px 20px 10px 10px;}
+  .innerpadding {padding: 30px 30px 30px 30px;}
+  .borderbottom {border-bottom: 1px solid #f2eeed;}
+  .subhead {font-size: 15px; color: #ffffff; font-family: sans-serif; letter-spacing: 10px;}
+  .h1, .h2, .bodycopy {color: #153643; font-family: sans-serif;}
+  .h1 {font-size: 33px; line-height: 38px; font-weight: bold;}
+  .h2 {padding: 0 0 15px 0; font-size: 24px; line-height: 28px; font-weight: bold;}
+  .bodycopy {font-size: 16px; line-height: 22px;}
+  .button {text-align: center; font-size: 18px; font-family: sans-serif; font-weight: bold; padding: 0 30px 0 30px;}
+  .button a {color: #ffffff; text-decoration: none;}
+  .footer {padding: 20px 30px 15px 30px;}
+  .footercopy {font-family: sans-serif; font-size: 14px; color: #ffffff;}
+  .footercopy a {color: #ffffff; text-decoration: underline;}
+
+  @media only screen and (max-width: 550px), screen and (max-device-width: 550px) {
+  body[yahoo] .hide {display: none!important;}
+  body[yahoo] .buttonwrapper {background-color: transparent!important;}
+  body[yahoo] .button {padding: 0px!important;}
+  body[yahoo] .button a {background-color: #e05443; padding: 15px 15px 13px!important;}
+  body[yahoo] .unsubscribe {display: block; margin-top: 20px; padding: 10px 50px; background: #2f3942; border-radius: 5px; text-decoration: none!important; font-weight: bold;}
+  }
+
+  /*@media only screen and (min-device-width: 601px) {
+    .content {width: 600px !important;}
+    .col425 {width: 425px!important;}
+    .col380 {width: 380px!important;}
+    }*/
+
+  </style>
 </head>
 
-<body>
-    <table width="800px" style="align:center">
-        <tr valign="left">
-            <td>
-                <table width="100%" style="background-color:#5ACA99">
-                    <tr>
-                        <td>
-                            <img src="https://magicintelligence.com/wp-content/uploads/2018/05/Logo-Magic.png" />
-                        </td>
-                    </tr>
-                </table>
-                <br />
-                <br />
-
-                <h3><strong>Hola, {{nombre_cliente}}.</strong></h3>
-                <h4>Enviamos tu recibo de pago </h4>
-                <table width="70%" style="background-color:white">
-                    <tr>
-                        <td>Fecha</td>
-                        <td>{{fecha}}</td>
-                    </tr>
+<body yahoo bgcolor="#f6f8f1">
+<table width="100%" bgcolor="#f6f8f1" border="0" cellpadding="0" cellspacing="0">
+<tr>
+  <td>
+    <!--[if (gte mso 9)|(IE)]>
+      <table width="600" align="center" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td>
+    <![endif]-->     
+    <table bgcolor="#ffffff" class="content" align="center" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td bgcolor="#95D582" class="header">
+          <table width="40" align="left" border="0" cellpadding="0" cellspacing="0">  
+            <tr>
+              <td height="20" style="padding: 0 20px 20px 0;">
+                <img class="fix" src="https://magicintelligence.com/wp-content/uploads/2018/05/Logo-Magic.png" />
+                <!--<img class="fix" src="images/icon.gif" width="70" height="70" border="0" alt="" />-->
+              </td>
+            </tr>
+          </table>
+         
+        </td>
+      </tr>
+      <tr>
+        <td class="innerpadding borderbottom">
+          <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td class="h2">
+                Hola, {{nombre_cliente}}.
+              </td>
+            </tr>
+            <tr>
+              <td>
+              <h3>Recibo de pago </h3>
+              </td>
+            </tr>
+            <tr>
+              <td>
+              <h4>{{alumno.nombre}} {{alumno.apellidos}} <strong>{{alumno.grupo}}</strong> </h4>
+              </td>
+            </tr>
+            <tr>
+              <td class="bodycopy">
+               <table width="70%" style="background-color:white">                  
                     <tr>
                         <td>Forma de Pago</td>
-                        <td>{{forma_pago}}</td>
-                    </tr>
-                    <tr>
-                        <td>Factura</td>
-                        <td>{{folio_factura}}</td>
-                    </tr>
-                    <tr>
-                        <td>Monto</td>
-                        <td><strong>$ {{monto}}</strong></td>
-                    </tr>
+                        <td>{{pago.forma_pago}}</td>
+                    </tr>                 
+                   <tr>
+                        <td>Sucursal</td>
+                        <td>{{sucursal.nombre}}</td>
+                    </tr>                 
+                    <tr >                        
+                        <td></td>
+                        <td><small>{{sucursal.direccion}}</small></td>
+                    </tr>                                 
                 </table>
-                <hr />
-                <h4>Lista de cargos pagados de {{nombre_alumno}}</h4>                
-                <table width="100%" height="100px" style="background-color:white;">
-                    <tr>
-                        <th style="text-align:left">Fecha de cargo</th>
-                        <th>Concepto</th>
-                        <th>Adeuda</th>
-                        <th>Pagado</th>
+                                 
+                
+                  <!--[if (gte mso 9)|(IE)]>
+      <table width="600" align="center" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td>
+    <![endif]-->     
+                
+          <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>                        
+                        <th width="40%" >Descripción</th>
+                        <!--<th>Adeuda</th>-->
+                        <th width="30%" >Cant.</th>
+                        <th width="30%" >Precio</th>
+                        <th width="30%" style="text-align:center">Pagado</th>
                         <!--<th>Nota</th>-->
                     </tr>
                     <!-- {{#pagado}} PAGADO {{/pagado}}-->
-                    {{#cargos}}
-                    <tr style="text-align:center">
-                        <td style="text-align:left">{{fecha_cargo}}</td>
+                    {{#pago.cargos}}
+                    <tr style="text-align:center">                        
                         <td>{{nombre_cargo}}</td>
-                        <td>$ {{total}}</td>
-                        <td>$ {{total_pagado}}</td>
+                        <td>{{cantidad}}</td>
+                        <td>{{cargo}}</td>
+                        <td style="text-align:center">$ {{total_pagado}}</td>
                         <!--<td>{{nota}}</td>-->
                     </tr>
-                    {{/cargos}}
+                    {{/pago.cargos}}
                     <tr>
-                      <td colspan="3" style="text-align:right">
-                      
+                      <td colspan="2" style="text-align:right">                      
                        <strong>Total:</strong> 
                       </td>
                       <td style="text-align:center;background-color:#F7F7F7">
-                      <h4><strong> $ {{monto}}</strong> </h4> 
+                      <h4><strong> $ {{pago.pago}}</strong> </h4> 
                       </td>
                     </tr>
                 </table>
-                <br />
-                <br />
-                <br />
-                <br />
-                <hr />
-
-                <table width="100%" height="20px" style="background-color:#73ACFF">
-                    <tr align="center">
-                        <td>
-                            <a style="color:#F8D4FF;text-decoration: none" href="">{{titulo}}</a>
-                        </td>
-                    </tr>
-                </table>
-
-            </td>
+                 <!--[if (gte mso 9)|(IE)]>
+          </td>
         </tr>
     </table>
+    <![endif]-->
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>     
+      <tr>
+        <td class="innerpadding borderbottom">
+          {{mensaje_pie}}
+        </td>
+      </tr>     
+      <tr>
+      <!-- Color de tema  -->
+        <td class="footer" bgcolor="#95D582">
+          <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td align="center" class="footercopy">
+                &reg; {{nombre_empresa}}<br/>                
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding: 20px 0 0 0;">
+                <table border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td width="37" style="text-align: center; padding: 0 10px 0 10px;">
+                      <a href="http://www.facebook.com/">
+                        <img src="images/facebook.png" width="37" height="37" alt="Facebook" border="0" />
+                      </a>
+                    </td>
+                    <td width="37" style="text-align: center; padding: 0 10px 0 10px;">
+                      <a href="http://www.twitter.com/">
+                        <img src="images/twitter.png" width="37" height="37" alt="Twitter" border="0" />
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    <!--[if (gte mso 9)|(IE)]>
+          </td>
+        </tr>
+    </table>
+    <![endif]-->
+    </td>
+  </tr>
+</table>
+
+<!--analytics-->
+<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="http://tutsplus.github.io/github-analytics/ga-tracking.min.js"></script>
 </body>
 </html>
