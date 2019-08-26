@@ -7,6 +7,7 @@ const helperToken = require('../helpers/helperToken');
 const { isEmpty } = require('../helpers/Utils');
 const Joi = require('@hapi/joi');
 const mailService = require('../utils/MailService');
+const utilerias = require('./utilerias');
 
 var bcrypt = require('bcryptjs');
 
@@ -22,6 +23,8 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
+const ID_PADRE = 1;
+const ID_MADRE = 2;
 
 const crearFamiliar = (request, response) => {
     console.log("@create familiar autorizado");
@@ -36,38 +39,52 @@ const crearFamiliar = (request, response) => {
 
         const p = getParams(request.body);
 
-        console.log(JSON.stringify(p));
+        let esRegistroParaRelacionar = (p.id != null && p.id != -1 && p.id != 0);
 
-        if (p.id != null && p.id != -1 && p.id != 0) {
+        if (esRegistroParaRelacionar) {
             console.log("Relacionar alumno y familiar ");
-
             relacionarAlumnoFamilia(id_alumno, p.id, p.co_parentesco, p.genero).then((id_resolve) => {
-                enviarClaveFamiliar(id_familiar);
-                response.status(200).json(id_resolve);
+                //response.status(200).json(id_resolve);
+                response.status(200).json({ mensaje: "Familiar agregado.", estatus: true });
             }).catch((e) => {
                 console.log("Excepcion al crear familia " + e);
-                response.status(200).json(0);
+                response.status(200).json({ mensaje: "Error al guardar el familiar.", estatus: false });
             });
         } else {
 
             console.log("insertar  familiar");
 
-            createFamiliar(id_alumno, p, p.genero).then((id_familiar) => {
-                console.log(" creado familiar");
+            utilerias.findCorreoPadre(p.correo)
+                .then((encontrado) => {
+                    if ((p.co_parentesco == ID_MADRE || p.co_parentesco == ID_PADRE) && encontrado) {
+                        console.log("El correo ya se encuentra registrado con otro usuario.");
+                        response.status(200).json({ mensaje: "El correo ya se encuentra registrado con otro usuario.", estatus: false });
+                    } else {
 
-                relacionarAlumnoFamilia(id_alumno, id_familiar, p.co_parentesco, p.genero).then((id) => {
-                    //enviar correo
-                    enviarClaveFamiliar(id_familiar);
-                    response.status(200).json(id_familiar);
+                        console.log("iniciando el guardado del familiar ");
+                        createFamiliar(id_alumno, p, p.genero).then((id_familiar) => {
+                            console.log(" creado familiar");
+
+                            relacionarAlumnoFamilia(id_alumno, id_familiar, p.co_parentesco, p.genero).then((id) => {
+                                //enviar correo
+                                enviarClaveFamiliar(id_familiar);
+                                response.status(200).json({ mensaje: "Familiar agregado.", estatus: true });
+                            }).catch((e) => {
+                                console.log("Excepcion al crear familia " + e);
+                                //response.status(200).json(0);
+                                response.status(200).json({ mensaje: "Error al guardar el familiar.", estatus: false });
+                            });
+
+                        }).catch((e) => {
+                            console.log(" Error al tratar de guardar un familiar " + e);
+                            response.status(200).json({ mensaje: "Error al guardar el familiar.", estatus: false });
+                        });
+
+                    }
                 }).catch((e) => {
-                    console.log("Excepcion al crear familia " + e);
-                    response.status(200).json(0);
+                    console.log("Ocurrio un error al insertar al padre " + e);
+                    response.status(200).json({ mensaje: "Error al guardar el familiar.", estatus: false });
                 });
-
-            }).catch((e) => {
-                console.log(" Error al tratar de guardar un familiar " + e);
-                response.status(200).json(0);
-            });
         }
     } catch (e) {
 
@@ -105,7 +122,7 @@ const enviarClaveFamiliar = (id_familiar) => {
             `,
             (error, results) => {
                 if (results.rowCount > 0) {
-                    console.log(JSON.stringify( results.rows));
+                    console.log(JSON.stringify(results.rows));
                     let password = results.rows[0].password;
 
                     let hashedPassword = bcrypt.hashSync(password, 8);
@@ -160,16 +177,47 @@ const modificarFamiliar = (request, response) => {
 
         const p = getParams(request.body);
 
-        console.log("modificar familiar");
+        console.log("modificar familiar "+id_familiar+" correo "+p.correo);
 
-        updateFamiliar(id_familiar, p, p.genero).then((id) => {
-            console.log("Todo bien ");
-            response.status(200).json(id);
-        }).catch((e) => {
-            console.log(" Error al tratar de modificar un familiar " + e);
-            response.status(200).json(0);
-        });
+        //validar datos
+        pool
+            .query('SELECT * FROM co_familiar WHERE id = $1 AND correo= $2::text AND eliminado = false', [id_familiar, p.correo])
+            .then(res => {
+                console.log("RESSSS "+JSON.stringify(res.rows));
+                if (res != null && res.rowCount > 0) {
+                    //proceder al update sin validar correo
+                    updateFamiliar(id_familiar, p, p.genero).then((id) => {
+                        console.log("Todo bien ");
+                        response.status(200).json({ mensaje: "Se modificaron los datos.", estatus: true });
+                    }).catch((e) => {
+                        console.log(" Error al tratar de modificar un familiar " + e);
+                        response.status(200).json({ mensaje: "Ocurrió un error al modificar el registro.", estatus: false });
+                    });
+                } else {
+                    //cambio el correo del usuario validar que no este asignado a otro papa
+                    utilerias.findCorreoPadre(p.correo)
+                        .then((encontrado) => {
+                        
+                            console.log("ID:MADRE "+ID_MADRE+" ID_PADRE "+ID_PADRE);
 
+                            if ((p.co_parentesco == ID_MADRE || p.co_parentesco == ID_PADRE) && encontrado) {
+                                console.log("El correo ya se encuentra registrado con otro usuario.");
+                                response.status(200).json({ mensaje: "El correo ya se encuentra registrado con otro usuario.", estatus: false });
+                            } else {
+
+                                updateFamiliar(id_familiar, p, p.genero).then((id) => {
+                                    console.log("Todo bien ");
+                                    response.status(200).json({ mensaje: "Se modificaron los datos.", estatus: true });
+                                }).catch((e) => {
+                                    console.log(" Error al tratar de modificar un familiar " + e);
+                                    response.status(200).json({ mensaje: "Ocurrió un error al modificar el registro.", estatus: false });
+                                });
+                            }
+                        }).catch((e) => {
+                            response.status(200).json({ mensaje: "Ocurrió un error al modificar los datos del familiar.", estatus: false });
+                        });
+                }
+            }).catch(err => console.error('Error executing query', err.stack))
 
     } catch (e) {
 
@@ -525,6 +573,7 @@ const getFamiliareParaRelacionar = (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
+
 
 
 
