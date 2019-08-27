@@ -26,10 +26,10 @@ const mailOptions = {
 const transporter = nodemailer.createTransport({
     host: 'mail.magicintelligence.com',
     port: 465,
-    secureConnection: true,
+    secureConnection: false,
     auth: {
         user: 'joel@magicintelligence.com',
-        pass: 'Secreta.03'
+        pass: 'Secreta.03'        
     },
     tls: {
         ciphers: 'SSLv3'
@@ -37,9 +37,11 @@ const transporter = nodemailer.createTransport({
 });
 
 const enviarCorreoTest = (request, response) => {
+    console.log("Enviando correo de prueba ");
     const mailData = {
         from: mailOptions.from,
-        to: 'joel.rod.roj@hotmail.com',
+        //to: 'joel.rod.roj@hotmail.com',
+        to: 'joel@magicintelligence.com',
         subject: 'Test',
         html: "<h3>Test</h3>"
     };
@@ -48,6 +50,7 @@ const enviarCorreoTest = (request, response) => {
             if (error) {
                 console.log("Error al enviar correo : " + error);
             } else {
+                console.log(JSON.stringify(info));
                 console.log('Email sent: ' + info.response);
             }
         });
@@ -58,6 +61,7 @@ const enviarCorreoTest = (request, response) => {
         console.log("Enviado OK");
     } catch (e) {
         console.log("Error " + e);
+        transporter.close();
     }
 };
 
@@ -70,7 +74,8 @@ const notificarReciboPago = (id_alumno,id_pago) => {
         select 				
             a.nombre as nombre_alumno,		 
             string_agg(fam.nombre,' / ') AS nombres_padres,
-            string_agg( fam.correo,',' ) AS correos,
+            --string_agg( fam.correo,',' ) AS correos,--
+            array_to_json(array_agg(to_json(fam.correo))) AS correos, 
             string_agg(fam.token,' ') as tokens
         from co_alumno_familiar rel inner join co_familiar fam on rel.co_familiar = fam.id
                                     inner join co_parentesco parentesco on parentesco.id = rel.co_parentesco
@@ -114,7 +119,7 @@ function enviarReciboComplemento(lista_correos, nombres_padres,id_pago) {
  		            pago.pago,
 		            fpago.nombre as forma_pago,
                     pago.identificador_factura,
-		            pago.fecha,
+		            TO_CHAR(pago.fecha, 'dd-mm-yyyy') as fecha,
 		            grupo.nombre as nombre_grupo,
 		            al.nombre as nombre_alumno,
 		            al.apellidos as apellidos_alumno,
@@ -159,14 +164,14 @@ function enviarReciboComplemento(lista_correos, nombres_padres,id_pago) {
                             },
                         alumno : {
                             nombre : row.nombre_alumno,
-                            apellidos : row.apellidos,
+                            apellidos : row.apellidos_alumno,
                             grupo : row.nombre_grupo
                         },
                         sucursal :{
                             nombre: row.nombre_sucursal,
                             direccion : row.direccion_sucursal
                         },
-                        mensaje_pie :"Agradecemos "
+                        mensaje_pie :"Agradecemos tu confianza. Attentamente Magic Intelligence."
                     });
             }
         });
@@ -184,6 +189,7 @@ const enviarCorreoReciboPago = (para, asunto, params) => {
 
                 const mailData = {
                     from: mailOptions.from,
+                    cc :mailOptions.cc,
                     to: para,
                     subject: asunto,
                     html: renderHtml
@@ -193,6 +199,7 @@ const enviarCorreoReciboPago = (para, asunto, params) => {
                     if (error) {
                         console.log("Error al enviar correo : " + error);
                     } else {
+                        console.log(JSON.stringify(info));
                         console.log('Email sent: ' + info.response);
                     }
                 });
@@ -253,6 +260,7 @@ const enviarCorreoCambioSucursal = (para, asunto, params) => {
             }
         }).catch(e => {
             console.log("Excepción en el envio de correo : " + e);
+            transporter.close();
         });
 };
 

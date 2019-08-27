@@ -152,3 +152,16 @@ BEGIN
 END;
 $function$
 
+
+
+------
+ 
+  update co_sucursal set direccion = 'Mallorca 21, Roma, 64700 Monterrey, N.L.' where id = 1;
+  update co_sucursal set direccion = 'Gral. Jeronimo Treviño 613, Cabecera Municipal, Apodaca Centro, 66600 Cd Apodaca, N.L.' where id = 2;
+  update co_sucursal set direccion = 'La Silla, Paseo las Americas 2455, Contry, 67173 Guadalupe, N.L.' where id = 3;
+  
+  
+  
+  ---
+  insert into cat_cargo(nombre,descripcion,precio,notificar,es_facturable,sistema,genero)
+  values('Uniforme','Uniforme completo.',600,true,false,true,1);
