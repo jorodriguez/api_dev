@@ -30,11 +30,12 @@ const registrarCargo = (request, response) => {
         }
 
         const { id_alumno, cat_cargo, cantidad, nota, genero } = request.body;
-
+              
         console.log("=====>> " + JSON.stringify(request.body));
+        
         //select agregar_cargo_alumno(62, 2 ,1 ,'hhhhh' ,1);
         pool.query("select agregar_cargo_alumno($1,$2,$3,$4,$5);",
-            [id_alumno, cat_cargo, cantidad, nota, genero],
+            [id_alumno, cat_cargo.id, cantidad, nota, genero],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);

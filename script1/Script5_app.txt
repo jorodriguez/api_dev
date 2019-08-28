@@ -163,5 +163,118 @@ $function$
   
   
   ---
-  insert into cat_cargo(nombre,descripcion,precio,notificar,es_facturable,sistema,genero)
-  values('Uniforme','Uniforme completo.',600,true,false,true,1);
+ alter table cat_cargo add column escribir_cantidad boolean default false not null;
+  
+    insert into cat_cargo(nombre,descripcion,precio,notificar,es_facturable,sistema,escribir_cantidad,genero)
+  values('Uniforme','Uniforme completo.',600,true,false,true,true,1);
+  
+
+
+  -------------
+
+  
+CREATE OR REPLACE FUNCTION public.agregar_cargo_alumno(id_alumno integer, id_cargo integer, cantidad integer, nota text, id_genero integer)
+ RETURNS boolean
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+	alumno_record RECORD;
+	cargo_record RECORD;
+	balance_record co_balance_alumno%ROWTYPE;
+	fecha_current date;
+	fecha_inicio date;
+	cargo_monetario numeric;
+	fecha_fin date;	
+	_numero_anio int;
+	_numero_mes int;	
+	_nombre_mes text;	
+	CARGO_MENSUALIDAD int := 1;
+	CARGO_HORA_EXTRA int := 3;
+	suma_total numeric;
+	cargo_aplicar numeric := 0;
+	cantidad_aplicar integer := 1;
+	existe_registro boolean := false;
+	retorno boolean := false;
+    sqlerr_message_text TEXT;
+    sqlerr_exception_detail TEXT;
+    sqlerr_exception_hint TEXT;
+	id_balance_alumno integer;
+	existe_cargo boolean := false;
+	proceder_insert boolean := true;
+	sqlInsertDetalle TEXT := 'INSERT INTO co_cargo_balance_alumno(CO_BALANCE_ALUMNO,Cat_Cargo,FECHA,CANTIDAD,CARGO,TOTAL,NOTA,GENERO)
+							VALUES($1,$2,$3,$4,$5,$6,$7,$8)';								
+BEGIN    
+	raise notice 'AGREGAR CARGO';	
+	fecha_current := getDate('');
+		--balance alumno
+
+	select * from co_alumno where id = id_alumno INTO alumno_record;		
+		
+	select * from co_balance_alumno where id = alumno_record.co_balance_alumno and eliminado = false 
+			INTO balance_record;
+			
+	--IF balance_record is not null THEN
+	IF FOUND THEN
+		SELECT cargo.nombre,cargo.descripcion,cargo.precio
+		FROM cat_cargo cargo 
+		WHERE cargo.id = id_cargo
+		INTO cargo_record;		
+		
+		
+	
+		--aplicar cargo
+		IF id_cargo = CARGO_MENSUALIDAD THEN
+			raise notice 'Aplicando cargo de mensualidad ';											
+			cargo_aplicar := alumno_record.costo_colegiatura;					
+		ELSE 
+			IF id_cargo = CARGO_HORA_EXTRA THEN
+				-- validar si existe la hora
+				--select * from co_detalle_balance_alumno where cat_cargo = CARGO_HORA_EXTRA INTO 
+				raise notice 'Cargo por hora extra';
+					cargo_aplicar := cargo_record.precio;					
+			ELSE 
+				--Es un cargo de otra cosa
+				raise notice 'Cargo generico';				
+					cargo_aplicar := cargo_record.precio;
+			
+			END IF;				
+		END IF;
+		-- registrar detalle				
+		IF id_cargo = CARGO_MENSUALIDAD THEN
+			select true from co_cargo_balance_alumno where cat_cargo = CARGO_MENSUALIDAD AND co_balance_alumno = balance_record.id 
+			INTO existe_cargo;		
+			raise notice 'el cargo de mensualidad existe ? %',existe_cargo;
+			IF existe_cargo THEN
+				proceder_insert = false;
+			END IF;			
+		END IF;
+		
+		raise notice 'PROCEDER AL INSERRT %',proceder_insert;
+		
+		IF proceder_insert THEN 
+		
+				EXECUTE sqlInsertDetalle
+					USING balance_record.ID,
+							id_cargo,
+							(getDate('')+getHora(''))::timestamp,
+							cantidad,
+							cargo_aplicar,
+							(cargo_aplicar * cantidad),					
+							nota,
+							id_genero;						
+		
+				---actualizar total balance alumno Agregar cargos								
+				UPDATE CO_BALANCE_ALUMNO
+				SET TOTAL_CARGOS = (TOTAL_CARGOS + (cargo_aplicar * cantidad)),
+					TOTAL_ADEUDO = (TOTAL_ADEUDO + (cargo_aplicar * cantidad))				
+				where id = balance_record.id ;		
+		END IF;
+	
+	ELSE
+		raise notice 'NO EXISTE EL BALANCE';
+	
+	END IF;		
+	retorno := true;
+	return retorno;
+END;
+$function$

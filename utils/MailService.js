@@ -73,7 +73,7 @@ const notificarReciboPago = (id_alumno,id_pago) => {
         `
         select 				
             a.nombre as nombre_alumno,		 
-            string_agg(fam.nombre,' / ') AS nombres_padres,
+            string_agg(split_part(fam.nombre,' ',1),' / ') AS nombres_padres,
             --string_agg( fam.correo,',' ) AS correos,--
             array_to_json(array_agg(to_json(fam.correo))) AS correos, 
             string_agg(fam.token,' ') as tokens
@@ -149,7 +149,7 @@ function enviarReciboComplemento(lista_correos, nombres_padres,id_pago) {
                 //console.log("info "+JSON.stringify(row));
                 enviarCorreoReciboPago(
                     lista_correos,
-                    "Recibo de pago ",
+                    "Recibo de pago ✔",
                     {
                         titulo: "Magic Intelligence",
                         nombre_empresa: "Magic Intelligence",
@@ -171,7 +171,7 @@ function enviarReciboComplemento(lista_correos, nombres_padres,id_pago) {
                             nombre: row.nombre_sucursal,
                             direccion : row.direccion_sucursal
                         },
-                        mensaje_pie :"Agradecemos tu confianza. Attentamente Magic Intelligence."
+                        mensaje_pie :"Agradecemos tu confianza. <br/> Attentamente Magic Intelligence."
                     });
             }
         });
