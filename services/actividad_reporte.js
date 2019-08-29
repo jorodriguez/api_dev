@@ -23,7 +23,7 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
         var respuesta = helperToken.validarToken(request);
 
         if (!respuesta.tokenValido) {
-            return response.status(respuesta.status).send(respuesta);
+            return response.status(respuesta.statusNumber).send(respuesta);
         }
 
         const id_familiar = request.params.id_familiar;
@@ -57,7 +57,7 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
                     return;
                 }                
                 respuesta.respuesta = results.rows;
-                response.status(200).json(respuesta);
+                response.status(respuesta.statusNumber).json(respuesta);
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -68,12 +68,11 @@ const getCargosAlumnosFamiliar = (request, response) => {
     console.log("@getCargosFamiliarAlumnos");
     try {
 
-        var validacion = helperToken.validarToken(request);
+        var respuesta = helperToken.validarToken(request);
 
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        if (!respuesta.tokenValido) {
+            return response.status(respuesta.statusNumber).send(respuesta);
         }
-
 
         var id_familiar = request.params.id_familiar;
 
@@ -114,8 +113,9 @@ const getCargosAlumnosFamiliar = (request, response) => {
                 }
 
                 console.log("====> " + JSON.stringify(results.rows));
-
-                response.status(200).json(results.rows);
+                respuesta.respuesta = results.rows;
+                response.status(respuesta.statusNumber).json(respuesta);
+                //response.status(200).json(results.rows);
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -127,12 +127,11 @@ const getCargosPagadosAlumnosFamiliar = (request, response) => {
     console.log("@getCargosPagadosAlumnosFamiliar");
     try {
 
-        var validacion = helperToken.validarToken(request);
+        var respuesta = helperToken.validarToken(request);
 
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        if (!respuesta.tokenValido) {
+            return response.status(respuesta.statusNumber).send(respuesta);
         }
-
 
         var id_familiar = request.params.id_familiar;
 
@@ -173,7 +172,9 @@ const getCargosPagadosAlumnosFamiliar = (request, response) => {
 
                 console.log("====> " + JSON.stringify(results.rows));
 
-                response.status(200).json(results.rows);
+                //response.status(200).json(results.rows);
+                respuesta.respuesta = results.rows;
+                response.status(respuesta.statusNumber).json(respuesta);
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -229,11 +230,12 @@ const getBalanceFamiliarAlumnos = (request, response) => {
 const getBalanceFamiliarAlumnos = (request, response) => {
     console.log("@getBalanceFamiliarAlumnos");
     try {
-        var validacion = helperToken.validarToken(request);
+        var respuesta = helperToken.validarToken(request);
 
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        if (!respuesta.tokenValido) {
+            return response.status(respuesta.statusNumber).send(respuesta);
         }
+
         var id_familiar = request.params.id_familiar;
 
         pool.query(
@@ -286,12 +288,16 @@ const getBalanceFamiliarAlumnos = (request, response) => {
 
                     //let balance_alumno = results.rows[0];
 
-                    response.status(200).json(results.rows);
+                    //response.status(200).json(results.rows);
+                    respuesta.respuesta = results.rows;
+                    response.status(respuesta.statusNumber).json(respuesta);
 
                 } else {
                     console.log("No existe balance para el alumno " + id_alumno);
 
-                    response.status(200).json({});
+                    //response.status(200).json({});
+                    respuesta.respuesta = [];
+                    response.status(respuesta.statusNumber).json(respuesta);
                 }
 
                 //response.status(200).json(results.rows);
@@ -304,10 +310,10 @@ const getBalanceFamiliarAlumnos = (request, response) => {
 const updateTokenMensajeriaFamiliar = (request, response) => {
     console.log("@updateTokenMensajeriaFamiliar");
     try {
-        var validacion = helperToken.validarToken(request);
+         var respuesta = helperToken.validarToken(request);
 
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        if (!respuesta.tokenValido) {
+            return response.status(respuesta.statusNumber).send(respuesta);
         }
 
         var id_familiar = request.params.id_familiar;
@@ -328,7 +334,10 @@ const updateTokenMensajeriaFamiliar = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
-                response.status(200).send({ operacion: true });
+                respuesta.respuesta = true;
+                response.status(respuesta.statusNumber).json(respuesta);
+
+                //response.status(200).send({ operacion: true });
             });
 
     } catch (e) {
@@ -341,10 +350,10 @@ const updateTokenMensajeriaFamiliar = (request, response) => {
 const updateDatosFamiliar = (request, response) => {
     console.log("@updateDatosFamilia");
     try {
-        var validacion = helperToken.validarToken(request);
+        var respuesta = helperToken.validarToken(request);
 
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        if (!respuesta.tokenValido) {
+            return response.status(respuesta.statusNumber).send(respuesta);
         }
 
         var id_familiar = request.params.id_familiar;
@@ -376,7 +385,9 @@ const updateDatosFamiliar = (request, response) => {
                     return;
                 }
                 console.log("Se actualizaron los datos del familiar");
-                response.status(200).send(id_familiar);
+                //response.status(200).send(id_familiar);
+                respuesta.respuesta = id_familiar;
+                response.status(respuesta.statusNumber).json(respuesta);
             });
 
     } catch (e) {
