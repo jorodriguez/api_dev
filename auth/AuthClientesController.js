@@ -70,7 +70,8 @@ const loginCliente = (request, response) => {
                         if (!passwordIsValid) return response.status(401).send({ auth: false, token: null, usuario: null, mensaje: "Usuario no encontrado." });
 
                         var token = jwt.sign({ id: results.id }, config.secret, {
-                            expiresIn: 86400 // expires in 24 hours
+                            //expiresIn: 86400 // expires in 24 hours
+                            expiresIn: 60 // expires in 24 hours
                         });
 
                         response.status(200).send({ auth: true, token: token, usuario: usuario });
