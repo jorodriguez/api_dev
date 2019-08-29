@@ -54,8 +54,7 @@ const loginCliente = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
-
-                console.log(JSON.stringify(results));
+             
 
                 if (results.rowCount > 0) {
 
@@ -64,11 +63,12 @@ const loginCliente = (request, response) => {
                     if (usuario.password != null && usuario.password != undefined && usuario.password != '') {
 
                         console.log("usuario login movil " + JSON.stringify(usuario));
+                        console.log("pass "+password+" usuario en bd "+usuario.password);
 
                         var passwordIsValid = bcrypt.compareSync(password, usuario.password);
 
                         if (!passwordIsValid) return response.status(401).send({ auth: false, token: null, usuario: null, mensaje: "Usuario no encontrado." });
-
+                        console.log("No coinciden las claves");
                         var token = jwt.sign({ id: results.id }, config.secret, {
                             //expiresIn: 86400 // expires in 24 hours
                             expiresIn: 60 // expires in 24 hours
