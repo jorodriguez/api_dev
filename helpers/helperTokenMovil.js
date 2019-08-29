@@ -9,9 +9,9 @@ const failedAuthenticateToken = { auth: false, message: 'Failed to authenticate 
 const validarToken = (request) => {
     console.log("validar token movil");
     try {
-        const respuestaNoToken = { tokenValido: false, status: 401, mensajeRetorno: noTokenProvider ,respuesta:null};
-        const respuestaFail = { tokenValido: false, status: 401,tokenExpired : false, mensajeRetorno: failedAuthenticateToken ,respuesta:null};
-        const respuestaOk = { tokenValido: true, status: 200, mensajeRetorno: {} , respuesta:null};      
+        const respuestaNoToken = { tokenValido: false, estatus:false, statusNumber: 401, mensajeRetorno: noTokenProvider ,respuesta:null};
+        const respuestaFail = { tokenValido: false,estatus:false, statusNumber: 401,tokenExpired : false, mensajeRetorno: failedAuthenticateToken ,respuesta:null};
+        const respuestaOk = { tokenValido: true,estatus:true, statusNumber: 200, mensajeRetorno: {} , respuesta:null};      
         var token = request.headers['x-access-token'];                
         
         token = token.replace("Token ",'');
