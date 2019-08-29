@@ -10,8 +10,8 @@ const validarToken = (request) => {
     console.log("validar token movil");
     try {
         const respuestaNoToken = { tokenValido: false, estatus:false, statusNumber: 401, mensajeRetorno: noTokenProvider ,respuesta:null};
-        const respuestaFail = { tokenValido: false,estatus:false, statusNumber: 401,tokenExpired : false, mensajeRetorno: failedAuthenticateToken ,respuesta:null};
-        const respuestaOk = { tokenValido: true,estatus:true, statusNumber: 200, mensajeRetorno: {} , respuesta:null};      
+        const respuestaFail = { tokenValido: false,estatus:false, statusNumber: 401,tokenExpirado : false, mensajeRetorno: failedAuthenticateToken ,respuesta:null};
+        const respuestaOk = { tokenValido: true,estatus:true,tokenExpirado:false, statusNumber: 200, mensajeRetorno: {} , respuesta:null};      
         var token = request.headers['x-access-token'];                
         
         token = token.replace("Token ",'');
@@ -30,11 +30,11 @@ const validarToken = (request) => {
                 
                 respuestaFail.mensajeRetorno.message = err;
                 
-                respuestaFail.tokenExpired = (err.name == 'TokenExpiredError');
+                respuestaFail.tokenExpirado = (err.name == 'TokenExpiredError');
                 
                 console.log("x x x x x respuestaFail "+respuestaFail.mensajeRetorno.message+" x x x x x x ");                
 
-                console.log("token expirado = "+respuestaFail.tokenExpired);
+                console.log("token expirado = "+respuestaFail.tokenExpirado);
                 
                 console.log(""+err);                
                 respuesta = respuestaFail;                
