@@ -68,7 +68,7 @@ const loginCliente = (request, response) => {
                         var passwordIsValid = bcrypt.compareSync(password, usuario.password);
 
                         if (!passwordIsValid) return response.status(401).send({ auth: false, token: null, usuario: null, mensaje: "Usuario no encontrado." });
-                        console.log("No coinciden las claves");
+                        console.log("passwordIsValid "+passwordIsValid);
                         var token = jwt.sign({ id: results.id }, config.secret, {
                             //expiresIn: 86400 // expires in 24 hours
                             expiresIn: 60 // expires in 24 hours
