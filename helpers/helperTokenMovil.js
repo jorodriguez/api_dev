@@ -45,7 +45,7 @@ const validarToken = (request) => {
         //console.log("TERMINO VALIDACION TOKEN");
         return respuesta;        
     } catch (e) {
-        console.log("Algun error al validar el token");
+        console.log("Algun error al validar el token "+e);
         return { tokenValido: false, status: 200, mensajeRetorno: {name:"Error inesperado"} };
     }
 };
