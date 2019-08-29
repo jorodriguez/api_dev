@@ -40,7 +40,8 @@ const createUser = (request, response) => {
             }
             // create a token
             var token = jwt.sign({ id: results.id }, config.secret, {
-                expiresIn: 86400 // expires in 24 hours
+                expiresIn: 86400 // expires in 24 hours                
+                //expiresIn :'30d'
             });
 
             response.status(200).send({ auth: true, token: token });
@@ -87,7 +88,8 @@ const login = (request, response) => {
                     if (!passwordIsValid) return response.status(401).send({ auth: false, token: null, usuario: null });
 
                     var token = jwt.sign({ id: results.id }, config.secret, {
-                        expiresIn: 86400 // expires in 24 hours
+                       // expiresIn: 86400 // expires in 24 hours
+                       expiresIn : 10
                     });
 
                     response.status(200).send({ auth: true, token: token, usuario: usuario });

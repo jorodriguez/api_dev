@@ -10,12 +10,12 @@ const validarToken = (request) => {
     console.log("validar token movil");
     try {
         const respuestaNoToken = { tokenValido: false, status: 401, mensajeRetorno: noTokenProvider };
-        const respuestaFail = { tokenValido: false, status: 401, mensajeRetorno: failedAuthenticateToken };
+        const respuestaFail = { tokenValido: false, status: 401,tokenExpired : false, mensajeRetorno: failedAuthenticateToken };
         const respuestaOk = { tokenValido: true, status: 200, mensajeRetorno: {} };      
-        var token = request.headers['x-access-token'];        
-        console.log("Antes : "+token);
+        var token = request.headers['x-access-token'];                
+        
         token = token.replace("Token ",'');
-        console.log("Despues : "+token);
+        
         if (!token) {
             console.log(" x x x x x respuestaNoToken x x x x x");
             return respuestaNoToken;
@@ -26,7 +26,16 @@ const validarToken = (request) => {
         jwt.verify(token, config.secret, function (err, decoded) {
             console.log("Validando token con store "+token);
             if (err) {
+                console.log("ERROR "+JSON.stringify(err));
+                
+                respuestaFail.failedAuthenticateToken.message = err;
+                
+                respuestaFail.failedAuthenticateToken.tokenExpired = (err.name == 'TokenExpiredError');
+                
                 console.log("x x x x x respuestaFail "+respuestaFail.mensajeRetorno.message+" x x x x x x ");                
+
+                console.log("token expirado = "+respuestaFail.failedAuthenticateToken.tokenExpired);
+                
                 console.log(""+err);                
                 respuesta = respuestaFail;                
             }else{
@@ -37,7 +46,7 @@ const validarToken = (request) => {
         return respuesta;        
     } catch (e) {
         console.log("Algun error al validar el token");
-        return { tokenValido: false, status: 200, mensajeRetorno: {} }
+        return { tokenValido: false, status: 200, mensajeRetorno: {name:"Error inesperado"} };
     }
 };
 
