@@ -28,13 +28,13 @@ const validarToken = (request) => {
             if (err) {
                 console.log("ERROR "+JSON.stringify(err));
                 
-                respuestaFail.failedAuthenticateToken.message = err;
+                respuestaFail.mensajeRetorno.message = err;
                 
-                respuestaFail.failedAuthenticateToken.tokenExpired = (err.name == 'TokenExpiredError');
+                respuestaFail.tokenExpired = (err.name == 'TokenExpiredError');
                 
                 console.log("x x x x x respuestaFail "+respuestaFail.mensajeRetorno.message+" x x x x x x ");                
 
-                console.log("token expirado = "+respuestaFail.failedAuthenticateToken.tokenExpired);
+                console.log("token expirado = "+respuestaFail.tokenExpired);
                 
                 console.log(""+err);                
                 respuesta = respuestaFail;                
