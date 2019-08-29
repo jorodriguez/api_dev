@@ -20,10 +20,10 @@ const pool = new Pool({
 const getActividadesRelacionadosFamiliar = (request, response) => {
     console.log("@getActividadesPorAlumno");
     try {
-        var validacion = helperToken.validarToken(request);
+        var respuesta = helperToken.validarToken(request);
 
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        if (!respuesta.tokenValido) {
+            return response.status(respuesta.status).send(respuesta);
         }
 
         const id_familiar = request.params.id_familiar;
@@ -55,8 +55,9 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
-                }
-                response.status(200).json(results.rows);
+                }                
+                respuesta.respuesta = results.rows;
+                response.status(200).json(respuesta);
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
