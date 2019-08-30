@@ -575,9 +575,6 @@ const getFamiliareParaRelacionar = (request, response) => {
 };
 
 
-
-
-
 const getParams = (body) => {
     const parametros = {
         nombre,
