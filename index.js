@@ -204,11 +204,11 @@ app.get('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes',reporteDeudas.g
 
 
 app.get('/', (request, response) => {
-	response.json({ info: 'MagicIntelligence API v1.0.13' })
+	response.json({ info: 'MagicIntelligence API v1.0.15' })
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.12`)
+	console.log(`App corriendo en el puerto ${port} v1.0.15`)
 });
 
 //app.get('/encriptar/:clave', authController.encriptar);
