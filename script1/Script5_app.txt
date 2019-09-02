@@ -37,7 +37,7 @@ CREATE TABLE random_pass
         REFERENCES public.usuario (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
-)
+);
 
 
 insert into random_pass(pass,genero)
@@ -239,10 +239,17 @@ BEGIN
 			
 			END IF;				
 		END IF;
+		
+		--select to_char(getDate(''),'MMYYYY')
+		
 		-- registrar detalle				
 		IF id_cargo = CARGO_MENSUALIDAD THEN
-			select true from co_cargo_balance_alumno where cat_cargo = CARGO_MENSUALIDAD AND co_balance_alumno = balance_record.id 
+			select true 
+				from co_cargo_balance_alumno 
+				where cat_cargo = CARGO_MENSUALIDAD AND co_balance_alumno = balance_record.id
+													AND to_char(fecha::date,'MMYYYY') = to_char(getDate(''),'MMYYYY')
 			INTO existe_cargo;		
+			
 			raise notice 'el cargo de mensualidad existe ? %',existe_cargo;
 			IF existe_cargo THEN
 				proceder_insert = false;
@@ -267,7 +274,7 @@ BEGIN
 				UPDATE CO_BALANCE_ALUMNO
 				SET TOTAL_CARGOS = (TOTAL_CARGOS + (cargo_aplicar * cantidad)),
 					TOTAL_ADEUDO = (TOTAL_ADEUDO + (cargo_aplicar * cantidad))				
-				where id = balance_record.id ;		
+				where id = balance_record.id ;
 		END IF;
 	
 	ELSE
