@@ -171,7 +171,8 @@ function enviarReciboComplemento(lista_correos, nombres_padres,id_pago) {
                             nombre: row.nombre_sucursal,
                             direccion : row.direccion_sucursal
                         },
-                        mensaje_pie :"Agradecemos tu confianza. <br/> Attentamente Magic Intelligence."
+                        mensaje_pie :"Agradecemos tu confianza. <br/> Atentamente Magic Intelligence."
+                        
                     });
             }
         });
