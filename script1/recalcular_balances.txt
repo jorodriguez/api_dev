@@ -1,0 +1,47 @@
+
+
+--CREATE or replace FUNCTION registrar_cargo_mensualidad_alumnos() RETURNS VOID AS $$
+do
+$$
+DECLARE 
+	alumno_loop RECORD;
+	id_cat_cargo integer := 1;
+	nota_cargo text := 'CARGO AUTOMÁTICO DE MENSUALIDAD ';
+	cantidad integer := 1;
+	id_genero integer :=1;
+	nombre_mes text := '';
+	total_pagos numeric := 0;
+	total_pagos_rel numeric := 0;
+	total_cargos_suma numeric := 0;
+BEGIN  
+
+	raise notice 'recalculando balances.';
+
+		FOR alumno_loop IN ( 
+			select * from co_alumno where eliminado = false
+		) LOOP 
+			raise notice 'recalculando balancel , alumno % balance % suc % ',alumno_loop.nombre,alumno_loop.co_balance_alumno,alumno_loop.co_sucursal;		
+			
+					
+			select sum(total) from co_cargo_balance_alumno 
+					where co_balance_alumno =  alumno_loop.co_balance_alumno and eliminado = false
+					INTO total_cargos_suma;
+			
+			/*select sum(pago) from co_pago_cargo_balance_alumno 
+			where co_pago_balance_alumno IN 
+				(select id from co_pago_balance_alumno where co_balance_alumno = alumno_loop.co_balance_alumno and eliminado = false)
+			INTO total_pagos_rel;
+									*/
+			raise notice 'total cargos % total pagos % ',total_cargos_suma,total_pagos;
+			
+			--select * from co_balance_alumno 			
+			
+			update  co_balance_alumno 			
+			SET total_adeudo = total_cargos_suma,			
+				total_cargos = total_cargos_suma
+			where id = alumno_loop.co_balance_alumno;			
+		END LOOP; 	
+END;
+$$ 
+LANGUAGE 'plpgsql';
+

@@ -181,51 +181,6 @@ const getCargosPagadosAlumnosFamiliar = (request, response) => {
     }
 };
 
-/*
-const getBalanceFamiliarAlumnos = (request, response) => {
-    console.log("@getBalanceFamiliarAlumnos");
-    try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-        var id_familiar = request.params.id_familiar;
-
-        pool.query(
-            `
-             SELECT al.nombre as nombre_alumno,al.apellidos as apellidos_alumno, bal.* 
-             FROM co_alumno al inner join  co_balance_alumno bal on al.co_balance_alumno = bal.id and bal.eliminado = false
-             WHERE al.id IN 
-                        (select co_alumno from co_alumno_familiar where co_familiar = $1 and eliminado = false)
-                and al.eliminado = false `,
-            [id_familiar],
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-
-                if (results.rowCount > 0) {
-
-                    //let balance_alumno = results.rows[0];
-
-                    response.status(200).json(results.rows);
-
-                } else {
-                    console.log("No existe balance para el alumno " + id_alumno);
-
-                    response.status(200).json({});
-                }
-
-                //response.status(200).json(results.rows);
-            });
-    } catch (e) {
-        handle.callbackErrorNoControlado(e, response);
-    }
-};
-*/
-
 
 const getBalanceFamiliarAlumnos = (request, response) => {
     console.log("@getBalanceFamiliarAlumnos");

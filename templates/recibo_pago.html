@@ -71,18 +71,18 @@
                    
             <tr>
               <td class="h2">
-               <strong>Hola {{nombre_cliente}}.</strong>
+               <strong>Hola {{nombre_cliente}},</strong>
               </td>
             </tr>
             <tr>
               <td class="h2">
-              <small> Enviamos el detalle de su pago.</small>
+              <small> Enviamos el detalle de tu recibo de pago.</small>
               </td>
             </tr>
             <tr>
               <td class="h2">              
               <small>
-               ☺{{alumno.nombre}} <strong>{{alumno.grupo}}</strong>               
+               ☺ {{alumno.nombre}} - {{alumno.grupo}} 
                 </small>
               </td>
             </tr>
@@ -120,8 +120,8 @@
                         <th style="border-bottom:1pt solid #57A8B6;" width="40%" >Descripción</th>
                         <!--<th>Adeuda</th>-->
                         <th style="border-bottom:1pt solid #57A8B6;" width="30%" >Cant.</th>
-                        <th style="border-bottom:1pt solid #57A8B6;" width="30%" >Precio</th>
-                        <th style="border-bottom:1pt solid #57A8B6;" width="30%" style="text-align:center">Pagado</th>
+                        <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="30%" align="right">Precio</th>
+                        <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="30%" align="right">Pagado</th>
                         <!--<th>Nota</th>-->
                     </tr>
                     <!-- {{#pagado}} PAGADO {{/pagado}}-->
@@ -129,8 +129,8 @@
                     <tr style="text-align:center">                        
                         <td style="border-bottom:1pt solid #57A8B6;">{{nombre_cargo}}</td>
                         <td style="border-bottom:1pt solid #57A8B6;">{{cantidad}}</td>
-                        <td style="border-bottom:1pt solid #57A8B6;">${{cargo}}</td>
-                        <td style="border-bottom:2pt solid #57A8B6;text-align:center">${{total_pagado}}</td>
+                        <td style="border-bottom:1pt solid #57A8B6;text-align:right" align="right">${{cargo}}</td>
+                        <td style="border-bottom:2pt solid #57A8B6;text-align:right" align="right">${{total_pagado}}</td>
                         <!--<td>{{nota}}</td>-->
                     </tr>
                     {{/pago.cargos}}
@@ -138,7 +138,7 @@
                       <td colspan="3" style="text-align:right">                      
                        <strong>Total:</strong> 
                       </td>
-                      <td style="border-bottom:2pt solid #57A8B6;text-align:center;background-color:#F7F7F7">
+                      <td style="border-bottom:2pt solid #57A8B6;text-align:right;background-color:#F7F7F7" align="right">
                       <h4><strong> ${{pago.pago}}</strong> </h4> 
                       </td>
                     </tr>
