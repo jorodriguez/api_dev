@@ -29,7 +29,7 @@ const transporter = nodemailer.createTransport({
     secureConnection: false,
     auth: {
         user: 'joel@magicintelligence.com',
-        pass: 'Secreta.03'        
+        pass: 'Secreta.03'
     },
     tls: {
         ciphers: 'SSLv3'
@@ -66,8 +66,8 @@ const enviarCorreoTest = (request, response) => {
 };
 
 
-const notificarReciboPago = (id_alumno,id_pago) => {
-    console.log("notificarReciboPago "+id_alumno+"    "+id_pago);
+const notificarReciboPago = (id_alumno, id_pago) => {
+    console.log("notificarReciboPago " + id_alumno + "    " + id_pago);
     //ir por alumno
     pool.query(
         `
@@ -92,14 +92,14 @@ const notificarReciboPago = (id_alumno,id_pago) => {
             if (results.rowCount > 0) {
                 //enviar a otro metord
                 let row = results.rows[0];
-                enviarReciboComplemento(row.correos, row.nombres_padres,id_pago);
-            }else{
-                console.log("No se encontraron registros de padres para el alumno "+id_alumno);
+                enviarReciboComplemento(row.correos, row.nombres_padres, id_pago);
+            } else {
+                console.log("No se encontraron registros de padres para el alumno " + id_alumno);
             }
         });
 };
 
-function enviarReciboComplemento(lista_correos, nombres_padres,id_pago) {
+function enviarReciboComplemento(lista_correos, nombres_padres, id_pago) {
 
     pool.query(`        
             WITH relacion_cargos AS (
@@ -136,7 +136,7 @@ function enviarReciboComplemento(lista_correos, nombres_padres,id_pago) {
 									inner join co_sucursal suc on al.co_sucursal = suc.id									
 	            where pago.id = $2
                 group by pago.id,fpago.nombre,al.nombre,al.apellidos,grupo.nombre,suc.nombre,suc.direccion 
-          `,[id_pago,id_pago],
+          `, [id_pago, id_pago],
         (error, results) => {
             if (error) {
                 console.log("No se envio el correo del recibo");
@@ -145,7 +145,7 @@ function enviarReciboComplemento(lista_correos, nombres_padres,id_pago) {
             if (results.rowCount > 0) {
 
                 let row = results.rows[0];
-                console.log("Enviando correo a "+JSON.stringify(lista_correos));
+                console.log("Enviando correo a " + JSON.stringify(lista_correos));
                 //console.log("info "+JSON.stringify(row));
                 enviarCorreoReciboPago(
                     lista_correos,
@@ -154,25 +154,25 @@ function enviarReciboComplemento(lista_correos, nombres_padres,id_pago) {
                         titulo: "Magic Intelligence",
                         nombre_empresa: "Magic Intelligence",
                         nombre_cliente: nombres_padres,
-                        pago : {
-                                fecha: row.fecha,
-                                pago:row.pago,
-                                forma_pago:row.forma_pago,
-                                factura: row.identificador_factura,
-                                numero_cargos: row.count_cargos,
-                                cargos : row.cargos
-                            },
-                        alumno : {
-                            nombre : row.nombre_alumno,
-                            apellidos : row.apellidos_alumno,
-                            grupo : row.nombre_grupo
+                        pago: {
+                            fecha: row.fecha,
+                            pago: row.pago,
+                            forma_pago: row.forma_pago,
+                            factura: row.identificador_factura,
+                            numero_cargos: row.count_cargos,
+                            cargos: row.cargos
                         },
-                        sucursal :{
+                        alumno: {
+                            nombre: row.nombre_alumno,
+                            apellidos: row.apellidos_alumno,
+                            grupo: row.nombre_grupo
+                        },
+                        sucursal: {
                             nombre: row.nombre_sucursal,
-                            direccion : row.direccion_sucursal
+                            direccion: row.direccion_sucursal
                         },
-                        mensaje_pie :"Agradecemos tu confianza. <br/> Atentamente Magic Intelligence."
-                        
+                        mensaje_pie: "Agradecemos tu confianza. <br/> Atentamente Magic Intelligence."
+
                     });
             }
         });
@@ -185,12 +185,12 @@ const enviarCorreoReciboPago = (para, asunto, params) => {
 
     loadTemplateReciboPago(params)
         .then((renderHtml) => {
-            
+
             if (renderHtml != null) {
 
                 const mailData = {
                     from: mailOptions.from,
-                    cc :mailOptions.cc,
+                    cc: mailOptions.cc,
                     to: para,
                     subject: asunto,
                     html: renderHtml
@@ -271,32 +271,46 @@ const enviarCorreoCambioSucursal = (para, asunto, params) => {
 const enviarCorreoClaveFamiliar = (para, asunto, params) => {
     console.log("@enviarCorreoClaveFamiliar");
 
-    loadTemplateGenerico(params)
-        .then((renderHtml) => {
-            console.log("Dentro d");
-            if (renderHtml != null) {
-
-                const mailData = {
-                    from: mailOptions.from,
-                    to: para,
-                    cc: mailOptions.cc,
-                    subject: asunto,
-                    html: renderHtml
-                };
-
-                transporter.sendMail(mailData, function (error, info) {
-                    if (error) {
-                        console.log("Error al enviar correo : " + error);
-                    } else {
-                        console.log('Email sent: ' + info.response);
-                    }
-                });
-
-                transporter.close();
-            } else {
-                console.log("No se envio el correo");
+    pool
+        .query('select link_descarga_app_android from configuracion limit 1')
+        .then(res => {
+            let row;
+            if(res.rowCount > 0 ){
+               row = res.rows[0];  
             }
-        }).catch(e => {
+            params.url_descarga_app = row.link_descarga_app_android;
+            
+            console.log(JSON.stringify(row));
+
+            loadTemplateGenerico(params)
+                .then((renderHtml) => {
+                    console.log("Dentro d");
+                    if (renderHtml != null) {
+
+                        const mailData = {
+                            from: mailOptions.from,
+                            to: para,
+                            cc: mailOptions.cc,
+                            subject: asunto,
+                            html: renderHtml
+                        };
+
+                        transporter.sendMail(mailData, function (error, info) {
+                            if (error) {
+                                console.log("Error al enviar correo : " + error);
+                            } else {
+                                console.log('Email sent: ' + info.response);
+                            }
+                        });
+
+                        transporter.close();
+                    } else {
+                        console.log("No se envio el correo");
+                    }
+                }).catch(e => {
+                    console.log("Excepción en el envio de correo : " + e);
+                });
+        }).catch((e) => {
             console.log("Excepción en el envio de correo : " + e);
         });
 };
