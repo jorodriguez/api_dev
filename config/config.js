@@ -20,8 +20,7 @@ module.exports = {
     },
     'secret': 'supersecret'   
 };
-
-
+/*
 //BASE DE DATOS DE PRODUCCION
 /*module.exports = {
     dbParams:{
