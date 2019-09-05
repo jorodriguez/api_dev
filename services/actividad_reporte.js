@@ -55,7 +55,7 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
-                }                
+                }
                 respuesta.respuesta = results.rows;
                 response.status(respuesta.statusNumber).json(respuesta);
             });
@@ -198,6 +198,75 @@ const getBalanceFamiliarAlumnos = (request, response) => {
             with cargos as (
                 SELECT a.co_balance_alumno,
                          a.id as id_alumno,
+                         split_part(a.nombre,' ', 1) as nombre_alumno, 
+                           b.id as id_cargo_balance_alumno,
+                           b.fecha,
+                           b.cantidad,
+                           cargo.nombre as nombre_cargo,
+                           cat_cargo as id_cargo,
+                           cargo.es_facturable,
+                           b.total as total,
+                           b.cargo,
+                           b.total_pagado,
+                           b.nota,
+                           b.pagado ,
+                           false as checked ,
+                           0 as pago               
+                FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
+                                              inner join cat_cargo cargo on b.cat_cargo = cargo.id			
+                WHERE a.id 
+                            in
+                            (select co_alumno from co_alumno_familiar where co_familiar = $1 and eliminado = false)              		             		             		                 		
+                            and b.eliminado = false and a.eliminado = false
+                 ORDER by b.fecha,b.pagado,cargo.nombre,a.nombre desc             
+                 LIMIT 100
+            ) select c.fecha::date,array_to_json(array_agg(to_json(c.*))) as json_cargos
+              from cargos c
+              group by c.fecha::date
+			order by c.fecha::date `,
+            [id_familiar],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+
+                if (results.rowCount > 0) {
+                    respuesta.respuesta = results.rows;
+                    response.status(respuesta.statusNumber).json(respuesta);
+
+                } else {
+                    console.log("No existe balance para el alumno " + id_alumno);                 
+                    respuesta.respuesta = [];
+                    response.status(respuesta.statusNumber).json(respuesta);
+                }
+
+                //response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+/*
+
+Modificacion para ordenar por fecha y no por alumno
+const getBalanceFamiliarAlumnos = (request, response) => {
+    console.log("@getBalanceFamiliarAlumnos");
+    try {
+        var respuesta = helperToken.validarToken(request);
+
+        if (!respuesta.tokenValido) {
+            return response.status(respuesta.statusNumber).send(respuesta);
+        }
+
+        var id_familiar = request.params.id_familiar;
+
+        pool.query(
+            `
+            with cargos as (
+                SELECT a.co_balance_alumno,
+                         a.id as id_alumno,
                          a.nombre as nombre_alumno,  			
                            b.id as id_cargo_balance_alumno,
                            b.fecha,
@@ -260,12 +329,12 @@ const getBalanceFamiliarAlumnos = (request, response) => {
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
-};
+};*/
 
 const updateTokenMensajeriaFamiliar = (request, response) => {
     console.log("@updateTokenMensajeriaFamiliar");
     try {
-         var respuesta = helperToken.validarToken(request);
+        var respuesta = helperToken.validarToken(request);
 
         if (!respuesta.tokenValido) {
             return response.status(respuesta.statusNumber).send(respuesta);
@@ -331,7 +400,7 @@ const updateDatosFamiliar = (request, response) => {
             " WHERE id = $1";
 
         console.log("SQL " + sqlUpdateConCambioPassword);
-        pool.query(sqlUpdateConCambioPassword, 
+        pool.query(sqlUpdateConCambioPassword,
             [id_familiar, nombre, telefono, fecha_nacimiento, correo, celular, religion],
             (error, results) => {
                 if (error) {
