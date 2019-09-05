@@ -7,6 +7,8 @@ const nodemailer = require('nodemailer');
 const mustache = require('mustache');
 var fs = require('fs');
 var path = require('path');
+const mensajeria = require('../services/mensajesFirebase');
+
 
 
 const pool = new Pool({
@@ -17,6 +19,21 @@ const pool = new Pool({
     port: dbParams.port,
     ssl: { rejectUnauthorized: false }
 });
+
+//Params [id_alumno]
+const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
+    `SELECT  				
+                a.nombre as nombre_alumno,		 
+                string_agg(split_part(fam.nombre,' ',1),' / ') AS nombres_padres,    
+                array_to_json(array_agg(to_json(fam.correo))) AS correos, 
+                array_to_json(array_agg(to_json(fam.token))) as tokens
+     FROM co_alumno_familiar rel inner join co_familiar fam on rel.co_familiar = fam.id
+                            inner join co_parentesco parentesco on parentesco.id = rel.co_parentesco
+                            inner join co_alumno a on a.id = rel.co_alumno
+    WHERE co_alumno = $1 --and envio_recibos
+            and fam.eliminado = false 
+            and rel.eliminado = false
+    group by a.nombre `;
 
 const mailOptions = {
     from: 'joel@magicintelligence.com',
@@ -66,40 +83,106 @@ const enviarCorreoTest = (request, response) => {
 };
 
 
-const notificarReciboPago = (id_alumno, id_pago) => {
-    console.log("notificarReciboPago " + id_alumno + "    " + id_pago);
+
+const notificarCargo = (id_alumno, id_cargo) => {
+    console.log("notificarCargo " + id_alumno + "    " + id_cargo);
     //ir por alumno
-    pool.query(
-        `
-        select 				
-            a.nombre as nombre_alumno,		 
-            string_agg(split_part(fam.nombre,' ',1),' / ') AS nombres_padres,
-            --string_agg( fam.correo,',' ) AS correos,--
-            array_to_json(array_agg(to_json(fam.correo))) AS correos, 
-            string_agg(fam.token,' ') as tokens
-        from co_alumno_familiar rel inner join co_familiar fam on rel.co_familiar = fam.id
-                                    inner join co_parentesco parentesco on parentesco.id = rel.co_parentesco
-                                    inner join co_alumno a on a.id = rel.co_alumno
-        where co_alumno = $1 --and envio_recibos
-            and fam.eliminado = false 
-            and rel.eliminado = false
-        group by a.nombre            
-        `, [id_alumno],
+    pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [id_alumno],
         (error, results) => {
             if (error) {
                 return;
             }
             if (results.rowCount > 0) {
-                //enviar a otro metord
                 let row = results.rows[0];
-                enviarReciboComplemento(row.correos, row.nombres_padres, id_pago);
+                enviarNotificacionCargo(row.correos, row.tokens, row.nombres_padres, id_pago,nombre_alumno);
             } else {
                 console.log("No se encontraron registros de padres para el alumno " + id_alumno);
             }
         });
 };
 
-function enviarReciboComplemento(lista_correos, nombres_padres, id_pago) {
+//Aqui me quede
+function enviarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, id_cargo,nombre_alumno) {
+
+    pool.query(` select cat.nombre,		
+                    cat.precio,
+                    cargo.fecha,
+                    cargo.cantidad,
+                    cargo.total, 
+                    cargo.nota
+                from co_cargo_balance_alumno cargo inner join cat_cargo cat on cat.id = cargo.cat_cargo
+                where cargo.id = $1 and cargo.eliminado = false
+            `, [id_cargo],
+        (error, results) => {
+            if (error) {
+                console.log("No se envio el correo del recibo");
+                return;
+            }
+            if (results.rowCount > 0) {
+
+                let row = results.rows[0];
+                let tituloCorreo = "Cargo "+row.nombre;
+                let titulo_mensaje = "Cargo de "+row.nombre;
+                let cuerpo_mensaje = "Hola, se realizó un cargo de "+row.total+" por "+row.nombre+" del alumno "+nombre_alumno+".";
+                    
+                console.log("Enviando correo a " + JSON.stringify(lista_correos));
+                enviarCorreoReciboPago(
+                    lista_correos,
+                    tituloCorreo,
+                    {
+                        titulo: "Magic Intelligence",
+                        nombre_empresa: "Magic Intelligence",
+                        nombre_cliente: nombres_padres,
+                        pago: {
+                            fecha: row.fecha,
+                            pago: row.pago,
+                            forma_pago: row.forma_pago,
+                            factura: row.identificador_factura,
+                            numero_cargos: row.count_cargos,
+                            cargos: row.cargos
+                        },
+                        alumno: {
+                            nombre: row.nombre_alumno,
+                            apellidos: row.apellidos_alumno,
+                            grupo: row.nombre_grupo
+                        },
+                        sucursal: {
+                            nombre: row.nombre_sucursal,
+                            direccion: row.direccion_sucursal
+                        },
+                        mensaje_pie: "Agradecemos tu confianza. <br/> Atentamente Magic Intelligence."
+                    });
+
+                //enviar mensaje te text
+                if (lista_tokens != null && lista_tokens != [] && lista_tokens.length > 0) {
+                    console.log("Enviando msj al token " + lista_tokens);
+                    mensajeria.enviarMensajeToken(lista_tokens, titulo_mensaje, cuerpo_mensaje);
+                } else { console.log("No existen tokens registraods "); }
+
+            }
+        });
+}
+
+
+
+const notificarReciboPago = (id_alumno, id_pago) => {
+    console.log("notificarReciboPago " + id_alumno + "    " + id_pago);
+    //ir por alumno
+    pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [id_alumno],
+        (error, results) => {
+            if (error) {
+                return;
+            }
+            if (results.rowCount > 0) {
+                let row = results.rows[0];
+                enviarReciboComplemento(row.correos, row.tokens, row.nombres_padres, id_pago);
+            } else {
+                console.log("No se encontraron registros de padres para el alumno " + id_alumno);
+            }
+        });
+};
+
+function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id_pago) {
 
     pool.query(`        
             WITH relacion_cargos AS (
@@ -145,11 +228,15 @@ function enviarReciboComplemento(lista_correos, nombres_padres, id_pago) {
             if (results.rowCount > 0) {
 
                 let row = results.rows[0];
+                let tituloCorreo = "Recibo de pago ✔";
+                let titulo_mensaje = "Pago realizado ✔";
+                let cuerpo_mensaje = "Hola, recibimos un pago correspondiente a " + row.count_cargos + " cargos del alumno "
+                    + row.nombre_alumno + ", enviamos el recibo de pago a su correo registrado.";
                 console.log("Enviando correo a " + JSON.stringify(lista_correos));
                 //console.log("info "+JSON.stringify(row));
                 enviarCorreoReciboPago(
                     lista_correos,
-                    "Recibo de pago ✔",
+                    tituloCorreo,
                     {
                         titulo: "Magic Intelligence",
                         nombre_empresa: "Magic Intelligence",
@@ -174,6 +261,13 @@ function enviarReciboComplemento(lista_correos, nombres_padres, id_pago) {
                         mensaje_pie: "Agradecemos tu confianza. <br/> Atentamente Magic Intelligence."
 
                     });
+
+                //enviar mensaje te text
+                if (lista_tokens != null && lista_tokens != [] && lista_tokens.length > 0) {
+                    console.log("Enviando msj al token " + lista_tokens);
+                    mensajeria.enviarMensajeToken(lista_tokens, titulo_mensaje, cuerpo_mensaje);
+                } else { console.log("No existen tokens registraods "); }
+
             }
         });
 }
@@ -275,11 +369,11 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
         .query('select link_descarga_app_android from configuracion limit 1')
         .then(res => {
             let row;
-            if(res.rowCount > 0 ){
-               row = res.rows[0];  
+            if (res.rowCount > 0) {
+                row = res.rows[0];
             }
             params.url_descarga_app = row.link_descarga_app_android;
-            
+
             console.log(JSON.stringify(row));
 
             loadTemplateGenerico(params)

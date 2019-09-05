@@ -5,8 +5,8 @@ const Pool = require('pg').Pool
 const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
-const mensajeria = require('./mensajesFirebase');
-const mailService = require('../utils/MailService');
+
+const notificacionService = require('../utils/NotificacionService');
 
 const pool = new Pool({
     user: dbParams.user,
@@ -32,8 +32,7 @@ const registrarCargo = (request, response) => {
         const { id_alumno, cat_cargo, cantidad, nota, genero } = request.body;
               
         console.log("=====>> " + JSON.stringify(request.body));
-        
-        //select agregar_cargo_alumno(62, 2 ,1 ,'hhhhh' ,1);
+                
         pool.query("select agregar_cargo_alumno($1,$2,$3,$4,$5);",
             [id_alumno, cat_cargo.id, cantidad, nota, genero],
             (error, results) => {
@@ -44,7 +43,10 @@ const registrarCargo = (request, response) => {
                 console.log("Se llamo a la function de cargo ");
                 //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
                 //buscar el padre y enviarle la notificacion y el correo del registro del pago
-                response.status(200).json(results.rowCount)
+                if(results.rowCount > 0){
+                    let id_cargo_generado = results.rows[0].id;
+                    response.status(200).json(results.rowCount)
+                }                
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -68,10 +70,8 @@ const registrarPago = (request, response) => {
         const { id_alumno, pago, nota, ids_cargos, cargos_desglosados, cat_forma_pago,identificador_factura, genero } = request.body;
 
         console.log("SELECT agregar_pago_alumno('" + ids_cargos + "','" + cargos_desglosados + "'," + id_alumno + "," + pago + ",'" + nota + "'," + cat_forma_pago + ",'"+identificador_factura+"',"+ genero + " )");        
-        
-        //response.status(200).json("ok");
-        pool.query("SELECT agregar_pago_alumno('" + ids_cargos + "','" + cargos_desglosados + "'," + id_alumno + "," + pago + ",'" + nota + "'," + cat_forma_pago + ",'"+identificador_factura+"',"+ genero + " );",
-            //    [id_alumno ,pago,nota,genero],
+       
+        pool.query("SELECT agregar_pago_alumno('" + ids_cargos + "','" + cargos_desglosados + "'," + id_alumno + "," + pago + ",'" + nota + "'," + cat_forma_pago + ",'"+identificador_factura+"',"+ genero + " );",            
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -81,8 +81,7 @@ const registrarPago = (request, response) => {
                 if(results.rowCount > 0){
                     let retorno = results.rows[0];
                     console.log("Retorno el ID "+ JSON.stringify(results.rows));
-                    mailService.notificarReciboPago(id_alumno,retorno.agregar_pago_alumno);    
-                   //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
+                    notificacionService.notificarReciboPago(id_alumno,retorno.agregar_pago_alumno);                       
                 }         
                 
                 response.status(200).json(results.rowCount);

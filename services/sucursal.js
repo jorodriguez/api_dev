@@ -4,7 +4,7 @@ const Pool = require('pg').Pool
 const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
-const mailService = require('../utils/MailService');
+const mailService = require('../utils/NotificacionService');
 
 const pool = new Pool({
     user: dbParams.user,

@@ -224,7 +224,7 @@ const getBalanceFamiliarAlumnos = (request, response) => {
             ) select (c.fecha::date)::text,array_to_json(array_agg(to_json(c.*))) as array_cargos
               from cargos c
               group by c.fecha::date
-			order by c.fecha::date `,
+			  order by c.fecha::date DESC`,
             [id_familiar],
             (error, results) => {
                 if (error) {

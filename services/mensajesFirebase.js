@@ -90,7 +90,7 @@ const enviarMensajeActividad = (titulo, cuerpo, token) => {
 
 }
 
-
+//token, string[] or string
 const enviarMensajeToken = (token, titulo, cuerpo) => {
     try {
         console.log("Enviando mensaje " + titulo + " " + cuerpo);

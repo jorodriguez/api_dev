@@ -6,7 +6,7 @@ const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
 const { isEmpty } = require('../helpers/Utils');
 const Joi = require('@hapi/joi');
-const mailService = require('../utils/MailService');
+const mailService = require('../utils/NotificacionService');
 const utilerias = require('./utilerias');
 
 var bcrypt = require('bcryptjs');
