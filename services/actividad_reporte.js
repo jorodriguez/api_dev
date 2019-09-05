@@ -220,7 +220,7 @@ const getBalanceFamiliarAlumnos = (request, response) => {
                             and b.eliminado = false and a.eliminado = false
                  ORDER by b.fecha,b.pagado,cargo.nombre,a.nombre desc             
                  LIMIT 100
-            ) select c.fecha::date,array_to_json(array_agg(to_json(c.*))) as json_cargos
+            ) select c.fecha::date,array_to_json(array_agg(to_json(c.*))) as array_cargos
               from cargos c
               group by c.fecha::date
 			order by c.fecha::date `,
