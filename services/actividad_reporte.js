@@ -32,6 +32,7 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
             `           
         select  r.fecha,
             date_trunc('minute',r.fecha+r.hora) as hora,
+            (r.fecha+r.hora) as fecha_hora,
             ac.nombre as actividad,
             ac.icono as icono,
             tipo.nombre as tipo_actividad,
