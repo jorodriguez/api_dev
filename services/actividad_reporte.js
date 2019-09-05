@@ -84,7 +84,7 @@ const getCargosAlumnosFamiliar = (request, response) => {
   			        a.id as id_alumno,
   			        a.nombre as nombre_alumno,  			
                     b.id as id_cargo_balance_alumno,
-                    b.fecha,
+                    b.fecha::text,
                     b.cantidad,
                     cargo.nombre as nombre_cargo,
                     cat_cargo as id_cargo,
@@ -201,7 +201,7 @@ const getBalanceFamiliarAlumnos = (request, response) => {
                          a.id as id_alumno,
                          split_part(a.nombre,' ', 1) as nombre_alumno, 
                            b.id as id_cargo_balance_alumno,
-                           b.fecha,
+                           b.fecha::text,
                            b.cantidad,
                            cargo.nombre as nombre_cargo,
                            cat_cargo as id_cargo,
@@ -220,8 +220,8 @@ const getBalanceFamiliarAlumnos = (request, response) => {
                             (select co_alumno from co_alumno_familiar where co_familiar = $1 and eliminado = false)              		             		             		                 		
                             and b.eliminado = false and a.eliminado = false
                  ORDER by b.fecha,b.pagado,cargo.nombre,a.nombre desc             
-                 LIMIT 100
-            ) select c.fecha::date,array_to_json(array_agg(to_json(c.*))) as array_cargos
+                 LIMIT 50
+            ) select (c.fecha::date)::text,array_to_json(array_agg(to_json(c.*))) as array_cargos
               from cargos c
               group by c.fecha::date
 			order by c.fecha::date `,
