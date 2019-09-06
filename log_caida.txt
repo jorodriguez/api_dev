@@ -97,4 +97,5 @@
 2019-09-06T19:35:09.063914+00:00 app[web.1]: Token OK
 2019-09-06T19:44:27.774803+00:00 heroku[router]: at=info method=GET path="/" host=api-ambiente-desarrollo.herokuapp.com request_id=e37d5174-8794-48c0-a953-ad872e3bae54 fwd="200.95.170.89" dyno=web.1 connect=1ms service=3ms status=304 bytes=368 protocol=https
 2019-09-06T19:44:27.991484+00:00 heroku[router]: at=info method=GET path="/favicon.ico" host=api-ambiente-desarrollo.herokuapp.com request_id=2261112d-923e-43d6-9a05-592e731d7c45 fwd="200.95.170.89" dyno=web.1 connect=1ms service=11ms status=404 bytes=612 protocol=https
-2019-09-06T19:44:52.733569+00:00 heroku[router]: at=info method=GET path="/" host=api-ambiente-desarrollo.herokuapp.com request_id=33b5004a-3449-40ad-a80d-e04ec617801d fwd="200.95.170.89" dyno=web.1 connect=1ms service=2ms status=304 bytes=368 protocol=https
+ear
+019-09-06T19:44:52.733569+00:00 heroku[router]: at=info method=GET path="/" host=api-ambiente-desarrollo.herokuapp.com request_id=33b5004a-3449-40ad-a80d-e04ec617801d fwd="200.95.170.89" dyno=web.1 connect=1ms service=2ms status=304 bytes=368 protocol=https
