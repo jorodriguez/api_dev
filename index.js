@@ -274,6 +274,7 @@ schedule.scheduleJob('0 */31 * * * 1-5', function () {
 });
 
 
+//schedule.scheduleJob('0 */33 * * * 1-5', function () {
 schedule.scheduleJob('0 */33 * * * 1-5', function () {
 	console.log('PROCESO DE REVISION DE SALIDA DE ALUMNOS ' + new Date());
 	//FIXME : para pruebas
@@ -290,7 +291,7 @@ schedule.scheduleJob('0 */35 * * * 1-5', function () {
 	console.log('PROCESO DE REVISION DE EXPIRACION DE TIEMPO DE ALUMNOS ' + new Date());
 	//FIXME : para pruebas
 	try {
-		tareas_programadas.ejecutarProcesoNotificacionExpiracionTiempoAlumno();
+//		tareas_programadas.ejecutarProcesoNotificacionExpiracionTiempoAlumno();
 
 	} catch (e) {
 		console.log("Error al ejecutar el proceso de revision de expiración " + e);
