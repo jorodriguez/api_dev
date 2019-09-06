@@ -106,6 +106,7 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
         if (configuracion.enviar_mensajes) {
             retorno = firebase.messaging().sendToDevice(token, payloadMensaje, options);
         } else {
+            console.log("Caso contrario no enviar mensajes");
             retorno = new Promise((resolve, reject) => {
                 setTimeout(function () { resolve("¡Éxito!"); }, 250);
             });
