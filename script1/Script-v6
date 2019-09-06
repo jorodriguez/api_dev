@@ -125,3 +125,26 @@ END;
 $function$
 			
 			
+
+            /*
+
+            para mostrar los meses
+            
+            		select
+		        al.co_sucursal,				
+				to_char(cargo.fecha,'Mon-YYYY') as mes,
+				to_char(cargo.fecha,'MMYYYY') as mes_anio,
+			    count(cargo.*) as total,
+                count(cargo.*) filter (where pagado) as pagados,
+				count(cargo.*) filter (where pagado = false) as pendientes			    
+        from co_cargo_balance_alumno cargo  inner join co_alumno al on al.co_balance_alumno = cargo.co_balance_alumno                
+        where cargo.cat_cargo = 1 
+         --   and al.co_sucursal = 1
+           -- and to_char(cargo.fecha,'Mon-YYYY') = to_char(getDate(''),'Mon-YYYY') 
+            and cargo.eliminado = false 
+       group by al.co_sucursal,to_char(cargo.fecha,'Mon-YYYY'),to_char(cargo.fecha,'MMYYYY')
+	   order by to_char(cargo.fecha,'MMYYYY') desc
+	   
+	   
+            
+            */
