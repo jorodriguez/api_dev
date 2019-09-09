@@ -124,6 +124,12 @@ BEGIN
 END;
 $function$
 			
+
+
+
+		alter table configuracion add column mensaje_recordatorio_pago text;
+		
+		update configuracion set mensaje_recordatorio_pago = 'Se le recuerda que tiene cargos pendientes por pagar. ' where id = 1;
 			
 
             /*

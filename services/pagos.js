@@ -50,7 +50,6 @@ const registrarCargo = (request, response) => {
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
-
     }
 };
 

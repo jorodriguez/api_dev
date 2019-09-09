@@ -29,6 +29,7 @@ const authClientesController = require('./auth/AuthClientesController');
 const correo_service = require('./utils/NotificacionService');
 const sucursales = require('./services/sucursal');
 const alumnoSucursal = require('./services/alumno_sucursal');
+const conf = require('./services/configuracion');
 const https = require("https");
 
 const port = process.env.PORT || 5000;
@@ -189,6 +190,9 @@ app.put('/auth_cliente/:id_familiar',authClientesController.cambioClaveFamiliar)
 app.get('/reporte_mensualidades/:id_sucursal', reporteDeudas.getReporteCargosFacturados);
 app.get('/reporte_mensualidades', reporteDeudas.getReporteCargosFacturadosSucursal);
 
+//configuracion
+app.get('/configuracion', conf.getConfiguracion);
+
 //Mensajes
 app.get('/mensaje', mensajeria.sendMessage);
 
@@ -197,6 +201,10 @@ app.get('/enviar_correo', correo_service.enviarCorreoTest);
 //sucursales y cambios
 app.get('/sucursal',sucursales.getSucursales);
 app.put('/cambio_sucursal/:id_alumno',alumnoSucursal.cambiarSucursalAlumno);
+
+//app.put('/getInfoCorreoAlumnos',correo_service.getAlumnosInfoCorreoAlumnos);
+app.get('/enviar_recordatorio_pago/:id_alumno',correo_service.enviarRecordatorioPago); 
+
 
 //reporte ingresos vs cargos
 app.get('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes',reporteDeudas.getReporteGastosIngresosSucursalPorMes);

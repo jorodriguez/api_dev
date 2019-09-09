@@ -462,8 +462,25 @@ const getReporteCargosFacturados = (request, response) => {
 
         pool.query(
             `   
-            select 
-                rel.id,
+           
+with info_correos_alumnos AS (
+    SELECT 
+        a.id as id_alumno,
+        
+        string_agg(split_part(fam.nombre,' ',1),' / ') AS nombres_padres,    
+        array_to_json(array_agg(to_json(fam.correo))) AS correos, 
+        array_to_json(array_agg(to_json(fam.token))) as tokens
+     FROM co_alumno_familiar rel inner join co_familiar fam on rel.co_familiar = fam.id
+                    inner join co_parentesco parentesco on parentesco.id = rel.co_parentesco
+                    inner join co_alumno a on a.id = rel.co_alumno								
+    WHERE  a.co_sucursal = $1 --and envio_recibos
+        and co_parentesco in (1,2) -- solo papa y mama
+        and fam.eliminado = false 
+        and rel.eliminado = false
+     group by a.nombre,a.id
+)SELECT    
+            rel.id,
+            al.id as id_alumno,
                 al.nombre as nombre_alumno,
                 rel.pago,	
                 cargo.fecha as fecha_cargo,
@@ -475,18 +492,21 @@ const getReporteCargosFacturados = (request, response) => {
                 pago.identificador_factura,
                 forma_pago.nombre as forma_pago,	
                 c.nombre as nombre_cargo,
-                cargo.pagado	
-        from co_cargo_balance_alumno cargo  left join co_pago_cargo_balance_alumno rel on rel.co_cargo_balance_alumno = cargo.id
+                cargo.pagado,
+                i.*   
+            from co_cargo_balance_alumno cargo  left join co_pago_cargo_balance_alumno rel on rel.co_cargo_balance_alumno = cargo.id
                 left join co_pago_balance_alumno pago on rel.co_pago_balance_alumno = pago.id and pago.eliminado = false 
                 left join co_forma_pago forma_pago on pago.co_forma_pago = forma_pago.id						
                 inner join co_alumno al on al.co_balance_alumno = cargo.co_balance_alumno
                 inner join cat_cargo c on c.id = cargo.cat_cargo
-        where cargo.cat_cargo = 1 
-            and al.co_sucursal = $1
-            and to_char(cargo.fecha,'Mon-YYYY') = to_char(getDate(''),'Mon-YYYY') 
-            and cargo.eliminado = false 
-        order by cargo.pagado desc,al.nombre, pago.fecha
-         `, [id_sucursal], (error, results) => {
+                left join info_correos_alumnos i on i.id_alumno = al.id
+            where cargo.cat_cargo = 1 
+                and al.co_sucursal = $2
+                and to_char(cargo.fecha,'Mon-YYYY') = to_char(getDate(''),'Mon-YYYY') 
+                and cargo.eliminado = false 
+            order by cargo.pagado desc,al.nombre, pago.fecha
+
+         `, [id_sucursal, id_sucursal], (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
@@ -556,20 +576,20 @@ const getReporteGastosIngresosSucursalPorMes = (request, response) => {
         let id_sucursal = request.params.id_sucursal;
         let mes = request.params.mes;
 
-        console.log("id_sucursal "+id_sucursal);
-        console.log("mes "+mes);
+        console.log("id_sucursal " + id_sucursal);
+        console.log("mes " + mes);
 
         let ID_CARGO_MENSUALIDAD = 1;
 
-        let sql =  `  with gastos_mes AS (
+        let sql = `  with gastos_mes AS (
             Select      
                 g.co_sucursal,							
                 sum(g.gasto) as suma_gastos
             from co_gasto g 
             where  g.co_sucursal = $3
                     and  
-                    to_char(g.fecha,'Mon-YYYY') = `+(mes != 'null' ? "'"+mes+"'":"to_char(now(),'Mon-YYYY')") +
-                    ` and g.eliminado = false				
+                    to_char(g.fecha,'Mon-YYYY') = `+ (mes != 'null' ? "'" + mes + "'" : "to_char(now(),'Mon-YYYY')") +
+            ` and g.eliminado = false				
             group by g.co_sucursal
         )		
             SELECT 
@@ -591,25 +611,25 @@ const getReporteGastosIngresosSucursalPorMes = (request, response) => {
                             left join gastos_mes gastos on gastos.co_sucursal = suc.id
     WHERE cargo.cat_cargo = $1
             and suc.id = $2
-            and to_char(cargo.fecha,'Mon-YYYY') = `+(mes != 'null' ?  "'"+mes+"'":"to_char(now(),'Mon-YYYY')") +
+            and to_char(cargo.fecha,'Mon-YYYY') = `+ (mes != 'null' ? "'" + mes + "'" : "to_char(now(),'Mon-YYYY')") +
             ` and cargo.eliminado = false 
     GROUP BY suc.id,gastos.suma_gastos`;
 
-    console.log(sql);
+        console.log(sql);
 
         pool.query(
             sql
-           ,[ID_CARGO_MENSUALIDAD,id_sucursal,id_sucursal],
+            , [ID_CARGO_MENSUALIDAD, id_sucursal, id_sucursal],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
                 }
-                if(results.rowCount > 0 ){
+                if (results.rowCount > 0) {
                     response.status(200).json(results.rows[0]);
-                }else{
+                } else {
                     response.status(200).json(null);
-                }                
+                }
             });
 
     } catch (e) {

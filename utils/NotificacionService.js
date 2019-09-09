@@ -4,6 +4,8 @@ const Pool = require('pg').Pool
 const { dbParams } = require('../config/config');
 const { configuracion } = require('../config/ambiente');
 const nodemailer = require('nodemailer');
+const handle = require('../helpers/handlersErrors');
+const helperToken = require('../helpers/helperToken');
 const mustache = require('mustache');
 var fs = require('fs');
 var path = require('path');
@@ -22,7 +24,7 @@ const pool = new Pool({
 
 //Params [id_alumno]
 const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
-    `SELECT  				
+    `SELECT  	a.id,
                 a.nombre as nombre_alumno,		 
                 string_agg(split_part(fam.nombre,' ',1),' / ') AS nombres_padres,    
                 array_to_json(array_agg(to_json(fam.correo))) AS correos, 
@@ -30,10 +32,11 @@ const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
      FROM co_alumno_familiar rel inner join co_familiar fam on rel.co_familiar = fam.id
                             inner join co_parentesco parentesco on parentesco.id = rel.co_parentesco
                             inner join co_alumno a on a.id = rel.co_alumno
-    WHERE co_alumno = $1 --and envio_recibos
+    WHERE co_alumno = ANY($1::int[]) --and envio_recibos
+            and co_parentesco in (1,2) -- solo papa y mama
             and fam.eliminado = false 
             and rel.eliminado = false
-    group by a.nombre `;
+    group by a.nombre,a.id `;
 
 const mailOptions = {
     from: 'joel@magicintelligence.com',
@@ -87,14 +90,14 @@ const enviarCorreoTest = (request, response) => {
 const notificarCargo = (id_alumno, id_cargo) => {
     console.log("notificarCargo " + id_alumno + "    " + id_cargo);
     //ir por alumno
-    pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [id_alumno],
+    pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [[id_alumno]],
         (error, results) => {
             if (error) {
                 return;
             }
             if (results.rowCount > 0) {
                 let row = results.rows[0];
-                enviarNotificacionCargo(row.correos, row.tokens, row.nombres_padres, id_pago,nombre_alumno);
+                enviarNotificacionCargo(row.correos, row.tokens, row.nombres_padres, id_pago, nombre_alumno);
             } else {
                 console.log("No se encontraron registros de padres para el alumno " + id_alumno);
             }
@@ -102,7 +105,7 @@ const notificarCargo = (id_alumno, id_cargo) => {
 };
 
 //Aqui me quede
-function enviarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, id_cargo,nombre_alumno) {
+function enviarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, id_cargo, nombre_alumno) {
 
     pool.query(` select cat.nombre,		
                     cat.precio,
@@ -121,10 +124,10 @@ function enviarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, id
             if (results.rowCount > 0) {
 
                 let row = results.rows[0];
-                let tituloCorreo = "Cargo "+row.nombre;
-                let titulo_mensaje = "Cargo de "+row.nombre;
-                let cuerpo_mensaje = "Hola, se realizó un cargo de "+row.total+" por "+row.nombre+" del alumno "+nombre_alumno+".";
-                    
+                let tituloCorreo = "Cargo " + row.nombre;
+                let titulo_mensaje = "Cargo de " + row.nombre;
+                let cuerpo_mensaje = "Hola, se realizó un cargo de " + row.total + " por " + row.nombre + " del alumno " + nombre_alumno + ".";
+
                 console.log("Enviando correo a " + JSON.stringify(lista_correos));
                 enviarCorreoReciboPago(
                     lista_correos,
@@ -168,7 +171,7 @@ function enviarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, id
 const notificarReciboPago = (id_alumno, id_pago) => {
     console.log("notificarReciboPago " + id_alumno + "    " + id_pago);
     //ir por alumno
-    pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [id_alumno],
+    pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [[id_alumno]],
         (error, results) => {
             if (error) {
                 return;
@@ -428,10 +431,163 @@ function loadTemplateGenerico(params) {
 }
 
 
+const getAlumnosInfoCorreoAlumnos = (request, response) => {
+    console.log("@getAlumnosInfoCorreo");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        const { ids }  = request.body;
+
+        console.log("Ids "+ids);
+        
+        if(ids == undefined){
+            response.status(200).json({ estatus: false, respuesta: "No existen correos registrados. " });
+            return;
+        }
+        
+        pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [ids],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+
+const enviarRecordatorioPago = (request, response) => {
+    console.log("@enviarRecordatorioPago");
+    try {
+
+        var respuesta = helperToken.validarToken(request);
+
+        if (!respuesta.tokenValido) {
+            return response.status(respuesta.statusNumber).send(respuesta);
+        }
+
+        var id_alumno = request.params.id_alumno;
+        var { nota, nota_escrita } = request.body;
+        console.log("id_alumno "+id_alumno);
+               
+
+        pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [[id_alumno]],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                console.log("result "+ JSON.stringify(results));
+                if (results.rowCount > 0) {
+                    let row = results.rows[0];
+
+                    if (row.correos == '' || row.correos == null) {
+                        response.status(500).json({ estatus: false, respuesta: "No existen correos registrados. " });
+                        return;
+                    }
+
+                    let params = {
+                        titulo: "Recordatorio de pago",
+                        subtitulo: "Hola, " + row.nombres_padres,
+                        contenido: nota_escrita ? nota : "Se le recuerda que tiene cargos pendientes por pagar."
+                    };
+                    //let para = row.correos;
+                    console.log("correos obtenidos "+row.correos);
+                    let para = "joel.rod.roj@hotmail.com";
+                    let asunto = "Recordatorio de pago";
+
+                    //enviar 
+                    obtenerCargos(id_alumno)
+                        .then((results) => {
+                            if (results.rowCount > 0) {
+                                //enviarRecordatorioPagoComplemento(row.correos, "Recordatorio de pago", params, cargos);
+                                loadTemplateGenerico(params)
+                                    .then((renderHtml) => {
+                                        console.log("Dentro d");
+                                        if (renderHtml != null) {
+
+                                            const mailData = {
+                                                from: mailOptions.from,
+                                                to: para,
+                                                cc: mailOptions.cc,
+                                                subject: asunto,
+                                                html: renderHtml
+                                            };
+
+                                            transporter.sendMail(mailData, function (error, info) {
+                                                if (error) {
+                                                    console.log("Error al enviar correo : " + error);
+                                                    response.status(500).json({ estatus: false, respuesta: "Falló el envio de correo." });
+                                                } else {
+                                                    console.log('Email sent: ' + info.response);
+                                                    response.status(500).json({ estatus: true, respuesta: "Enviado" });
+                                                }
+                                            });
+
+                                            transporter.close();
+                                        } else {
+                                            console.log("No se envio el correo");
+                                            response.status(500).json({ estatus: false, respuesta: "Falló el envio de correo." });
+                                        }
+                                    }).catch(e => {
+                                        console.log("Excepción en el envio de correo : " + e);
+                                        response.status(500).json({ estatus: false, respuesta: "Falló el envio de correo." });
+                                    });
+                            } else {
+                                //no existen cargos 
+                                response.status(500).json({ estatus: false, respuesta: "No existen cargos." });
+                            }
+                        }).catch(e => {
+                            response.status(500).json({ estatus: false, respuesta: "Falló " });
+                        });
+                    //tokens para el cel
+                } else {
+                    //informar error
+                    response.status(500).json({ estatus: false, respuesta: "no existen correos registrados. " });
+                }
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+function obtenerCargos(id_alumno) {
+
+    return pool.query(
+        `SELECT a.co_balance_alumno,
+           b.id as id_cargo_balance_alumno,
+           b.fecha,
+           b.cantidad,
+           cargo.nombre as nombre_cargo,
+           cat_cargo as id_cargo,
+           cargo.es_facturable,
+           b.total as total,
+           b.cargo,
+           b.total_pagado,
+           b.nota,
+           b.pagado            
+         FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
+                                       inner join cat_cargo cargo on b.cat_cargo = cargo.id					
+         WHERE a.id = $1 and b.pagado = false and b.eliminado = false and a.eliminado = false
+          ORDER by b.pagado, b.fecha desc`
+        , [id_alumno]);
+}
+
+
+
 module.exports = {
     notificarReciboPago,
     enviarCorreoTest,
     enviarCorreoCambioSucursal,
-    enviarCorreoClaveFamiliar
+    enviarCorreoClaveFamiliar,
+    getAlumnosInfoCorreoAlumnos,
+    enviarRecordatorioPago
 
 }
