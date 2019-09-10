@@ -203,12 +203,10 @@ app.get('/sucursal',sucursales.getSucursales);
 app.put('/cambio_sucursal/:id_alumno',alumnoSucursal.cambiarSucursalAlumno);
 
 //app.put('/getInfoCorreoAlumnos',correo_service.getAlumnosInfoCorreoAlumnos);
-app.get('/enviar_recordatorio_pago/:id_alumno',correo_service.enviarRecordatorioPago); 
-
+app.put('/enviar_recordatorio_pago/:id_alumno',correo_service.enviarRecordatorioPago); 
 
 //reporte ingresos vs cargos
 app.get('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes',reporteDeudas.getReporteGastosIngresosSucursalPorMes);
-
 
 
 app.get('/', (request, response) => {

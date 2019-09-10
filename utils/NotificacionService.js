@@ -22,6 +22,10 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
+const TEMPLATE_GENERICO = "generico.html";
+const TEMPLATE_RECIBO_PAGO = "recibo_pago.html";
+const TEMPLATE_AVISO_PAGO = "aviso_pago.html";
+
 //Params [id_alumno]
 const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
     `SELECT  	a.id,
@@ -331,7 +335,7 @@ function loadTemplateReciboPago(param) {
 const enviarCorreoCambioSucursal = (para, asunto, params) => {
     console.log("@enviarCorreoCambioSucursalComplemento");
 
-    loadTemplateGenerico(params)
+    loadTemplate(TEMPLATE_GENERICO,params)
         .then((renderHtml) => {
             console.log("Dentro de la promesa resuelta");
             if (renderHtml != null) {
@@ -379,7 +383,7 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
 
             console.log(JSON.stringify(row));
 
-            loadTemplateGenerico(params)
+            loadTemplate(TEMPLATE_GENERICO,params)
                 .then((renderHtml) => {
                     console.log("Dentro d");
                     if (renderHtml != null) {
@@ -414,13 +418,13 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
 
 
 //mejorar esto param = {titulo:"",subtitulo:"",contenido:""}
-function loadTemplateGenerico(params) {
+function loadTemplate(templateName,params) {
     var html = null;
     //fixme : ir a la bd
     params.nombre_empresa = "Magic Intelligence";
     return new Promise((resolve, reject) => {
         try {
-            fs.readFile(path.resolve(__dirname, "../templates/generico.html"), 'utf8', (err, data) => {
+            fs.readFile(path.resolve(__dirname, "../templates/"+templateName+".html"), 'utf8', (err, data) => {
                 html = mustache.to_html(data, params);
                 resolve(html);
             });
@@ -476,7 +480,11 @@ const enviarRecordatorioPago = (request, response) => {
         var id_alumno = request.params.id_alumno;
         var { nota, nota_escrita } = request.body;
         console.log("id_alumno "+id_alumno);
-               
+
+        if(id_alumno == null){
+            response.status(500).json({ estatus: false, respuesta: "No enviado validación fállida.." });
+            return;
+        }               
 
         pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [[id_alumno]],
             (error, results) => {
@@ -491,13 +499,7 @@ const enviarRecordatorioPago = (request, response) => {
                     if (row.correos == '' || row.correos == null) {
                         response.status(500).json({ estatus: false, respuesta: "No existen correos registrados. " });
                         return;
-                    }
-
-                    let params = {
-                        titulo: "Recordatorio de pago",
-                        subtitulo: "Hola, " + row.nombres_padres,
-                        contenido: nota_escrita ? nota : "Se le recuerda que tiene cargos pendientes por pagar."
-                    };
+                    }                   
                     //let para = row.correos;
                     console.log("correos obtenidos "+row.correos);
                     let para = "joel.rod.roj@hotmail.com";
@@ -507,8 +509,16 @@ const enviarRecordatorioPago = (request, response) => {
                     obtenerCargos(id_alumno)
                         .then((results) => {
                             if (results.rowCount > 0) {
+                                //let suma = results.rows.
+                                let params = {
+                                    titulo: "Recordatorio de pago",
+                                    nombre_cliente: row.nombres_padres,
+                                    nota: nota_escrita ? nota : "Te recordamos que tienes cargos pendientes por pagar.",
+                                    cargos : results.rows,            
+                                    total : 0    
+                                };
                                 //enviarRecordatorioPagoComplemento(row.correos, "Recordatorio de pago", params, cargos);
-                                loadTemplateGenerico(params)
+                                loadTemplate(TEMPLATE_AVISO_PAGO,params)
                                     .then((renderHtml) => {
                                         console.log("Dentro d");
                                         if (renderHtml != null) {
@@ -527,7 +537,7 @@ const enviarRecordatorioPago = (request, response) => {
                                                     response.status(500).json({ estatus: false, respuesta: "Falló el envio de correo." });
                                                 } else {
                                                     console.log('Email sent: ' + info.response);
-                                                    response.status(500).json({ estatus: true, respuesta: "Enviado" });
+                                                    response.status(200).json({ estatus: true, respuesta: "Enviado" });
                                                 }
                                             });
 
@@ -576,7 +586,7 @@ function obtenerCargos(id_alumno) {
          FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
                                        inner join cat_cargo cargo on b.cat_cargo = cargo.id					
          WHERE a.id = $1 and b.pagado = false and b.eliminado = false and a.eliminado = false
-          ORDER by b.pagado, b.fecha desc`
+         ORDER by cargo.nombre `
         , [id_alumno]);
 }
 
