@@ -132,6 +132,62 @@ $function$
 		update configuracion set mensaje_recordatorio_pago = 'Se le recuerda que tiene cargos pendientes por pagar. ' where id = 1;
 			
 
+
+
+CREATE or replace FUNCTION registrar_entrada_alumno(IN ids_alumnos_param text,ID_GENERO integer) 
+	RETURNS SETOF integer
+ 	LANGUAGE plpgsql 	
+ AS
+$$
+DECLARE
+	--ids_alumnos_param text := '2,4,5,6';
+	ids_alumnos integer[];
+	id_alumnos_horas_extras text;
+	alumno_loop RECORD;
+	id_alumno_loop integer;
+	asistencia_alumno record;
+	id_retorno integer;
+BEGIN
+
+	IF ids_alumnos_param is null THEN		
+		raise notice 'Es null la lista de alumnos param ';
+		--retorno := false;
+	ELSE
+		raise notice 'Iniciando';
+		ids_alumnos := string_to_array(ids_alumnos_param,','); 	
+		
+		FOR alumno_loop IN ( 
+				SELECT * 
+				FROM co_alumno 
+				WHERE ID = ANY(ids_alumnos::INT[]) and eliminado = false					
+		) LOOP 
+			raise notice 'alumno id %  nombre  %',alumno_loop.id,alumno_loop.nombre ;
+			select * 
+			from co_asistencia a 
+			where a.co_alumno = alumno_loop.id 
+					and hora_salida is null
+					and a.eliminado = false 
+			INTO asistencia_alumno;	
+						
+			IF NOT FOUND THEN
+				raise notice 'no existe ningun registro de asistencia procede la operacion';
+				INSERT INTO CO_ASISTENCIA(fecha,co_alumno,hora_entrada,usuario,genero)
+				values(getDate(''),alumno_loop.id,(getDate('')+getHora(''))::timestamp,ID_GENERO,ID_GENERO)
+				RETURNING id into id_retorno;
+				--select array_append(array_retorno, alumno_loop.id);
+				--raise notice 'lista se registrados %',array_retorno;
+				return next id_retorno;								
+			ELSE 
+				raise notice 'Ya existe un registro de asistencia para el alumno id = %',asistencia_alumno.id;
+			END IF;					
+		END LOOP; 						
+	END IF;	
+	RETURN;	
+END; --END FUNCTION 
+$$ 
+
+
+
             /*
 
             para mostrar los meses

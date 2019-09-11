@@ -4,6 +4,7 @@ const Pool = require('pg').Pool
 const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
+const mensajeria = require('./mensajesFirebase');
 
 const pool = new Pool({
     user: dbParams.user,
@@ -13,6 +14,9 @@ const pool = new Pool({
     port: dbParams.port,
     ssl: { rejectUnauthorized: false }
 });
+
+const ENTRADA = 0;
+const SALIDA = 1;
 
 //FIXME : agregar el parametro de fecha
 const getAlumnosRecibidos = (request, response) => {
@@ -152,8 +156,13 @@ const registrarEntradaAlumnos = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
+                
+                if(results.rowCount > 0){
+                    //Enviar mensaje de recepcion
+                    enviarMensajeEntradaSalida(ids,results.rows,ENTRADA);
+                }
 
-                response.status(200).json(results.rowCount)
+                response.status(200).json(results.rowCount);
             });
             
     } catch (e) {
@@ -161,6 +170,63 @@ const registrarEntradaAlumnos = (request, response) => {
 
     }
 };
+
+function enviarMensajeEntradaSalida(ids_alumnos,ids_asistencias,operacion){
+    console.log("ids_al "+ids_alumnos+" ids asis  "+ids_asistencias+" "+operacion);
+    if(ids_alumnos == undefined || ids_alumnos == null || ids_asistencias == undefined || ids_asistencias == null){
+        console.log("Las listas son null");
+        return;
+    }
+
+    pool.query(`with correos as (
+        SELECT  	
+                    a.id as id_alumno,
+                    a.nombre as nombre_alumno,		 
+                    string_agg(split_part(fam.nombre,' ',1),' / ') AS nombres_padres,    
+                    array_to_json(array_agg(to_json(fam.correo))) AS correos, 
+                    array_to_json(array_agg(to_json(fam.token))) as tokens
+         FROM co_alumno_familiar rel inner join co_familiar fam on rel.co_familiar = fam.id
+                                inner join co_parentesco parentesco on parentesco.id = rel.co_parentesco
+                                inner join co_alumno a on a.id = rel.co_alumno
+        WHERE co_alumno = ANY($1::int[]) --and envio_recibos -- id_alumnos
+                and co_parentesco in (1,2) -- solo papa y mama
+                and fam.eliminado = false 
+                and rel.eliminado = false
+        group by a.nombre,a.id
+    )select 
+            al.nombre,
+            a.fecha,
+            a.hora_entrada,
+            c.correos,
+            c.nombres_padres,
+            c.tokens
+        from co_asistencia a inner join co_alumno al on a.co_alumno = al.id
+                                left join correos c on c.id_alumno = al.id
+        where a.id = ANY(2$::int[])	 -- id_asistencia 		 
+              AND a.eliminado = false
+              AND al.eliminado = false`, 
+        [ids_alumnos,ids_asistencias],
+        (error, results) => {
+            if (error) {
+                handle.callbackError(error, response);
+                return;
+            }
+            console.log("result " + JSON.stringify(results));
+            if (results.rowCount > 0) {                
+                let asistencias = results.rows;                
+                asistencias.forEach(e=>{
+                    let titulo_mensaje = (operacion == ENTRADA ? "Entrada de "+e.nombre:"Salida de "+e.nombre); 
+                    let mensaje_entrada = "Hola, "+ e.nombre_padres +" recibimos a "+e.nombre+" a las "+e.hora_entrada+".";
+                    let mensaje_salida = "Hola, "+ e.nombre_padres+" entregamos a "+e.nombre+" a las "+e.hora_entrada+".";
+                    let cuerpo_mensaje = (operacion == ENTRADA ? mensaje_entrada:mensaje_salida);
+
+                    //token,titulo,cuerpo
+                   mensajeria.enviarMensajeToken(e.tokens,titulo_mensaje,cuerpo_mensaje);
+                   //Enviar correo
+                });                   
+            }
+        });	
+}
 
 /*
 const registrarEntradaAlumnos = (request, response) => {
@@ -217,26 +283,28 @@ const registrarSalidaAlumnos = (request, response) => {
 
         const { ids, genero } = request.body;
 
-        console.log("IDS recibidos " + ids);
+        console.log("IDS de asistencia recibidos " + ids);
         // obtener para el proceso de horas extras
-        var idsForHorasExtras = '';
+        var idsAsistencias = '';
         var first = true;
 
         ids.forEach(element => {
             if (first) {
-                idsForHorasExtras += (element + "");
+                idsAsistencias += (element + "");
                 first = false;
             } else {
-                idsForHorasExtras += (',' + element);
+                idsAsistencias += (',' + element);
             }
         });
 
-        console.log(" === > " + idsForHorasExtras);
+        console.log(" === > " + idsAsistencias);
 
-        pool.query("SELECT registrar_salida_alumno('"+idsForHorasExtras+"',"+genero+");")           
+        pool.query("SELECT registrar_salida_alumno('"+idsAsistencias+"',"+genero+");")           
             .then((results) => {
-                console.log("Resultafdo "+JSON.stringify(results));
-
+                console.log("Resultado "+JSON.stringify(results));
+                if(results.rowCount > 0 ){
+                    //enviarMensajeEntradaSalida(ids,,SALIDA);
+                }
                 response.status(200).json(results.rowCount);
             }).catch((e) => {
                 handle.callbackErrorNoControlado(e, response);

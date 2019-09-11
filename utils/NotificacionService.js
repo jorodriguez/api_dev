@@ -161,16 +161,26 @@ function enviarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, id
                     });
 
                 //enviar mensaje te text
-                if (lista_tokens != null && lista_tokens != [] && lista_tokens.length > 0) {
+                enviarMensajeMovil(lista_tokens,titulo_mensaje,cuerpo_mensaje);
+                /*if (lista_tokens != null && lista_tokens != [] && lista_tokens.length > 0) {
                     console.log("Enviando msj al token " + lista_tokens);
                     mensajeria.enviarMensajeToken(lista_tokens, titulo_mensaje, cuerpo_mensaje);
-                } else { console.log("No existen tokens registraods "); }
+                } else { console.log("No existen tokens registraods "); }*/
 
             }
         });
 }
 
+function enviarMensajeMovil(tokens,titulo,cuerpo){
+    console.log("Enviando mensaje a movil");
+    if (tokens != null && tokens != [] && tokens.length > 0) {
+        console.log("Enviando msj al token " + tokens);
+        mensajeria.enviarMensajeToken(tokens, titulo, cuerpo);
+    } else { 
+        console.log("No existen tokens registrados ");
+     }
 
+}
 
 const notificarReciboPago = (id_alumno, id_pago) => {
     console.log("notificarReciboPago " + id_alumno + "    " + id_pago);
@@ -270,10 +280,11 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                     });
 
                 //enviar mensaje te text
-                if (lista_tokens != null && lista_tokens != [] && lista_tokens.length > 0) {
+                enviarMensajeMovil(lista_tokens,titulo_mensaje,cuerpo_mensaje);
+                /*if (lista_tokens != null && lista_tokens != [] && lista_tokens.length > 0) {
                     console.log("Enviando msj al token " + lista_tokens);
                     mensajeria.enviarMensajeToken(lista_tokens, titulo_mensaje, cuerpo_mensaje);
-                } else { console.log("No existen tokens registraods "); }
+                } else { console.log("No existen tokens registraods "); }*/
 
             }
         });
@@ -335,7 +346,7 @@ function loadTemplateReciboPago(param) {
 const enviarCorreoCambioSucursal = (para, asunto, params) => {
     console.log("@enviarCorreoCambioSucursalComplemento");
 
-    loadTemplate(TEMPLATE_GENERICO,params)
+    loadTemplate(TEMPLATE_GENERICO, params)
         .then((renderHtml) => {
             console.log("Dentro de la promesa resuelta");
             if (renderHtml != null) {
@@ -383,7 +394,7 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
 
             console.log(JSON.stringify(row));
 
-            loadTemplate(TEMPLATE_GENERICO,params)
+            loadTemplate(TEMPLATE_GENERICO, params)
                 .then((renderHtml) => {
                     console.log("Dentro d");
                     if (renderHtml != null) {
@@ -418,13 +429,13 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
 
 
 //mejorar esto param = {titulo:"",subtitulo:"",contenido:""}
-function loadTemplate(templateName,params) {
+function loadTemplate(templateName, params) {
     var html = null;
     //fixme : ir a la bd
     params.nombre_empresa = "Magic Intelligence";
     return new Promise((resolve, reject) => {
         try {
-            fs.readFile(path.resolve(__dirname, "../templates/"+templateName+".html"), 'utf8', (err, data) => {
+            fs.readFile(path.resolve(__dirname, "../templates/" + templateName), 'utf8', (err, data) => {
                 html = mustache.to_html(data, params);
                 resolve(html);
             });
@@ -444,15 +455,15 @@ const getAlumnosInfoCorreoAlumnos = (request, response) => {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
         }
 
-        const { ids }  = request.body;
+        const { ids } = request.body;
 
-        console.log("Ids "+ids);
-        
-        if(ids == undefined){
+        console.log("Ids " + ids);
+
+        if (ids == undefined) {
             response.status(200).json({ estatus: false, respuesta: "No existen correos registrados. " });
             return;
         }
-        
+
         pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [ids],
             (error, results) => {
                 if (error) {
@@ -479,12 +490,12 @@ const enviarRecordatorioPago = (request, response) => {
 
         var id_alumno = request.params.id_alumno;
         var { nota, nota_escrita } = request.body;
-        console.log("id_alumno "+id_alumno);
+        console.log("id_alumno " + id_alumno);
 
-        if(id_alumno == null){
+        if (id_alumno == null) {
             response.status(500).json({ estatus: false, respuesta: "No enviado validación fállida.." });
             return;
-        }               
+        }
 
         pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [[id_alumno]],
             (error, results) => {
@@ -492,75 +503,95 @@ const enviarRecordatorioPago = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
-                console.log("result "+ JSON.stringify(results));
+                console.log("result " + JSON.stringify(results));
                 if (results.rowCount > 0) {
                     let row = results.rows[0];
 
                     if (row.correos == '' || row.correos == null) {
                         response.status(500).json({ estatus: false, respuesta: "No existen correos registrados. " });
                         return;
-                    }                   
+                    }
                     //let para = row.correos;
-                    console.log("correos obtenidos "+row.correos);
-                    let para = "joel.rod.roj@hotmail.com";
+                    console.log("correos obtenidos " + row.correos);
+                    let para = configuracion.env == 'DEV' ? "joel.rod.roj@hotmail.com":row.correos;
                     let asunto = "Recordatorio de pago";
-
+                    let lista_tokens = row.tokens;
                     //enviar 
                     obtenerCargos(id_alumno)
                         .then((results) => {
+
                             if (results.rowCount > 0) {
-                                //let suma = results.rows.
-                                let params = {
-                                    titulo: "Recordatorio de pago",
-                                    nombre_cliente: row.nombres_padres,
-                                    nota: nota_escrita ? nota : "Te recordamos que tienes cargos pendientes por pagar.",
-                                    cargos : results.rows,            
-                                    total : 0    
-                                };
-                                //enviarRecordatorioPagoComplemento(row.correos, "Recordatorio de pago", params, cargos);
-                                loadTemplate(TEMPLATE_AVISO_PAGO,params)
-                                    .then((renderHtml) => {
-                                        console.log("Dentro d");
-                                        if (renderHtml != null) {
 
-                                            const mailData = {
-                                                from: mailOptions.from,
-                                                to: para,
-                                                cc: mailOptions.cc,
-                                                subject: asunto,
-                                                html: renderHtml
-                                            };
+                                let resultado = results.rows[0];
 
-                                            transporter.sendMail(mailData, function (error, info) {
-                                                if (error) {
-                                                    console.log("Error al enviar correo : " + error);
-                                                    response.status(500).json({ estatus: false, respuesta: "Falló el envio de correo." });
-                                                } else {
-                                                    console.log('Email sent: ' + info.response);
-                                                    response.status(200).json({ estatus: true, respuesta: "Enviado" });
-                                                }
-                                            });
+                                let total = resultado.total_adeudo;
+                                let cargos = resultado.cargos;
+                                let contador_cargos = resultado.contador_cargos;
 
-                                            transporter.close();
-                                        } else {
-                                            console.log("No se envio el correo");
-                                            response.status(500).json({ estatus: false, respuesta: "Falló el envio de correo." });
-                                        }
-                                    }).catch(e => {
-                                        console.log("Excepción en el envio de correo : " + e);
-                                        response.status(500).json({ estatus: false, respuesta: "Falló el envio de correo." });
-                                    });
+                                if (total > 0) {
+                                    let titulo = "Recordatorio de pago";
+                                    let mensaje_envio = nota_escrita ? nota : "Te recordamos que tienes cargos pendientes por pagar.";
+                                    let nombres_padres = row.nombres_padres;
+
+                                    //let suma = results.rows.
+                                    let params = {
+                                        titulo: titulo,
+                                        nombre_cliente: nombres_padres,
+                                        nota: mensaje_envio,
+                                        cargos: cargos,
+                                        total: total
+                                    };
+
+                                    //Enviar aviso al telefono                                    
+                                    enviarMensajeMovil(lista_tokens,titulo,"Hola, "+nombres_padres+". "+ mensaje_envio + " Monto $"+total+".");
+
+                                    loadTemplate(TEMPLATE_AVISO_PAGO, params)
+                                        .then((renderHtml) => {
+                                            console.log("Dentro d");
+                                            if (renderHtml != null) {
+
+                                                const mailData = {
+                                                    from: mailOptions.from,
+                                                    to: para,
+                                                    cc: mailOptions.cc,
+                                                    subject: asunto,
+                                                    html: renderHtml
+                                                };
+
+                                                transporter.sendMail(mailData, function (error, info) {
+                                                    if (error) {
+                                                        console.log("Error al enviar correo : " + error);
+                                                        response.status(200).json({ estatus: false, respuesta: "Falló el envio de correo." });
+                                                    } else {
+                                                        console.log('Email sent: ' + info.response);
+                                                        response.status(200).json({ estatus: true, respuesta: "Enviado" });
+                                                    }
+                                                });
+
+                                                transporter.close();
+                                            } else {
+                                                console.log("No se envio el correo");
+                                                response.status(200).json({ estatus: false, respuesta: "Falló el envio de correo." });
+                                            }
+                                        }).catch(e => {
+                                            console.log("Excepción en el envio de correo : " + e);
+                                            response.status(200).json({ estatus: false, respuesta: "Falló el envio de correo." });
+                                        });
+                                } else {
+                                    response.status(200).json({ estatus: false, respuesta: "No existen cargos." });
+                                }
                             } else {
                                 //no existen cargos 
-                                response.status(500).json({ estatus: false, respuesta: "No existen cargos." });
+                                response.status(200).json({ estatus: false, respuesta: "No existen cargos." });
                             }
                         }).catch(e => {
-                            response.status(500).json({ estatus: false, respuesta: "Falló " });
+                            console.log("Error "+e);
+                            response.status(200).json({ estatus: false, respuesta: "Falló " });
                         });
                     //tokens para el cel
                 } else {
                     //informar error
-                    response.status(500).json({ estatus: false, respuesta: "no existen correos registrados. " });
+                    response.status(200).json({ estatus: false, respuesta: "no existen correos registrados. " });
                 }
             });
     } catch (e) {
@@ -571,23 +602,35 @@ const enviarRecordatorioPago = (request, response) => {
 function obtenerCargos(id_alumno) {
 
     return pool.query(
-        `SELECT a.co_balance_alumno,
-           b.id as id_cargo_balance_alumno,
-           b.fecha,
-           b.cantidad,
-           cargo.nombre as nombre_cargo,
-           cat_cargo as id_cargo,
-           cargo.es_facturable,
-           b.total as total,
-           b.cargo,
-           b.total_pagado,
-           b.nota,
-           b.pagado            
+        `
+     with cargos as (
+	        SELECT a.co_balance_alumno,
+                b.id as id_cargo_balance_alumno,
+                b.fecha,
+                b.cantidad,
+                cargo.nombre as nombre_cargo,
+                cat_cargo as id_cargo,
+                cargo.es_facturable,
+                b.total as total,
+                b.cargo,
+                b.total_pagado,
+                b.nota,
+                b.pagado            
          FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
                                        inner join cat_cargo cargo on b.cat_cargo = cargo.id					
          WHERE a.id = $1 and b.pagado = false and b.eliminado = false and a.eliminado = false
-         ORDER by cargo.nombre `
-        , [id_alumno]);
+         ORDER by cargo.nombre 
+)
+	select 
+			a.nombre,
+            b.total_adeudo, 
+            count(c.*) as contador_cargos,
+		    array_to_json(array_agg(to_json(c.*))) AS cargos
+	from co_balance_alumno b inner join co_alumno a on b.id = a.co_balance_alumno
+							  left join cargos c on b.id =  c.co_balance_alumno
+	where a.id = $2 and b.eliminado = false
+	group by a.nombre,b.total_adeudo         `
+        , [id_alumno, id_alumno]);
 }
 
 
