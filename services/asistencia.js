@@ -192,7 +192,7 @@ function enviarMensajeEntradaSalida(ids_asistencias, operacion) {
          FROM co_alumno_familiar rel inner join co_familiar fam on rel.co_familiar = fam.id
                                 inner join co_parentesco parentesco on parentesco.id = rel.co_parentesco
                                 inner join co_alumno a on a.id = rel.co_alumno
-        WHERE co_alumno IN (select co_alumno from co_asistencia where id = ANY($1::int[])) --PARAMETRO
+        WHERE a.id IN (select co_alumno from co_asistencia where id = ANY($1::int[])) --PARAMETRO
                  --and envio_recibos -- id_alumnos
                 and co_parentesco in (1,2) -- solo papa y mama
                 and fam.eliminado = false 

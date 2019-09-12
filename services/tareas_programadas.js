@@ -61,8 +61,7 @@ const ejecutarProcesoHorasExtrasAuto = () => {
 
     pool.query("select generar_horas_extras();")
         .then((results) => {
-            console.log("Resultado " + JSON.stringify(results));
-
+            
             if (results.rowCount > 0) {
                 console.log("Iniciando el envio de mensajes ");
 
@@ -207,20 +206,53 @@ const ejecutarProcesoNotificacionProximaSalidaAlumnoPorSucursal = (co_sucursal) 
 
     //Obtiene los alumnos con que tengan 30 o menos minutos proximos a salir
     try {
-        pool.query(" SELECT alumno.id," +
-            " alumno.nombre||' '||alumno.apellidos as nombre," +
-            " alumno.co_sucursal, " +
-            " alumno.hora_salida,	" +
-            " age((getDate('')+alumno.hora_salida)::timestamp,(getDate('')+getHora(''))::timestamp) as tiempo_faltante," +
-            " (alumno.hora_salida - getHora('')) <= interval '30 minutes' as notificar_proxima_salida" +
-            " FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id" +
-            " WHERE asistencia.hora_salida is null  and asistencia.fecha = getDate('')                       " +
-            " AND (alumno.hora_salida - getHora('')) <= interval '30 minutes'" +
-            "   AND alumno.co_sucursal = $1" +
-            "   AND (alumno.hora_salida - getHora('')) >= interval '1 minute'" +
-            "   AND alumno.eliminado=false " +
-            " ORDER BY alumno.hora_salida DESC",
-            [co_sucursal],
+        pool.query(
+            `
+            with correos as (
+                SELECT  	
+                        a.id as id_alumno,
+                        a.nombre as nombre_alumno,		 
+                        string_agg(split_part(fam.nombre,' ',1),' / ') AS nombres_padres,    
+                        array_to_json(array_agg(to_json(fam.correo))) AS correos, 
+                        array_to_json(array_agg(to_json(coalesce(fam.token,'') ))) as tokens
+             FROM co_alumno_familiar rel inner join co_familiar fam on rel.co_familiar = fam.id
+                                    inner join co_parentesco parentesco on parentesco.id = rel.co_parentesco
+                                    inner join co_alumno a on a.id = rel.co_alumno
+                WHERE a.co_sucursal = $1
+                     --and envio_recibos -- id_alumnos
+                    and co_parentesco in (1,2) -- solo papa y mama
+                    and fam.eliminado = false 
+                    and rel.eliminado = false
+                group by a.nombre,a.id
+            ) SELECT
+                    alumno.id,
+                    alumno.nombre,
+                    alumno.co_sucursal, 
+                    alumno.hora_salida,			
+                    to_char(
+                        age((getDate('')+alumno.hora_salida)::timestamp,(getDate('')+getHora(''))::timestamp)					
+                        ,'HH24:MI')
+                    as tiempo_faltante,
+                    EXTRACT(hour from 
+                        age((getDate('')+alumno.hora_salida)::timestamp,(getDate('')+getHora(''))::timestamp))
+                        as tiempo_faltante_horas,																			 
+                    EXTRACT(minute from 
+                        age((getDate('')+alumno.hora_salida)::timestamp,(getDate('')+getHora(''))::timestamp))
+                        as tiempo_faltante_minutos,
+                    (alumno.hora_salida - getHora('')) <= interval '30 minutes' as notificar_proxima_salida,
+                    c.nombres_padres,
+                    c.correos,
+                    c.tokens
+                 FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id
+                                                inner join correos c on c.id_alumno = alumno.id
+                 WHERE asistencia.hora_salida is null  and asistencia.fecha = getDate('')                    
+                   AND (alumno.hora_salida - getHora('')) <= interval '30 minutes'
+                   AND alumno.co_sucursal = $2
+                   AND (alumno.hora_salida - getHora('')) >= interval '1 minute'
+                   AND alumno.eliminado=false 
+                 ORDER BY alumno.hora_salida DESC
+            `,
+            [co_sucursal, co_sucursal],
             (error, results) => {
                 if (error) {
                     console.log("Error en query alumnos enviar notificacion proxima salir " + error);
@@ -229,19 +261,25 @@ const ejecutarProcesoNotificacionProximaSalidaAlumnoPorSucursal = (co_sucursal) 
                 if (results.rowCount > 0) {
                     console.log("inciando envio de notificaciones ");
                     var ID_TEMA_SALIDA_ALUMNO = 3;
-                    mensajeria.enviarMensajePorTema(results.rows, ID_TEMA_SALIDA_ALUMNO, co_sucursal,
-                        (token, alumno) => {
-                            mensajeria.enviarMensajeToken(
-                                token,
-                                alumno.nombre + " esta proximo a salir.",
-                                "Faltan " + alumno.tiempo_faltante + " para la salida del alumno.")
-                                .then((response) => {
-                                    console.log("Envio correcto notificacion proximo salir ok " + response);
-                                }).catch((e) => {
-                                    console.log("Error en la mensajeria " + e);
-                                });
+                    let mensaje_usuario_tema = "";
+
+                    results.rows.forEach(e => {
+                        let titulo = e.nombre + " te espera ";
+                        let mensaje = "Hola "+e.nombres_padres+", "
+                                        + e.nombre+" te espera, faltan "+(e.tiempo_faltante_horas > 0 ? (e.tiempo_faltante_horas+" hora"+(e.tiempo_faltante_horas > 1 ? "s":"")):" ")
+                                        +e.tiempo_faltante_minutos+" minuto"+(e.tiempo_faltante_minutos > 0 ? "s":" ")+ " para su hora de salida.";
+                        mensajeria.enviarMensajeToken(e.tokens, titulo, mensaje);
+                        if (mensaje_usuario_tema == "") {
+                            mensaje_usuario_tema += e.nombre;
+                        } else {
+                            mensaje_usuario_tema += ("," + e.nombre);
                         }
-                    );
+                    });
+                    mensaje_usuario_tema += ".";
+                    //enviar mensaje a la miss
+                    //titulo,mensaje,id_tema, co_sucursal
+                    console.log("Enviando mensaje a la mis de proximos a salir");
+                    mensajeria.enviarMensajePorTema("Alumnos próximos a salir", mensaje_usuario_tema, ID_TEMA_SALIDA_ALUMNO, co_sucursal);
 
                 } else {
                     console.log("No existen alumnos proximos  a salir ");
@@ -259,19 +297,50 @@ const ejecutarProcesoNotificacionProximaSalidaAlumnoPorSucursal = (co_sucursal) 
 const ejecutarProcesoNotificacionExpiracionSalidaAlumnoPorSucursal = (co_sucursal) => {
     console.log("@Ejecucion de expiracion de tiempo de alumnos");
     try {
-        pool.query(" 	 SELECT alumno.id," +
-            " alumno.nombre||' '||alumno.apellidos as nombre," +
-            " alumno.co_sucursal, " +
-            " alumno.hora_salida,	" +
-            " (alumno.hora_salida <= getHora('')) as notificar_tiempo_expirado," +
-            "  date_trunc('minute',(getHora('') - alumno.hora_salida))::text as tiempo_expirado					" +
-            " FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id                              " +
-            " WHERE asistencia.hora_salida is null  and asistencia.fecha = getDate('')" +
-            " AND alumno.co_sucursal = $1" +
-            " AND (getHora('') - alumno.hora_salida) >= interval '1 minute'" +
-            "                AND alumno.eliminado=false" +
-            " ORDER BY alumno.hora_salida DESC",
-            [co_sucursal],
+        pool.query(`
+				
+        	with correos as (	
+                SELECT  	
+                        a.id as id_alumno,
+                        a.nombre as nombre_alumno,		 
+                        string_agg(split_part(fam.nombre,' ',1),' / ') AS nombres_padres,    
+                        array_to_json(array_agg(to_json(fam.correo))) AS correos, 
+                        array_to_json(array_agg(to_json(coalesce(fam.token,'') ))) as tokens
+            FROM co_alumno_familiar rel inner join co_familiar fam on rel.co_familiar = fam.id
+                            inner join co_parentesco parentesco on parentesco.id = rel.co_parentesco
+                            inner join co_alumno a on a.id = rel.co_alumno
+            WHERE a.co_sucursal = $1
+                 --and envio_recibos -- id_alumnos
+                    and co_parentesco in (1,2) -- solo papa y mama
+                    and fam.eliminado = false 
+                    and rel.eliminado = false
+                group by a.nombre,a.id
+        )	
+        SELECT 
+            alumno.id,
+            alumno.nombre,
+            alumno.co_sucursal, 
+            to_char(alumno.hora_salida,'hh:mm AM') AS hora_salida,	
+            (alumno.hora_salida <= getHora('')) AS notificar_tiempo_expirado,					
+            (date_trunc('minute',(getHora('') - alumno.hora_salida))) as tiempo_expirado,			 
+            EXTRACT(hour from 
+               (date_trunc('minute',(getHora('') - alumno.hora_salida)))) 
+            as tiempo_expirado_horas,					
+            EXTRACT(minute from 
+               (date_trunc('minute',(getHora('') - alumno.hora_salida))))
+            as tiempo_expirado_minutos,			  
+            c.nombres_padres,
+            c.correos,
+            c.tokens
+        FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id                              
+                                        inner join correos c on c.id_alumno = alumno.id
+        WHERE asistencia.hora_salida is null  and asistencia.fecha = getDate('')
+                 AND alumno.co_sucursal = $2
+                 AND (getHora('') - alumno.hora_salida) >= interval '1 minute'
+                 AND alumno.eliminado=false
+         ORDER BY alumno.hora_salida DESC
+        `,
+            [co_sucursal,co_sucursal],
             (error, results) => {
                 if (error) {
                     console.log("Error al enviar notificacion tiempo expirado " + error);
@@ -280,20 +349,26 @@ const ejecutarProcesoNotificacionExpiracionSalidaAlumnoPorSucursal = (co_sucursa
                 if (results.rowCount > 0) {
                     console.log("inciando envio de notificaciones de tiempo expirado ");
                     var ID_TEMA_SALIDA_ALUMNO = 3;
-                    mensajeria.enviarMensajePorTema(results.rows, ID_TEMA_SALIDA_ALUMNO, co_sucursal,
-                        (token, alumno) => {
-                            console.log("JSO " + JSON.stringify(alumno));
-                            mensajeria.enviarMensajeToken(
-                                token,
-                                alumno.nombre + " aun no ha salido.",
-                                " Tiempo después de su hora de salida " + alumno.tiempo_expirado + ".")
-                                .then((response) => {
-                                    console.log("Envio correcto notificacion expirado ok " + response);
-                                }).catch((e) => {
-                                    console.log("Error en la mensajeria " + e);
-                                });
+
+                    let mensaje_usuario_tema = "";
+
+                    results.rows.forEach(e => {                        
+                        let titulo = e.nombre + " te espera ";
+                        let mensaje = "Hola "+e.nombres_padres+", "
+                                        +e.nombre+" tiene " + (e.tiempo_expirado_hora > 0 ? e.tiempo_expirado_horas+" hora"+(e.tiempo_expirado_horas>1?"s":""):" ") 
+                                        +(e.tiempo_expirado_minutos > 0 ? (e.tiempo_expirado_minutos+(" minuto"+(e.tiempo_expirado_minutos > 1 ? "s":""))):" ") +" de tiempo extra.";
+                        mensajeria.enviarMensajeToken(e.tokens, titulo, mensaje);
+                        if (mensaje_usuario_tema == "") {
+                            mensaje_usuario_tema += e.nombre;
+                        } else {
+                            mensaje_usuario_tema += ("," + e.nombre);
                         }
-                    );
+                    });
+                    mensaje_usuario_tema += ".";
+                    //enviar mensaje a la miss
+                    //titulo,mensaje,id_tema, co_sucursal
+                    console.log("Enviando mensaje a la miss de alumnos sin salir");
+                    mensajeria.enviarMensajePorTema("Alumnos con tiempo expirado ", mensaje_usuario_tema, ID_TEMA_SALIDA_ALUMNO, co_sucursal);
 
                 } else {
                     console.log("No existen alumnos proximos  a salir ");
