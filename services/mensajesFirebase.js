@@ -107,7 +107,7 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
             retorno = firebase.messaging().sendToDevice(token, payloadMensaje, options);
         } else {
             retorno = new Promise((resolve, reject) => {
-                setTimeout(function () { resolve("¡ No enviado por Configuración !"); }, 250);
+                setTimeout(function () { resolve("¡ No enviado !"); }, 250);
             });
             console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG ");
         }
