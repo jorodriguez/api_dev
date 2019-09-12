@@ -161,8 +161,8 @@ const registrarEntradaAlumnos = (request, response) => {
                 if (results.rowCount > 0) {
                     //Enviar mensaje de recepcion
                     console.log("Resultado del procedimiento " + JSON.stringify(results.rows));
-                    var listaIds = results.rows.map(e => e.registrar_entrada_alumno);
-                    enviarMensajeEntradaSalida(ids, listaIds, ENTRADA);
+                    var listaIdsAsistencias = results.rows.map(e => e.registrar_entrada_alumno);
+                    enviarMensajeEntradaSalida(listaIdsAsistencias, ENTRADA);
                 }
 
                 response.status(200).json(results.rowCount);
@@ -174,11 +174,11 @@ const registrarEntradaAlumnos = (request, response) => {
     }
 };
 
-function enviarMensajeEntradaSalida(ids_alumnos, ids_asistencias, operacion) {
-    console.log("ids_al " + ids_alumnos + " ids asis  " + ids_asistencias + " operacion " + operacion);
+function enviarMensajeEntradaSalida(ids_asistencias, operacion) {
+    console.log(" ids asis  " + ids_asistencias + " operacion " + operacion);
     try {
-        if (ids_alumnos == undefined || ids_alumnos == null || ids_asistencias == undefined || ids_asistencias == null) {
-            console.log("Las listas son null");
+        if (ids_asistencias == undefined || ids_asistencias == null) {
+            console.log("La lista de ids de asistencia es null");
             return;
         }
         console.log("iniciando el proceso de envio de mensajeria ");
@@ -192,7 +192,8 @@ function enviarMensajeEntradaSalida(ids_alumnos, ids_asistencias, operacion) {
          FROM co_alumno_familiar rel inner join co_familiar fam on rel.co_familiar = fam.id
                                 inner join co_parentesco parentesco on parentesco.id = rel.co_parentesco
                                 inner join co_alumno a on a.id = rel.co_alumno
-        WHERE co_alumno = ANY($1::int[]) --and envio_recibos -- id_alumnos
+        WHERE co_alumno IN (select co_alumno from co_asistencia where id = ANY($1::int[])) --PARAMETRO
+                 --and envio_recibos -- id_alumnos
                 and co_parentesco in (1,2) -- solo papa y mama
                 and fam.eliminado = false 
                 and rel.eliminado = false
@@ -204,15 +205,16 @@ function enviarMensajeEntradaSalida(ids_alumnos, ids_asistencias, operacion) {
             to_char(a.fecha,'MM')::integer      AS num_mes,		
             to_char(a.fecha,'YY')               AS anio_label,
             to_char(a.hora_entrada,'hh:mm AM')  AS hora_entrada,
+            to_char(a.hora_salida,'hh:mm AM')  AS hora_salida,
             c.correos,
             c.nombres_padres,
             c.tokens
         from co_asistencia a inner join co_alumno al on a.co_alumno = al.id
                                 left join correos c on c.id_alumno = al.id
-        where a.id = ANY($2::int[])	 -- id_asistencia 		 
+        where a.id = ANY($2::int[])	 -- IDS DE ASISTENCIAS	 
               AND a.eliminado = false
               AND al.eliminado = false`,
-            [ids_alumnos, ids_asistencias],
+            [ids_asistencias, ids_asistencias],
             (error, results) => {
                 if (error) {
                     console.log("Excepcion en el query al enviar los mensajes "+error);
@@ -224,7 +226,7 @@ function enviarMensajeEntradaSalida(ids_alumnos, ids_asistencias, operacion) {
                     asistencias.forEach(e => {
                         let titulo_mensaje = (operacion == ENTRADA ? "Entrada de " + e.nombre : "Salida de " + e.nombre);
                         let mensaje_entrada = "Hola, " + e.nombres_padres + " recibimos a " + e.nombre + " a las " + e.hora_entrada + ".";
-                        let mensaje_salida = "Hola, " + e.nombres_padres + " entregamos a " + e.nombre + " a las " + e.hora_entrada + ".";
+                        let mensaje_salida = "Hola, " + e.nombres_padres + " entregamos a " + e.nombre + " a las " + e.hora_salida + ".";
                         let cuerpo_mensaje = (operacion == ENTRADA ? mensaje_entrada : mensaje_salida);
                                                 
                         //token,titulo,cuerpo
@@ -241,6 +243,9 @@ function enviarMensajeEntradaSalida(ids_alumnos, ids_asistencias, operacion) {
 
     }
 }
+
+
+
 
 /*
 const registrarEntradaAlumnos = (request, response) => {
@@ -318,6 +323,7 @@ const registrarSalidaAlumnos = (request, response) => {
                 console.log("Resultado " + JSON.stringify(results));
                 if (results.rowCount > 0) {
                     //enviarMensajeEntradaSalida(ids,,SALIDA);
+                    enviarMensajeEntradaSalida(ids, SALIDA);
                 }
                 response.status(200).json(results.rowCount);
             }).catch((e) => {
