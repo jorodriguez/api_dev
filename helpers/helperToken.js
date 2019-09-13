@@ -38,7 +38,8 @@ const validarToken = (request) => {
                 respuesta = respuestaFail;                
             }            
             console.log("Token OK");
-        });
+            console.log(JSON.stringify(decoded));
+        });        
         //console.log("TERMINO VALIDACION TOKEN");
         return respuesta;        
     } catch (e) {
