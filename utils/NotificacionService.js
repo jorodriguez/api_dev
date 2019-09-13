@@ -520,7 +520,7 @@ const enviarRecordatorioPago = (request, response) => {
                                 //enviarRecordatorioPagoComplemento(row.correos, "Recordatorio de pago", params, cargos);
                                 loadTemplate(TEMPLATE_AVISO_PAGO,params)
                                     .then((renderHtml) => {
-                                        console.log("Dentro d");
+                                        console.log("Dentro ");
                                         if (renderHtml != null) {
 
                                             const mailData = {
