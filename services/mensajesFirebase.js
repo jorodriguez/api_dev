@@ -107,7 +107,7 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
             retorno = firebase.messaging().sendToDevice(token, payloadMensaje, options);
         } else {
             retorno = new Promise((resolve, reject) => {
-                setTimeout(function () { resolve("¡Éxito!"); }, 250);
+                setTimeout(function () { resolve("¡ No enviado !"); }, 250);
             });
             console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG ");
         }
@@ -142,11 +142,12 @@ const sendMessage = (request, response) => {
 
 
 
-const enviarMensajePorTema = (alumnosArray, id_tema, co_sucursal, handler) => {
+const enviarMensajePorTema = (titulo,mensaje,id_tema, co_sucursal) => {
     try {
 
-        if (alumnosArray == null || alumnosArray.length == 0) {
-            console.log("el array es empty o null");
+        if (titulo == null || titulo==undefined || titulo=="" || 
+            id_tema == null || id_tema==undefined) {
+            console.log("valores requeridos para enviar mensajes por tema");
             return;
         }
 
@@ -167,12 +168,9 @@ const enviarMensajePorTema = (alumnosArray, id_tema, co_sucursal, handler) => {
                 if (results.rowCount > 0) {
                     console.log("inciando envio de notificaciones ");
                     results.rows.forEach(e => {
-
-                        alumnosArray.forEach(alumno => {
-                            console.log("Enviar notificacion del alumno " + alumno.nombre);
-                            //crear un handler
-                            handler(e.token, alumno);
-                        });
+                        if(e.token != null){
+                            enviarMensajeToken(e.token,titulo,mensaje);
+                        }                                             
                     });
                 } else {
                     console.log("No existen alumnos proximos  a salir ");

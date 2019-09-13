@@ -1,4 +1,5 @@
 
+// la variable ids_alumnos_params se refiere a los ids del registro de asistencia de co_asistencia
 CREATE or replace FUNCTION registrar_salida_alumno(IN ids_alumnos_param text,ID_GENERO integer,OUT retorno boolean) 
 	RETURNS boolean
  	LANGUAGE plpgsql 	

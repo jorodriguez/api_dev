@@ -4,6 +4,8 @@ const Pool = require('pg').Pool
 const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
+const mensajeria = require('./mensajesFirebase');
+const utilsDate = require('../utils/utilsDate');
 
 const pool = new Pool({
     user: dbParams.user,
@@ -13,6 +15,9 @@ const pool = new Pool({
     port: dbParams.port,
     ssl: { rejectUnauthorized: false }
 });
+
+const ENTRADA = 0;
+const SALIDA = 1;
 
 //FIXME : agregar el parametro de fecha
 const getAlumnosRecibidos = (request, response) => {
@@ -85,28 +90,6 @@ const getAlumnosPorRecibir = (request, response) => {
              AND a.eliminado = false 
              ORDER BY a.nombre ASC
             `,
-        [id_sucursal, id_sucursal],
-        (error, results) => {
-            if (error) {
-                handle.callbackError(error, response);
-                return;
-            }
-            response.status(200).json(results.rows);
-        });
-
-       /* pool.query("SELECT a.*" +
-            " FROM co_alumno a " +
-            "  WHERE id not in (" +
-            "               SELECT asistencia.co_alumno" +
-            "                   FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno=alumno.id" +
-            //"                   WHERE asistencia.fecha = current_date AND asistencia.hora_salida is null   " +
-            "                   WHERE asistencia.hora_salida is null and  asistencia.eliminado = false " +
-            "  AND alumno.co_sucursal = $1" +
-            "  AND asistencia.eliminado=false" +
-            ") " +
-            " AND a.co_sucursal = $2 " +
-            " AND a.eliminado = false " +
-            " ORDER BY a.hora_entrada ASC",
             [id_sucursal, id_sucursal],
             (error, results) => {
                 if (error) {
@@ -114,7 +97,29 @@ const getAlumnosPorRecibir = (request, response) => {
                     return;
                 }
                 response.status(200).json(results.rows);
-            });*/
+            });
+
+        /* pool.query("SELECT a.*" +
+             " FROM co_alumno a " +
+             "  WHERE id not in (" +
+             "               SELECT asistencia.co_alumno" +
+             "                   FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno=alumno.id" +
+             //"                   WHERE asistencia.fecha = current_date AND asistencia.hora_salida is null   " +
+             "                   WHERE asistencia.hora_salida is null and  asistencia.eliminado = false " +
+             "  AND alumno.co_sucursal = $1" +
+             "  AND asistencia.eliminado=false" +
+             ") " +
+             " AND a.co_sucursal = $2 " +
+             " AND a.eliminado = false " +
+             " ORDER BY a.hora_entrada ASC",
+             [id_sucursal, id_sucursal],
+             (error, results) => {
+                 if (error) {
+                     handle.callbackError(error, response);
+                     return;
+                 }
+                 response.status(200).json(results.rows);
+             });*/
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -144,23 +149,103 @@ const registrarEntradaAlumnos = (request, response) => {
             }
         });
 
-        console.log("Ids registrar entrada  "+idsAlumnos);
+        console.log("Ids registrar entrada  " + idsAlumnos);
 
-        pool.query("select registrar_entrada_alumno('"+idsAlumnos+"',"+genero+");",
+        pool.query("select registrar_entrada_alumno('" + idsAlumnos + "'," + genero + ");",
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
                 }
 
-                response.status(200).json(results.rowCount)
+                if (results.rowCount > 0) {
+                    //Enviar mensaje de recepcion
+                    console.log("Resultado del procedimiento " + JSON.stringify(results.rows));
+                    var listaIdsAsistencias = results.rows.map(e => e.registrar_entrada_alumno);
+                    enviarMensajeEntradaSalida(listaIdsAsistencias, ENTRADA);
+                }
+
+                response.status(200).json(results.rowCount);
             });
-            
+
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
 
     }
 };
+
+function enviarMensajeEntradaSalida(ids_asistencias, operacion) {
+    console.log(" ids asis  " + ids_asistencias + " operacion " + operacion);
+    try {
+        if (ids_asistencias == undefined || ids_asistencias == null) {
+            console.log("La lista de ids de asistencia es null");
+            return;
+        }
+        console.log("iniciando el proceso de envio de mensajeria ");
+        pool.query(`with correos as (
+        SELECT  	
+                    a.id as id_alumno,
+                    a.nombre as nombre_alumno,		 
+                    string_agg(split_part(fam.nombre,' ',1),' / ') AS nombres_padres,    
+                    array_to_json(array_agg(to_json(fam.correo))) AS correos, 
+                    array_to_json(array_agg(to_json(coalesce(fam.token,'') ))) as tokens
+         FROM co_alumno_familiar rel inner join co_familiar fam on rel.co_familiar = fam.id
+                                inner join co_parentesco parentesco on parentesco.id = rel.co_parentesco
+                                inner join co_alumno a on a.id = rel.co_alumno
+        WHERE a.id IN (select co_alumno from co_asistencia where id = ANY($1::int[])) --PARAMETRO
+                 --and envio_recibos -- id_alumnos
+                and co_parentesco in (1,2) -- solo papa y mama
+                and fam.eliminado = false 
+                and rel.eliminado = false
+        group by a.nombre,a.id
+    )select 
+            al.nombre,
+            to_char(a.fecha,'DD-MM-YYYY')       AS fecha,	
+            extract(dow from a.fecha)::integer  AS num_dia,
+            to_char(a.fecha,'MM')::integer      AS num_mes,		
+            to_char(a.fecha,'YY')               AS anio_label,
+            to_char(a.hora_entrada,'hh:mm AM')  AS hora_entrada,
+            to_char(a.hora_salida,'hh:mm AM')  AS hora_salida,
+            c.correos,
+            c.nombres_padres,
+            c.tokens
+        from co_asistencia a inner join co_alumno al on a.co_alumno = al.id
+                                left join correos c on c.id_alumno = al.id
+        where a.id = ANY($2::int[])	 -- IDS DE ASISTENCIAS	 
+              AND a.eliminado = false
+              AND al.eliminado = false`,
+            [ids_asistencias, ids_asistencias],
+            (error, results) => {
+                if (error) {
+                    console.log("Excepcion en el query al enviar los mensajes "+error);
+                    return;
+                }
+                console.log("result " + JSON.stringify(results));
+                if (results.rowCount > 0) {                    
+                    let asistencias = results.rows;
+                    asistencias.forEach(e => {
+                        let titulo_mensaje = (operacion == ENTRADA ? "Entrada de " + e.nombre : "Salida de " + e.nombre);
+                        let mensaje_entrada = "Hola, " + e.nombres_padres + " recibimos a " + e.nombre + " a las " + e.hora_entrada + ".";
+                        let mensaje_salida = "Hola, " + e.nombres_padres + " entregamos a " + e.nombre + " a las " + e.hora_salida + ".";
+                        let cuerpo_mensaje = (operacion == ENTRADA ? mensaje_entrada : mensaje_salida);
+                                                
+                        //token,titulo,cuerpo
+                        
+                        mensajeria.enviarMensajeToken(e.tokens, titulo_mensaje, cuerpo_mensaje);
+                        //Enviar correo
+                    });
+                }
+            });
+
+    } catch (e) {
+        //handle.callbackErrorNoControlado(e, response);
+        console.log("Excepcion no controlada");
+
+    }
+}
+
+
+
 
 /*
 const registrarEntradaAlumnos = (request, response) => {
@@ -217,26 +302,29 @@ const registrarSalidaAlumnos = (request, response) => {
 
         const { ids, genero } = request.body;
 
-        console.log("IDS recibidos " + ids);
+        console.log("IDS de asistencia recibidos " + ids);
         // obtener para el proceso de horas extras
-        var idsForHorasExtras = '';
+        var idsAsistencias = '';
         var first = true;
 
         ids.forEach(element => {
             if (first) {
-                idsForHorasExtras += (element + "");
+                idsAsistencias += (element + "");
                 first = false;
             } else {
-                idsForHorasExtras += (',' + element);
+                idsAsistencias += (',' + element);
             }
         });
 
-        console.log(" === > " + idsForHorasExtras);
+        console.log(" === > " + idsAsistencias);
 
-        pool.query("SELECT registrar_salida_alumno('"+idsForHorasExtras+"',"+genero+");")           
+        pool.query("SELECT registrar_salida_alumno('" + idsAsistencias + "'," + genero + ");")
             .then((results) => {
-                console.log("Resultafdo "+JSON.stringify(results));
-
+                console.log("Resultado " + JSON.stringify(results));
+                if (results.rowCount > 0) {
+                    //enviarMensajeEntradaSalida(ids,,SALIDA);
+                    enviarMensajeEntradaSalida(ids, SALIDA);
+                }
                 response.status(200).json(results.rowCount);
             }).catch((e) => {
                 handle.callbackErrorNoControlado(e, response);
@@ -280,7 +368,7 @@ const ejecutarProcedimientoCalculoHorasExtra = (ids_alumnos, id_genero) => {
                     console.log("Error al ejecutar el procedimiento calculo extra " + error);
                     return;
                 }
-                console.log("Se ejecuto el procedimiento de horas extras " + JSON.stringify(results));               
+                console.log("Se ejecuto el procedimiento de horas extras " + JSON.stringify(results));
             });
     } catch (e) {
         console.log("Error al ejecutar el procedimiento calculo extra " + e);

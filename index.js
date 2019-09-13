@@ -267,7 +267,7 @@ schedule.scheduleJob('0 */10 12-24 * * 1-5', function () {
 	}
 });
 
-schedule.scheduleJob('0 */31 * * * 1-5', function () {
+schedule.scheduleJob('0 */31 * * * 1-5', function () { 
 	//schedule.scheduleJob('0 */31 * * * 1-5', function () {
 	console.log('CALCULANDO CARGOS DE HORAS EXTRAS DE ALUMNOS ' + new Date());
 	try {
@@ -281,6 +281,7 @@ schedule.scheduleJob('0 */31 * * * 1-5', function () {
 
 
 schedule.scheduleJob('0 */33 * * * 1-5', function () {
+//schedule.scheduleJob('0 */3 * * * 1-5', function () {	
 	console.log('PROCESO DE REVISION DE SALIDA DE ALUMNOS ' + new Date());
 	//FIXME : para pruebas
 	try {
@@ -293,6 +294,7 @@ schedule.scheduleJob('0 */33 * * * 1-5', function () {
 
 
 schedule.scheduleJob('0 */35 * * * 1-5', function () {
+//schedule.scheduleJob('0 */2 * * * 1-5', function () {	
 	console.log('PROCESO DE REVISION DE EXPIRACION DE TIEMPO DE ALUMNOS ' + new Date());
 	//FIXME : para pruebas
 	try {
