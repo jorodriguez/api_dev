@@ -128,9 +128,9 @@ const enviarClaveFamiliar = (id_familiar) => {
                     let hashedPassword = bcrypt.hashSync(password, 8);
 
                     pool.query(
-                        `
-                            UPDATE co_familiar SET password = $2 WHERE id = $1 RETURNING (SELECT split_part(nombre, ' ', 1)) as nombre ,correo;            
-                        `,
+                        `UPDATE co_familiar SET password = $2 
+                         WHERE id = $1 
+                         RETURNING (SELECT split_part(nombre, ' ', 1)) as nombre ,correo;`,                        
                         [id_familiar, hashedPassword],
                         (error, results) => {   
                             if (error) {
@@ -148,7 +148,8 @@ const enviarClaveFamiliar = (id_familiar) => {
                                         {
                                             titulo: "Hola " + (row.nombre != undefined ? row.nombre:"") +",",
                                             subtitulo: "Enviamos tu contraseña de acceso a la aplicación",
-                                            contenido: " Contraseña : " + password
+                                            contenido: `<strong>Usuario : </strong> ${row.correo} <br/>
+                                                       <strong>Contraseña : </strong> ${password}` 
                                         }
                                     );
                             }

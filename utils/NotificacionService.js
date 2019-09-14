@@ -384,13 +384,26 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
     console.log("@enviarCorreoClaveFamiliar");
 
     pool
-        .query('select link_descarga_app_android from configuracion limit 1')
+        .query(`select link_descarga_app_android,
+                        link_descarga_app_ios,
+                        url_facebook,
+                        url_twitter,
+                        url_pagina_oficial,
+                        url_logo_correo_header,
+                        url_logo_correo_footer
+                 from configuracion limit 1`)
         .then(res => {
             let row;
             if (res.rowCount > 0) {
                 row = res.rows[0];
             }
-            params.url_descarga_app = row.link_descarga_app_android;
+            params.url_descarga_app_android = row.link_descarga_app_android;
+            params.url_descarga_app_ios = row.link_descarga_app_ios;
+            params.url_facebook = row.url_facebook;
+            params.url_twitter = row.url_facebook;
+            params.url_pagina_oficial = row.url_pagina_oficial;
+            params.url_logo_correo_header = row.url_logo_correo_header;
+            params.url_logo_correo_footer = row.url_logo_correo_footer;
 
             console.log(JSON.stringify(row));
 

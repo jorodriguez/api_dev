@@ -188,6 +188,25 @@ $$
 
 
 
+alter table configuracion add column link_descarga_app_ios text;
+
+alter table configuracion add column url_facebook text;
+alter table configuracion add column url_twitter text;
+alter table configuracion add column url_pagina_oficial text;
+alter table configuracion add column url_logo_correo_footer text;
+alter table configuracion add column url_logo_correo_header text;
+
+update configuracion set url_logo_correo_footer = 'https://firebasestorage.googleapis.com/v0/b/magic-ff92f.appspot.com/o/default%2Frecursos%2Fmagic_logo.png?alt=media&token=c77ded40-8e46-4b78-938c-bc2237e33a2c';
+update configuracion set url_logo_correo_header = 'https://firebasestorage.googleapis.com/v0/b/magic-ff92f.appspot.com/o/default%2Frecursos%2FLogo_header_correo.png?alt=media&token=fcd9e376-824c-4380-a08b-befeb9bf8c1d';
+
+
+update configuracion set url_facebook = 'https://www.facebook.com/MagicIntelligence';
+update configuracion set url_twitter = 'www.twitter.com';
+update configuracion set url_pagina_oficial = 'https://magicintelligence.com.com';
+
+
+
+update configuracion set link_descarga_app_android = 'https://drive.google.com/open?id=1jnUwB_ly6z2BbjgTxrY4A_y5a57-rT1a';
             /*
 
             para mostrar los meses

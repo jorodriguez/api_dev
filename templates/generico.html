@@ -57,7 +57,9 @@
                                 <table width="40" align="left" border="0" cellpadding="0" cellspacing="0">  
                                     <tr>
                                         <td height="20" style="padding: 0 20px 20px 0;">
-                                            <img class="fix" src="https://magicintelligence.com/wp-content/uploads/2018/05/Logo-Magic.png" />
+                                            <!-- <img class="fix" src="https://magicintelligence.com/wp-content/uploads/2018/05/Logo-Magic.png" />-->
+                                            <img class="fix" src="{{& url_logo_correo_header}}" />
+                                            
                                             <!--<img class="fix" src="images/icon.gif" width="70" height="70" border="0" alt="" />-->
                                         </td>
                                     </tr>
@@ -82,26 +84,41 @@
                                     <tr>
                                         <td class="h2">              
                                             <small>
-                                                {{contenido}}
+                                                {{{contenido}}}
                                             </small>
                                         </td>
                                     </tr>           
                                     <tr>
                                     <td class="h2"  style="text-align:center">
-                                        <a href="{{& url_descarga_app}}">Descarga nuestra app.</a>                                        
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                    <tr><td align="center" colspan="2" ><small>Descarga nuestra app</small></td></tr>
+                                    <tr>
+                                    <td align="right" style="text-align:right">
+                                    <a href="{{& url_descarga_app_android}}">
+                                      <img src="https://firebasestorage.googleapis.com/v0/b/magic-ff92f.appspot.com/o/default%2Frecursos%2Fandroid.png?alt=media&token=70b27d4f-4b75-4478-8a7e-89e64e5a23af" width="60px" height="50px" />
+                                      </a>
+                                    </td>
+                                    <td align="left" style="text-align:left">
+                                    <a href="{{& url_descarga_app_ios}}">
+                                    <img src="https://firebasestorage.googleapis.com/v0/b/magic-ff92f.appspot.com/o/default%2Frecursos%2Fios.png?alt=media&token=90316365-6735-4a05-ada0-26ea8618df3e" width="60px" height="50px"/>
+                                    </a>
+                                    </td>
+                                    </tr>
+                                    </table>                                                                                                        
+                                      
                                     </td>
                                     </tr>                         
                                 </table>
                             </td>
                         </tr>     
                         <tr>
-                            <td class="innerpadding bordTEMPLATE_GENERICOerbottom">                    
+                            <td class="innerpadding borderbottom">                    
                                 <!--{{mensaje_pie}} --> 
                                 Agradecemos tu confianza.
                                 <br/> 
                                 <small>Atentamente </small>
                                 <br/> 
-                                <strong>Magic Intelligence.</strong>
+                                <strong>{{nombre_empresa}}.</strong>
                             </td>
                         </tr>     
                         <tr>
@@ -110,7 +127,7 @@
                                 <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                     <tr>
                                         <td align="center" class="footercopy">
-                                            &reg; {{nombre_empresa}}<br/>                
+                                           <a href="{{& url_pagina_oficial}}"> &reg; {{nombre_empresa}}</a><br/>                
                                         </td>
                                     </tr>
                                     <tr>
@@ -118,13 +135,18 @@
                                             <table border="0" cellspacing="0" cellpadding="0">
                                                 <tr>
                                                     <td width="37" style="text-align: center; padding: 0 10px 0 10px;">
-                                                        <a href="http://www.facebook.com/">
+                                                        <a href="{{& url_pagina_facebook}}">
                                                             <img src="images/facebook.png" width="37" height="37" alt="Facebook" border="0" />
                                                         </a>
                                                     </td>
                                                     <td width="37" style="text-align: center; padding: 0 10px 0 10px;">
-                                                        <a href="http://www.twitter.com/">
+                                                        <a href="{{& url_pagina_twitter}}">
                                                             <img src="images/twitter.png" width="37" height="37" alt="Twitter" border="0" />
+                                                        </a>
+                                                    </td>
+                                                    <td width="37" style="text-align: center; padding: 0 10px 0 10px;">
+                                                        <a href="{{& url_pagina_oficial}}">
+                                                            <img src="{{& url_logo_correo_header}}" width="37" height="37" alt="Twitter" border="0" />
                                                         </a>
                                                     </td>
                                                 </tr>
