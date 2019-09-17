@@ -5,7 +5,6 @@ const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
 const mensajeria = require('./mensajesFirebase');
-const utilsDate = require('../utils/utilsDate');
 
 const pool = new Pool({
     user: dbParams.user,

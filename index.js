@@ -20,6 +20,7 @@ const schedule = require('node-schedule');
 const formas_pago = require('./services/formas_pago');
 const { configuracion } = require('./config/ambiente');
 const reporteDeudas = require('./services/reporteDeudas');
+const reporte_mensualidades = require('./services/reporte_mensualidades');
 const utilerias = require('./services/utilerias');
 const datos_facturacion = require('./services/datos_facturacion');
 const gastos = require('./services/gastos');
@@ -187,8 +188,12 @@ app.post('/auth_cliente/login', authClientesController.loginCliente);
 app.put('/auth_cliente/:id_familiar',authClientesController.cambioClaveFamiliar);
 
 //reporte de mensualidades facturadas
-app.get('/reporte_mensualidades/:id_sucursal', reporteDeudas.getReporteCargosFacturados);
-app.get('/reporte_mensualidades', reporteDeudas.getReporteCargosFacturadosSucursal);
+app.get('/reporte_mensualidades', reporte_mensualidades.getReporteMensualidadesSucursalMesActual);
+app.get('/reporte_mensualidades/:id_sucursal', reporte_mensualidades.getReporteMensualidades);
+app.get('/reporte_mensualidades/:id_sucursal/meses', reporte_mensualidades.getReporteMesesConDeudasMensualidad);
+app.get('/reporte_mensualidades/:mes', reporte_mensualidades.getReporteMensualidadesSucursal);
+
+
 
 //configuracion
 app.get('/configuracion', conf.getConfiguracion);

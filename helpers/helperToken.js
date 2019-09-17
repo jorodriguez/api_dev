@@ -23,7 +23,7 @@ const validarToken = (request) => {
         //{"name":"TokenExpiredError","message":"jwt expired","expiredAt":"2019-08-29T13:55:47.000Z"}
                
         jwt.verify(token, config.secret, function (err, decoded) {
-            console.log("Validando token con store "+token);            
+           // console.log("Validando token con store "+token);            
             if (err) {
                 console.log("ERROR "+JSON.stringify(err));
                 

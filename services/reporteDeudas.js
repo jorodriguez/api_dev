@@ -334,6 +334,8 @@ const getReporteCrecimientoMensualSucursal = (request, response) => {
 
 
 
+
+
 const getReporteAlumnosMensualCrecimiento = (request, response) => {
     console.log("@getReporteAlumnosMensualCrecimiento");
     try {
@@ -445,124 +447,6 @@ const getReporteAlumnosNuevosIngresosGlobal = (request, response) => {
 };
 
 
-
-const getReporteCargosFacturados = (request, response) => {
-    console.log("@getReporteCargosFacturados");
-    try {
-
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
-        const { id_sucursal } = request.params;
-
-        //const mes = request.params.mes;
-
-        pool.query(
-            `   
-           
-with info_correos_alumnos AS (
-    SELECT 
-        a.id as id_alumno,
-        
-        string_agg(split_part(fam.nombre,' ',1),' / ') AS nombres_padres,    
-        array_to_json(array_agg(to_json(fam.correo))) AS correos, 
-        array_to_json(array_agg(to_json(fam.token))) as tokens
-     FROM co_alumno_familiar rel inner join co_familiar fam on rel.co_familiar = fam.id
-                    inner join co_parentesco parentesco on parentesco.id = rel.co_parentesco
-                    inner join co_alumno a on a.id = rel.co_alumno								
-    WHERE  a.co_sucursal = $1 --and envio_recibos
-        and co_parentesco in (1,2) -- solo papa y mama
-        and fam.eliminado = false 
-        and rel.eliminado = false
-     group by a.nombre,a.id
-)SELECT    
-            rel.id,
-            al.id as id_alumno,
-                al.nombre as nombre_alumno,
-                rel.pago,	
-                cargo.fecha as fecha_cargo,
-                cargo.cargo,
-                cargo.total as adeuda_de_cargo,
-                cargo.nota,
-                pago.fecha as fecha_pago,
-                pago.pago,
-                pago.identificador_factura,
-                forma_pago.nombre as forma_pago,	
-                c.nombre as nombre_cargo,
-                cargo.pagado,
-                i.*   
-            from co_cargo_balance_alumno cargo  left join co_pago_cargo_balance_alumno rel on rel.co_cargo_balance_alumno = cargo.id
-                left join co_pago_balance_alumno pago on rel.co_pago_balance_alumno = pago.id and pago.eliminado = false 
-                left join co_forma_pago forma_pago on pago.co_forma_pago = forma_pago.id						
-                inner join co_alumno al on al.co_balance_alumno = cargo.co_balance_alumno
-                inner join cat_cargo c on c.id = cargo.cat_cargo
-                left join info_correos_alumnos i on i.id_alumno = al.id
-            where cargo.cat_cargo = 1 
-                and al.co_sucursal = $2
-                and to_char(cargo.fecha,'Mon-YYYY') = to_char(getDate(''),'Mon-YYYY') 
-                and cargo.eliminado = false 
-            order by cargo.pagado desc,al.nombre, pago.fecha
-
-         `, [id_sucursal, id_sucursal], (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).json(results.rows);
-            });
-    } catch (e) {
-        handle.callbackErrorNoControlado(e, response);
-    }
-};
-
-
-
-const getReporteCargosFacturadosSucursal = (request, response) => {
-    console.log("@getReporteCargosFacturadosSucursal");
-    try {
-
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
-        let ID_CARGO_MENSUALIDAD = 1;
-
-        pool.query(
-            `              
-            SELECT 
-                suc.id as id_sucursal,
-                suc.nombre as sucursal,	
-                suc.class_color,		  
-                count(cargo.*) filter (where cargo.pagado) as cargos_pagados,			   
-                count(cargo.*) filter (where cargo.pagado = false) as cargos_no_pagados,			   			   
-                count(pago.identificador_factura) as pagos_facturados
-            from co_cargo_balance_alumno cargo  left join co_pago_cargo_balance_alumno rel on rel.co_cargo_balance_alumno = cargo.id
-                 left join co_pago_balance_alumno pago on rel.co_pago_balance_alumno = pago.id and pago.eliminado = false                 
-                inner join co_alumno al on al.co_balance_alumno = cargo.co_balance_alumno
-                left join co_sucursal suc on suc.id = al.co_sucursal
-            where cargo.cat_cargo = $1
-                and to_char(cargo.fecha,'Mon-YYYY') = to_char(getDate(''),'Mon-YYYY') 
-                and cargo.eliminado = false 
-            group by suc.id
-         `, [ID_CARGO_MENSUALIDAD],
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).json(results.rows);
-            });
-    } catch (e) {
-        handle.callbackErrorNoControlado(e, response);
-    }
-};
-
-
 const getReporteGastosIngresosSucursalPorMes = (request, response) => {
     console.log("@getReporteGastosIngresosSucursalPorMes");
     try {
@@ -578,8 +462,6 @@ const getReporteGastosIngresosSucursalPorMes = (request, response) => {
 
         console.log("id_sucursal " + id_sucursal);
         console.log("mes " + mes);
-
-        let ID_CARGO_MENSUALIDAD = 1;
 
         let sql = `  with gastos_mes AS (
             Select      
@@ -619,7 +501,7 @@ const getReporteGastosIngresosSucursalPorMes = (request, response) => {
 
         pool.query(
             sql
-            , [ID_CARGO_MENSUALIDAD, id_sucursal, id_sucursal],
+            , [CARGOS.ID_CARGO_MENSUALIDAD, id_sucursal, id_sucursal],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -638,7 +520,6 @@ const getReporteGastosIngresosSucursalPorMes = (request, response) => {
 
 };
 
-
 module.exports = {
     getReporteBalanceAlumnosSucursal,
     getReporteBalancePorSucursal,
@@ -647,8 +528,6 @@ module.exports = {
     getReporteCrecimientoGlobal,
     getReporteCrecimientoMensualSucursal,
     getReporteAlumnosMensualCrecimiento,
-    getReporteAlumnosNuevosIngresosGlobal,
-    getReporteCargosFacturados,
-    getReporteCargosFacturadosSucursal,
+    getReporteAlumnosNuevosIngresosGlobal    ,
     getReporteGastosIngresosSucursalPorMes
 }
