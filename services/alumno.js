@@ -29,14 +29,7 @@ const pool = new Pool({
 const getAlumnos = (request, response) => {
     console.log("@getAlumnos");
     try {
-        /*var token = request.headers['x-access-token'];
-        if (!token) return response.status(401).send(helperToken.noTokenProvider);
-
-        jwt.verify(token, config.secret, function (err, decoded) {
-            if (err)
-                return response.status(500).send(msgs.failedAuthenticateToken);
-        });*/
-
+       
         var validacion = helperToken.validarToken(request);
         if (!validacion.tokenValido) {
             return response.status(validacion.status).send(validacion.mensajeRetorno);;
@@ -356,6 +349,8 @@ const getAlumnoById = (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
+
+
 
 module.exports = {
     getAlumnos,

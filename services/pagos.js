@@ -247,13 +247,63 @@ const getBalanceAlumno = (request, response) => {
 };
 
 
+
+const eliminarCargos = (request, response) => {
+    console.log("@eliminarCargos");
+    try {
+        var validacion = helperToken.validarToken(request);
+
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        const { ids, motivo,genero } = request.body;
+
+        var idsCargos = '';
+        var first = true;
+
+        ids.forEach(element => {
+            if (first) {
+                idsCargos += (element + "");
+                first = false;
+            } else {
+                idsCargos += (',' + element);
+            }
+        });
+
+        console.log("Ids cargos eliminar  " + idsCargos);
+        //eliminar_cargos_alumno(IN ids_cargos_param text,motivo text,ID_GENERO integer) 
+        pool.query("select eliminar_cargos_alumno('" + idsCargos +"','"+ motivo+"'," + genero + ") as ids_cagos_eliminados;",
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+
+                if (results.rowCount > 0) {
+                    //Enviar mensaje de recepcion
+                    console.log("Resultado del procedimiento " + JSON.stringify(results.rows));
+                    var listaIdsCargos = results.rows.map(e => e.ids_cagos_eliminados);
+                    console.log(" listaIdsCargos "+listaIdsCargos);
+                    //enviarMensajeEntradaSalida(listaIdsAsistencias, ENTRADA);
+                }
+
+                response.status(200).json(results.rowCount);
+            });
+
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+
+    }
+};
+
 module.exports = {
     registrarPago,
     registrarCargo,
     getCatalogoCargos,
     getCargosAlumno,
     getBalanceAlumno,
-    getPagosByCargoId
-    
+    getPagosByCargoId,
+    eliminarCargos   
 
 }

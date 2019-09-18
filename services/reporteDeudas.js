@@ -29,6 +29,7 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
 
         pool.query(
             "  select a.id," +
+            "   a.foto," +
             "   a.nombre," +
             "   a.apellidos," +
             "   a.hora_entrada," +
@@ -517,8 +518,71 @@ const getReporteGastosIngresosSucursalPorMes = (request, response) => {
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
-
 };
+
+
+
+const getAllAlumnosCargos = (request, response) => {
+    console.log("@getAllAlumnosCargos");
+    try {
+       
+        var validacion = helperToken.validarToken(request);
+        if (!validacion.tokenValido) {
+            return response.status(validacion.status).send(validacion.mensajeRetorno);;
+        }
+
+        const {id_sucursal } = request.params;
+
+       pool.query(
+            `
+            with universo_cargos as (
+                select
+                    a.id as id_alumno,											 
+                    tipo_cargo.nombre as tipo_cargo,
+                    count(cargos.*) as cargos_totales, 
+                    count(cargos.*) filter (where cargos.pagado) as cargos_pagados,
+                    count(cargos.*) filter (where cargos.pagado = false) as cargos_no_pagados								 
+                  from co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id
+                        inner join co_cargo_balance_alumno cargos on cargos.co_balance_alumno = balance.id	and a.eliminado = false	
+                                    --and cargos.pagado = false
+                                    and cargos.eliminado = false
+                        inner join cat_cargo tipo_cargo on  cargos.cat_cargo = tipo_cargo.id
+                        inner join co_sucursal suc on a.co_sucursal = suc.id							
+                 where suc.id = $1
+                group by
+                       tipo_cargo.nombre,                          
+                       a.id
+               order by a.id
+            ) select 
+                   al.id as id_alunno,
+                   al.foto,
+                   al.nombre as nombre_alumno,
+                   al.apellidos,
+                   grupo.nombre as grupo,
+                   al.co_sucursal AS id_sucursal,
+                   sum(c.cargos_totales) as total_cargos,
+                   sum(c.cargos_no_pagados) as total_cargos_no_pagados,
+                   sum(c.cargos_pagados) as total_cargos_pagados,
+                   array_to_json(array_agg(row_to_json((c.*))))::text AS json_array
+                from  co_alumno al inner join universo_cargos c on c.id_alumno = al.id 
+                                   and al.co_sucursal = $2                
+                                   inner join co_grupo grupo on grupo.id = al.co_grupo
+                group by al.id,grupo.id
+               order by al.nombre
+            `,
+            [id_sucursal,id_sucursal],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).json(results.rows);
+            })
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
 
 module.exports = {
     getReporteBalanceAlumnosSucursal,
@@ -529,5 +593,6 @@ module.exports = {
     getReporteCrecimientoMensualSucursal,
     getReporteAlumnosMensualCrecimiento,
     getReporteAlumnosNuevosIngresosGlobal    ,
-    getReporteGastosIngresosSucursalPorMes
+    getReporteGastosIngresosSucursalPorMes,
+    getAllAlumnosCargos
 }

@@ -125,6 +125,7 @@ app.post('/cargos/registrar', pagos.registrarCargo);
 app.get('/cargos', pagos.getCatalogoCargos);
 app.get('/cargos/:id_alumno', pagos.getCargosAlumno);
 app.get('/balance/:id_alumno', pagos.getBalanceAlumno);
+app.put('/cargos/:id_alumno',pagos.eliminarCargos);
 
 app.get('/formas_pagos', formas_pago.getFormasPago);
 
@@ -192,9 +193,6 @@ app.get('/reporte_mensualidades', reporte_mensualidades.getReporteContadoresSucu
 app.get('/reporte_mensualidades/:id_sucursal', reporte_mensualidades.getReporteContadoresMesesPorSucursal);
 app.get('/reporte_mensualidades/:id_sucursal/:mes', reporte_mensualidades.getReporteMensualidadesPorSucursalMes);
 
-
-
-
 //configuracion
 app.get('/configuracion', conf.getConfiguracion);
 
@@ -213,13 +211,17 @@ app.put('/enviar_recordatorio_pago/:id_alumno',correo_service.enviarRecordatorio
 //reporte ingresos vs cargos
 app.get('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes',reporteDeudas.getReporteGastosIngresosSucursalPorMes);
 
+//Cargos, eliminacion y consulta
+//app.get('/sucursal/:id_sucursal/cargos',reporteDeudas.getAllAlumnosCargos);
+
+
 
 app.get('/', (request, response) => {
-	response.json({ info: 'MagicIntelligence API v1.0.15' })
+	response.json({ info: 'MagicIntelligence API v1.0.16' })
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.15`)
+	console.log(`App corriendo en el puerto ${port} v1.0.16`)
 });
 
 //app.get('/encriptar/:clave', authController.encriptar);
