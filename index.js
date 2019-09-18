@@ -188,10 +188,10 @@ app.post('/auth_cliente/login', authClientesController.loginCliente);
 app.put('/auth_cliente/:id_familiar',authClientesController.cambioClaveFamiliar);
 
 //reporte de mensualidades facturadas
-app.get('/reporte_mensualidades', reporte_mensualidades.getReporteMensualidadesSucursalMesActual);
-app.get('/reporte_mensualidades/:id_sucursal', reporte_mensualidades.getReporteMensualidades);
-app.get('/reporte_mensualidades/:id_sucursal/meses', reporte_mensualidades.getReporteMesesConDeudasMensualidad);
-app.get('/reporte_mensualidades/:mes', reporte_mensualidades.getReporteMensualidadesSucursal);
+app.get('/reporte_mensualidades', reporte_mensualidades.getReporteContadoresSucursalesMesActual);
+app.get('/reporte_mensualidades/:id_sucursal', reporte_mensualidades.getReporteContadoresMesesPorSucursal);
+app.get('/reporte_mensualidades/:id_sucursal/:mes', reporte_mensualidades.getReporteMensualidadesPorSucursalMes);
+
 
 
 
