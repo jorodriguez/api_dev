@@ -47,8 +47,8 @@ const mailOptions = {
     cc: 'joel@magicintelligence.com'
 };*/
 const mailOptions = {
-    from: 'joel@magicintelligence.com',
-    cc: 'joel@magicintelligence.com'
+    from: 'info@magicintelligence.com',
+    cc: 'info@magicintelligence.com'
 };
 
 
