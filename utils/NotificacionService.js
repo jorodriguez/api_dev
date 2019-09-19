@@ -41,19 +41,25 @@ const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
             and fam.eliminado = false 
             and rel.eliminado = false
     group by a.nombre,a.id `;
-
+/*
+const mailOptions = {
+    from: 'joel@magicintelligence.com',
+    cc: 'joel@magicintelligence.com'
+};*/
 const mailOptions = {
     from: 'joel@magicintelligence.com',
     cc: 'joel@magicintelligence.com'
 };
+
 
 const transporter = nodemailer.createTransport({
     host: 'mail.magicintelligence.com',
     port: 465,
     secureConnection: false,
     auth: {
-        user: 'joel@magicintelligence.com',
-        pass: 'Secreta.03'
+        user: 'info@magicintelligence.com',
+        pass:'Clave.01'
+        //pass: 'Secreta.03'
     },
     tls: {
         ciphers: 'SSLv3'
