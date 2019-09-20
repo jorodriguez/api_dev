@@ -1,0 +1,38 @@
+
+CREATE TABLE cat_genero
+(
+    id serial not null,
+    nombre text NOT NULL,
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,   
+    CONSTRAINT cat_genero_pkey PRIMARY KEY (id),
+    CONSTRAINT cat_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT cat_genero_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES public.usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+insert into cat_genero(nombre,genero) values('Mujer',1),('Hombre',1),('Personalizado',1);
+alter table co_familiar add column cat_genero integer;
+ALTER TABLE co_familiar ADD CONSTRAINT cat_genero_constraint_fkey FOREIGN KEY (cat_genero) REFERENCES cat_genero(id);
+--update para agregar restriccion not null
+update co_familiar f
+	set cat_genero = 
+		(select  			
+     		case af.co_parentesco 
+				when 2 then 1 
+				when 4 then 1
+			 	when 6 then 1  	 			
+ 	 			when 8 then 1
+  	 			when 9 then 1
+ 			else 2 end 
+ 			from co_familiar fam inner join co_alumno_familiar af on af.co_familiar = fam.id where fam.id = f.id)  
+
+alter table co_familiar alter column cat_genero set not null;
+

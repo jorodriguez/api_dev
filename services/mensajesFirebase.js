@@ -1,22 +1,10 @@
 
-const Pool = require('pg').Pool
-
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
 const firebase = require("firebase-admin");
 const { configuracion } = require('../config/ambiente');
 
 const serviceAccount = require('./../config/google_service_messages.json');
-
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
 
 const firebaseToken = 'fxjTJg3jQPc:APA91bHDuS-ESYDWoPgxNTn67XmE_7iKsQJpebS4_YJvx4YAcBno03WDwiMHdHE0KOXgkEJT54_whgeWHdIhFf10op_AX0Ia04bPz1qrbSAAtIRSQNhY6ThF9DjAV5k7hVKsHsKFip2j';
 
@@ -90,7 +78,7 @@ const enviarMensajeActividad = (titulo, cuerpo, token) => {
 
 }
 
-
+//token, string[] or string
 const enviarMensajeToken = (token, titulo, cuerpo) => {
     try {
         console.log("Enviando mensaje " + titulo + " " + cuerpo);
@@ -108,7 +96,7 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
         } else {
             console.log("Caso contrario no enviar mensajes");
             retorno = new Promise((resolve, reject) => {
-                setTimeout(function () { resolve("¡Éxito!"); }, 250);
+                setTimeout(function () { resolve("¡ No enviado !"); }, 250);
             });
             console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG ");
         }
@@ -143,11 +131,12 @@ const sendMessage = (request, response) => {
 
 
 
-const enviarMensajePorTema = (alumnosArray, id_tema, co_sucursal, handler) => {
+const enviarMensajePorTema = (titulo,mensaje,id_tema, co_sucursal) => {
     try {
 
-        if (alumnosArray == null || alumnosArray.length == 0) {
-            console.log("el array es empty o null");
+        if (titulo == null || titulo==undefined || titulo=="" || 
+            id_tema == null || id_tema==undefined) {
+            console.log("valores requeridos para enviar mensajes por tema");
             return;
         }
 
@@ -168,12 +157,9 @@ const enviarMensajePorTema = (alumnosArray, id_tema, co_sucursal, handler) => {
                 if (results.rowCount > 0) {
                     console.log("inciando envio de notificaciones ");
                     results.rows.forEach(e => {
-
-                        alumnosArray.forEach(alumno => {
-                            console.log("Enviar notificacion del alumno " + alumno.nombre);
-                            //crear un handler
-                            handler(e.token, alumno);
-                        });
+                        if(e.token != null){
+                            enviarMensajeToken(e.token,titulo,mensaje);
+                        }                                             
                     });
                 } else {
                     console.log("No existen alumnos proximos  a salir ");

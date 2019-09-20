@@ -1,29 +1,15 @@
 
-const Pool = require('pg').Pool
-
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
-const mailService = require('../utils/MailService');
-
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
+const { validarToken } = require('../helpers/helperToken');
+const mailService = require('../utils/NotificacionService');
 
 const cambiarSucursalAlumno = (request, response) => {
     console.log("@cambiarSucursalAlumno");
     try {
-        var validacion = helperToken.validarToken(request);
 
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
+        //validarToken(request,response);
+        
         const id_alumno = request.params.id_alumno;
         const { id_sucursal_origen,id_sucursal_destino, genero } = request.body;
 

@@ -1,19 +1,10 @@
 
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
+
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var config = require('../config/config');
 const handle = require('../helpers/handlersErrors');
-
-const Pool = require('pg').Pool;
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
 
 //  POST — users | createUser()
 const createUser = (request, response) => {
@@ -39,7 +30,7 @@ const createUser = (request, response) => {
                     return;
             }
             // create a token
-            var token = jwt.sign({ id: results.id }, config.secret, {
+            var token = jwt.sign({ id: results.id }, config.secret, {                
                 expiresIn: 86400 // expires in 24 hours                
                 //expiresIn :'30d'
             });
@@ -88,8 +79,8 @@ const login = (request, response) => {
                     if (!passwordIsValid) return response.status(401).send({ auth: false, token: null, usuario: null });
 
                     var token = jwt.sign({ id: results.id }, config.secret, {
-                        expiresIn: 86400 // expires in 24 hours
-                       //expiresIn : 10
+                        //expiresIn: 86400 // expires in 24 hours
+                        expiresIn : 10
                     });
 
                     response.status(200).send({ auth: true, token: token, usuario: usuario });

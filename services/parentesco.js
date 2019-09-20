@@ -1,33 +1,13 @@
 
-const Pool = require('pg').Pool
-
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
-const { isEmpty } = require('../helpers/Utils');
-const Joi = require('@hapi/joi');
-
-const config = require('../config/config');
-const jwt = require('jsonwebtoken');
-
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
+const { validarToken } = require('../helpers/helperToken');
 
 const getCatalogoParentescoAlumno = (request, response) => {
     console.log("@getParentesco");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
+       // validarToken(request,response);
+        
         var id_alumno = request.params.id_alumno;
 
         pool.query(" SELECT * " +

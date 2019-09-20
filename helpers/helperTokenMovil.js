@@ -6,7 +6,7 @@ const noTokenProvider={ auth: false, message: 'No token provided.' };
 
 const failedAuthenticateToken = { auth: false, message: 'Failed to authenticate token.' };
 
-const validarToken = (request) => {
+const validarToken = (request,response) => {
     console.log("validar token movil");
     try {
         const respuestaNoToken = { tokenValido: false, estatus:false, statusNumber: 401, mensajeRetorno: noTokenProvider ,respuesta:null};
@@ -24,7 +24,7 @@ const validarToken = (request) => {
         var respuesta = respuestaOk;
                
         jwt.verify(token, config.secret, function (err, decoded) {
-            console.log("Validando token con store "+token);
+         //   console.log("Validando token con store "+token);
             if (err) {
                 console.log("ERROR "+JSON.stringify(err));
                 
@@ -42,6 +42,7 @@ const validarToken = (request) => {
                 console.log("Token OK");
             }
         });
+               
         //console.log("TERMINO VALIDACION TOKEN");
         return respuesta;        
     } catch (e) {
@@ -49,8 +50,6 @@ const validarToken = (request) => {
         return { tokenValido: false, status: 200, mensajeRetorno: {name:"Error inesperado"} };
     }
 };
-
-
 
 module.exports = {
     validarToken

@@ -1,29 +1,14 @@
 
-const Pool = require('pg').Pool
-
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
-
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
+const { validarToken } = require('../helpers/helperToken');
 
 //obtener actividades
 const getCatalogoValoresEsperados = (request, response) => {
     console.log("@getCatalogoValoresEsperados");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
+       // validarToken(request,response);
+        
         var id_formato = request.params.id_formato;
 
         pool.query(

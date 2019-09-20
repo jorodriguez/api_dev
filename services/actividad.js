@@ -1,72 +1,46 @@
 
-const Pool = require('pg').Pool
-
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
 const mensajeria = require('./mensajesFirebase');
+const { validarToken } = require('../helpers/helperToken');
 
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
+const { getCatalogo } = require('./catagolosHelper');
 
 //obtener actividades
 const getCatalogoActividades = (request, response) => {
     console.log("@getCatalogoActividades");
-    try {
-        var validacion = helperToken.validarToken(request);
+    const actividadesSql =
+        `WITH actividades AS( 
+               SELECT a.id,
+                   a.nombre,
+                   a.posicion,
+                   a.icono,
+                (
+                    select array_to_json(
+                        (select array_agg(ta.*) from cat_tipo_actividad ta where ta.cat_actividad =  a.id )
+                     )
+                ) as tipo_actividad,
+                (
+                    select array_to_json(
+                        (select array_agg(ta.*) from cat_sub_actividad ta where ta.cat_actividad =  a.id )
+                     )
+                ) as sub_actividad		
+             FROM cat_actividad a
+             WHERE a.eliminado = false 
+             ORDER BY a.posicion ASC
+             ) select array_to_json(array_agg(a.*))  as catalogo_actividades 
+               FROM actividades a`
 
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
-        pool.query(
-            "WITH actividades AS( " +
-            "   SELECT a.id," +
-            "       a.nombre," +
-            "       a.posicion," +
-            "       a.icono," +
-            "    (" +
-            "        select array_to_json(" +
-            "            (select array_agg(ta.*) from cat_tipo_actividad ta where ta.cat_actividad =  a.id )" +
-            "         )" +
-            "    ) as tipo_actividad," +
-            "    (" +
-            "        select array_to_json(" +
-            "            (select array_agg(ta.*) from cat_sub_actividad ta where ta.cat_actividad =  a.id )" +
-            "         )" +
-            "    ) as sub_actividad		" +
-            " FROM cat_actividad a" +
-            " WHERE a.eliminado = false " +
-            " ORDER BY a.posicion ASC" +
-            " ) select array_to_json(array_agg(a.*))  as catalogo_actividades " +
-            "   FROM actividades a",
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).json(results.rows);
-            });
-    } catch (e) {
-        handle.callbackErrorNoControlado(e, response);
-    }
+    getCatalogo(actividadesSql,request,response);
+   
 };
 
 
 const registrarActividad = (request, response) => {
     console.log("@registrarActividad");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        
+        //validarToken(request,response);
 
         const { alumnosIds, cat_actividad, tipo_actividad, sub_actividad, nota, genero } = request.body;
 
@@ -114,7 +88,7 @@ const registrarActividad = (request, response) => {
 
                 //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
                 //mensajeria.enviarMensajeActividadTest("Actividad ", (nota == null || nota == '' ? 'sin nota' : nota));
-                enviarMensajeActividad(alumnosIds,cat_actividad,tipo_actividad,sub_actividad,nota);
+                enviarMensajeActividad(alumnosIds, cat_actividad, tipo_actividad, sub_actividad, nota);
                 response.status(200).json(results.rowCount)
             });
     } catch (e) {
@@ -138,8 +112,8 @@ const enviarMensajeActividad = (alumnosIds, cat_actividad, tipo_actividad, sub_a
                 }
                 values += alumnosIds[i];
             };
-            
-            console.log("VALUES : "+values);
+
+            console.log("VALUES : " + values);
 
             pool
                 .query(`SELECT
@@ -167,12 +141,12 @@ const enviarMensajeActividad = (alumnosIds, cat_actividad, tipo_actividad, sub_a
                             .then(res => {
                                 if (res.rowCount > 0) {
                                     var familiares = res.rows;
-                                    for (var i = 0; i < familiares.length; i++) {                                     
+                                    for (var i = 0; i < familiares.length; i++) {
                                         mensajeria
-                                        .enviarMensajeActividad(
-                                             actividad.nombre_actividad + " de " +familiares[i].hijos, 
-                                            (nota == null || nota == '' ? 'sin nota' : nota),
-                                            familiares[i].token
+                                            .enviarMensajeActividad(
+                                                actividad.nombre_actividad + " de " + familiares[i].hijos,
+                                                (nota == null || nota == '' ? 'sin nota' : nota),
+                                                familiares[i].token
                                             );
                                     }
                                 }
@@ -184,7 +158,7 @@ const enviarMensajeActividad = (alumnosIds, cat_actividad, tipo_actividad, sub_a
         }
 
     } catch (e) {
-        console.error("Error en el proceso de envio de mensaje "+e);
+        console.error("Error en el proceso de envio de mensaje " + e);
     }
 };
 

@@ -1,22 +1,7 @@
 
-const Pool = require('pg').Pool
-
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
-const Joi = require('@hapi/joi');
-
-const config = require('../config/config');
-const jwt = require('jsonwebtoken');
-
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
+const { validarToken } = require('../helpers/helperToken');
 
 //GET — /inscripcion/:id_alumno | getFormatoInscripcion()
 const getFormatoInscripcion = (id) => {
@@ -256,11 +241,7 @@ const relacionarValorEsperadoEmpresa = (id_formato, valores_esperados_ids, gener
 const deleteFormatoInscripcion = (request, response) => {
     console.log("@deleteFormatoInscripcion");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        //validarToken(request,response);       
 
         const id = parseInt(request.params.id)
         pool.query('UPDATE CO_FORMATO_INSCRIPCION SET eliminado = true WHERE id = $1', [id], (error, results) => {

@@ -1,9 +1,7 @@
 
-const Pool = require('pg').Pool
-
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
+const { validarToken } = require('../helpers/helperToken');
 const { isEmpty } = require('../helpers/Utils');
 const Joi = require('@hapi/joi');
 
@@ -12,35 +10,12 @@ const familiar = require('./familiar');
 const formato_complemento = require('./formato_complemento');
 const balance_alumno = require('./balance_alumno');
 
-const config = require('../config/config');
-const jwt = require('jsonwebtoken');
-
-
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
-
 //GET — /alumnos/:id_sucursal | getAlumnos()
 const getAlumnos = (request, response) => {
     console.log("@getAlumnos");
     try {
-        /*var token = request.headers['x-access-token'];
-        if (!token) return response.status(401).send(helperToken.noTokenProvider);
-
-        jwt.verify(token, config.secret, function (err, decoded) {
-            if (err)
-                return response.status(500).send(msgs.failedAuthenticateToken);
-        });*/
-
-        var validacion = helperToken.validarToken(request);
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+       
+        //validarToken(request,response);
 
         console.log("paso token getAlumnos");
 
@@ -73,11 +48,7 @@ const getAlumnos = (request, response) => {
 const createAlumno = (request, response) => {
     console.log("@create alumno");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        //validarToken(request,response);
 
         const p = getParams(request.body);
 
@@ -162,11 +133,7 @@ const updateAlumno = (request, response) => {
     console.log("@updateAlumnos");
     try {
 
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+       // validarToken(request,response);
 
         const id = parseInt(request.params.id);
 
@@ -252,11 +219,7 @@ const updateAlumno = (request, response) => {
 const deleteAlumno = (request, response) => {
     console.log("@deleteAlumnos");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        //validarToken(request,response);
 
         const id = parseInt(request.params.id)
         pool.query('UPDATE CO_ALUMNO SET eliminado = true WHERE id = $1', [id], (error, results) => {
@@ -310,11 +273,7 @@ const getAlumnoById = (request, response) => {
     console.log(" @getAlumnoById");
     try {
 
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
 
         const id = parseInt(request.params.id);
 
@@ -356,6 +315,8 @@ const getAlumnoById = (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
+
+
 
 module.exports = {
     getAlumnos,

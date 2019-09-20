@@ -1,37 +1,21 @@
 
-const Pool = require('pg').Pool
-
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperTokenMovil');
-const mensajeria = require('./mensajesFirebase');
-var jwt = require('jsonwebtoken');
-var bcrypt = require('bcryptjs');
-
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
+//const helperToken = require('../helpers/helperTokenMovil');
+const {validarToken} = require('../helpers/helperTokenMovil');
 
 const getActividadesRelacionadosFamiliar = (request, response) => {
     console.log("@getActividadesPorAlumno");
     try {
-        var respuesta = helperToken.validarToken(request);
-
-        if (!respuesta.tokenValido) {
-            return response.status(respuesta.statusNumber).send(respuesta);
-        }
-
+        //validarToken(request,response);
+       
         const id_familiar = request.params.id_familiar;
 
         pool.query(
             `           
         select  r.fecha,
             date_trunc('minute',r.fecha+r.hora) as hora,
+            date_trunc('minute',r.fecha+r.hora)::text as fecha_hora_text,
             ac.nombre as actividad,
             ac.icono as icono,
             tipo.nombre as tipo_actividad,
@@ -55,7 +39,7 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
-                }                
+                }
                 respuesta.respuesta = results.rows;
                 response.status(respuesta.statusNumber).json(respuesta);
             });
@@ -68,11 +52,13 @@ const getCargosAlumnosFamiliar = (request, response) => {
     console.log("@getCargosFamiliarAlumnos");
     try {
 
+        validarToken(request,response);
+        /*
         var respuesta = helperToken.validarToken(request);
 
         if (!respuesta.tokenValido) {
             return response.status(respuesta.statusNumber).send(respuesta);
-        }
+        }*/
 
         var id_familiar = request.params.id_familiar;
 
@@ -83,7 +69,7 @@ const getCargosAlumnosFamiliar = (request, response) => {
   			        a.id as id_alumno,
   			        a.nombre as nombre_alumno,  			
                     b.id as id_cargo_balance_alumno,
-                    b.fecha,
+                    b.fecha::text,
                     b.cantidad,
                     cargo.nombre as nombre_cargo,
                     cat_cargo as id_cargo,
@@ -127,11 +113,13 @@ const getCargosPagadosAlumnosFamiliar = (request, response) => {
     console.log("@getCargosPagadosAlumnosFamiliar");
     try {
 
+        validarToken(request,response);
+        /*
         var respuesta = helperToken.validarToken(request);
 
         if (!respuesta.tokenValido) {
             return response.status(respuesta.statusNumber).send(respuesta);
-        }
+        }*/
 
         var id_familiar = request.params.id_familiar;
 
@@ -185,11 +173,13 @@ const getCargosPagadosAlumnosFamiliar = (request, response) => {
 const getBalanceFamiliarAlumnos = (request, response) => {
     console.log("@getBalanceFamiliarAlumnos");
     try {
+        validarToken(request,response);
+        /*
         var respuesta = helperToken.validarToken(request);
 
         if (!respuesta.tokenValido) {
             return response.status(respuesta.statusNumber).send(respuesta);
-        }
+        }*/
 
         var id_familiar = request.params.id_familiar;
 
@@ -198,9 +188,9 @@ const getBalanceFamiliarAlumnos = (request, response) => {
             with cargos as (
                 SELECT a.co_balance_alumno,
                          a.id as id_alumno,
-                         a.nombre as nombre_alumno,  			
+                         split_part(a.nombre,' ', 1) as nombre_alumno, 
                            b.id as id_cargo_balance_alumno,
-                           b.fecha,
+                           b.fecha::text,
                            b.cantidad,
                            cargo.nombre as nombre_cargo,
                            cat_cargo as id_cargo,
@@ -218,20 +208,12 @@ const getBalanceFamiliarAlumnos = (request, response) => {
                             in
                             (select co_alumno from co_alumno_familiar where co_familiar = $1 and eliminado = false)              		             		             		                 		
                             and b.eliminado = false and a.eliminado = false
-                 ORDER by b.pagado,cargo.nombre,a.nombre, b.fecha desc             
-                 LIMIT 100
-            ),cargos_group AS (
-                select c.co_balance_alumno,array_to_json(array_agg(to_json(c.*))) as json_cargos
-                from cargos c
-                 group by c.co_balance_alumno
-             ) SELECT al.nombre as nombre_alumno,al.apellidos as apellidos_alumno, 
-                        bal.id,
-                        bal.total_adeudo,
-                        bal.total_pagos,
-                        bal.total_cargos,
-                        c.json_cargos as array_cargos
-                FROM co_balance_alumno bal inner join cargos_group c on bal.id = c.co_balance_alumno
-                                         inner join co_alumno al on bal.id = al.co_balance_alumno `,
+                 ORDER by b.fecha,b.pagado,cargo.nombre,a.nombre desc             
+                 LIMIT 50
+            ) select (c.fecha::date)::text,array_to_json(array_agg(to_json(c.*))) as array_cargos
+              from cargos c
+              group by c.fecha::date
+			  order by c.fecha::date DESC`,
             [id_familiar],
             (error, results) => {
                 if (error) {
@@ -240,17 +222,11 @@ const getBalanceFamiliarAlumnos = (request, response) => {
                 }
 
                 if (results.rowCount > 0) {
-
-                    //let balance_alumno = results.rows[0];
-
-                    //response.status(200).json(results.rows);
                     respuesta.respuesta = results.rows;
                     response.status(respuesta.statusNumber).json(respuesta);
 
                 } else {
-                    console.log("No existe balance para el alumno " + id_alumno);
-
-                    //response.status(200).json({});
+                    console.log("No existe balance para el alumno " + id_alumno);                 
                     respuesta.respuesta = [];
                     response.status(respuesta.statusNumber).json(respuesta);
                 }
@@ -262,14 +238,17 @@ const getBalanceFamiliarAlumnos = (request, response) => {
     }
 };
 
+
 const updateTokenMensajeriaFamiliar = (request, response) => {
     console.log("@updateTokenMensajeriaFamiliar");
     try {
-         var respuesta = helperToken.validarToken(request);
+        validarToken(request,response);
+        /*
+        var respuesta = helperToken.validarToken(request);
 
         if (!respuesta.tokenValido) {
             return response.status(respuesta.statusNumber).send(respuesta);
-        }
+        }*/
 
         var id_familiar = request.params.id_familiar;
 
@@ -305,11 +284,13 @@ const updateTokenMensajeriaFamiliar = (request, response) => {
 const updateDatosFamiliar = (request, response) => {
     console.log("@updateDatosFamilia");
     try {
-        var respuesta = helperToken.validarToken(request);
+        validarToken(request,response);
+
+        /*var respuesta = helperToken.validarToken(request);
 
         if (!respuesta.tokenValido) {
             return response.status(respuesta.statusNumber).send(respuesta);
-        }
+        }*/
 
         var id_familiar = request.params.id_familiar;
 
@@ -331,7 +312,7 @@ const updateDatosFamiliar = (request, response) => {
             " WHERE id = $1";
 
         console.log("SQL " + sqlUpdateConCambioPassword);
-        pool.query(sqlUpdateConCambioPassword, 
+        pool.query(sqlUpdateConCambioPassword,
             [id_familiar, nombre, telefono, fecha_nacimiento, correo, celular, religion],
             (error, results) => {
                 if (error) {
@@ -350,13 +331,6 @@ const updateDatosFamiliar = (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 }
-
-
-
-
-
-
-
 
 
 module.exports = {

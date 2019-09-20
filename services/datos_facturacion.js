@@ -1,29 +1,13 @@
 
-const Pool = require('pg').Pool
-
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
-
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
-
+const { validarToken } = require('../helpers/helperToken');
 
 const guardarDatosFacturacionAlumno = (request, response) => {
     console.log("@guardarDatosFacturacionAlumno");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
+        //validarToken(request,response);
+        
         const { id } = request.body;
         
         console.log(JSON.stringify(request.body));
@@ -219,11 +203,7 @@ const actualizarRequiereFacturaAlumno = (id_alumno, factura, id_genero) => {
 const actualizarRequiereFacturacionAlumno = (request, response) => {
     console.log("@actualizarRequiereFacturacionAlumno");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        //validarToken(request,response);
 
         const { id_alumno,factura,genero } = request.body;
         
