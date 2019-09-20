@@ -1,19 +1,15 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
+const { validarToken } = require('../helpers/helperToken');
 const mensajeria = require('./mensajesFirebase');
 
 //registrar gasto
 const registrarGasto = (request, response) => {
     console.log("@registrarGasto");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
+        validarToken(request,response);
+        
         const { cat_tipo_gasto, co_forma_pago, co_sucursal, fecha, gasto, observaciones, genero } = request.body;
 
         console.log("=====>> " + JSON.stringify(request.body));
@@ -39,11 +35,7 @@ const registrarGasto = (request, response) => {
 const modificarGasto = (request, response) => {
     console.log("@modificarGasto");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
 
         const { id, cat_tipo_gasto, co_forma_pago, fecha, gasto, observaciones, genero } = request.body;
 
@@ -76,11 +68,7 @@ const modificarGasto = (request, response) => {
 const eliminarGasto = (request, response) => {
     console.log("@eliminarGasto");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
 
         const id = request.params.id;
         const { genero } = request.body;
@@ -109,11 +97,7 @@ const eliminarGasto = (request, response) => {
 const getCatalogoTipoGasto = (request, response) => {
     console.log("@getCatalogoTipoGasto");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
 
         pool.query(
             "SELECT * from cat_tipo_gasto where eliminado = false order by nombre",
@@ -133,11 +117,7 @@ const getCatalogoTipoGasto = (request, response) => {
 const getGastosPorSucursal = (request, response) => {
     console.log("@getGastosPorSucursal");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
 
         console.log("request.params.co_sucursal" + request.params.co_sucursal);
 
@@ -175,11 +155,7 @@ const getGastosPorSucursal = (request, response) => {
 const getSumaMesGastosPorSucursal = (request, response) => {
     console.log("@getSumaMesGastosPorSucursal");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
 
         console.log("request.params.co_sucursal" + request.params.co_sucursal);
 
@@ -218,31 +194,24 @@ const getSumaMesGastosPorSucursal = (request, response) => {
 const getGastosAgrupadosPorSucursal = (request, response) => {
     console.log("@getGastosAgrupadosPorSucursal");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
 
         console.log("request.params.co_sucursal" + request.params.co_sucursal);
 
         const co_sucursal = request.params.co_sucursal;
 
         pool.query(
-            `
-                
-select 
-tipo.nombre as nombre_tipo_gasto, 
-fpago.nombre as nombre_tipo_pago,
-suc.nombre as nombre_sucursal,
-sum(g.gasto) as gasto_sucursal
-from co_gasto g inner join cat_tipo_gasto tipo on g.cat_tipo_gasto = g.id
-         inner join co_forma_pago fpago on g.co_forma_pago = fpago.id
-         inner join co_sucursal suc on g.co_sucursal = suc.id
-where  g.eliminado  = false
-group by tipo.nombre,fpago.nombre,suc.nombre
-
-
+            `               
+            select 
+                tipo.nombre as nombre_tipo_gasto, 
+                fpago.nombre as nombre_tipo_pago,
+                suc.nombre as nombre_sucursal,
+                sum(g.gasto) as gasto_sucursal
+            from co_gasto g inner join cat_tipo_gasto tipo on g.cat_tipo_gasto = g.id
+                    inner join co_forma_pago fpago on g.co_forma_pago = fpago.id
+                    inner join co_sucursal suc on g.co_sucursal = suc.id
+            where  g.eliminado  = false
+            group by tipo.nombre,fpago.nombre,suc.nombre
             `,
             [co_sucursal],
             (error, results) => {

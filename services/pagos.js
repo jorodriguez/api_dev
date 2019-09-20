@@ -2,7 +2,7 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
+const { validarToken } = require('../helpers/helperToken');
 const { QUERY,getCatalogo } = require('./catagolosHelper');
 
 const notificacionService = require('../utils/NotificacionService');
@@ -11,11 +11,7 @@ const notificacionService = require('../utils/NotificacionService');
 const registrarCargo = (request, response) => {
     console.log("@registrarCargo");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);        
 
         const { id_alumno, cat_cargo, cantidad, nota, genero } = request.body;
               
@@ -47,11 +43,7 @@ const registrarCargo = (request, response) => {
 const registrarPago = (request, response) => {
     console.log("@registrarPago");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);        
 
         console.log("=====>> " + JSON.stringify(request.body));
         const { id_alumno, pago, nota, ids_cargos, cargos_desglosados, cat_forma_pago,identificador_factura, genero } = request.body;
@@ -89,11 +81,7 @@ const getCatalogoCargos = (request, response) => {
 const getCargosAlumno = (request, response) => {
     console.log("@getCargosAlumno");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);        
 
         console.log("request.params.id_alumno " + request.params.id_alumno);
 
@@ -139,11 +127,7 @@ const getCargosAlumno = (request, response) => {
 const getPagosByCargoId = (request, response) => {
     console.log("@getPagosByCargoId");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);        
 
         console.log("request.params.id_cargo_balance_alumno " + request.params.id_cargo_balance_alumno);
 
@@ -176,12 +160,9 @@ const getPagosByCargoId = (request, response) => {
 const getBalanceAlumno = (request, response) => {
     console.log("@getBalanceAlumno");
     try {
-        /*      var validacion = helperToken.validarToken(request);
-      
-              if (!validacion.tokenValido) {
-                  return response.status(validacion.status).send(validacion.mensajeRetorno);;
-              }
-      */
+        
+        validarToken(request,response);        
+
         console.log("request.params.id_alumno " + request.params.id_alumno);
 
         var id_alumno = request.params.id_alumno;
@@ -221,11 +202,7 @@ const getBalanceAlumno = (request, response) => {
 const eliminarCargos = (request, response) => {
     console.log("@eliminarCargos");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);        
 
         const { ids, motivo,genero } = request.body;
 

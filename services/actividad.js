@@ -1,8 +1,8 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
 const mensajeria = require('./mensajesFirebase');
+const { validarToken } = require('../helpers/helperToken');
 
 const { getCatalogo } = require('./catagolosHelper');
 
@@ -32,56 +32,15 @@ const getCatalogoActividades = (request, response) => {
                FROM actividades a`
 
     getCatalogo(actividadesSql,request,response);
-
-    /*try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
-        pool.query(
-            "WITH actividades AS( " +
-            "   SELECT a.id," +
-            "       a.nombre," +
-            "       a.posicion," +
-            "       a.icono," +
-            "    (" +
-            "        select array_to_json(" +
-            "            (select array_agg(ta.*) from cat_tipo_actividad ta where ta.cat_actividad =  a.id )" +
-            "         )" +
-            "    ) as tipo_actividad," +
-            "    (" +
-            "        select array_to_json(" +
-            "            (select array_agg(ta.*) from cat_sub_actividad ta where ta.cat_actividad =  a.id )" +
-            "         )" +
-            "    ) as sub_actividad		" +
-            " FROM cat_actividad a" +
-            " WHERE a.eliminado = false " +
-            " ORDER BY a.posicion ASC" +
-            " ) select array_to_json(array_agg(a.*))  as catalogo_actividades " +
-            "   FROM actividades a",
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).json(results.rows);
-            });
-    } catch (e) {
-        handle.callbackErrorNoControlado(e, response);
-    }*/
+   
 };
 
 
 const registrarActividad = (request, response) => {
     console.log("@registrarActividad");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        
+        validarToken(request,response);
 
         const { alumnosIds, cat_actividad, tipo_actividad, sub_actividad, nota, genero } = request.body;
 

@@ -1,7 +1,7 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
+const { validarTokenCompleto } = require('../helpers/helperToken');
 const mensajeria = require('./mensajesFirebase');
 
 const ENTRADA = 0;
@@ -11,13 +11,9 @@ const SALIDA = 1;
 const getAlumnosRecibidos = (request, response) => {
     console.log("@getAlumnosRecibidos");
     try {
-        var validacion = helperToken.validarToken(request);
+        validarTokenCompleto(request,response);
 
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
-        const id_sucursal = parseInt(request.params.id_sucursal);
+       const id_sucursal = parseInt(request.params.id_sucursal);
 
         pool.query(
             "SELECT asistencia.id," +
@@ -53,11 +49,7 @@ const getAlumnosRecibidos = (request, response) => {
 const getAlumnosPorRecibir = (request, response) => {
     console.log("@getAlumnosPorRecibir");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
 
         const id_sucursal = parseInt(request.params.id_sucursal);
 
@@ -86,28 +78,7 @@ const getAlumnosPorRecibir = (request, response) => {
                 }
                 response.status(200).json(results.rows);
             });
-
-        /* pool.query("SELECT a.*" +
-             " FROM co_alumno a " +
-             "  WHERE id not in (" +
-             "               SELECT asistencia.co_alumno" +
-             "                   FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno=alumno.id" +
-             //"                   WHERE asistencia.fecha = current_date AND asistencia.hora_salida is null   " +
-             "                   WHERE asistencia.hora_salida is null and  asistencia.eliminado = false " +
-             "  AND alumno.co_sucursal = $1" +
-             "  AND asistencia.eliminado=false" +
-             ") " +
-             " AND a.co_sucursal = $2 " +
-             " AND a.eliminado = false " +
-             " ORDER BY a.hora_entrada ASC",
-             [id_sucursal, id_sucursal],
-             (error, results) => {
-                 if (error) {
-                     handle.callbackError(error, response);
-                     return;
-                 }
-                 response.status(200).json(results.rows);
-             });*/
+    
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -117,11 +88,7 @@ const getAlumnosPorRecibir = (request, response) => {
 const registrarEntradaAlumnos = (request, response) => {
     console.log("@registrarEntrada");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
 
         const { ids, genero } = request.body;
 
@@ -233,60 +200,11 @@ function enviarMensajeEntradaSalida(ids_asistencias, operacion) {
 }
 
 
-
-
-/*
-const registrarEntradaAlumnos = (request, response) => {
-    console.log("@registrarEntrada");
-    try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
-        const { ids, genero } = request.body;
-
-        var sqlComplete = " values ";
-
-        for (var i = 0; i < ids.length; i++) {
-
-            if (i > 0) {
-                sqlComplete += ",";
-            }
-
-            sqlComplete += "(getDate('')," + ids[i] + ",(getDate('')+getHora(''))::timestamp," + genero + "," + genero + ")";
-        };
-
-        console.log("Ids para calcular horas extras ");
-
-        pool.query("INSERT INTO CO_ASISTENCIA(fecha,co_alumno,hora_entrada,usuario,genero) " +
-            sqlComplete,
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-
-                response.status(200).json(results.rowCount)
-            });
-            
-    } catch (e) {
-        handle.callbackErrorNoControlado(e, response);
-
-    }
-};*/
-
 const registrarSalidaAlumnos = (request, response) => {
     console.log("@registrarSalidaAlumnos");
 
     try {
-
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
 
         const { ids, genero } = request.body;
 

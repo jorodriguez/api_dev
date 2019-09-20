@@ -1,7 +1,7 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
+const { validarToken } = require('../helpers/helperToken');
 const mensajeria = require('./mensajesFirebase');
 const { CARGOS } = require('../utils/Constantes');
 
@@ -9,12 +9,8 @@ const getReporteMensualidadesPorSucursalMes = (request, response) => {
     console.log("@getReporteMensualidadesPorSucursalMes");
     try {
 
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
+        validarToken(request,response);
+        
         const { id_sucursal, mes } = request.params;
         console.log("id_sucursal " + id_sucursal + " mes " + mes);
 
@@ -80,11 +76,7 @@ const getReporteContadoresSucursalesMesActual = (request, response) => {
 
     try {
 
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
 
         pool.query(
             getQueryPrincipal(null, true)
@@ -110,11 +102,7 @@ const getReporteContadoresMesesPorSucursal = (request, response) => {
     console.log("@getReporteContadoresMesesPorSucursal");
     try {
 
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
 
         let { id_sucursal } = request.params;
 
@@ -145,8 +133,7 @@ function getQueryPrincipal(id_sucursal, isQueryInicial) {
         //obtener el valor de todas las sucursales en el mes actual
         complementoMes = " and to_char(cargo.fecha,'YYYYMM') = to_char(getDate(''),'YYYYMM') ";
     } else {
-        complementoSucursal = (id_sucursal != null ? " and  suc.id  = " + id_sucursal : "");
-        //complementoMes = (mes != null ? " and to_char(cargo.fecha,'YYYYMM') = '" + mes + "'" : "");
+        complementoSucursal = (id_sucursal != null ? " and  suc.id  = " + id_sucursal : "");        
     }
 
     const query = `

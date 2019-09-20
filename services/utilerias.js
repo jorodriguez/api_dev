@@ -1,6 +1,7 @@
 
 const { pool } = require('../db/conexion');
 const { getCatalogo } = require('./catagolosHelper');
+const { validarToken } = require('../helpers/helperToken');
 
 const getMesesActivos = (request, response) => {
     console.log("@getMeses");

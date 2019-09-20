@@ -1,16 +1,14 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
+const { validarToken } = require('../helpers/helperToken');
 
 const getConfiguracion = (request, response) => {
     console.log("@getConfiguracion");
     try {
-        var validacion = helperToken.validarToken(request);
 
-        if(!validacion.tokenValido){
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
+
         pool.query("select * from configuracion WHERE id = 1",
             (error, results) => {
                 if (error) {

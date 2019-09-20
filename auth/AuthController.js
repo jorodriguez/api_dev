@@ -79,8 +79,8 @@ const login = (request, response) => {
                     if (!passwordIsValid) return response.status(401).send({ auth: false, token: null, usuario: null });
 
                     var token = jwt.sign({ id: results.id }, config.secret, {
-                        expiresIn: 86400 // expires in 24 hours
-                        //expiresIn : 100 
+                        //expiresIn: 86400 // expires in 24 hours
+                        expiresIn : 100 
                     });
 
                     response.status(200).send({ auth: true, token: token, usuario: usuario });

@@ -1,17 +1,13 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
+const { validarToken } = require('../helpers/helperToken');
 
 const getCatalogoParentescoAlumno = (request, response) => {
     console.log("@getParentesco");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
+        validarToken(request,response);
+        
         var id_alumno = request.params.id_alumno;
 
         pool.query(" SELECT * " +

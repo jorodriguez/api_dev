@@ -3,7 +3,7 @@ const { pool } = require('../db/conexion');
 
 const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
+const { validarToken } = require('../helpers/helperToken');
 const mensajeria = require('./mensajesFirebase');
 
 
@@ -86,74 +86,7 @@ const ejecutarProcesoHorasExtrasAuto = () => {
             }
         }).catch((e) => {
             console.log("EXCEPCION AL EJECUTAR EL PROCESO AUTOMATICO DE GENERAR HORAS EXTRAS " + e);
-        });
-
-    /*new Promise((resolve, reject) => {
-        try {
-            pool.query("select generar_horas_extras();",
-                (error, results) => {
-                    if (error) {
-
-                        reject(null);
-                    }
-                    console.log("Se llamo a la function de generar horas extras " + results);
-                    resolve(true);
-                });
-        } catch (e) {
-            console.log("Error al correr el proceso de generacion de horas extras " + e);
-            reject(null);
-        }
-    }).then((res) => {
-        console.log("Siguiente paso ");
-        if (res) {
-            console.log("Iniciando el envio de mensajes ");
-
-            //enviar mensaje
-            try {
-                pool.query("select id,fecha,titulo,cuerpo,icon,token from si_notificacion where notificado = false and fallo = false and eliminado = false",
-                    (error, results) => {
-                        if (error) {
-                            console.log("Error en la consulta de notificaciones ");
-                            return;
-                        }
-                        if (results != null && results.rowCount > 0) {
-                            new Promise((resolve, reject) => {
-                                var lista = [];
-                                //results.rows.forEach(e => {
-                                for (var i = 0; i < results.rows.length; i++) {
-                                    var e = results.rows[i];
-                                    console.log("Enviando mensaje ");
-
-                                    mensajeria.enviarMensajeToken(e.token, e.titulo, e.cuerpo)
-                                        .then((response) => {
-                                            console.log("Envio correcto");
-                                            console.log("mensaje " + JSON.stringify(response));
-                                            silenciarNotificaciones(e.id, (response.successCount > 0), response.results[0].messageId, false);
-
-                                        }).catch((e) => {
-                                            console.log("Error en la mensajeria " + e);
-                                            silenciarNotificaciones(e.id, false, "Error:" + e, true);
-
-                                        });
-                                }
-                                //});
-                                //  console.log("antes de dar resolve "+JSON.stringify(lista));
-                                resolve(lista);
-                            }).then((list) => {
-                                console.log("Resolve THEN " + JSON.stringify(list));
-                            }).catch((e) => {
-                                console.log("Error al enviar mensajes en el for de envios " + e);
-                                reject(null);
-                            });
-                        } else { console.log("NO EXISTEN MENSAJES POR ENVIAR"); }
-                    });
-
-            } catch (e) {
-                console.log("Error al correr el proceso de generacion de horas extras " + e);
-                reject(null);
-            }
-        }
-    });*/
+        });    
 };
 
 //FIXME: falta modificar el procedimiento para guardar las respuestas

@@ -2,7 +2,7 @@
 const { pool } = require('../db/conexion');
 const Joi = require('@hapi/joi');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
+const { validarToken } = require('../helpers/helperToken');
 
 // GET a Login 
 const login = (request, response) => {
@@ -32,12 +32,8 @@ const login = (request, response) => {
 
 //GET — /users | getUsers()
 const getUsers = (request, response) => {
-	try {		
-		var validacion = helperToken.validarToken(request);
-
-        if(!validacion.tokenValido){
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+	try {	
+		validarToken(request,response);		
 
 		pool.query('SELECT * FROM usuario ORDER BY id ASC', (error, results) => {
 			if (error) {
@@ -56,11 +52,7 @@ const getUsers = (request, response) => {
 //GET — /users/:id | getUserById()
 const getUserById = (request, response) => {
 	try {
-		var validacion = helperToken.validarToken(request);
-
-        if(!validacion.tokenValido){
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+		validarToken(request,response);		
 
 		const id = parseInt(request.params.id);
 
@@ -80,11 +72,7 @@ const getUserById = (request, response) => {
 //  POST — users | createUser()
 const createUser = (request, response) => {
 	try {
-		var validacion = helperToken.validarToken(request);
-
-        if(!validacion.tokenValido){
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+		validarToken(request,response);		
 
 		const { nombre, correo, password } = request.body;
 
@@ -105,22 +93,7 @@ const createUser = (request, response) => {
 // PUT — /users/:id | updateUser()
 const updateUser = (request, response) => {
 	try {
-
-		//fixme :
-		/*var token = request.headers['x-access-token'];
-		if (!token) return response.status(401).send(msgs.noTokenProvider);
-
-		jwt.verify(token, config.secret, function (err, decoded) {
-			if (err)
-				return response.status(500).send(msgs.failedAuthenticateToken);
-		});*/
-		var validacion = helperToke
-
-		n.validarToken(request);
-
-        if(!validacion.tokenValido){
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+		validarToken(request,response);				   
 
 		const id = parseInt(request.params.id)
 		const { nombre, correo } = request.body
@@ -144,19 +117,7 @@ const updateUser = (request, response) => {
 // DELETE — /users/:id | deleteUser()
 const deleteUser = (request, response) => {
 	try {
-		//fixme :
-		/*var token = request.headers['x-access-token'];
-		if (!token) return response.status(401).send(msgs.noTokenProvider);
-
-		jwt.verify(token, config.secret, function (err, decoded) {
-			if (err)
-				return response.status(500).send(msgs.failedAuthenticateToken);
-		});*/
-		var validacion = helperToken.validarToken(request);
-
-        if(!validacion.tokenValido){
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+		validarToken(request,response);		
 
 		const id = parseInt(request.params.id)
 

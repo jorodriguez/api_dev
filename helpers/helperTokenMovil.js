@@ -6,7 +6,7 @@ const noTokenProvider={ auth: false, message: 'No token provided.' };
 
 const failedAuthenticateToken = { auth: false, message: 'Failed to authenticate token.' };
 
-const validarToken = (request) => {
+const validarToken = (request,response) => {
     console.log("validar token movil");
     try {
         const respuestaNoToken = { tokenValido: false, estatus:false, statusNumber: 401, mensajeRetorno: noTokenProvider ,respuesta:null};
@@ -42,6 +42,10 @@ const validarToken = (request) => {
                 console.log("Token OK");
             }
         });
+        if (!respuesta.tokenValido) {
+            return response.status(respuesta.statusNumber).send(respuesta);
+        }
+        
         //console.log("TERMINO VALIDACION TOKEN");
         return respuesta;        
     } catch (e) {
@@ -49,8 +53,6 @@ const validarToken = (request) => {
         return { tokenValido: false, status: 200, mensajeRetorno: {name:"Error inesperado"} };
     }
 };
-
-
 
 module.exports = {
     validarToken

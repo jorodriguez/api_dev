@@ -3,7 +3,7 @@ const { pool } = require('../db/conexion');
 const { configuracion } = require('../config/ambiente');
 const nodemailer = require('nodemailer');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
+const { validarToken } = require('../helpers/helperToken');
 const mustache = require('mustache');
 var fs = require('fs');
 var path = require('path');
@@ -28,11 +28,7 @@ const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
             and fam.eliminado = false 
             and rel.eliminado = false
     group by a.nombre,a.id `;
-/*
-const mailOptions = {
-    from: 'joel@magicintelligence.com',
-    cc: 'joel@magicintelligence.com'
-};*/
+
 const mailOptions = {
     from: 'info@magicintelligence.com',
     cc: 'info@magicintelligence.com'
@@ -154,11 +150,7 @@ function enviarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, id
                     });
 
                 //enviar mensaje te text
-                enviarMensajeMovil(lista_tokens,titulo_mensaje,cuerpo_mensaje);
-                /*if (lista_tokens != null && lista_tokens != [] && lista_tokens.length > 0) {
-                    console.log("Enviando msj al token " + lista_tokens);
-                    mensajeria.enviarMensajeToken(lista_tokens, titulo_mensaje, cuerpo_mensaje);
-                } else { console.log("No existen tokens registraods "); }*/
+                enviarMensajeMovil(lista_tokens,titulo_mensaje,cuerpo_mensaje);               
 
             }
         });
@@ -455,11 +447,8 @@ function loadTemplate(templateName, params) {
 const getAlumnosInfoCorreoAlumnos = (request, response) => {
     console.log("@getAlumnosInfoCorreo");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+       
+        validarToken(request,response);
 
         const { ids } = request.body;
 
@@ -488,11 +477,7 @@ const enviarRecordatorioPago = (request, response) => {
     console.log("@enviarRecordatorioPago");
     try {
 
-        var respuesta = helperToken.validarToken(request);
-
-        if (!respuesta.tokenValido) {
-            return response.status(respuesta.statusNumber).send(respuesta);
-        }
+        validarToken(request,response);
 
         var id_alumno = request.params.id_alumno;
         var { nota, nota_escrita } = request.body;

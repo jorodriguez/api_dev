@@ -1,7 +1,6 @@
-
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
+const { validarToken } = require('../helpers/helperToken');
 const { isEmpty } = require('../helpers/Utils');
 const mailService = require('../utils/NotificacionService');
 const utilerias = require('./utilerias');
@@ -14,12 +13,8 @@ const ID_MADRE = 2;
 const crearFamiliar = (request, response) => {
     console.log("@create familiar autorizado");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
+        validarToken(request,response);
+        
         var id_alumno = request.params.id_alumno;
 
         const p = getParams(request.body);
@@ -80,11 +75,7 @@ const crearFamiliar = (request, response) => {
 
 const resetPasswordFamiliar = (request, response) => {
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
 
         var id_familiar = request.params.id_familiar;
 
@@ -153,11 +144,8 @@ const enviarClaveFamiliar = (id_familiar) => {
 const modificarFamiliar = (request, response) => {
     console.log("@modificar familiar autorizado");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        
+        validarToken(request,response);
 
         var id_familiar = request.params.id_familiar;
 
@@ -216,11 +204,8 @@ const eliminarFamiliar = (request, response) => {
     console.log("@elimiar familiar autorizado");
     try {
         console.log("eliminar familiar");
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        
+        validarToken(request,response);
 
         var id_relacion = request.params.id_relacion;
 
@@ -341,8 +326,7 @@ const createFamiliar = (id_alumno, familiar, genero) => {
 
 const relacionarAlumnoFamilia = (id_alumno, id_familiar, id_parentesco, genero) => {
     console.log("@Relacion alumno familia");
-
-    //try {
+    
     return new Promise((resolve, reject) => {
 
         if (id_familiar != null) {
@@ -375,7 +359,6 @@ const relacionarAlumnoFamilia = (id_alumno, id_familiar, id_parentesco, genero) 
 const eliminarRelacionarAlumnoFamilia = (id_relacion, genero) => {
     console.log("@Eliminar Relacion alumno familia " + id_relacion + "     " + genero);
 
-    //try {
     return new Promise((resolve, reject) => {
 
         if (id_relacion != null) {
@@ -448,11 +431,7 @@ const updateFamiliar = (id_familiar, familiar, genero) => {
 const getFamiliaresAlumno = (request, response) => {
     console.log("@getFamiliaresAlumno");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
 
         var id_alumno = request.params.id_alumno;
 
@@ -486,11 +465,7 @@ const getFamiliaresAlumno = (request, response) => {
 const getFamiliareParaRelacionar = (request, response) => {
     console.log("@getFamiliaresConApellidosParecidos");
     try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);
 
         const SPLIT_APELLIDO_PATERNO = 2;
         const SPLIT_APELLIDO_MATERNO = 3;

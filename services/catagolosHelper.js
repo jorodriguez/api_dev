@@ -1,7 +1,7 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
+const { validarToken } = require('../helpers/helperToken');
 
 const QUERY = {
     FORMA_PAGO : "SELECT * FROM CO_FORMA_PAGO WHERE ELIMINADO = FALSE",
@@ -16,12 +16,7 @@ const QUERY = {
 const getCatalogo = (query,request,response) => {
     console.log("@getCatalogo");
     try {
-
-        var validacion = helperToken.validarToken(request);
-
-        if(!validacion.tokenValido){
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
+        validarToken(request,response);        
         
         if(query == undefined || query == ''){
             console.log("No esta definido el query");

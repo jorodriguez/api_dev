@@ -1,7 +1,7 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
+const { validarToken } = require('../helpers/helperToken');
 const mensajeria  = require('./mensajesFirebase');
 
 const registrarBalanceAlumno = (id_alumno,genero) => {
