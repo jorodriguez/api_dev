@@ -11,7 +11,7 @@ const notificacionService = require('../utils/NotificacionService');
 const registrarCargo = (request, response) => {
     console.log("@registrarCargo");
     try {
-        validarToken(request,response);        
+       // validarToken(request,response);        
 
         const { id_alumno, cat_cargo, cantidad, nota, genero } = request.body;
               
@@ -43,7 +43,7 @@ const registrarCargo = (request, response) => {
 const registrarPago = (request, response) => {
     console.log("@registrarPago");
     try {
-        validarToken(request,response);        
+        //validarToken(request,response);        
 
         console.log("=====>> " + JSON.stringify(request.body));
         const { id_alumno, pago, nota, ids_cargos, cargos_desglosados, cat_forma_pago,identificador_factura, genero } = request.body;
@@ -81,7 +81,7 @@ const getCatalogoCargos = (request, response) => {
 const getCargosAlumno = (request, response) => {
     console.log("@getCargosAlumno");
     try {
-        validarToken(request,response);        
+        //validarToken(request,response);        
 
         console.log("request.params.id_alumno " + request.params.id_alumno);
 
@@ -127,7 +127,7 @@ const getCargosAlumno = (request, response) => {
 const getPagosByCargoId = (request, response) => {
     console.log("@getPagosByCargoId");
     try {
-        validarToken(request,response);        
+        //validarToken(request,response);        
 
         console.log("request.params.id_cargo_balance_alumno " + request.params.id_cargo_balance_alumno);
 
@@ -161,7 +161,7 @@ const getBalanceAlumno = (request, response) => {
     console.log("@getBalanceAlumno");
     try {
         
-        validarToken(request,response);        
+        //validarToken(request,response);        
 
         console.log("request.params.id_alumno " + request.params.id_alumno);
 
@@ -202,7 +202,7 @@ const getBalanceAlumno = (request, response) => {
 const eliminarCargos = (request, response) => {
     console.log("@eliminarCargos");
     try {
-        validarToken(request,response);        
+        //validarToken(request,response);        
 
         const { ids, motivo,genero } = request.body;
 

@@ -1,7 +1,7 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const { validarTokenCompleto } = require('../helpers/helperToken');
+const { validarToken } = require('../helpers/helperToken');
 const mensajeria = require('./mensajesFirebase');
 
 const ENTRADA = 0;
@@ -11,7 +11,9 @@ const SALIDA = 1;
 const getAlumnosRecibidos = (request, response) => {
     console.log("@getAlumnosRecibidos");
     try {
-        validarTokenCompleto(request,response);
+       // validarToken(request,response);
+
+        console.log("Iniciando consulta de alumno ");
 
        const id_sucursal = parseInt(request.params.id_sucursal);
 
@@ -49,7 +51,7 @@ const getAlumnosRecibidos = (request, response) => {
 const getAlumnosPorRecibir = (request, response) => {
     console.log("@getAlumnosPorRecibir");
     try {
-        validarToken(request,response);
+       // validarToken(request,response);
 
         const id_sucursal = parseInt(request.params.id_sucursal);
 
@@ -88,7 +90,7 @@ const getAlumnosPorRecibir = (request, response) => {
 const registrarEntradaAlumnos = (request, response) => {
     console.log("@registrarEntrada");
     try {
-        validarToken(request,response);
+       // validarToken(request,response);
 
         const { ids, genero } = request.body;
 
@@ -204,7 +206,7 @@ const registrarSalidaAlumnos = (request, response) => {
     console.log("@registrarSalidaAlumnos");
 
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
 
         const { ids, genero } = request.body;
 

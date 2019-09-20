@@ -448,7 +448,7 @@ const getAlumnosInfoCorreoAlumnos = (request, response) => {
     console.log("@getAlumnosInfoCorreo");
     try {
        
-        validarToken(request,response);
+        //validarToken(request,response);
 
         const { ids } = request.body;
 
@@ -477,7 +477,7 @@ const enviarRecordatorioPago = (request, response) => {
     console.log("@enviarRecordatorioPago");
     try {
 
-        validarToken(request,response);
+       // validarToken(request,response);
 
         var id_alumno = request.params.id_alumno;
         var { nota, nota_escrita } = request.body;

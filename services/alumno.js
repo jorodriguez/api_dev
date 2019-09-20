@@ -15,7 +15,7 @@ const getAlumnos = (request, response) => {
     console.log("@getAlumnos");
     try {
        
-        validarToken(request,response);
+        //validarToken(request,response);
 
         console.log("paso token getAlumnos");
 
@@ -48,7 +48,7 @@ const getAlumnos = (request, response) => {
 const createAlumno = (request, response) => {
     console.log("@create alumno");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
 
         const p = getParams(request.body);
 
@@ -133,7 +133,7 @@ const updateAlumno = (request, response) => {
     console.log("@updateAlumnos");
     try {
 
-        validarToken(request,response);
+       // validarToken(request,response);
 
         const id = parseInt(request.params.id);
 
@@ -219,7 +219,7 @@ const updateAlumno = (request, response) => {
 const deleteAlumno = (request, response) => {
     console.log("@deleteAlumnos");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
 
         const id = parseInt(request.params.id)
         pool.query('UPDATE CO_ALUMNO SET eliminado = true WHERE id = $1', [id], (error, results) => {

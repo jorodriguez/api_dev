@@ -8,7 +8,7 @@ const mensajeria = require('./mensajesFirebase');
 const registrarGasto = (request, response) => {
     console.log("@registrarGasto");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
         
         const { cat_tipo_gasto, co_forma_pago, co_sucursal, fecha, gasto, observaciones, genero } = request.body;
 
@@ -35,7 +35,7 @@ const registrarGasto = (request, response) => {
 const modificarGasto = (request, response) => {
     console.log("@modificarGasto");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
 
         const { id, cat_tipo_gasto, co_forma_pago, fecha, gasto, observaciones, genero } = request.body;
 
@@ -68,7 +68,7 @@ const modificarGasto = (request, response) => {
 const eliminarGasto = (request, response) => {
     console.log("@eliminarGasto");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
 
         const id = request.params.id;
         const { genero } = request.body;
@@ -97,7 +97,7 @@ const eliminarGasto = (request, response) => {
 const getCatalogoTipoGasto = (request, response) => {
     console.log("@getCatalogoTipoGasto");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
 
         pool.query(
             "SELECT * from cat_tipo_gasto where eliminado = false order by nombre",
@@ -117,7 +117,7 @@ const getCatalogoTipoGasto = (request, response) => {
 const getGastosPorSucursal = (request, response) => {
     console.log("@getGastosPorSucursal");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
 
         console.log("request.params.co_sucursal" + request.params.co_sucursal);
 
@@ -155,7 +155,7 @@ const getGastosPorSucursal = (request, response) => {
 const getSumaMesGastosPorSucursal = (request, response) => {
     console.log("@getSumaMesGastosPorSucursal");
     try {
-        validarToken(request,response);
+       // validarToken(request,response);
 
         console.log("request.params.co_sucursal" + request.params.co_sucursal);
 
@@ -194,7 +194,7 @@ const getSumaMesGastosPorSucursal = (request, response) => {
 const getGastosAgrupadosPorSucursal = (request, response) => {
     console.log("@getGastosAgrupadosPorSucursal");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
 
         console.log("request.params.co_sucursal" + request.params.co_sucursal);
 

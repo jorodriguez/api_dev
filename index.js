@@ -30,6 +30,7 @@ const alumnoSucursal = require('./services/alumno_sucursal');
 const catagolos = require('./services/catagolos');
 const conf = require('./services/configuracion');
 const https = require("https");
+const { validarTokenCompleto } = require('./helpers/helperToken');
 
 const port = process.env.PORT || 5000;
 
@@ -42,7 +43,7 @@ app.use(
 	})
 );
 
-app.use((req, res, next) => {
+app.use((req, res, next) => {	
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
 	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,x-access-token'); // If needed	
@@ -50,6 +51,7 @@ app.use((req, res, next) => {
 	next();
 });
 
+/*
 app.use((err, req, res, next) => {
 	console.log("==========================================");
 	if (res.headersSent) {
@@ -58,165 +60,227 @@ app.use((err, req, res, next) => {
 	res.status(500);
 	res.render('error', { error: err });
 });
+*/
+
+const POST = (url, metodo) => {
+	console.log("Registrando post");
+	app.post(url, (request, response) => {
+		let respuesta = validarTokenCompleto(request, response);
+
+		if (!respuesta.tokenValido) {
+			console.log(" ((((( Token invalido  )))))");
+			return response.status(respuesta.status).send(respuesta);
+		} else {
+			console.log(" PASA EL TOKEN ");
+			metodo(request, response);
+		}		
+	});
+}
+
+const GET = (url, metodo) => {
+	console.log("registrando get");
+	app.get(url, (request, response) => {
+		let respuesta = validarTokenCompleto(request, response);
+
+		if (!respuesta.tokenValido) {
+			console.log(" ((((( Token invalido  )))))");
+			return response.status(respuesta.status).send(respuesta);
+		} else {
+			console.log(" PASA EL TOKEN ");
+			metodo(request, response);
+		}		
+	});
+}
+
+
+const PUT = (url, metodo) => {
+	console.log("registraondo put");
+	app.put(url, (request, response) => {
+		let respuesta = validarTokenCompleto(request, response);
+
+		if (!respuesta.tokenValido) {
+			console.log(" ((((( Token invalido  )))))");
+			return response.status(respuesta.status).send(respuesta);
+		} else {
+			console.log(" PASA EL TOKEN ");
+			metodo(request, response);
+		}		
+	});
+}
+
+const DELETE = (url, metodo) => {
+	console.log("registraondo DELETE");
+	app.delete(url, (request, response) => {
+		let respuesta = validarTokenCompleto(request, response);
+
+		if (!respuesta.tokenValido) {
+			console.log(" ((((( Token invalido  )))))");
+			return response.status(respuesta.status).send(respuesta);
+		} else {
+			console.log(" PASA EL TOKEN ");
+			metodo(request, response);
+		}		
+	});
+}
 
 
 //usar los queries importados 
 app.post('/auth/login', authController.login);
 app.post('/auth/register', authController.createUser);
 
-//app.post('/login', usuario.login);
-app.get('/users/:id_sucursal', usuario.getUsers);
-app.get('/users/:id', usuario.getUserById);
-//app.post('/users', usuario.createUser);
-app.put('/users/:id', usuario.updateUser);
-app.delete('/users/:id', usuario.deleteUser);
+//POST('/login', usuario.login);
+GET('/users/:id_sucursal', usuario.getUsers);
+GET('/users/:id', usuario.getUserById);
+//POST('/users', usuario.createUser);
+PUT('/users/:id', usuario.updateUser);
+DELETE('/users/:id', usuario.deleteUser);
 
 //alumno
-app.get('/alumnos/:id_sucursal', alumno.getAlumnos);
-app.get('/alumnos/id/:id', alumno.getAlumnoById);
-app.post('/alumnos', alumno.createAlumno);
-app.put('/alumnos/:id', alumno.updateAlumno);
-app.delete('/alumnos/:id', alumno.deleteAlumno);
+GET('/alumnos/:id_sucursal', alumno.getAlumnos);
+GET('/alumnos/id/:id', alumno.getAlumnoById);
+POST('/alumnos', alumno.createAlumno);
+PUT('/alumnos/:id', alumno.updateAlumno);
+DELETE('/alumnos/:id', alumno.deleteAlumno);
 
 //asistencia
-app.get('/asistencia/alumnos_recibidos/:id_sucursal', asistencia.getAlumnosRecibidos);
-app.get('/asistencia/alumnos_por_recibidos/:id_sucursal', asistencia.getAlumnosPorRecibir);
-app.post('/asistencia/entradaAlumnos', asistencia.registrarEntradaAlumnos);
-app.post('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
+GET('/asistencia/alumnos_recibidos/:id_sucursal', asistencia.getAlumnosRecibidos);
+GET('/asistencia/alumnos_por_recibidos/:id_sucursal', asistencia.getAlumnosPorRecibir);
+POST('/asistencia/entradaAlumnos', asistencia.registrarEntradaAlumnos);
+POST('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
 
 //grupo
-app.get('/grupos', catagolos.getGrupos);
+GET('/grupos', catagolos.getGrupos);
 
 //actividades
-app.get('/actividad/catalogo_actividad', actividad.getCatalogoActividades);
-app.post('/actividad/registrar', actividad.registrarActividad);
+GET('/actividad/catalogo_actividad', actividad.getCatalogoActividades);
+POST('/actividad/registrar', actividad.registrarActividad);
 
 //inscripcion
-app.get('/inscripcion/:id_alumno', inscripcion.getFormatoInscripcion);
-//app.post('/inscripcion/registrar', inscripcion.createFormatoInscripcion);
-app.put('/inscripcion/:id', inscripcion.updateInscripcion);
-app.delete('/inscripcion/:id', inscripcion.deleteFormatoInscripcion);
+GET('/inscripcion/:id_alumno', inscripcion.getFormatoInscripcion);
+//POST('/inscripcion/registrar', inscripcion.createFormatoInscripcion);
+PUT('/inscripcion/:id', inscripcion.updateInscripcion);
+DELETE('/inscripcion/:id', inscripcion.deleteFormatoInscripcion);
 
 //familiar
-app.get('/familiar/:id_alumno', familiar.getFamiliaresAlumno);
-app.post('/familiar/:id_alumno', familiar.crearFamiliar);
-app.put('/familiar/:id_familiar', familiar.modificarFamiliar);
-app.put('/familiar/eliminar/:id_relacion', familiar.eliminarFamiliar);
-app.get('/familiar/:id_parentesco/:apellidos_alumno/:id_sucursal', familiar.getFamiliareParaRelacionar);
+GET('/familiar/:id_alumno', familiar.getFamiliaresAlumno);
+POST('/familiar/:id_alumno', familiar.crearFamiliar);
+PUT('/familiar/:id_familiar', familiar.modificarFamiliar);
+PUT('/familiar/eliminar/:id_relacion', familiar.eliminarFamiliar);
+GET('/familiar/:id_parentesco/:apellidos_alumno/:id_sucursal', familiar.getFamiliareParaRelacionar);
 
 //parentesco
-app.get('/parentesco/:id_alumno', parentesco.getCatalogoParentescoAlumno);
+GET('/parentesco/:id_alumno', parentesco.getCatalogoParentescoAlumno);
 
 //genero
-app.get('/genero', catagolos.getCatGenero);
+GET('/genero', catagolos.getCatGenero);
 
 //servicios
-app.get('/servicios', catagolos.getServicios);
+GET('/servicios', catagolos.getServicios);
 
 //complementos del formato de inscripcion
-app.get('/valores_esperados/:id_formato', formato_complemento.getCatalogoValoresEsperados);
+GET('/valores_esperados/:id_formato', formato_complemento.getCatalogoValoresEsperados);
 
 //pagos
-app.post('/pagos/registrar', pagos.registrarPago);
-app.post('/pagos/:id_alumno', pagos.registrarPago);
-app.get('/pagos/:id_cargo_balance_alumno', pagos.getPagosByCargoId);
+POST('/pagos/registrar', pagos.registrarPago);
+POST('/pagos/:id_alumno', pagos.registrarPago);
+GET('/pagos/:id_cargo_balance_alumno', pagos.getPagosByCargoId);
 
-app.post('/cargos/registrar', pagos.registrarCargo);
-app.get('/cargos', pagos.getCatalogoCargos);
-app.get('/cargos/:id_alumno', pagos.getCargosAlumno);
-app.get('/balance/:id_alumno', pagos.getBalanceAlumno);
-app.put('/cargos/:id_alumno',pagos.eliminarCargos);
+POST('/cargos/registrar', pagos.registrarCargo);
+GET('/cargos', pagos.getCatalogoCargos);
+GET('/cargos/:id_alumno', pagos.getCargosAlumno);
+GET('/balance/:id_alumno', pagos.getBalanceAlumno);
+PUT('/cargos/:id_alumno', pagos.eliminarCargos);
 
-app.get('/formas_pagos', catagolos.getFormasPago);
+GET('/formas_pagos', catagolos.getFormasPago);
 
 //Reporte
-app.get('/balance_sucursal', reporteDeudas.getReporteBalancePorSucursal);
-app.get('/balance_alumnos_sucursal/:id_sucursal', reporteDeudas.getReporteBalanceAlumnosSucursal);
+GET('/balance_sucursal', reporteDeudas.getReporteBalancePorSucursal);
+GET('/balance_alumnos_sucursal/:id_sucursal', reporteDeudas.getReporteBalanceAlumnosSucursal);
 
-app.get('/balance_crecimiento', reporteDeudas.getReporteCrecimientoBalancePorSucursal);
-app.get('/balance_crecimiento_alumnos/:id_sucursal', reporteDeudas.getReporteCrecimientoBalanceAlumnosSucursal);
+GET('/balance_crecimiento', reporteDeudas.getReporteCrecimientoBalancePorSucursal);
+GET('/balance_crecimiento_alumnos/:id_sucursal', reporteDeudas.getReporteCrecimientoBalanceAlumnosSucursal);
 
-app.get('/balance_crecimiento_global', reporteDeudas.getReporteCrecimientoGlobal);
-app.get('/balance_crecimiento_mensual/:id_sucursal', reporteDeudas.getReporteCrecimientoMensualSucursal);
-app.get('/alumnos_balance_crecimiento_mensual_sucursal/:id_sucursal/:mes_anio', reporteDeudas.getReporteAlumnosMensualCrecimiento);
+GET('/balance_crecimiento_global', reporteDeudas.getReporteCrecimientoGlobal);
+GET('/balance_crecimiento_mensual/:id_sucursal', reporteDeudas.getReporteCrecimientoMensualSucursal);
+GET('/alumnos_balance_crecimiento_mensual_sucursal/:id_sucursal/:mes_anio', reporteDeudas.getReporteAlumnosMensualCrecimiento);
 
 //
-app.get('/meses_activos', utilerias.getMesesActivos);
-//app.get('/buscar_correo_padre/:correo', utilerias.findCorreoPadre);
+GET('/meses_activos', utilerias.getMesesActivos);
+//GET('/buscar_correo_padre/:correo', utilerias.findCorreoPadre);
 
 //alumnos crecimiento mes
-app.get('/alumnos_crecimiento_mes/:anio/:mes', reporteDeudas.getReporteAlumnosNuevosIngresosGlobal);
+GET('/alumnos_crecimiento_mes/:anio/:mes', reporteDeudas.getReporteAlumnosNuevosIngresosGlobal);
 
 //Datos de facturacion
-app.post('/datos_facturacion', datos_facturacion.guardarDatosFacturacionAlumno);
-app.put('/datos_facturacion', datos_facturacion.actualizarRequiereFacturacionAlumno);
+POST('/datos_facturacion', datos_facturacion.guardarDatosFacturacionAlumno);
+PUT('/datos_facturacion', datos_facturacion.actualizarRequiereFacturacionAlumno);
 
 //gastos
-app.get('/gastos/:co_sucursal/:anio_mes', gastos.getGastosPorSucursal);
-app.get('/historico_gastos/:co_sucursal', gastos.getSumaMesGastosPorSucursal);
-app.post('/gastos', gastos.registrarGasto);
-app.put('/gastos', gastos.modificarGasto);
-app.delete('/gastos/:id', gastos.eliminarGasto);
-app.get('/tipos_gasto', gastos.getCatalogoTipoGasto);
+GET('/gastos/:co_sucursal/:anio_mes', gastos.getGastosPorSucursal);
+GET('/historico_gastos/:co_sucursal', gastos.getSumaMesGastosPorSucursal);
+POST('/gastos', gastos.registrarGasto);
+PUT('/gastos', gastos.modificarGasto);
+DELETE('/gastos/:id', gastos.eliminarGasto);
+GET('/tipos_gasto', gastos.getCatalogoTipoGasto);
 
 //Reporte de gastos
-//app.get('/reporte_gastos', reporte_gastos.getReporteGastosSucursalesMensual);
-app.get('/reporte_gastos', reporte_gastos.getReporteGastosSucursalesMensualActual);
-//app.get('/reporte_gastos/:mes_anio', reporte_gastos.getReporteGastosSucursalesMensual);
-app.get('/reporte_gastos/:id_sucursal', reporte_gastos.getReporteGastosMensualesPorSucursalTrend);
-app.get('/reporte_gastos/:id_sucursal/:mes_anio', reporte_gastos.getReporteDetalleGastosPorSucursal);
-app.get('/reporte_gastos_global', reporte_gastos.getReporteGastosGlobal);
-app.get('/reporte_gastos_mes_actual', reporte_gastos.getReporteGastoMensualActual);
+//GET('/reporte_gastos', reporte_gastos.getReporteGastosSucursalesMensual);
+GET('/reporte_gastos', reporte_gastos.getReporteGastosSucursalesMensualActual);
+//GET('/reporte_gastos/:mes_anio', reporte_gastos.getReporteGastosSucursalesMensual);
+GET('/reporte_gastos/:id_sucursal', reporte_gastos.getReporteGastosMensualesPorSucursalTrend);
+GET('/reporte_gastos/:id_sucursal/:mes_anio', reporte_gastos.getReporteDetalleGastosPorSucursal);
+GET('/reporte_gastos_global', reporte_gastos.getReporteGastosGlobal);
+GET('/reporte_gastos_mes_actual', reporte_gastos.getReporteGastoMensualActual);
 
 
 //consultas para App
-app.get('/actividades/:id_familiar',actividad_reporte.getActividadesRelacionadosFamiliar);
+GET('/actividades/:id_familiar', actividad_reporte.getActividadesRelacionadosFamiliar);
 
 //Para movil
-//app.get('/cargos_familiar/:id_familiar',actividad_reporte.getCargosAlumnosFamiliar);
-//app.get('/cargos_pagados_familiar/:id_familiar',actividad_reporte.getCargosPagadosAlumnosFamiliar);
-app.get('/balance_familiar_alumno/:id_familiar',actividad_reporte.getBalanceFamiliarAlumnos);
+//GET('/cargos_familiar/:id_familiar',actividad_reporte.getCargosAlumnosFamiliar);
+//GET('/cargos_pagados_familiar/:id_familiar',actividad_reporte.getCargosPagadosAlumnosFamiliar);
+GET('/balance_familiar_alumno/:id_familiar', actividad_reporte.getBalanceFamiliarAlumnos);
 
 // modificar token de cliente
-app.post('/cliente/:id_familiar',actividad_reporte.updateTokenMensajeriaFamiliar);
-app.put('/cliente/:id_familiar',actividad_reporte.updateDatosFamiliar);
+POST('/cliente/:id_familiar', actividad_reporte.updateTokenMensajeriaFamiliar);
+PUT('/cliente/:id_familiar', actividad_reporte.updateDatosFamiliar);
 
 //reset password
-app.get('/reset_password/:id_familiar',familiar.resetPasswordFamiliar);
+GET('/reset_password/:id_familiar', familiar.resetPasswordFamiliar);
 
 //Login Clientes - Papás
 app.post('/auth_cliente/login', authClientesController.loginCliente);
-app.put('/auth_cliente/:id_familiar',authClientesController.cambioClaveFamiliar);
+PUT('/auth_cliente/:id_familiar', authClientesController.cambioClaveFamiliar);
 
 //reporte de mensualidades facturadas
-app.get('/reporte_mensualidades', reporte_mensualidades.getReporteContadoresSucursalesMesActual);
-app.get('/reporte_mensualidades/:id_sucursal', reporte_mensualidades.getReporteContadoresMesesPorSucursal);
-app.get('/reporte_mensualidades/:id_sucursal/:mes', reporte_mensualidades.getReporteMensualidadesPorSucursalMes);
+GET('/reporte_mensualidades', reporte_mensualidades.getReporteContadoresSucursalesMesActual);
+GET('/reporte_mensualidades/:id_sucursal', reporte_mensualidades.getReporteContadoresMesesPorSucursal);
+GET('/reporte_mensualidades/:id_sucursal/:mes', reporte_mensualidades.getReporteMensualidadesPorSucursalMes);
 
 //configuracion
-app.get('/configuracion', conf.getConfiguracion);
+GET('/configuracion', conf.getConfiguracion);
 
 //Mensajes
-app.get('/mensaje', mensajeria.sendMessage);
+GET('/mensaje', mensajeria.sendMessage);
 
-app.get('/enviar_correo', correo_service.enviarCorreoTest);
+GET('/enviar_correo', correo_service.enviarCorreoTest);
 
 //sucursales y cambios
-app.get('/sucursal',sucursales.getSucursales);
-app.put('/cambio_sucursal/:id_alumno',alumnoSucursal.cambiarSucursalAlumno);
+GET('/sucursal', sucursales.getSucursales);
+PUT('/cambio_sucursal/:id_alumno', alumnoSucursal.cambiarSucursalAlumno);
 
-//app.put('/getInfoCorreoAlumnos',correo_service.getAlumnosInfoCorreoAlumnos);
-app.put('/enviar_recordatorio_pago/:id_alumno',correo_service.enviarRecordatorioPago); 
+//PUT('/getInfoCorreoAlumnos',correo_service.getAlumnosInfoCorreoAlumnos);
+PUT('/enviar_recordatorio_pago/:id_alumno', correo_service.enviarRecordatorioPago);
 
 //reporte ingresos vs cargos
-app.get('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes',reporteDeudas.getReporteGastosIngresosSucursalPorMes);
+GET('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes', reporteDeudas.getReporteGastosIngresosSucursalPorMes);
 
 //Cargos, eliminacion y consulta
-//app.get('/sucursal/:id_sucursal/cargos',reporteDeudas.getAllAlumnosCargos);
+//GET('/sucursal/:id_sucursal/cargos',reporteDeudas.getAllAlumnosCargos);
 
 
 
-app.get('/', (request, response) => {
+GET('/', (request, response) => {
 	response.json({ info: 'MagicIntelligence API v1.0.16' })
 });
 
@@ -224,7 +288,7 @@ app.listen(port, () => {
 	console.log(`App corriendo en el puerto ${port} v1.0.16`)
 });
 
-//app.get('/encriptar/:clave', authController.encriptar);
+//GET('/encriptar/:clave', authController.encriptar);
 
 
 //--- TAREAS PROGRAMADAS ------
@@ -274,7 +338,7 @@ schedule.scheduleJob('0 */10 12-24 * * 1-5', function () {
 	}
 });
 
-schedule.scheduleJob('0 */31 * * * 1-5', function () { 
+schedule.scheduleJob('0 */31 * * * 1-5', function () {
 	//schedule.scheduleJob('0 */31 * * * 1-5', function () {
 	console.log('CALCULANDO CARGOS DE HORAS EXTRAS DE ALUMNOS ' + new Date());
 	try {
@@ -288,7 +352,7 @@ schedule.scheduleJob('0 */31 * * * 1-5', function () {
 
 
 schedule.scheduleJob('0 */33 * * * 1-5', function () {
-//schedule.scheduleJob('0 */3 * * * 1-5', function () {	
+	//schedule.scheduleJob('0 */3 * * * 1-5', function () {	
 	console.log('PROCESO DE REVISION DE SALIDA DE ALUMNOS ' + new Date());
 	//FIXME : para pruebas
 	try {
@@ -301,7 +365,7 @@ schedule.scheduleJob('0 */33 * * * 1-5', function () {
 
 
 schedule.scheduleJob('0 */35 * * * 1-5', function () {
-//schedule.scheduleJob('0 */2 * * * 1-5', function () {	
+	//schedule.scheduleJob('0 */2 * * * 1-5', function () {	
 	console.log('PROCESO DE REVISION DE EXPIRACION DE TIEMPO DE ALUMNOS ' + new Date());
 	//FIXME : para pruebas
 	try {

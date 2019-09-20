@@ -5,7 +5,7 @@ const { validarToken } = require('../helpers/helperToken');
 const getReporteGastosMensualesPorSucursalTrend = (request, response) => {
     console.log("@getReporteGastosMensualesPorSucursalTrend");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
         
         const id_sucursal = request.params.id_sucursal;
 
@@ -40,7 +40,7 @@ const getReporteGastosMensualesPorSucursalTrend = (request, response) => {
 const getReporteGastosSucursalesMensual = (request, response) => {
     console.log("@getReporteGastosSucursalesMensual");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
 
         const mes_anio = request.params.mes_anio;
 
@@ -72,7 +72,7 @@ const getReporteGastosSucursalesMensual = (request, response) => {
 const getReporteGastosSucursalesMensualActual = (request, response) => {
     console.log("@getReporteGastosSucursalesMensualActual");
     try {
-        validarToken(request,response);
+       // validarToken(request,response);
 
         pool.query(
             `
@@ -104,7 +104,7 @@ const getReporteGastosPorTipoYSucursal = (request, response) => {
     console.log("@getReporteGastosPorTipoYSucursal");
     try {
        
-        validarToken(request,response);
+//        validarToken(request,response);
 
         const id_sucursal = request.params.id_sucursal;
         const mes_anio = request.params.mes_anio;
@@ -138,7 +138,7 @@ const getReporteGastosPorTipoYSucursal = (request, response) => {
 const getReporteDetalleGastosPorSucursal = (request, response) => {
     console.log("@getReporteDetalleGastosPorSucursal");
     try {
-        validarToken(request,response);
+      //  validarToken(request,response);
 
         const id_sucursal = request.params.id_sucursal;
         const mes_anio = request.params.mes_anio;
@@ -176,7 +176,7 @@ const getReporteDetalleGastosPorSucursal = (request, response) => {
 const getReporteGastosGlobal = (request, response) => {
     console.log("@getReporteGastosGlobal");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
 
         pool.query(
             `
@@ -208,7 +208,7 @@ const getReporteGastosGlobal = (request, response) => {
 const getReporteGastoMensualActual = (request, response) => {
     console.log("@getReporteGastoMensualActual");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
 
         pool.query(
             `

@@ -9,7 +9,7 @@ const getReporteMensualidadesPorSucursalMes = (request, response) => {
     console.log("@getReporteMensualidadesPorSucursalMes");
     try {
 
-        validarToken(request,response);
+       // validarToken(request,response);
         
         const { id_sucursal, mes } = request.params;
         console.log("id_sucursal " + id_sucursal + " mes " + mes);
@@ -76,7 +76,7 @@ const getReporteContadoresSucursalesMesActual = (request, response) => {
 
     try {
 
-        validarToken(request,response);
+      //  validarToken(request,response);
 
         pool.query(
             getQueryPrincipal(null, true)
@@ -102,7 +102,7 @@ const getReporteContadoresMesesPorSucursal = (request, response) => {
     console.log("@getReporteContadoresMesesPorSucursal");
     try {
 
-        validarToken(request,response);
+        //validarToken(request,response);
 
         let { id_sucursal } = request.params;
 

@@ -7,7 +7,7 @@ const getConfiguracion = (request, response) => {
     console.log("@getConfiguracion");
     try {
 
-        validarToken(request,response);
+        //validarToken(request,response);
 
         pool.query("select * from configuracion WHERE id = 1",
             (error, results) => {

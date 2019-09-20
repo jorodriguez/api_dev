@@ -42,10 +42,7 @@ const validarToken = (request,response) => {
                 console.log("Token OK");
             }
         });
-        if (!respuesta.tokenValido) {
-            return response.status(respuesta.statusNumber).send(respuesta);
-        }
-        
+               
         //console.log("TERMINO VALIDACION TOKEN");
         return respuesta;        
     } catch (e) {

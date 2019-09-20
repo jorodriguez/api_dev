@@ -6,7 +6,7 @@ const { validarToken } = require('../helpers/helperToken');
 const getReporteBalanceAlumnosSucursal = (request, response) => {
     console.log("@getReportePrincipal");
     try {
-        validarToken(request,response);        
+       // validarToken(request,response);        
 
         const id_sucursal = request.params.id_sucursal;
 
@@ -50,7 +50,7 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
 const getReporteBalancePorSucursal = (request, response) => {
     console.log("@getReporteBalancePorSucursal");
     try {
-        validarToken(request,response);        
+       // validarToken(request,response);        
 
         pool.query(
             `
@@ -109,7 +109,7 @@ const getReporteBalancePorSucursal = (request, response) => {
 const getReporteCrecimientoBalancePorSucursal = (request, response) => {
     console.log("@getReporteCrecimientoBalancePorSucursal");
     try {
-        validarToken(request,response);        
+        //validarToken(request,response);        
 
         pool.query(
             `
@@ -153,7 +153,7 @@ const getReporteCrecimientoBalancePorSucursal = (request, response) => {
 const getReporteCrecimientoBalanceAlumnosSucursal = (request, response) => {
     console.log("@getReporteCrecimientoBalanceAlumnosSucursal");
     try {
-        validarToken(request,response);        
+       // validarToken(request,response);        
 
         const id_sucursal = request.params.id_sucursal;
 
@@ -197,7 +197,7 @@ const getReporteCrecimientoBalanceAlumnosSucursal = (request, response) => {
 const getReporteCrecimientoGlobal = (request, response) => {
     console.log("@getReporteCrecimientoGlobal");
     try {
-        validarToken(request,response);        
+       // validarToken(request,response);        
 
         const id_sucursal = request.params.id_sucursal;
 
@@ -237,7 +237,7 @@ const getReporteCrecimientoGlobal = (request, response) => {
 const getReporteCrecimientoMensualSucursal = (request, response) => {
     console.log("@getReporteCrecimientoMensualSucursal");
     try {
-        validarToken(request,response);        
+        //validarToken(request,response);        
 
         const id_sucursal = request.params.id_sucursal;
 
@@ -304,7 +304,7 @@ const getReporteAlumnosMensualCrecimiento = (request, response) => {
     console.log("@getReporteAlumnosMensualCrecimiento");
     try {
         
-        validarToken(request,response);        
+        //validarToken(request,response);        
 
         console.log(JSON.stringify(request.params));
 
@@ -353,7 +353,7 @@ const getReporteAlumnosMensualCrecimiento = (request, response) => {
 const getReporteAlumnosNuevosIngresosGlobal = (request, response) => {
     console.log("@getReporteAlumnosNuevosIngresosGlobal");
     try {
-        validarToken(request,response);        
+        //validarToken(request,response);        
 
         const { anio, mes } = request.params;
 
@@ -402,7 +402,7 @@ const getReporteAlumnosNuevosIngresosGlobal = (request, response) => {
 const getReporteGastosIngresosSucursalPorMes = (request, response) => {
     console.log("@getReporteGastosIngresosSucursalPorMes");
     try {
-        validarToken(request,response);        
+        //validarToken(request,response);        
 
         let id_sucursal = request.params.id_sucursal;
         let mes = request.params.mes;
@@ -472,7 +472,7 @@ const getAllAlumnosCargos = (request, response) => {
     console.log("@getAllAlumnosCargos");
     try {
        
-        validarToken(request,response);        
+       // validarToken(request,response);        
 
         const {id_sucursal } = request.params;
 

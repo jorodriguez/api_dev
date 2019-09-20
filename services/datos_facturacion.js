@@ -6,7 +6,7 @@ const { validarToken } = require('../helpers/helperToken');
 const guardarDatosFacturacionAlumno = (request, response) => {
     console.log("@guardarDatosFacturacionAlumno");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
         
         const { id } = request.body;
         
@@ -203,7 +203,7 @@ const actualizarRequiereFacturaAlumno = (id_alumno, factura, id_genero) => {
 const actualizarRequiereFacturacionAlumno = (request, response) => {
     console.log("@actualizarRequiereFacturacionAlumno");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
 
         const { id_alumno,factura,genero } = request.body;
         

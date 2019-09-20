@@ -80,7 +80,7 @@ const login = (request, response) => {
 
                     var token = jwt.sign({ id: results.id }, config.secret, {
                         //expiresIn: 86400 // expires in 24 hours
-                        expiresIn : 100 
+                        expiresIn : 10
                     });
 
                     response.status(200).send({ auth: true, token: token, usuario: usuario });

@@ -6,7 +6,7 @@ const { validarToken } = require('../helpers/helperToken');
 const getCatalogoParentescoAlumno = (request, response) => {
     console.log("@getParentesco");
     try {
-        validarToken(request,response);
+       // validarToken(request,response);
         
         var id_alumno = request.params.id_alumno;
 

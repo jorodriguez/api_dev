@@ -8,7 +8,7 @@ const cambiarSucursalAlumno = (request, response) => {
     console.log("@cambiarSucursalAlumno");
     try {
 
-        validarToken(request,response);
+        //validarToken(request,response);
         
         const id_alumno = request.params.id_alumno;
         const { id_sucursal_origen,id_sucursal_destino, genero } = request.body;

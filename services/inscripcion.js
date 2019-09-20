@@ -241,7 +241,7 @@ const relacionarValorEsperadoEmpresa = (id_formato, valores_esperados_ids, gener
 const deleteFormatoInscripcion = (request, response) => {
     console.log("@deleteFormatoInscripcion");
     try {
-        validarToken(request,response);       
+        //validarToken(request,response);       
 
         const id = parseInt(request.params.id)
         pool.query('UPDATE CO_FORMATO_INSCRIPCION SET eliminado = true WHERE id = $1', [id], (error, results) => {

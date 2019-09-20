@@ -40,7 +40,7 @@ const registrarActividad = (request, response) => {
     console.log("@registrarActividad");
     try {
         
-        validarToken(request,response);
+        //validarToken(request,response);
 
         const { alumnosIds, cat_actividad, tipo_actividad, sub_actividad, nota, genero } = request.body;
 

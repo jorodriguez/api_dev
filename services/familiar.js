@@ -13,7 +13,7 @@ const ID_MADRE = 2;
 const crearFamiliar = (request, response) => {
     console.log("@create familiar autorizado");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
         
         var id_alumno = request.params.id_alumno;
 
@@ -75,7 +75,7 @@ const crearFamiliar = (request, response) => {
 
 const resetPasswordFamiliar = (request, response) => {
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
 
         var id_familiar = request.params.id_familiar;
 
@@ -145,7 +145,7 @@ const modificarFamiliar = (request, response) => {
     console.log("@modificar familiar autorizado");
     try {
         
-        validarToken(request,response);
+        //validarToken(request,response);
 
         var id_familiar = request.params.id_familiar;
 
@@ -205,7 +205,7 @@ const eliminarFamiliar = (request, response) => {
     try {
         console.log("eliminar familiar");
         
-        validarToken(request,response);
+        //validarToken(request,response);
 
         var id_relacion = request.params.id_relacion;
 
@@ -431,7 +431,7 @@ const updateFamiliar = (id_familiar, familiar, genero) => {
 const getFamiliaresAlumno = (request, response) => {
     console.log("@getFamiliaresAlumno");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
 
         var id_alumno = request.params.id_alumno;
 
@@ -465,7 +465,7 @@ const getFamiliaresAlumno = (request, response) => {
 const getFamiliareParaRelacionar = (request, response) => {
     console.log("@getFamiliaresConApellidosParecidos");
     try {
-        validarToken(request,response);
+        //validarToken(request,response);
 
         const SPLIT_APELLIDO_PATERNO = 2;
         const SPLIT_APELLIDO_MATERNO = 3;

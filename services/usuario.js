@@ -33,7 +33,7 @@ const login = (request, response) => {
 //GET — /users | getUsers()
 const getUsers = (request, response) => {
 	try {	
-		validarToken(request,response);		
+		//validarToken(request,response);		
 
 		pool.query('SELECT * FROM usuario ORDER BY id ASC', (error, results) => {
 			if (error) {
@@ -52,7 +52,7 @@ const getUsers = (request, response) => {
 //GET — /users/:id | getUserById()
 const getUserById = (request, response) => {
 	try {
-		validarToken(request,response);		
+		//validarToken(request,response);		
 
 		const id = parseInt(request.params.id);
 
@@ -72,7 +72,7 @@ const getUserById = (request, response) => {
 //  POST — users | createUser()
 const createUser = (request, response) => {
 	try {
-		validarToken(request,response);		
+		//validarToken(request,response);		
 
 		const { nombre, correo, password } = request.body;
 
@@ -93,7 +93,7 @@ const createUser = (request, response) => {
 // PUT — /users/:id | updateUser()
 const updateUser = (request, response) => {
 	try {
-		validarToken(request,response);				   
+		//validarToken(request,response);				   
 
 		const id = parseInt(request.params.id)
 		const { nombre, correo } = request.body
@@ -117,7 +117,7 @@ const updateUser = (request, response) => {
 // DELETE — /users/:id | deleteUser()
 const deleteUser = (request, response) => {
 	try {
-		validarToken(request,response);		
+		//validarToken(request,response);		
 
 		const id = parseInt(request.params.id)
 

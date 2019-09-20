@@ -7,7 +7,7 @@ const { validarToken } = require('../helpers/helperToken');
 const getCatalogoValoresEsperados = (request, response) => {
     console.log("@getCatalogoValoresEsperados");
     try {
-        validarToken(request,response);
+       // validarToken(request,response);
         
         var id_formato = request.params.id_formato;
 
