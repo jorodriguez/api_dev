@@ -1,27 +1,12 @@
 
-const Pool = require('pg').Pool
-
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
 const { isEmpty } = require('../helpers/Utils');
-const Joi = require('@hapi/joi');
 const mailService = require('../utils/NotificacionService');
 const utilerias = require('./utilerias');
 
 var bcrypt = require('bcryptjs');
-
-const config = require('../config/config');
-const jwt = require('jsonwebtoken');
-
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
 
 const ID_PADRE = 1;
 const ID_MADRE = 2;
@@ -384,10 +369,6 @@ const relacionarAlumnoFamilia = (id_alumno, id_familiar, id_parentesco, genero) 
         }
     });
 
-    /*} catch (e) {
-        console.log("error al guardar la realacion alumno materia " + e);
-
-    }*/
 }
 
 
@@ -419,12 +400,7 @@ const eliminarRelacionarAlumnoFamilia = (id_relacion, genero) => {
         } else {
             reject(null);
         }
-    });
-
-    /*} catch (e) {
-        console.log("error al guardar la realacion alumno materia " + e);
-
-    }*/
+    });    
 }
 
 
@@ -468,9 +444,6 @@ const updateFamiliar = (id_familiar, familiar, genero) => {
         return false;
     }
 };
-
-
-
 
 const getFamiliaresAlumno = (request, response) => {
     console.log("@getFamiliaresAlumno");
@@ -588,9 +561,9 @@ const getParams = (body) => {
 };
 
 
-module.exports = {
-    //    createPadre,
-    //    createMadre,
+
+
+module.exports = {   
     crearFamiliar,
     updateFamiliar,
     getFamiliaresAlumno,
@@ -598,4 +571,5 @@ module.exports = {
     eliminarFamiliar,
     getFamiliareParaRelacionar,
     resetPasswordFamiliar
+ 
 }

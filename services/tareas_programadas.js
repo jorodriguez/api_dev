@@ -1,5 +1,5 @@
 
-const Pool = require('pg').Pool
+const { pool } = require('../db/conexion');
 
 const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
@@ -9,14 +9,6 @@ const mensajeria = require('./mensajesFirebase');
 
 var schedule = require('node-schedule');
 
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
 
 /*
 *    *    *    *    *    *

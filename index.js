@@ -2,22 +2,19 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
-const db = require('./services/usuario');
+const usuario = require('./services/usuario');
 const alumno = require('./services/alumno');
 const asistencia = require('./services/asistencia');
-const grupo = require('./services/grupo');
 const authController = require('./auth/AuthController');
 const actividad = require('./services/actividad');
 const inscripcion = require('./services/inscripcion');
 const familiar = require('./services/familiar');
 const parentesco = require('./services/parentesco');
-const servicio = require('./services/servicio');
 const formato_complemento = require('./services/formato_complemento');
 const pagos = require('./services/pagos');
 const mensajeria = require('./services/mensajesFirebase');
 const tareas_programadas = require('./services/tareas_programadas');
 const schedule = require('node-schedule');
-const formas_pago = require('./services/formas_pago');
 const { configuracion } = require('./config/ambiente');
 const reporteDeudas = require('./services/reporteDeudas');
 const reporte_mensualidades = require('./services/reporte_mensualidades');
@@ -30,6 +27,7 @@ const authClientesController = require('./auth/AuthClientesController');
 const correo_service = require('./utils/NotificacionService');
 const sucursales = require('./services/sucursal');
 const alumnoSucursal = require('./services/alumno_sucursal');
+const catagolos = require('./services/catagolos');
 const conf = require('./services/configuracion');
 const https = require("https");
 
@@ -66,12 +64,12 @@ app.use((err, req, res, next) => {
 app.post('/auth/login', authController.login);
 app.post('/auth/register', authController.createUser);
 
-//app.post('/login', db.login);
-app.get('/users/:id_sucursal', db.getUsers);
-app.get('/users/:id', db.getUserById);
-//app.post('/users', db.createUser);
-app.put('/users/:id', db.updateUser);
-app.delete('/users/:id', db.deleteUser);
+//app.post('/login', usuario.login);
+app.get('/users/:id_sucursal', usuario.getUsers);
+app.get('/users/:id', usuario.getUserById);
+//app.post('/users', usuario.createUser);
+app.put('/users/:id', usuario.updateUser);
+app.delete('/users/:id', usuario.deleteUser);
 
 //alumno
 app.get('/alumnos/:id_sucursal', alumno.getAlumnos);
@@ -87,8 +85,7 @@ app.post('/asistencia/entradaAlumnos', asistencia.registrarEntradaAlumnos);
 app.post('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
 
 //grupo
-app.get('/grupos', grupo.getGrupos);
-
+app.get('/grupos', catagolos.getGrupos);
 
 //actividades
 app.get('/actividad/catalogo_actividad', actividad.getCatalogoActividades);
@@ -110,8 +107,11 @@ app.get('/familiar/:id_parentesco/:apellidos_alumno/:id_sucursal', familiar.getF
 //parentesco
 app.get('/parentesco/:id_alumno', parentesco.getCatalogoParentescoAlumno);
 
+//genero
+app.get('/genero', catagolos.getCatGenero);
+
 //servicios
-app.get('/servicios', servicio.getCatalogoServicios);
+app.get('/servicios', catagolos.getServicios);
 
 //complementos del formato de inscripcion
 app.get('/valores_esperados/:id_formato', formato_complemento.getCatalogoValoresEsperados);
@@ -127,7 +127,7 @@ app.get('/cargos/:id_alumno', pagos.getCargosAlumno);
 app.get('/balance/:id_alumno', pagos.getBalanceAlumno);
 app.put('/cargos/:id_alumno',pagos.eliminarCargos);
 
-app.get('/formas_pagos', formas_pago.getFormasPago);
+app.get('/formas_pagos', catagolos.getFormasPago);
 
 //Reporte
 app.get('/balance_sucursal', reporteDeudas.getReporteBalancePorSucursal);

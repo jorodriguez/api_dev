@@ -1,23 +1,11 @@
 
 
-const Pool = require('pg').Pool
-
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
+const { QUERY,getCatalogo } = require('./catagolosHelper');
 
 const notificacionService = require('../utils/NotificacionService');
-
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
-
-//  agregar_cargo_alumno(IN id_alumno integer, id_cargo integer ,cantidad integer ,nota text ,id_genero integer,OUT retorno boolean) AS $$
 
 //registrar pagos
 const registrarCargo = (request, response) => {
@@ -94,25 +82,7 @@ const registrarPago = (request, response) => {
 
 const getCatalogoCargos = (request, response) => {
     console.log("@getCatalogoCargos");
-    try {
-        var validacion = helperToken.validarToken(request);
-
-        if (!validacion.tokenValido) {
-            return response.status(validacion.status).send(validacion.mensajeRetorno);;
-        }
-
-        pool.query(
-            "SELECT * from cat_cargo where eliminado = false order by nombre",
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).json(results.rows);
-            });
-    } catch (e) {
-        handle.callbackErrorNoControlado(e, response);
-    }
+    getCatalogo(QUERY.CARGOS,request,response);   
 };
 
 

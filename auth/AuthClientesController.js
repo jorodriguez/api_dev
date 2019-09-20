@@ -1,23 +1,11 @@
 
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var config = require('../config/config');
 const handle = require('../helpers/handlersErrors');
 
 const helperToken = require('../helpers/helperTokenMovil');
-
-
-const Pool = require('pg').Pool;
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
-
 // GET a Login 
 const loginCliente = (request, response) => {
 

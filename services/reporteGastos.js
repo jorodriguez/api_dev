@@ -1,20 +1,6 @@
-
-const Pool = require('pg').Pool
-
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
-const mensajeria = require('./mensajesFirebase');
-
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
-
 
 const getReporteGastosMensualesPorSucursalTrend = (request, response) => {
     console.log("@getReporteGastosMensualesPorSucursalTrend");

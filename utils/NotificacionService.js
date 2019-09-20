@@ -1,7 +1,5 @@
 
-const Pool = require('pg').Pool
-
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 const { configuracion } = require('../config/ambiente');
 const nodemailer = require('nodemailer');
 const handle = require('../helpers/handlersErrors');
@@ -10,17 +8,6 @@ const mustache = require('mustache');
 var fs = require('fs');
 var path = require('path');
 const mensajeria = require('../services/mensajesFirebase');
-
-
-
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
 
 const TEMPLATE_GENERICO = "generico.html";
 const TEMPLATE_RECIBO_PAGO = "recibo_pago.html";

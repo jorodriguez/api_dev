@@ -1,18 +1,8 @@
 
-const Pool = require('pg').Pool
+const { pool } = require('../db/conexion');
 const Joi = require('@hapi/joi');
-const { dbParams } = require('../config/config');
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
-
-const pool = new Pool({
-	user: dbParams.user,
-	host: dbParams.host,
-	database: dbParams.database,
-	password: dbParams.password,
-	port: dbParams.port,
-	ssl: { rejectUnauthorized: false }
-});
 
 // GET a Login 
 const login = (request, response) => {

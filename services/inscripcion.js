@@ -1,22 +1,7 @@
 
-const Pool = require('pg').Pool
-
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const helperToken = require('../helpers/helperToken');
-const Joi = require('@hapi/joi');
-
-const config = require('../config/config');
-const jwt = require('jsonwebtoken');
-
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
 
 //GET — /inscripcion/:id_alumno | getFormatoInscripcion()
 const getFormatoInscripcion = (id) => {

@@ -1,22 +1,10 @@
 
-const Pool = require('pg').Pool
-
-const { dbParams } = require('../config/config');
+const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const helperToken = require('../helpers/helperToken');
 const firebase = require("firebase-admin");
 const { configuracion } = require('../config/ambiente');
 
 const serviceAccount = require('./../config/google_service_messages.json');
-
-const pool = new Pool({
-    user: dbParams.user,
-    host: dbParams.host,
-    database: dbParams.database,
-    password: dbParams.password,
-    port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
-});
 
 const firebaseToken = 'fxjTJg3jQPc:APA91bHDuS-ESYDWoPgxNTn67XmE_7iKsQJpebS4_YJvx4YAcBno03WDwiMHdHE0KOXgkEJT54_whgeWHdIhFf10op_AX0Ia04bPz1qrbSAAtIRSQNhY6ThF9DjAV5k7hVKsHsKFip2j';
 
