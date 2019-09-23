@@ -17,6 +17,8 @@ const crearFamiliar = (request, response) => {
         
         var id_alumno = request.params.id_alumno;
 
+        console.log("request.body "+JSON.stringify(request.body));
+
         const p = getParams(request.body);
 
         let esRegistroParaRelacionar = (p.id != null && p.id != -1 && p.id != 0);
@@ -274,6 +276,7 @@ const createFamiliar = (id_alumno, familiar, genero) => {
         if (familiar == null || isEmpty(familiar)) {
             console.log("Se genera un registro en empty");
             familiar = {
+                cat_genero:-1,
                 nombre: "",
                 telefono: "",
                 fecha_nacimiento: null,
@@ -281,7 +284,8 @@ const createFamiliar = (id_alumno, familiar, genero) => {
                 password: "",
                 celular: "",
                 religion: "",
-                nota_celebracion_dia: ""
+                nota_celebracion_dia: "",
+                genero :0
             };
         }
         const p = getParams(familiar);
@@ -290,12 +294,12 @@ const createFamiliar = (id_alumno, familiar, genero) => {
 
         return new Promise((resolve, reject) => {
             pool.query(
-                "  INSERT INTO co_familiar(nombre,telefono,fecha_nacimiento,correo,password,celular,religion,nota_celebracion_dia,genero)" +
-                " VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id ",
+                "  INSERT INTO co_familiar(nombre,telefono,fecha_nacimiento,correo,password,celular,religion,nota_celebracion_dia,genero,cat_genero)" +
+                " VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id ",
                 [
                     p.nombre, p.telefono, p.fecha_nacimiento, p.correo, p.password, p.celular, p.religion,
                     p.nota_celebracion_dia,
-                    genero
+                    genero,p.cat_genero
                 ],
                 (error, results) => {
                     if (error) {
@@ -523,20 +527,16 @@ const getFamiliareParaRelacionar = (request, response) => {
     }
 };
 
-
 const getParams = (body) => {
     const parametros = {
         nombre,
         telefono, fecha_nacimiento, correo, password, celular, religion,
-        nota_celebracion_dia, co_parentesco
-
+        nota_celebracion_dia, co_parentesco,
+        cat_genero
     } = body;
 
     return parametros;
 };
-
-
-
 
 module.exports = {   
     crearFamiliar,

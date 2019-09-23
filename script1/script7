@@ -21,18 +21,30 @@ CREATE TABLE cat_genero
 insert into cat_genero(nombre,genero) values('Mujer',1),('Hombre',1),('Personalizado',1);
 alter table co_familiar add column cat_genero integer;
 ALTER TABLE co_familiar ADD CONSTRAINT cat_genero_constraint_fkey FOREIGN KEY (cat_genero) REFERENCES cat_genero(id);
---update para agregar restriccion not null
+
+
+alter table co_parentesco add column cat_genero_default integer;
+ALTER TABLE co_parentesco ADD CONSTRAINT cat_genero_def_constraint_fkey FOREIGN KEY (cat_genero_default) REFERENCES cat_genero(id);
+
+
+update co_parentesco set cat_genero_default = 2 where id = 1;
+update co_parentesco set cat_genero_default = 1 where id = 2;
+update co_parentesco set cat_genero_default = 2 where id = 3;
+update co_parentesco set cat_genero_default = 1 where id = 4;
+update co_parentesco set cat_genero_default = 2,nombre = 'Tío' where id = 5; --update masculino
+update co_parentesco set cat_genero_default = 2,nombre = 'Hermano' where id = 6; --update masculino
+update co_parentesco set cat_genero_default = 2 where id = 7;
+update co_parentesco set cat_genero_default = 1 where id = 8;
+update co_parentesco set cat_genero_default = 1 where id = 9;
+
 update co_familiar f
-	set cat_genero = 
-		(select  			
-     		case af.co_parentesco 
-				when 2 then 1 
-				when 4 then 1
-			 	when 6 then 1  	 			
- 	 			when 8 then 1
-  	 			when 9 then 1
- 			else 2 end 
- 			from co_familiar fam inner join co_alumno_familiar af on af.co_familiar = fam.id where fam.id = f.id)  
+        set cat_genero = (																							
+					select  			
+     					parent.cat_genero_default
+ 					from co_familiar fam inner join co_alumno_familiar af on af.co_familiar = fam.id 
+								  inner join co_parentesco parent on parent.id = af.co_parentesco
+					where fam.id = f.id		
+		)
+
 
 alter table co_familiar alter column cat_genero set not null;
-
