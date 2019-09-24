@@ -113,3 +113,68 @@ CREATE TABLE co_emocion_actividad
 
 insert into cat_emocion (nombre,icono,icono_active, genero)
 		values('','heart','heart-o',1);
+
+        /*
+        Query
+
+        select 
+		   r.fecha,
+            date_trunc('minute',r.fecha+r.hora) as hora,
+            date_trunc('minute',r.fecha+r.hora)::text as fecha_hora_text,
+            ac.nombre as actividad,
+            ac.icono as icono,
+            tipo.nombre as tipo_actividad,
+            sub.nombre as sub_actividad,
+            r.nota,
+            a.nombre as nombre_alumno,
+            a.apellidos as apellidos_alumno,
+            r.url_foto,
+            r.id,			
+			(count(ea.*) filter (where ea.co_familiar = 54 ) >= 1) as emocion_seleccionada_por_usuario,								
+			case when ea.cat_emocion is null then	
+			(
+				select  array_to_json(
+						array_agg(
+							(								
+									'{'||
+									 '"seleccionada":"false"'||
+									 ',"icono":"'||emoc.icono||'"'||
+									 ',"icono_active":"'||emoc.icono_active||'"'||
+									 ',"nombre":"'||emoc.nombre||'"'
+									'}'																	
+							)
+						))
+				from cat_emocion emoc where eliminado = false					
+			) 
+			else 
+			(
+				select  array_to_json(
+						array_agg(
+							(								
+									'{'||
+									 '"seleccionada":"'||(emoc.id = ea.cat_emocion)::text||'"'||
+									 ',"icono":"'||emoc.icono||'"'||
+									 ',"icono_active":"'||emoc.icono_active||'"'||
+									',"nombre":"'||emoc.nombre||'"'
+									'}'																	
+							)
+						))
+				from cat_emocion emoc where eliminado = false		
+			) 
+			end	as emociones,			
+			count(ea.*) as count_emociones_tocadas
+            from co_registro_actividad r inner join cat_actividad ac on r.cat_actividad = ac.id 
+                     left join cat_tipo_actividad tipo on r.cat_tipo_actividad = tipo.id
+                     left join cat_sub_actividad sub on r.cat_sub_actividad = sub.id					 
+					 left join co_emocion_actividad ea on ea.co_registro_actividad = r.id
+								and ea.eliminado = false					 
+                     inner join co_alumno a on r.co_alumno = a.id
+            where co_alumno IN
+                (select co_alumno from co_alumno_familiar where co_familiar = 54 and eliminado = false) 
+                and a.eliminado = false				
+                and fecha = getDate('')
+			group by r.id,ac.id,tipo.nombre,sub.nombre,a.id,ea.id
+            order by r.fecha,r.hora desc	
+			
+        
+        */

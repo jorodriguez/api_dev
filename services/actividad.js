@@ -29,7 +29,7 @@ const getCatalogoActividades = (request, response) => {
              WHERE a.eliminado = false 
              ORDER BY a.posicion ASC
              ) select array_to_json(array_agg(a.*))  as catalogo_actividades 
-               FROM actividades a`
+               FROM actividades a`;
 
     getCatalogo(actividadesSql,request,response);
    
@@ -40,7 +40,7 @@ const registrarActividad = (request, response) => {
     console.log("@registrarActividad");
     try {
         
-        //validarToken(request,response);
+        validarToken(request,response);
 
         const { alumnosIds, cat_actividad, tipo_actividad, sub_actividad, nota, genero } = request.body;
 
