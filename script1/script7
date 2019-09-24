@@ -48,3 +48,68 @@ update co_familiar f
 
 
 alter table co_familiar alter column cat_genero set not null;
+
+
+///emociones-----
+
+CREATE TABLE cat_emocion
+(
+    id serial not null,
+    nombre text NOT NULL,
+	icono text not null,
+	icono_active text not null,
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,   
+    CONSTRAINT cat_emociones_pkey PRIMARY KEY (id),
+    CONSTRAINT cat_emociones_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT cat_emociones_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES public.usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
+		
+
+CREATE TABLE co_emocion_actividad
+(
+    id serial not null,
+    cat_emocion integer not null,
+	co_registro_actividad integer not null,
+	co_familiar integer not null,
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,   
+    CONSTRAINT co_emocion_act_pkey PRIMARY KEY (id),
+    CONSTRAINT co_emocion_act_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT co_emocion_act_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES public.usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+	CONSTRAINT co_emocion_act_emocion_fkey FOREIGN KEY (cat_emocion)
+        REFERENCES public.cat_emocion (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+	CONSTRAINT co_emocion_act_actividad_fkey FOREIGN KEY (co_registro_actividad)
+        REFERENCES public.co_registro_actividad (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+	CONSTRAINT co_emocion_act_familiar_fkey FOREIGN KEY (co_familiar)
+        REFERENCES public.co_familiar (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
+
+insert into cat_emocion (nombre,icono,icono_active, genero)
+		values('','heart','heart-o',1);
