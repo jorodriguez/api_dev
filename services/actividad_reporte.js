@@ -41,7 +41,8 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
 						array_agg(
 							(								
 									'{'||
-									 '"seleccionada":"false"'||
+                                     '"seleccionada":"false"'||
+                                     ',"id":'||emoc.id||
 									 ',"icono":"'||coalesce(emoc.icono,'')||'"'||
 									 ',"icono_active":"'||coalesce(emoc.icono_active,'')||'"'||
 									 ',"nombre":"'||coalesce(emoc.nombre,'')||'"'
@@ -56,7 +57,8 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
 						array_agg(
 							(								
 									'{'||
-									 '"seleccionada":"'||(emoc.id = ea.cat_emocion)::text||'"'||
+                                     '"seleccionada":"'||(emoc.id = ea.cat_emocion)::text||'"'||
+                                     ',"id":'||emoc.id||
 									',"icono":"'||coalesce(emoc.icono,'')||'"'||
 									 ',"icono_active":"'||coalesce(emoc.icono_active,'')||'"'||
 									 ',"nombre":"'||coalesce(emoc.nombre,'')||'"'
