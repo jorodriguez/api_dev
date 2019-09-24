@@ -11,6 +11,7 @@ const getCatGenero = (request, response) => {
     getCatalogo(QUERY.CAT_GENERO,request,response);
 };
 
+
 const getGrupos = (request, response) => {
     console.log("@getGrupos");
     getCatalogo(QUERY.GRUPO,request,response);
