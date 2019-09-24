@@ -421,6 +421,50 @@ const updateDatosFamiliar = (request, response) => {
 }
 
 
+const registrarEmocion = (request, response) => {
+    console.log("@registrarEmocion");
+    try {
+        
+        var respuesta = validarToken(request,response);
+
+        if (!respuesta.tokenValido) {
+            return response.status(respuesta.statusNumber).send(respuesta);
+        }     
+        
+        const {id_familiar,  } = request.body;
+
+        console.log("id_familiar " + id_familiar);
+
+   
+
+        var sqlInsert =
+            `INSERT INTO co_emocion_actividad(cat_emocion,co_registro_actividad,co_familiar,fecha_genero,genero)
+             values(1,31,54,getDate('')+getHora(''),1) 
+             `;
+/*
+        console.log("SQL " + sqlInsert);
+        pool.query(sqlInsert,
+            [id_familiar],
+            (error, results) => {
+                if (error) {
+                    console.log("Error al actualizar los datos del  familiar " + error);
+                    handle.callbackError(error, response);
+                    return;
+                }
+                console.log("Se actualizaron los datos del familiar");             
+                respuesta.respuesta = id_familiar;   
+                response.status(respuesta.statusNumber).json(respuesta);
+            });*/
+
+    } catch (e) {
+        console.log("Error al actualizar los datos del familiar " + e);
+        handle.callbackErrorNoControlado(e, response);
+    }
+}
+
+
+
+
 module.exports = {
     getActividadesRelacionadosFamiliar,
     getCargosAlumnosFamiliar,
