@@ -36,35 +36,35 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
              r.id,			
              (count(ea.*) filter (where ea.co_familiar = $1 ) >= 1) as emocion_seleccionada_por_usuario,								
              case when ea.cat_emocion is null then	
-             (
-                 select  array_to_json(
-                         array_agg(
-                             (								
-                                     '{'||
-                                      '"seleccionada":"false"'||
-                                      ',"icono":"'||emoc.icono||'"'||
-                                      ',"icono_active":"'||emoc.icono_active||'"'||
-                                      ',"nombre":"'||emoc.nombre||'"'
-                                     '}'																	
-                             )
-                         ))
-                 from cat_emocion emoc where eliminado = false					
-             ) 
-             else 
-             (
-                 select  array_to_json(
-                         array_agg(
-                             (								
-                                     '{'||
-                                      '"seleccionada":"'||(emoc.id = ea.cat_emocion)::text||'"'||
-                                      ',"icono":"'||emoc.icono||'"'||
-                                      ',"icono_active":"'||emoc.icono_active||'"'||
-                                     ',"nombre":"'||emoc.nombre||'"'
-                                     '}'																	
-                             )
-                         ))
-                 from cat_emocion emoc where eliminado = false		
-             ) 
+			(
+				select  array_to_json(
+						array_agg(
+							(								
+									'{'||
+									 '"seleccionada":"false"'||
+									 ',"icono":"'||coalesce(emoc.icono,'')||'"'||
+									 ',"icono_active":"'||coalesce(emoc.icono_active,'')||'"'||
+									 ',"nombre":"'||coalesce(emoc.nombre,'')||'"'
+									'}'																	
+							)
+						))
+				from cat_emocion emoc where eliminado = false					
+			) 
+			else 
+			(
+				select  array_to_json(
+						array_agg(
+							(								
+									'{'||
+									 '"seleccionada":"'||(emoc.id = ea.cat_emocion)::text||'"'||
+									',"icono":"'||coalesce(emoc.icono,'')||'"'||
+									 ',"icono_active":"'||coalesce(emoc.icono_active,'')||'"'||
+									 ',"nombre":"'||coalesce(emoc.nombre,'')||'"'
+									'}'																	
+							)
+						))
+				from cat_emocion emoc where eliminado = false		
+			)::json
              end	as emociones,			
              count(ea.*) as count_emociones_tocadas
              from co_registro_actividad r inner join cat_actividad ac on r.cat_actividad = ac.id 
