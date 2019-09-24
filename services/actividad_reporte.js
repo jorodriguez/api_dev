@@ -3,11 +3,13 @@ const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 //const helperToken = require('../helpers/helperTokenMovil');
 const {validarToken} = require('../helpers/helperTokenMovil');
+const { ESTATUS } = require('../utils/Constantes');
+
 
 const getActividadesRelacionadosFamiliar = (request, response) => {
     console.log("@getActividadesPorAlumno");
     try {
-       // validarToken(request,response);
+        validarToken(request,response);
        
         const id_familiar = request.params.id_familiar;
 
@@ -76,9 +78,8 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
-                }
-                respuesta.respuesta = results.rows;
-                response.status(respuesta.statusNumber).json(respuesta);
+                }                
+                response.status(ESTATUS.OK).json({respuesta:results.rows});
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -180,8 +181,8 @@ const getCargosAlumnosFamiliar = (request, response) => {
                 }
 
                 console.log("====> " + JSON.stringify(results.rows));
-                respuesta.respuesta = results.rows;
-                response.status(respuesta.statusNumber).json(respuesta);
+                
+                response.status(ESTATUS.OK).json({respuesta:results.rows});
                 //response.status(200).json(results.rows);
             });
     } catch (e) {
@@ -242,8 +243,8 @@ const getCargosPagadosAlumnosFamiliar = (request, response) => {
                 console.log("====> " + JSON.stringify(results.rows));
 
                 //response.status(200).json(results.rows);
-                respuesta.respuesta = results.rows;
-                response.status(respuesta.statusNumber).json(respuesta);
+                
+                response.status(ESTATUS.OK).json({respuesta:results.rows});
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -304,12 +305,11 @@ const getBalanceFamiliarAlumnos = (request, response) => {
 
                 if (results.rowCount > 0) {
                     respuesta.respuesta = results.rows;
-                    response.status(respuesta.statusNumber).json(respuesta);
+                    response.status(ESTATUS.OK).json({respuesta:results.rows});
 
                 } else {
-                    console.log("No existe balance para el alumno " + id_alumno);                 
-                    respuesta.respuesta = [];
-                    response.status(respuesta.statusNumber).json(respuesta);
+                    console.log("No existe balance para el alumno " + id_alumno);                                     
+                    response.status(ESTATUS.OK).json({respuesta:[]});
                 }
 
                 //response.status(200).json(results.rows);
@@ -349,8 +349,8 @@ const updateTokenMensajeriaFamiliar = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
-                
-                response.status(respuesta.statusNumber).json({respuesta:true});
+
+                response.status(ESTATUS.OK).json({respuesta:true});
 
                 //response.status(200).send({ operacion: true });
             });
@@ -401,10 +401,8 @@ const updateDatosFamiliar = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
-                console.log("Se actualizaron los datos del familiar");
-                //response.status(200).send(id_familiar);
-                respuesta.respuesta = id_familiar;
-                response.status(respuesta.statusNumber).json(respuesta);
+                console.log("Se actualizaron los datos del familiar");                
+                response.status(ESTATUS.OK).json({respuesta:id_familiar});
             });
 
     } catch (e) {
