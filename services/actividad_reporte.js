@@ -349,8 +349,8 @@ const updateTokenMensajeriaFamiliar = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
-                respuesta.respuesta = true;
-                response.status(respuesta.statusNumber).json(respuesta);
+                
+                response.status(respuesta.statusNumber).json({respuesta:true});
 
                 //response.status(200).send({ operacion: true });
             });
