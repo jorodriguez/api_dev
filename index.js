@@ -243,8 +243,8 @@ app.put('/auth_cliente/:id_familiar', authClientesController.cambioClaveFamiliar
 app.get('/balance_familiar_alumno/:id_familiar', actividad_reporte.getBalanceFamiliarAlumnos);
 
 // modificar token de cliente
-POST('/cliente/:id_familiar', actividad_reporte.updateTokenMensajeriaFamiliar);
-PUT('/cliente/:id_familiar', actividad_reporte.updateDatosFamiliar);
+app.post('/cliente/:id_familiar', actividad_reporte.updateTokenMensajeriaFamiliar);
+app.put('/cliente/:id_familiar', actividad_reporte.updateDatosFamiliar);
 
 //reset password
 GET('/reset_password/:id_familiar', familiar.resetPasswordFamiliar);
