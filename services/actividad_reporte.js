@@ -5,11 +5,17 @@ const handle = require('../helpers/handlersErrors');
 const {validarToken} = require('../helpers/helperTokenMovil');
 const { ESTATUS } = require('../utils/Constantes');
 
-
+// NOTA: AL REALIZAR EL CAMBIO DE UNA SOLA TABLA DE USUARIOS
+// SE TIENE QUE CAMBIAR LAS INVOCACIONES DE VALIDACION DE TOKEN, SE DEBEN QUITAR PARA QUE EL MIDDLEWARE REALICE LA VALIDACION
 const getActividadesRelacionadosFamiliar = (request, response) => {
     console.log("@getActividadesPorAlumno");
     try {
-        validarToken(request,response);
+        
+        var respuesta =  validarToken(request);
+
+        if (!respuesta.tokenValido) {
+            return response.status(respuesta.statusNumber).send(respuesta);
+        }        
        
         const id_familiar = request.params.id_familiar;
         console.log("Id Fam "+id_familiar);
@@ -80,8 +86,10 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }                
+                
+                respuesta.respuesta = results.rows;
                 console.log("TODO OK "+JSON.stringify(results.rows));
-                response.status(ESTATUS.OK).json({respuesta:results.rows});
+                response.status(respuesta.statusNumber).json(respuesta);
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -135,14 +143,12 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
 const getCargosAlumnosFamiliar = (request, response) => {
     console.log("@getCargosFamiliarAlumnos");
     try {
-
-        validarToken(request,response);
-        /*
-        var respuesta = helperToken.validarToken(request);
+        
+        var respuesta =  validarToken(request,response);
 
         if (!respuesta.tokenValido) {
             return response.status(respuesta.statusNumber).send(respuesta);
-        }*/
+        }        
 
         var id_familiar = request.params.id_familiar;
 
@@ -183,8 +189,8 @@ const getCargosAlumnosFamiliar = (request, response) => {
                 }
 
                 console.log("====> " + JSON.stringify(results.rows));
-                
-                response.status(ESTATUS.OK).json({respuesta:results.rows});
+                respuesta.respuesta = results.rows;
+                response.status(respuesta.statusNumber).json(respuesta);
                 //response.status(200).json(results.rows);
             });
     } catch (e) {
@@ -196,14 +202,13 @@ const getCargosAlumnosFamiliar = (request, response) => {
 const getCargosPagadosAlumnosFamiliar = (request, response) => {
     console.log("@getCargosPagadosAlumnosFamiliar");
     try {
-
-        validarToken(request,response);
-        /*
-        var respuesta = helperToken.validarToken(request);
+      
+        
+        var respuesta = validarToken(request,response);
 
         if (!respuesta.tokenValido) {
             return response.status(respuesta.statusNumber).send(respuesta);
-        }*/
+        }
 
         var id_familiar = request.params.id_familiar;
 
@@ -245,8 +250,8 @@ const getCargosPagadosAlumnosFamiliar = (request, response) => {
                 console.log("====> " + JSON.stringify(results.rows));
 
                 //response.status(200).json(results.rows);
-                
-                response.status(ESTATUS.OK).json({respuesta:results.rows});
+                respuesta.respuesta = results.rows;
+                response.status(respuesta.statusNumber).json(respuesta);
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -257,13 +262,13 @@ const getCargosPagadosAlumnosFamiliar = (request, response) => {
 const getBalanceFamiliarAlumnos = (request, response) => {
     console.log("@getBalanceFamiliarAlumnos");
     try {
-        validarToken(request,response);
-        /*
-        var respuesta = helperToken.validarToken(request);
+        
+        
+        var respuesta = validarToken(request,response);
 
         if (!respuesta.tokenValido) {
             return response.status(respuesta.statusNumber).send(respuesta);
-        }*/
+        }
 
         var id_familiar = request.params.id_familiar;
 
@@ -306,10 +311,12 @@ const getBalanceFamiliarAlumnos = (request, response) => {
                 }
 
                 if (results.rowCount > 0) {                    
-                    response.status(ESTATUS.OK).json({respuesta:results.rows});
+                    respuesta.respuesta = results.rows;
+                    response.status(respuesta.statusNumber).json(respuesta);
                 } else {
                     console.log("No existe balance para el alumno " + id_alumno);                                     
-                    response.status(ESTATUS.OK).json({respuesta:[]});
+                    respuesta.respuesta = [];
+                    response.status(respuesta.statusNumber).json(respuesta);
                 }
 
                 //response.status(200).json(results.rows);
@@ -322,14 +329,13 @@ const getBalanceFamiliarAlumnos = (request, response) => {
 
 const updateTokenMensajeriaFamiliar = (request, response) => {
     console.log("@updateTokenMensajeriaFamiliar");
-    try {
-        validarToken(request,response);
-        /*
-        var respuesta = helperToken.validarToken(request);
+    try {        
+        
+        var respuesta =validarToken(request,response);
 
         if (!respuesta.tokenValido) {
             return response.status(respuesta.statusNumber).send(respuesta);
-        }*/
+        }
 
         var id_familiar = request.params.id_familiar;
 
@@ -350,7 +356,8 @@ const updateTokenMensajeriaFamiliar = (request, response) => {
                     return;
                 }
 
-                response.status(ESTATUS.OK).json({respuesta:true});
+                respuesta.respuesta = true;
+                response.status(respuesta.statusNumber).json(respuesta);
 
                 //response.status(200).send({ operacion: true });
             });
@@ -365,13 +372,12 @@ const updateTokenMensajeriaFamiliar = (request, response) => {
 const updateDatosFamiliar = (request, response) => {
     console.log("@updateDatosFamilia");
     try {
-        validarToken(request,response);
-
-        /*var respuesta = helperToken.validarToken(request);
+        
+        var respuesta = validarToken(request,response);
 
         if (!respuesta.tokenValido) {
             return response.status(respuesta.statusNumber).send(respuesta);
-        }*/
+        }
 
         var id_familiar = request.params.id_familiar;
 
@@ -401,8 +407,9 @@ const updateDatosFamiliar = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
-                console.log("Se actualizaron los datos del familiar");                
-                response.status(ESTATUS.OK).json({respuesta:id_familiar});
+                console.log("Se actualizaron los datos del familiar");             
+                respuesta.respuesta = id_familiar;   
+                response.status(respuesta.statusNumber).json(respuesta);
             });
 
     } catch (e) {

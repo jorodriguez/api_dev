@@ -94,7 +94,7 @@ const GET = (url, metodo) => {
 
 
 const PUT = (url, metodo) => {
-	console.log("registraondo put");
+	console.log("registrando put");
 	app.put(url, (request, response) => {
 		let respuesta = validarTokenCompleto(request, response);
 
@@ -109,7 +109,7 @@ const PUT = (url, metodo) => {
 }
 
 const DELETE = (url, metodo) => {
-	console.log("registraondo DELETE");
+	console.log("registrando DELETE");
 	app.delete(url, (request, response) => {
 		let respuesta = validarTokenCompleto(request, response);
 
