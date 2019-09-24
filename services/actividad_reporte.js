@@ -12,7 +12,7 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
         validarToken(request,response);
        
         const id_familiar = request.params.id_familiar;
-
+        console.log("Id Fam "+id_familiar);
         pool.query(
             `           
             select 
@@ -76,9 +76,11 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
             `, [id_familiar,id_familiar],
             (error, results) => {
                 if (error) {
+                    console.log("error "+error);
                     handle.callbackError(error, response);
                     return;
                 }                
+                console.log("TODO OK "+JSON.stringify(results.rows));
                 response.status(ESTATUS.OK).json({respuesta:results.rows});
             });
     } catch (e) {
@@ -303,10 +305,8 @@ const getBalanceFamiliarAlumnos = (request, response) => {
                     return;
                 }
 
-                if (results.rowCount > 0) {
-                    respuesta.respuesta = results.rows;
+                if (results.rowCount > 0) {                    
                     response.status(ESTATUS.OK).json({respuesta:results.rows});
-
                 } else {
                     console.log("No existe balance para el alumno " + id_alumno);                                     
                     response.status(ESTATUS.OK).json({respuesta:[]});
