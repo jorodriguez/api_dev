@@ -7,7 +7,7 @@ const {validarToken} = require('../helpers/helperTokenMovil');
 const getActividadesRelacionadosFamiliar = (request, response) => {
     console.log("@getActividadesPorAlumno");
     try {
-        validarToken(request,response);
+       // validarToken(request,response);
        
         const id_familiar = request.params.id_familiar;
 
