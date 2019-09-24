@@ -4,8 +4,6 @@ const handle = require('../helpers/handlersErrors');
 //const helperToken = require('../helpers/helperTokenMovil');
 const {validarToken} = require('../helpers/helperTokenMovil');
 
-
-
 const getActividadesRelacionadosFamiliar = (request, response) => {
     console.log("@getActividadesPorAlumno");
     try {

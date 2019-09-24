@@ -16,7 +16,7 @@ const QUERY = {
 const getCatalogo = (query,request,response) => {
     console.log("@getCatalogo");
     try {
-        validarToken(request,response);        
+       // validarToken(request,response);        
         
         if(query == undefined || query == ''){
             console.log("No esta definido el query");

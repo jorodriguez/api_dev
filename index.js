@@ -233,13 +233,14 @@ GET('/reporte_gastos_global', reporte_gastos.getReporteGastosGlobal);
 GET('/reporte_gastos_mes_actual', reporte_gastos.getReporteGastoMensualActual);
 
 
-//consultas para App
-GET('/actividades/:id_familiar', actividad_reporte.getActividadesRelacionadosFamiliar);
 
 //Para movil
-//GET('/cargos_familiar/:id_familiar',actividad_reporte.getCargosAlumnosFamiliar);
-//GET('/cargos_pagados_familiar/:id_familiar',actividad_reporte.getCargosPagadosAlumnosFamiliar);
-GET('/balance_familiar_alumno/:id_familiar', actividad_reporte.getBalanceFamiliarAlumnos);
+//Login Clientes - Papás
+//consultas para App
+app.get('/actividades/:id_familiar', actividad_reporte.getActividadesRelacionadosFamiliar);
+app.post('/auth_cliente/login', authClientesController.loginCliente);
+app.put('/auth_cliente/:id_familiar', authClientesController.cambioClaveFamiliar);
+app.get('/balance_familiar_alumno/:id_familiar', actividad_reporte.getBalanceFamiliarAlumnos);
 
 // modificar token de cliente
 POST('/cliente/:id_familiar', actividad_reporte.updateTokenMensajeriaFamiliar);
@@ -247,10 +248,6 @@ PUT('/cliente/:id_familiar', actividad_reporte.updateDatosFamiliar);
 
 //reset password
 GET('/reset_password/:id_familiar', familiar.resetPasswordFamiliar);
-
-//Login Clientes - Papás
-app.post('/auth_cliente/login', authClientesController.loginCliente);
-PUT('/auth_cliente/:id_familiar', authClientesController.cambioClaveFamiliar);
 
 //reporte de mensualidades facturadas
 GET('/reporte_mensualidades', reporte_mensualidades.getReporteContadoresSucursalesMesActual);
