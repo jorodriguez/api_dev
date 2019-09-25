@@ -47,7 +47,7 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
 									 ',"icono_active":"'||coalesce(emoc.icono_active,'')||'"'||
 									 ',"nombre":"'||coalesce(emoc.nombre,'')||'"'
 									'}'																	
-							)
+							)::json
 						))
 				from cat_emocion emoc where eliminado = false					
 			) 
@@ -63,7 +63,7 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
 									 ',"icono_active":"'||coalesce(emoc.icono_active,'')||'"'||
 									 ',"nombre":"'||coalesce(emoc.nombre,'')||'"'
 									'}'																	
-							)
+							)::json
 						))
 				from cat_emocion emoc where eliminado = false		
 			)::json
@@ -434,8 +434,7 @@ const registrarEmocion = (request, response) => {
         const {id_familiar,  } = request.body;
 
         console.log("id_familiar " + id_familiar);
-
-   
+  
 
         var sqlInsert =
             `INSERT INTO co_emocion_actividad(cat_emocion,co_registro_actividad,co_familiar,fecha_genero,genero)
