@@ -38,7 +38,10 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
              (
 				select array_to_json(array_agg(row_to_json(t)))
     			from (
-      				select  coalesce((emoc.id = ea.cat_emocion),false) as seleccionada,  * from cat_emocion emoc where eliminado = false	
+      				select r.id as id_relacion,
+							coalesce((emoc.id = ea.cat_emocion),false) as seleccionada,
+							emoc.* from cat_emocion emoc 
+							where emoc.eliminado = false	
     			) t
 			) as emociones,				
              count(ea.*) as count_emociones_tocadas
