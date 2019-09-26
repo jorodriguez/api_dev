@@ -456,12 +456,12 @@ const registrarToqueEmocion = (request, response) => {
                 console.log("Se actualizaron los valores de la emocion ");             
                 if(results.rowCount > 0){
                     console.log("Retorno de insert "+JSON.stringify(results.rows));
-                    respuesta.respuesta = results.rows;   
+                    respuesta.respuesta = results.rows[0];   
                     response.status(respuesta.statusNumber).json(respuesta);
                 }else{
                     console.log("Ocurrio un error, ninguna fila afectada ");
                     respuesta.estatus = false;
-                    respuesta.respuesta=-1;
+                    respuesta.respuesta = {id:-1};
                     response.status(401).json(respuesta);
                 }                
             });
