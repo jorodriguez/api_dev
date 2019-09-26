@@ -33,15 +33,14 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
              a.nombre as nombre_alumno,
              a.apellidos as apellidos_alumno,
              r.url_foto,
-             r.id,			
-             ea.id as id_emocion_actividad,
+             r.id,			             
              (count(ea.*) filter (where ea.co_familiar = $1 ) >= 1) as emocion_seleccionada_por_usuario,								
              (
 				select array_to_json(array_agg(row_to_json(t)))
     			from (
                     SELECT  
                             r.id as id_registro_actividad,
-                           -- ea.id as id_emocion_actividad,							
+                            ea.id as id_emocion_actividad,							
                             emoc.id as id_emocion,
                             coalesce((emoc.id = ea.cat_emocion),false) as seleccionada,
                             emoc.* 
@@ -60,7 +59,7 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
                  (select co_alumno from co_alumno_familiar where co_familiar = $2 and eliminado = false) 
                  and a.eliminado = false				
                  and fecha = getDate('')
-             group by r.id,ac.id,tipo.nombre,sub.nombre,a.id,ea.cat_emocion
+             group by r.id,ac.id,tipo.nombre,sub.nombre,a.id,ea.id
              order by r.fecha,r.hora desc
             `, [id_familiar,id_familiar],
             (error, results) => {
