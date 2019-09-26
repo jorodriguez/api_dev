@@ -425,7 +425,7 @@ const registrarToqueEmocion = (request, response) => {
         
         console.log("Body recibido "+JSON.stringify(request.body));
 
-        const {id_registro_actividad,id_emocion, id_emocion_actividad, id_familiar, seleccionado} = request.body;
+        const {id_registro_actividad,id_emocion, id_emocion_actividad, id_familiar, seleccionada} = request.body;
         
         //fixme : 
         const USUARIO_DEFAULT = 1;
@@ -433,7 +433,7 @@ const registrarToqueEmocion = (request, response) => {
         let params = [];
         var sqlEjecutar = "";
 
-        if(seleccionado){
+        if(seleccionada){
             console.log("Insertar emocion");
             sqlEjecutar = sqlInsert;
             params = [id_emocion,id_registro_actividad,id_familiar,USUARIO_DEFAULT];
@@ -445,6 +445,7 @@ const registrarToqueEmocion = (request, response) => {
 
         console.log("SQL " + sqlEjecutar);
         console.log("Parametros  "+JSON.stringify(params));
+
         pool.query(sqlEjecutar,params,
             (error, results) => {
                 if (error) {
