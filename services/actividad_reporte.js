@@ -41,7 +41,7 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
                     SELECT  
                             r.id as id_registro_actividad,
                             ea.id as id_emocion_actividad,							
-                            emoc.id as id_emocio,
+                            emoc.id as id_emocion,
                             coalesce((emoc.id = ea.cat_emocion),false) as seleccionada,
                             emoc.* 
                     FROM cat_emocion emoc 
