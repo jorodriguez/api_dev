@@ -423,6 +423,8 @@ const registrarToqueEmocion = (request, response) => {
                 WHERE id = $1 RETURNING id;
              `;
         
+        console.log("Body recibido "+JSON.stringify(request.body));
+
         const {id_registro_actividad,id_emocion, id_emocion_actividad, id_familiar, seleccionado} = request.body;
         
         //fixme : 
@@ -439,10 +441,10 @@ const registrarToqueEmocion = (request, response) => {
             console.log("eliminar emocion");
             sqlEjecutar = sqlDelete;
             params = [id_emocion_actividad];
-        }
-        
+        }    
 
         console.log("SQL " + sqlEjecutar);
+        console.log("Parametros  "+JSON.stringify(params));
         pool.query(sqlEjecutar,params,
             (error, results) => {
                 if (error) {
@@ -455,7 +457,7 @@ const registrarToqueEmocion = (request, response) => {
                     respuesta.respuesta = results.rows;   
                     response.status(respuesta.statusNumber).json(respuesta);
                 }else{
-                    console.log("Ocurrio un error ");
+                    console.log("Ocurrio un error, ninguna fila afectada ");
                     respuesta.estatus = false;
                     respuesta.respuesta=-1;
                     response.status(401).json(respuesta);
