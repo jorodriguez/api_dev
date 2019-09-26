@@ -242,6 +242,8 @@ app.post('/auth_cliente/login', authClientesController.loginCliente);
 app.put('/auth_cliente/:id_familiar', authClientesController.cambioClaveFamiliar);
 app.get('/balance_familiar_alumno/:id_familiar', actividad_reporte.getBalanceFamiliarAlumnos);
 
+app.post('/emocion', actividad_reporte.registrarToqueEmocion);
+
 // modificar token de cliente
 app.post('/cliente/:id_familiar', actividad_reporte.updateTokenMensajeriaFamiliar);
 app.put('/cliente/:id_familiar', actividad_reporte.updateDatosFamiliar);

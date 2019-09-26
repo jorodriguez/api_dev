@@ -401,7 +401,7 @@ const updateDatosFamiliar = (request, response) => {
 }
 
 
-const registrarEmocion = (request, response) => {
+const registrarToqueEmocion = (request, response) => {
     console.log("@registrarEmocion");
     try {
         
@@ -475,5 +475,6 @@ module.exports = {
     getCargosPagadosAlumnosFamiliar,
     getBalanceFamiliarAlumnos,
     updateTokenMensajeriaFamiliar,
-    updateDatosFamiliar
+    updateDatosFamiliar,
+    registrarToqueEmocion
 }
