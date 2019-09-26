@@ -38,10 +38,14 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
              (
 				select array_to_json(array_agg(row_to_json(t)))
     			from (
-      				select r.id as id_relacion,
-							coalesce((emoc.id = ea.cat_emocion),false) as seleccionada,
-							emoc.* from cat_emocion emoc 
-							where emoc.eliminado = false	
+                    SELECT  
+                            r.id as id_registro_actividad,
+                            ea.id as id_emocion_actividad,							
+                            emoc.id as id_emocio,
+                            coalesce((emoc.id = ea.cat_emocion),false) as seleccionada,
+                            emoc.* 
+                    FROM cat_emocion emoc 
+                    WHERE emoc.eliminado = false	
     			) t
 			) as emociones,				
              count(ea.*) as count_emociones_tocadas
@@ -406,16 +410,26 @@ const registrarEmocion = (request, response) => {
         if (!respuesta.tokenValido) {
             return response.status(respuesta.statusNumber).send(respuesta);
         }     
-        
-        const {id_familiar,  } = request.body;
-
-        console.log("id_familiar " + id_familiar);
-  
 
         var sqlInsert =
-            `INSERT INTO co_emocion_actividad(cat_emocion,co_registro_actividad,co_familiar,fecha_genero,genero)
-             values(1,31,54,getDate('')+getHora(''),1) 
+            `   INSERT INTO co_emocion_actividad(cat_emocion,co_registro_actividad,co_familiar,fecha_genero,genero)
+                values($1,$2,$3,getDate('')+getHora(''),$4) 
              `;
+        var sqlDelete =
+            `   UPDATE co_emocion_actividad
+                    SET eliminado = true,
+                    fecha_modifico = (getDate('')+getHora(''))::timestamp
+                WHERE id = $1
+             `;
+        
+        const {id_familiar,id_emocion,id_registro_actividad,seleccionado} = request.body;
+
+        if(seleccionado){
+
+        }else{
+
+        }
+        
 /*
         console.log("SQL " + sqlInsert);
         pool.query(sqlInsert,
