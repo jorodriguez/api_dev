@@ -455,6 +455,7 @@ const registrarToqueEmocion = (request, response) => {
                 }
                 console.log("Se actualizaron los valores de la emocion ");             
                 if(results.rowCount > 0){
+                    console.log("Retorno de insert "+JSON.stringify(results.rows));
                     respuesta.respuesta = results.rows;   
                     response.status(respuesta.statusNumber).json(respuesta);
                 }else{
