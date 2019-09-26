@@ -413,45 +413,60 @@ const registrarEmocion = (request, response) => {
 
         var sqlInsert =
             `   INSERT INTO co_emocion_actividad(cat_emocion,co_registro_actividad,co_familiar,fecha_genero,genero)
-                values($1,$2,$3,getDate('')+getHora(''),$4) 
+                values($1,$2,$3,(getDate('')+getHora(''))::timestamp,$4) RETURNING id;
              `;
+
         var sqlDelete =
             `   UPDATE co_emocion_actividad
                     SET eliminado = true,
                     fecha_modifico = (getDate('')+getHora(''))::timestamp
-                WHERE id = $1
+                WHERE id = $1 RETURNING id;
              `;
         
-        const {id_familiar,id_emocion,id_registro_actividad,seleccionado} = request.body;
+        const {id_registro_actividad,id_emocion, id_emocion_actividad, id_familiar, seleccionado} = request.body;
+        
+        //fixme : 
+        const USUARIO_DEFAULT = 1;
+
+        let params = [];
+        var sqlEjecutar = "";
 
         if(seleccionado){
-
+            console.log("Insertar emocion");
+            sqlEjecutar = sqlInsert;
+            params = [id_emocion,id_registro_actividad,id_familiar,USUARIO_DEFAULT];
         }else{
-
+            console.log("eliminar emocion");
+            sqlEjecutar = sqlDelete;
+            params = [id_emocion_actividad];
         }
         
-/*
-        console.log("SQL " + sqlInsert);
-        pool.query(sqlInsert,
-            [id_familiar],
+
+        console.log("SQL " + sqlEjecutar);
+        pool.query(sqlEjecutar,params,
             (error, results) => {
                 if (error) {
                     console.log("Error al actualizar los datos del  familiar " + error);
                     handle.callbackError(error, response);
                     return;
                 }
-                console.log("Se actualizaron los datos del familiar");             
-                respuesta.respuesta = id_familiar;   
-                response.status(respuesta.statusNumber).json(respuesta);
-            });*/
+                console.log("Se actualizaron los valores de la emocion ");             
+                if(results.rowCount > 0){
+                    respuesta.respuesta = results.rows;   
+                    response.status(respuesta.statusNumber).json(respuesta);
+                }else{
+                    console.log("Ocurrio un error ");
+                    respuesta.estatus = false;
+                    respuesta.respuesta=-1;
+                    response.status(401).json(respuesta);
+                }                
+            });
 
     } catch (e) {
         console.log("Error al actualizar los datos del familiar " + e);
         handle.callbackErrorNoControlado(e, response);
     }
 }
-
-
 
 
 module.exports = {

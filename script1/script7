@@ -114,8 +114,10 @@ CREATE TABLE co_emocion_actividad
     insert into cat_emocion (nombre,icono,icono_active, genero)
 		values('','heart','heart-o',1);
 
-    alter table cat_emocion add column estilo json default '{}'::json;
-			alter table cat_emocion add column estilo_active json default '{}'::json;
+    			
+    alter table cat_emocion add column estilo json default '{"justifyContent": "center"}'::json;
+	alter table cat_emocion add column estilo_active json default '{"justifyContent": "center"}'::json;
+
 
     update cat_emocion 
 				set 
