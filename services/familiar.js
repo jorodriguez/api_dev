@@ -297,7 +297,7 @@ const createFamiliar = (id_alumno, familiar, genero) => {
                 "  INSERT INTO co_familiar(nombre,telefono,fecha_nacimiento,correo,password,celular,religion,nota_celebracion_dia,genero,cat_genero)" +
                 " VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id ",
                 [
-                    p.nombre, p.telefono, p.fecha_nacimiento, p.correo, p.password, p.celular, p.religion,
+                    p.nombre, p.telefono, p.fecha_nacimiento, p.correo.toLowerCase(), p.password, p.celular, p.religion,
                     p.nota_celebracion_dia,
                     genero,p.cat_genero
                 ],

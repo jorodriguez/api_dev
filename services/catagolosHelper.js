@@ -9,7 +9,7 @@ const QUERY = {
     GRUPO : "SELECT * FROM CO_GRUPO WHERE ELIMINADO = false",
     SERVICIOS : "SELECT * FROM cat_servicio WHERE ELIMINADO = false order by nombre",
     CARGOS : "SELECT * FROM CAT_CARGO WHERE ELIMINADO = false order by nombre",
-    SUCURSALES : "SELECT id,nombre,direccion,class_color from FROM CO_SUCURSAL WHERE ELIMINADO = false ",
+    SUCURSALES : "SELECT id,nombre,direccion,class_color FROM CO_SUCURSAL WHERE ELIMINADO = false ",
 };
 
 
