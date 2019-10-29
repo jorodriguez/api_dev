@@ -1,7 +1,6 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const { validarToken } = require('../helpers/helperToken');
 
 const getConfiguracion = (request, response) => {
     console.log("@getConfiguracion");

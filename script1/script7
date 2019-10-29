@@ -50,7 +50,7 @@ update co_familiar f
 alter table co_familiar alter column cat_genero set not null;
 
 
-///emociones-----
+--emociones-----
 
 CREATE TABLE cat_emocion
 (
