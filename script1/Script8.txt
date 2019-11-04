@@ -1,0 +1,29 @@
+
+-- Tipo: Producto, Servicio,
+CREATE TABLE cat_tipo_cargo(
+    id serial NOT NULL ,
+    nombre text NOT NULL,
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT cat_tipo_cargo_pkey PRIMARY KEY (id),
+    CONSTRAINT cat_tipo_cargo_genero_fkey FOREIGN KEY (genero)
+        REFERENCES usuario (id),
+    CONSTRAINT co_tipo_cargo_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id)        
+);
+
+INSERT INTO CAT_TIPO_CARGO (NOMBRE,GENERO) VALUES ('Producto',1),('Servicio',1);
+
+--Add relacion 
+alter table cat_cargo add column cat_tipo_cargo integer;
+
+ALTER TABLE cat_cargo ADD CONSTRAINT fk_cat_tipo_cargo
+FOREIGN KEY (cat_tipo_cargo) REFERENCES cat_tipo_cargo (id);
+
+
+
+Alter table cat_cargo add column mostrar_tienda boolean default true;
+update cat_cargo set mostrar_tienda = false where id in (2,4,3,1);
