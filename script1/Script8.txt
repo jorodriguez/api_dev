@@ -158,3 +158,6 @@ values
     where cat_cargo = 1000 and c.eliminado = false
 	
     */
+
+
+    alter table cat_cargo add column fotos json;

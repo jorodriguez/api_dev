@@ -32,7 +32,8 @@ const getProductos = (request, response) => {
 	            categoria.id as id_categoria,
 	            categoria.nombre as nombre_categoria,
 	            prod.existencia,
-	            prod.caracteristicas,
+                prod.caracteristicas,
+                coalesce(prod.fotos,'[]') as fotos,
 	            count(*) OVER() AS full_count
         FROM CAT_CARGO prod inner join cat_tipo_cargo tipo on prod.cat_tipo_cargo = tipo.id
 					inner join cat_categoria categoria on prod.cat_categoria = categoria.id						
