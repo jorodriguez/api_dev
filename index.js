@@ -31,6 +31,7 @@ const catagolos = require('./services/catalogos');
 const conf = require('./services/configuracion');
 const https = require("https");
 const { validarTokenCompleto } = require('./helpers/helperToken');
+const tiendaService = require('./services/tiendaService');
 
 const port = process.env.PORT || 5000;
 
@@ -245,6 +246,9 @@ app.get('/balance_familiar_alumno/:id_familiar', actividad_reporte.getBalanceFam
 // modificar token de cliente
 app.post('/cliente/:id_familiar', actividad_reporte.updateTokenMensajeriaFamiliar);
 app.put('/cliente/:id_familiar', actividad_reporte.updateDatosFamiliar);
+
+
+app.get('/productos/:pagina',tiendaService.getProductos);
 
 //reset password
 GET('/reset_password/:id_familiar', familiar.resetPasswordFamiliar);

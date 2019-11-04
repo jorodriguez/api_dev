@@ -27,3 +27,134 @@ FOREIGN KEY (cat_tipo_cargo) REFERENCES cat_tipo_cargo (id);
 
 Alter table cat_cargo add column mostrar_tienda boolean default true;
 update cat_cargo set mostrar_tienda = false where id in (2,4,3,1);
+
+
+--- Saber que familiar pidio el cargo
+alter table co_cargo_balance_alumno add column co_familiar_solicito integer;
+ALTER TABLE co_familiar_solicito ADD CONSTRAINT fk_co_familiar_solicito
+FOREIGN KEY (co_familiar_solicito) REFERENCES co_familiar_solicito (id);
+
+
+
+---- Estatus
+CREATE TABLE co_estatus(
+    id serial NOT NULL,		
+	nombre text not null,
+	fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT co_pedido_pkey PRIMARY KEY (id),
+    CONSTRAINT co_pedido_genero_fkey FOREIGN KEY (genero)
+        REFERENCES usuario (id),
+    CONSTRAINT co_pedido_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id)        
+);
+
+insert into co_estatus(id,nombre,genero) values(1,'CREADO',1),(10,'SOLICITADO',1),(20,'CANCELADO',1),(30,'SURTIDO/ETREGADO',1);
+
+--------------------------------
+
+
+CREATE TABLE co_medida_cargo(
+    id serial NOT NULL,
+    cat_cargo integer not null,
+	cat_medida integer not null,
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT cat_medida_cargo_pkey PRIMARY KEY (id),
+    CONSTRAINT cat_medida_cargo_genero_fkey FOREIGN KEY (genero)
+        REFERENCES usuario (id),
+    CONSTRAINT cat_medida_cargo_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),
+	CONSTRAINT cat_medida_cargo_cargo_fkey FOREIGN KEY (cat_cargo)
+        REFERENCES cat_cargo (id),
+	CONSTRAINT cat_medida_cargo_medida_fkey FOREIGN KEY (cat_medida)
+        REFERENCES cat_medida (id)        
+);
+
+CREATE UNIQUE INDEX uniq_medida_productp ON cat_medida_cargo(cat_cargo,cat_medida);
+
+// modificar la tabla de productos cargos
+
+
+--------------------------------
+
+
+CREATE TABLE co_pedido(
+    id serial NOT NULL,
+	fecha timestamp without time zone,
+	co_sucursal integer,
+	co_estatus integer NOT NULL,		
+	co_familiar integer not null,	
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT co_pedido_tienda_pkey PRIMARY KEY (id),
+    CONSTRAINT co_pedido_genero_fkey FOREIGN KEY (genero) REFERENCES usuario (id),
+    CONSTRAINT co_pedido_modifico_fkey FOREIGN KEY (modifico) REFERENCES usuario (id),
+	CONSTRAINT co_pedido_sucursal_fkey FOREIGN KEY (co_sucursal) REFERENCES co_sucursal(id),
+	CONSTRAINT co_pedido_estatus_fkey FOREIGN KEY (co_estatus) REFERENCES co_estatus(id),
+	CONSTRAINT co_pedido_familiar_fkey FOREIGN KEY (co_familiar) REFERENCES co_familiar(id)
+);
+
+-- control de productos y medidas
+
+CREATE TABLE co_detalle_pedido(
+    id serial NOT NULL,	
+	fecha timestamp without time zone,
+	co_pedido integer not null,
+	cat_cargo integer not null,	
+	cat_medida integer not null,
+	cantidad integer not null default 1,	
+	precio numeric,
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT co_detalle_pedido_tienda_pkey PRIMARY KEY (id),
+    CONSTRAINT co_detalle_genero_fkey FOREIGN KEY (genero) REFERENCES usuario (id),
+    CONSTRAINT co_detalle_modifico_fkey FOREIGN KEY (modifico) REFERENCES usuario (id),
+	CONSTRAINT co_detalle_pedido_fkey FOREIGN KEY (co_pedido) REFERENCES co_pedido (id),
+	CONSTRAINT co_detalle_cargo_fkey FOREIGN KEY (cat_cargo) REFERENCES cat_cargo (id),
+	CONSTRAINT co_detalle_medida_fkey FOREIGN KEY (cat_medida) REFERENCES cat_medida (id)	
+);
+
+
+-- inserts al catalogo de medidas
+insert into cat_medida(id,nombre,descripcion,genero)
+values (1,'NO APLICA','No aplicable ',1),
+	   (10,'Chica','Talla chica',1),
+	   (11,'Mediana','Talla mediana',1),
+	   (12,'Grande','Talla grande',1),
+	   (13,'6 Años','6 años generico',1),
+	   (14,'7 Años','6 años generico',1),
+	   (15,'8 Años','6 años generico',1);
+
+
+ -- relacion de medidas con productos  
+ --uniformes    
+ insert into co_medida_cargo(cat_cargo,cat_medida,genero)
+values
+	(1000,10,1),
+	(1000,11,1),
+	(1000,12,1),
+	(1000,13,1),
+	(1000,14,1),
+	(1000,15,1);
+
+    /*
+    select  med.id,
+		med.nombre,
+		med.descripcion 
+    from co_medida_cargo c inner join cat_medida med on c.cat_medida = med.id
+    where cat_cargo = 1000 and c.eliminado = false
+	
+    */
