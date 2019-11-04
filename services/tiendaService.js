@@ -9,12 +9,12 @@ const { ROWS_POR_PAGINACION,TIPO_CARGO } = require('../utils/Constantes');
 
 const getProductos = (request, response) => {
     console.log("@getProductos");
-/*
+
     var respuesta = validarToken(request,response);
 
     if (!respuesta.tokenValido) {
         return response.status(respuesta.statusNumber).send(respuesta);
-    }     */
+    }     
 
     let page = request.params.pagina || 0;    
 
@@ -45,11 +45,9 @@ const getProductos = (request, response) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
-                }
-                /*let respuesta = {
-                     next : page 
-                }*/
-                response.status(200).json(results.rows);
+                }                
+                respuesta.respuesta = results.rows;
+                response.status(respuesta.statusNumber).json(respuesta);
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
