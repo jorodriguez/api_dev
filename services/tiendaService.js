@@ -4,7 +4,7 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const { ROWS_POR_PAGINACION } = require('../utils/Constantes');
+const { ROWS_POR_PAGINACION,TIPO_CARGO } = require('../utils/Constantes');
 
 
 const getProductos = (request, response) => {
@@ -36,7 +36,7 @@ const getProductos = (request, response) => {
 	            count(*) OVER() AS full_count
         FROM CAT_CARGO prod inner join cat_tipo_cargo tipo on prod.cat_tipo_cargo = tipo.id
 					inner join cat_categoria categoria on prod.cat_categoria = categoria.id						
-        WHERE tipo.id = 2 AND prod.ELIMINADO = false 
+        WHERE tipo.id = ${TIPO_CARGO.PRODUCTO} AND prod.ELIMINADO = false 
         ORDER BY prod.nombre
         LIMIT  ${ROWS_POR_PAGINACION}
         OFFSET ${page * ROWS_POR_PAGINACION}`,            
