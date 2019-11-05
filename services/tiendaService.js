@@ -1,7 +1,5 @@
-
-//import {validarToken} from '../helpers/helperTokenMovil';
 //import { ROWS_POR_PAGINACION }  from '../utils/Constantes';
-
+const {validarToken} = require('../helpers/helperTokenMovil');
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const { ROWS_POR_PAGINACION,TIPO_CARGO } = require('../utils/Constantes');
