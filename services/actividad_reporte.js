@@ -33,15 +33,19 @@ const getActividadesRelacionadosFamiliar = (request, response) => {
              a.nombre as nombre_alumno,
              a.apellidos as apellidos_alumno,
              r.url_foto,
-             r.id,			
+             r.id,			             
              (count(ea.*) filter (where ea.co_familiar = $1 ) >= 1) as emocion_seleccionada_por_usuario,								
              (
 				select array_to_json(array_agg(row_to_json(t)))
     			from (
-      				select r.id as id_relacion,
-							coalesce((emoc.id = ea.cat_emocion),false) as seleccionada,
-							emoc.* from cat_emocion emoc 
-							where emoc.eliminado = false	
+                    SELECT  
+                            r.id as id_registro_actividad,
+                            ea.id as id_emocion_actividad,							
+                            emoc.id as id_emocion,
+                            coalesce((emoc.id = ea.cat_emocion),false) as seleccionada,
+                            emoc.* 
+                    FROM cat_emocion emoc 
+                    WHERE emoc.eliminado = false	
     			) t
 			) as emociones,				
              count(ea.*) as count_emociones_tocadas
@@ -397,7 +401,7 @@ const updateDatosFamiliar = (request, response) => {
 }
 
 
-const registrarEmocion = (request, response) => {
+const registrarToqueEmocion = (request, response) => {
     console.log("@registrarEmocion");
     try {
         
@@ -406,30 +410,61 @@ const registrarEmocion = (request, response) => {
         if (!respuesta.tokenValido) {
             return response.status(respuesta.statusNumber).send(respuesta);
         }     
-        
-        const {id_familiar,  } = request.body;
-
-        console.log("id_familiar " + id_familiar);
-  
 
         var sqlInsert =
-            `INSERT INTO co_emocion_actividad(cat_emocion,co_registro_actividad,co_familiar,fecha_genero,genero)
-             values(1,31,54,getDate('')+getHora(''),1) 
+            `   INSERT INTO co_emocion_actividad(cat_emocion,co_registro_actividad,co_familiar,fecha_genero,genero)
+                values($1,$2,$3,(getDate('')+getHora(''))::timestamp,$4) RETURNING id;
              `;
-/*
-        console.log("SQL " + sqlInsert);
-        pool.query(sqlInsert,
-            [id_familiar],
+
+        var sqlDelete =
+            `   UPDATE co_emocion_actividad
+                    SET eliminado = true,
+                    fecha_modifico = (getDate('')+getHora(''))::timestamp
+                WHERE id = $1 RETURNING id;
+             `;
+        
+        console.log("Body recibido "+JSON.stringify(request.body));
+
+        const {id_registro_actividad,id_emocion, id_emocion_actividad, id_familiar, seleccionada} = request.body;
+        
+        //fixme : 
+        const USUARIO_DEFAULT = 1;
+
+        let params = [];
+        var sqlEjecutar = "";
+
+        if(seleccionada){
+            console.log("Insertar emocion");
+            sqlEjecutar = sqlInsert;
+            params = [id_emocion,id_registro_actividad,id_familiar,USUARIO_DEFAULT];
+        }else{
+            console.log("eliminar emocion");
+            sqlEjecutar = sqlDelete;
+            params = [id_emocion_actividad];
+        }    
+
+        console.log("SQL " + sqlEjecutar);
+        console.log("Parametros  "+JSON.stringify(params));
+
+        pool.query(sqlEjecutar,params,
             (error, results) => {
                 if (error) {
                     console.log("Error al actualizar los datos del  familiar " + error);
                     handle.callbackError(error, response);
                     return;
                 }
-                console.log("Se actualizaron los datos del familiar");             
-                respuesta.respuesta = id_familiar;   
-                response.status(respuesta.statusNumber).json(respuesta);
-            });*/
+                console.log("Se actualizaron los valores de la emocion ");             
+                if(results.rowCount > 0){                    
+                    respuesta.respuesta = results.rows[0];   
+                    console.log("Retorno de insert "+JSON.stringify(respuesta));
+                    response.status(respuesta.statusNumber).json(respuesta);
+                }else{
+                    console.log("Ocurrio un error, ninguna fila afectada ");
+                    respuesta.estatus = false;
+                    respuesta.respuesta = {id:-1};
+                    response.status(401).json(respuesta);
+                }                
+            });
 
     } catch (e) {
         console.log("Error al actualizar los datos del familiar " + e);
@@ -438,13 +473,12 @@ const registrarEmocion = (request, response) => {
 }
 
 
-
-
 module.exports = {
     getActividadesRelacionadosFamiliar,
     getCargosAlumnosFamiliar,
     getCargosPagadosAlumnosFamiliar,
     getBalanceFamiliarAlumnos,
     updateTokenMensajeriaFamiliar,
-    updateDatosFamiliar
+    updateDatosFamiliar,
+    registrarToqueEmocion
 }

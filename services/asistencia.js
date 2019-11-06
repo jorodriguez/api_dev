@@ -11,11 +11,11 @@ const SALIDA = 1;
 const getAlumnosRecibidos = (request, response) => {
     console.log("@getAlumnosRecibidos");
     try {
-       // validarToken(request,response);
+        // validarToken(request,response);
 
         console.log("Iniciando consulta de alumno ");
 
-       const id_sucursal = parseInt(request.params.id_sucursal);
+        const id_sucursal = parseInt(request.params.id_sucursal);
 
         pool.query(
             "SELECT asistencia.id," +
@@ -51,7 +51,7 @@ const getAlumnosRecibidos = (request, response) => {
 const getAlumnosPorRecibir = (request, response) => {
     console.log("@getAlumnosPorRecibir");
     try {
-       // validarToken(request,response);
+        // validarToken(request,response);
 
         const id_sucursal = parseInt(request.params.id_sucursal);
 
@@ -80,7 +80,7 @@ const getAlumnosPorRecibir = (request, response) => {
                 }
                 response.status(200).json(results.rows);
             });
-    
+
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -90,7 +90,7 @@ const getAlumnosPorRecibir = (request, response) => {
 const registrarEntradaAlumnos = (request, response) => {
     console.log("@registrarEntrada");
     try {
-       // validarToken(request,response);
+        // validarToken(request,response);
 
         const { ids, genero } = request.body;
 
@@ -174,20 +174,20 @@ function enviarMensajeEntradaSalida(ids_asistencias, operacion) {
             [ids_asistencias, ids_asistencias],
             (error, results) => {
                 if (error) {
-                    console.log("Excepcion en el query al enviar los mensajes "+error);
+                    console.log("Excepcion en el query al enviar los mensajes " + error);
                     return;
                 }
                 console.log("result " + JSON.stringify(results));
-                if (results.rowCount > 0) {                    
+                if (results.rowCount > 0) {
                     let asistencias = results.rows;
                     asistencias.forEach(e => {
                         let titulo_mensaje = (operacion == ENTRADA ? "Entrada de " + e.nombre : "Salida de " + e.nombre);
                         let mensaje_entrada = "Hola, " + e.nombres_padres + " recibimos a " + e.nombre + " a las " + e.hora_entrada + ".";
                         let mensaje_salida = "Hola, " + e.nombres_padres + " entregamos a " + e.nombre + " a las " + e.hora_salida + ".";
                         let cuerpo_mensaje = (operacion == ENTRADA ? mensaje_entrada : mensaje_salida);
-                                                
+
                         //token,titulo,cuerpo
-                        
+
                         mensajeria.enviarMensajeToken(e.tokens, titulo_mensaje, cuerpo_mensaje);
                         //Enviar correo
                     });
@@ -260,6 +260,49 @@ const registrarSalidaAlumnos = (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
+
+
+const obtenerListaAsistencia = (request, response) => {
+    console.log("@obtenerAsistencia");
+    try {
+        pool.query(`
+
+select fecha,
+al.foto,
+a.hora_entrada,
+a.hora_salida,
+al.nombre as nombre_alumno,
+al.apellidos as apellido_alumno,
+grupo.id as id_grupo,
+grupo.nombre as nombre_grupo,
+u.nombre usuario_registro,
+al.hora_entrada as hora_entra,
+al.hora_salida as hora_sale
+from co_asistencia a inner join co_alumno al on al.id = a.co_alumno
+                inner join co_grupo grupo on grupo.id = al.co_grupo
+                inner join usuario u on u.id = a.usuario
+where 
+al.co_sucursal = 1 
+and a.fecha = getDate('')
+and a.eliminado = false
+order by  grupo.nombre,al.nombre asc
+
+            `)
+            .then((results) => {
+                console.log("resultado lista de asistencia");
+                if (results.rowCount > 0) {
+
+                }
+                response.status(200).json(results.rows);
+            }).catch((e) => {
+                handle.callbackError(error, response);
+            });
+
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+}
+
 
 
 
