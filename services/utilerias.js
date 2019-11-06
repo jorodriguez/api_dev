@@ -60,9 +60,6 @@ const findCorreoPadre = (correo) => {
 
 };
 
-
-
-
 module.exports = {
     getMesesActivos,
     findCorreoPadre,    
