@@ -148,6 +148,9 @@ GET('/asistencia/alumnos_recibidos/:id_sucursal', asistencia.getAlumnosRecibidos
 GET('/asistencia/alumnos_por_recibidos/:id_sucursal', asistencia.getAlumnosPorRecibir);
 POST('/asistencia/entradaAlumnos', asistencia.registrarEntradaAlumnos);
 POST('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
+// Reporte de asistencias
+GET('/asistencia/reporte/:id_sucursal/:fecha',asistencia.getListaAsistencia);
+
 
 //grupo
 GET('/grupos', catagolos.getGrupos);
@@ -280,6 +283,7 @@ GET('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes', reporteDeudas.getR
 
 //Cargos, eliminacion y consulta
 //GET('/sucursal/:id_sucursal/cargos',reporteDeudas.getAllAlumnosCargos);
+
 
 
 

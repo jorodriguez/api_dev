@@ -262,37 +262,41 @@ const registrarSalidaAlumnos = (request, response) => {
 };
 
 
-const obtenerListaAsistencia = (request, response) => {
+const getListaAsistencia = (request, response) => {
     console.log("@obtenerAsistencia");
+    
+    const {id_sucursal,fecha} = request.params;
+
+    console.log("id_suc = "+id_sucursal);
+    console.log("fecha = "+fecha);
     try {
         pool.query(`
-
-select fecha,
-al.foto,
-a.hora_entrada,
-a.hora_salida,
-al.nombre as nombre_alumno,
-al.apellidos as apellido_alumno,
-grupo.id as id_grupo,
-grupo.nombre as nombre_grupo,
-u.nombre usuario_registro,
-al.hora_entrada as hora_entra,
-al.hora_salida as hora_sale
-from co_asistencia a inner join co_alumno al on al.id = a.co_alumno
+            SELECT
+                    a.id as id,
+                    fecha,
+                    al.foto,
+                    a.hora_entrada,
+                    a.hora_salida,
+                    al.id as id_alumno,
+                    al.nombre as nombre_alumno,
+                    al.apellidos as apellido_alumno,
+                    grupo.id as id_grupo,
+                    grupo.nombre as nombre_grupo,
+                    u.nombre usuario_registro,
+                    al.hora_entrada as hora_entra,
+                    al.hora_salida as hora_sale
+            FROM 
+                co_asistencia a inner join co_alumno al on al.id = a.co_alumno
                 inner join co_grupo grupo on grupo.id = al.co_grupo
                 inner join usuario u on u.id = a.usuario
-where 
-al.co_sucursal = 1 
-and a.fecha = getDate('')
-and a.eliminado = false
-order by  grupo.nombre,al.nombre asc
+            WHERE
+                al.co_sucursal = $1 
+                and a.fecha = $2
+                and a.eliminado = false
+            ORDER BY  grupo.nombre,al.nombre asc
 
-            `)
-            .then((results) => {
-                console.log("resultado lista de asistencia");
-                if (results.rowCount > 0) {
-
-                }
+            `,[id_sucursal,fecha]).then((results) => {
+                console.log("resultado lista de asistencia");                
                 response.status(200).json(results.rows);
             }).catch((e) => {
                 handle.callbackError(error, response);
@@ -332,5 +336,6 @@ module.exports = {
     getAlumnosRecibidos,
     getAlumnosPorRecibir,
     registrarEntradaAlumnos,
-    registrarSalidaAlumnos
+    registrarSalidaAlumnos,
+    getListaAsistencia
 }
