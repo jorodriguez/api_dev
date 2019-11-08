@@ -359,10 +359,8 @@ schedule.scheduleJob('0 */31 * * * 1-5', function () {
 
 
 //schedule.scheduleJob('0 */33 * * * 1-5', function () {
-schedule.scheduleJob('0 */33 * * * 1-5', function () {
-	//schedule.scheduleJob('0 */3 * * * 1-5', function () {	
-	console.log('PROCESO DE REVISION DE SALIDA DE ALUMNOS ' + new Date());
-	//FIXME : para pruebas
+schedule.scheduleJob('0 */33 * * * 1-5', function () {	
+	console.log('PROCESO DE REVISION DE SALIDA DE ALUMNOS ' + new Date());	
 	try {
 		tareas_programadas.ejecutarProcesoNotificacionProximaSalidaAlumno();
 	} catch (e) {
@@ -391,4 +389,20 @@ schedule.scheduleJob('0 1 0 1 * *', function () {
 	//tareas.generarBalanceAlumnos();
 
 });
+
+
+/*
+var rule = new schedule.RecurrenceRule();
+rule.dayOfWeek = [0, new schedule.Range(1, 5)];
+rule.hour = 20;
+rule.minute = 0;*/
+schedule.scheduleJob({hour: 11, minute: 45}, function () {	
+		console.log('PROCESO DE SALIDA ALUMNOS ' + new Date());	
+		try {
+			asistencia.ejecutarProcesoSalidaAutomatica();
+		} catch (e) {
+			console.log("Error al ejecutar el proceso de revision de salida " + e);
+		}
+	});
+	
 

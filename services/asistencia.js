@@ -2,40 +2,48 @@
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const { validarToken } = require('../helpers/helperToken');
+const { USUARIO_DEFAULT,ENTRADA,SALIDA } = require('../utils/Constantes');
 const mensajeria = require('./mensajesFirebase');
 
-const ENTRADA = 0;
-const SALIDA = 1;
+
 
 //FIXME : agregar el parametro de fecha
+const SQL_ALUMNOS_RECIBIDOS =
+    `SELECT asistencia.id,
+            asistencia.fecha,
+            asistencia.hora_entrada,
+            asistencia.hora_salida,
+            alumno.id as id_alumno,
+            alumno.nombre as nombre_alumno,
+            alumno.apellidos as apellido_alumno,
+            grupo.id as co_grupo,
+            grupo.nombre as nombre_grupo,
+            true as visible,
+            false as seleccionado
+            FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id 
+                              inner join co_grupo grupo on alumno.co_grupo = grupo.id         
+        WHERE asistencia.hora_salida is null AND alumno.eliminado=false 
+           AND alumno.co_sucursal = $1
+        ORDER BY alumno.nombre ASC`
+    ;
+/*
+const getAlumnosRecibidos = (request, response) => {
+    const id_sucursal = parseInt(request.params.id_sucursal);
+    let sqlHelper = new SqlHelper(SQL_ALUMNOS_RECIBIDOS, [id_sucursal]);
+    let result = sqlHelper.ejecutar() || [];    
+    response.status(200).json(result);
+};*/
+
+
 const getAlumnosRecibidos = (request, response) => {
     console.log("@getAlumnosRecibidos");
     try {
-        // validarToken(request,response);
 
         console.log("Iniciando consulta de alumno ");
 
         const id_sucursal = parseInt(request.params.id_sucursal);
 
-        pool.query(
-            "SELECT asistencia.id," +
-            " asistencia.fecha," +
-            " asistencia.hora_entrada," +
-            " asistencia.hora_salida," +
-            " alumno.id as id_alumno," +
-            " alumno.nombre as nombre_alumno," +
-            " alumno.apellidos as apellido_alumno," +
-            " grupo.id as co_grupo," +
-            " grupo.nombre as nombre_grupo," +
-            " true as visible," +
-            " false as seleccionado" +
-            " FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id " +
-            "                               inner join co_grupo grupo on alumno.co_grupo = grupo.id " +
-            //" WHERE asistencia.fecha = current_date AND asistencia.hora_salida is null AND alumno.eliminado=false " +
-            " WHERE asistencia.hora_salida is null AND alumno.eliminado=false " +
-            "           AND alumno.co_sucursal = $1" +
-            " ORDER BY alumno.nombre ASC",
-            [id_sucursal],
+        pool.query(SQL_ALUMNOS_RECIBIDOS, [id_sucursal],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -160,9 +168,9 @@ function enviarMensajeEntradaSalida(ids_asistencias, operacion) {
             to_char(a.fecha,'DD-MM-YYYY')       AS fecha,	
             extract(dow from a.fecha)::integer  AS num_dia,
             to_char(a.fecha,'MM')::integer      AS num_mes,		
-            to_char(a.fecha,'YY')               AS anio_label,
-            to_char(a.hora_entrada,'hh:mm AM')  AS hora_entrada,
-            to_char(a.hora_salida,'hh:mm AM')  AS hora_salida,
+            to_char(a.fecha,'YY')               AS anio_label,            
+            date_trunc('minute',a.hora_entrada)::time  AS hora_entrada,
+            date_trunc('minute',a.hora_salida)::time  AS hora_salida,
             c.correos,
             c.nombres_padres,
             c.tokens
@@ -206,31 +214,12 @@ const registrarSalidaAlumnos = (request, response) => {
     console.log("@registrarSalidaAlumnos");
 
     try {
-        //validarToken(request,response);
-
         const { ids, genero } = request.body;
 
-        console.log("IDS de asistencia recibidos " + ids);
-        // obtener para el proceso de horas extras
-        var idsAsistencias = '';
-        var first = true;
-
-        ids.forEach(element => {
-            if (first) {
-                idsAsistencias += (element + "");
-                first = false;
-            } else {
-                idsAsistencias += (',' + element);
-            }
-        });
-
-        console.log(" === > " + idsAsistencias);
-
-        pool.query("SELECT registrar_salida_alumno('" + idsAsistencias + "'," + genero + ");")
+        procesoSalidaAlumnos(ids, genero)
             .then((results) => {
                 console.log("Resultado " + JSON.stringify(results));
                 if (results.rowCount > 0) {
-                    //enviarMensajeEntradaSalida(ids,,SALIDA);
                     enviarMensajeEntradaSalida(ids, SALIDA);
                 }
                 response.status(200).json(results.rowCount);
@@ -238,6 +227,34 @@ const registrarSalidaAlumnos = (request, response) => {
                 handle.callbackErrorNoControlado(e, response);
             });
 
+
+        /*     console.log("IDS de asistencia recibidos " + ids);
+             // obtener para el proceso de horas extras
+             var idsAsistencias = '';
+             var first = true;
+     
+             ids.forEach(element => {
+                 if (first) {
+                     idsAsistencias += (element + "");
+                     first = false;
+                 } else {
+                     idsAsistencias += (',' + element);
+                 }
+             });
+     
+             console.log(" === > " + idsAsistencias);
+     
+             pool.query("SELECT registrar_salida_alumno('" + idsAsistencias + "'," + genero + ");")
+                 .then((results) => {
+                     console.log("Resultado " + JSON.stringify(results));
+                     if (results.rowCount > 0) {
+                         enviarMensajeEntradaSalida(ids, SALIDA);
+                     }
+                     response.status(200).json(results.rowCount);
+                 }).catch((e) => {
+                     handle.callbackErrorNoControlado(e, response);
+                 });
+     */
         // Jala 
         /*pool.query("UPDATE CO_ASISTENCIA " +
             " SET hora_salida = (getDate('')+getHora(''))::timestamp," +
@@ -261,15 +278,35 @@ const registrarSalidaAlumnos = (request, response) => {
     }
 };
 
+const procesoSalidaAlumnos = (ids, genero) => {
+    console.log("IDS de asistencia recibidos " + ids);
+    var idsAsistencias = '';
+    var first = true;
+
+    ids.forEach(element => {
+        if (first) {
+            idsAsistencias += (element + "");
+            first = false;
+        } else {
+            idsAsistencias += (',' + element);
+        }
+    });
+
+    console.log(" === > " + idsAsistencias);
+    return pool.query("SELECT registrar_salida_alumno('" + idsAsistencias + "'," + genero + ");");
+
+}
+
+
 
 //lista simple
 const getListaAsistencia = (request, response) => {
     console.log("@obtenerAsistencia");
-    
-    const {id_sucursal,fecha} = request.params;
 
-    console.log("id_suc = "+id_sucursal);
-    console.log("fecha = "+fecha);
+    const { id_sucursal, fecha } = request.params;
+
+    console.log("id_suc = " + id_sucursal);
+    console.log("fecha = " + fecha);
     try {
         pool.query(`
             SELECT
@@ -280,15 +317,15 @@ const getListaAsistencia = (request, response) => {
                     to_char(a.fecha,'YY')               AS num_anio,
                     al.foto,
                     date_trunc('minute',a.hora_entrada)::time  AS hora_entrada,
-                    date_trunc('minute',a.hora_salida)::time AS hora_salida,
-                    al.id as id_alumno,
-                    al.nombre as nombre_alumno,
-                    al.apellidos as apellido_alumno,
-                    grupo.id as id_grupo,
-                    grupo.nombre as nombre_grupo,
+                    date_trunc('minute',a.hora_salida)::time    AS hora_salida,
+                    al.id                               as id_alumno,
+                    al.nombre                           as nombre_alumno,
+                    al.apellidos                        as apellido_alumno,
+                    grupo.id                            as id_grupo,
+                    grupo.nombre                        as nombre_grupo,
                     u.nombre usuario_registro,
-                    date_trunc('minute',al.hora_entrada)::time as hora_entra,
-                    date_trunc('minute',al.hora_salida)::time as hora_sale,
+                    date_trunc('minute',al.hora_entrada)::time  as hora_entra,
+                    date_trunc('minute',al.hora_salida)::time   as hora_sale,
                     date_trunc(
 						'minute',
 						age((getDate('')+al.hora_salida)::timestamp,(getDate('')+getHora(''))::timestamp) 	
@@ -305,12 +342,12 @@ const getListaAsistencia = (request, response) => {
                 and a.eliminado = false
             ORDER BY  grupo.nombre,al.nombre asc
 
-            `,[id_sucursal,new Date(fecha)]).then((results) => {
-                console.log("resultado lista de asistencia");                
-                response.status(200).json(results.rows);
-            }).catch((error) => {
-                handle.callbackError(error, response);
-            });
+            `, [id_sucursal, new Date(fecha)]).then((results) => {
+            console.log("resultado lista de asistencia");
+            response.status(200).json(results.rows);
+        }).catch((error) => {
+            handle.callbackError(error, response);
+        });
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -383,6 +420,40 @@ const getListaAsistencia = (request, response) => {
 }
 */
 
+const ejecutarProcesoSalidaAutomatica = () => {
+    try {
+
+        pool.query(`SELECT string_agg(co_alumno::text,',') as ids 
+                    FROM co_asistencia a 
+                    WHERE a.hora_salida is null AND a.fecha = getDate('') and a.eliminado = false`,
+            (error, results) => {
+                if (error) {
+                    console.log("Error en el proceso de salida automatica de alumnos");
+                    return;
+                }
+
+                console.log(JSON.stringify(results));                
+                let ids = results.rows[0].ids;
+
+                if (ids != null) {                   
+                    console.log("ids "+ids);
+                    procesoSalidaAlumnos(ids,USUARIO_DEFAULT)
+                        .then((results) => {
+                            console.log("Resultado " + JSON.stringify(results));
+                            if (results.rowCount > 0) {
+                                enviarMensajeEntradaSalida(ids, SALIDA);
+                            }
+                        }).catch((e) => {
+                            console.log("Excepcion al sacar alumnos automaticamente " + e);
+                        });
+                }else{console.log("no existieron alumnos para salida automatica ");}
+            });
+
+    } catch (e) {
+        console.log("@excepcion " + e);
+    }
+}
+
 
 
 const ejecutarProcedimientoCalculoHorasExtra = (ids_alumnos, id_genero) => {
@@ -412,5 +483,6 @@ module.exports = {
     getAlumnosPorRecibir,
     registrarEntradaAlumnos,
     registrarSalidaAlumnos,
-    getListaAsistencia
+    getListaAsistencia,
+    ejecutarProcesoSalidaAutomatica
 }

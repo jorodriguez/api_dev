@@ -14,9 +14,16 @@ const TIPO_CARGO = {
 
 const ROWS_POR_PAGINACION = 5;
 
+const USUARIO_DEFAULT= 1;
+
+const ENTRADA = 0;
+const SALIDA = 1;
+
 module.exports = {
     CARGOS,
     ESTATUS,
     ROWS_POR_PAGINACION,
-    TIPO_CARGO
+    TIPO_CARGO,
+    USUARIO_DEFAULT,
+    ENTRADA,SALIDA
 };
