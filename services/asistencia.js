@@ -262,6 +262,7 @@ const registrarSalidaAlumnos = (request, response) => {
 };
 
 
+//lista simple
 const getListaAsistencia = (request, response) => {
     console.log("@obtenerAsistencia");
     
@@ -272,33 +273,42 @@ const getListaAsistencia = (request, response) => {
     try {
         pool.query(`
             SELECT
-                    a.id as id,
-                    fecha,
+                   a.id as id,
+                    to_char(a.fecha,'DD-MM-YYYY')       AS fecha,
+                    extract(dow from a.fecha)::integer  AS num_dia,
+                    to_char(a.fecha,'MM')::integer      AS num_mes,		
+                    to_char(a.fecha,'YY')               AS num_anio,
                     al.foto,
-                    a.hora_entrada,
-                    a.hora_salida,
+                    date_trunc('minute',a.hora_entrada)::time  AS hora_entrada,
+                    date_trunc('minute',a.hora_salida)::time AS hora_salida,
                     al.id as id_alumno,
                     al.nombre as nombre_alumno,
                     al.apellidos as apellido_alumno,
                     grupo.id as id_grupo,
                     grupo.nombre as nombre_grupo,
                     u.nombre usuario_registro,
-                    al.hora_entrada as hora_entra,
-                    al.hora_salida as hora_sale
+                    date_trunc('minute',al.hora_entrada)::time as hora_entra,
+                    date_trunc('minute',al.hora_salida)::time as hora_sale,
+                    date_trunc(
+						'minute',
+						age((getDate('')+al.hora_salida)::timestamp,(getDate('')+getHora(''))::timestamp) 	
+					)::text
+                    as tiempo,
+                    age((getDate('')+al.hora_salida)::timestamp,(getDate('')+getHora(''))::timestamp) < '00:00:00' as alerta_tiempo
             FROM 
                 co_asistencia a inner join co_alumno al on al.id = a.co_alumno
                 inner join co_grupo grupo on grupo.id = al.co_grupo
                 inner join usuario u on u.id = a.usuario
             WHERE
                 al.co_sucursal = $1 
-                and a.fecha = $2
+                and a.fecha = $2::date
                 and a.eliminado = false
             ORDER BY  grupo.nombre,al.nombre asc
 
-            `,[id_sucursal,fecha]).then((results) => {
+            `,[id_sucursal,new Date(fecha)]).then((results) => {
                 console.log("resultado lista de asistencia");                
                 response.status(200).json(results.rows);
-            }).catch((e) => {
+            }).catch((error) => {
                 handle.callbackError(error, response);
             });
 
@@ -307,6 +317,71 @@ const getListaAsistencia = (request, response) => {
     }
 }
 
+
+/*
+const getListaAsistencia = (request, response) => {
+    console.log("@obtenerAsistencia");
+    
+    const {id_sucursal,fecha} = request.params;
+
+    console.log("id_suc = "+id_sucursal);
+    console.log("fecha = "+fecha);
+    try {
+        pool.query(`
+        with alumnos AS (
+            SELECT
+                    a.id as id,
+                    to_char(a.fecha,'DD-MM-YYYY')       AS fecha,
+                    extract(dow from a.fecha)::integer  AS num_dia,
+                    to_char(a.fecha,'MM')::integer      AS num_mes,		
+                    to_char(a.fecha,'YY')               AS num_anio,
+                    al.foto,
+                    date_trunc('seconds',a.hora_entrada::time)  AS hora_entrada,
+                    date_trunc('seconds',a.hora_salida::time)  AS hora_salida,
+                    al.id as id_alumno,
+                    al.nombre as nombre_alumno,
+                    al.apellidos as apellido_alumno,
+                    grupo.id as id_grupo,
+                    grupo.nombre as nombre_grupo,
+                    u.nombre usuario_registro,
+                    date_trunc('seconds',al.hora_entrada) as hora_entra,
+                    date_trunc('seconds',al.hora_salida) as hora_sale,
+                    date_trunc(
+						'seconds',
+						age((getDate('')+al.hora_salida)::timestamp,(getDate('')+getHora(''))::timestamp) 	
+						)
+                    as tiempo,
+                    age((getDate('')+al.hora_salida)::timestamp,(getDate('')+getHora(''))::timestamp) < '00:00:00' as alerta_tiempo
+             FROM 
+                co_asistencia a inner join co_alumno al on al.id = a.co_alumno
+                inner join co_grupo grupo on grupo.id = al.co_grupo
+                inner join usuario u on u.id = a.usuario
+            WHERE
+                al.co_sucursal = $1 
+                and a.fecha = $2::date
+                and a.eliminado = false
+            ORDER BY  grupo.nombre,al.nombre asc
+            ) select 	grup.id,
+					grup.nombre as label, 
+					array_to_json(array_agg(to_json(a.*))) as children,
+					count(*) as contador,
+					false as html,
+					'span' as mode
+			from alumnos a inner join co_grupo grup on grup.id = a.id_grupo
+			group by grup.id,grup.nombre
+
+            `,[id_sucursal,new Date(fecha)]).then((results) => {
+                console.log("resultado lista de asistencia");                
+                response.status(200).json(results.rows);
+            }).catch((error) => {
+                handle.callbackError(error, response);
+            });
+
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+}
+*/
 
 
 
