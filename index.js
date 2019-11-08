@@ -31,6 +31,7 @@ const catagolos = require('./services/catalogos');
 const conf = require('./services/configuracion');
 const https = require("https");
 const { validarTokenCompleto } = require('./helpers/helperToken');
+const tiendaService = require('./services/tiendaService');
 
 const port = process.env.PORT || 5000;
 
@@ -147,6 +148,9 @@ GET('/asistencia/alumnos_recibidos/:id_sucursal', asistencia.getAlumnosRecibidos
 GET('/asistencia/alumnos_por_recibidos/:id_sucursal', asistencia.getAlumnosPorRecibir);
 POST('/asistencia/entradaAlumnos', asistencia.registrarEntradaAlumnos);
 POST('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
+// Reporte de asistencias
+GET('/asistencia/reporte/:id_sucursal/:fecha',asistencia.getListaAsistencia);
+
 
 //grupo
 GET('/grupos', catagolos.getGrupos);
@@ -248,6 +252,9 @@ app.post('/emocion', actividad_reporte.registrarToqueEmocion);
 app.post('/cliente/:id_familiar', actividad_reporte.updateTokenMensajeriaFamiliar);
 app.put('/cliente/:id_familiar', actividad_reporte.updateDatosFamiliar);
 
+
+app.get('/productos/:pagina',tiendaService.getProductos);
+
 //reset password
 GET('/reset_password/:id_familiar', familiar.resetPasswordFamiliar);
 
@@ -276,6 +283,7 @@ GET('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes', reporteDeudas.getR
 
 //Cargos, eliminacion y consulta
 //GET('/sucursal/:id_sucursal/cargos',reporteDeudas.getAllAlumnosCargos);
+
 
 
 
