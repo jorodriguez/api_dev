@@ -1,0 +1,13 @@
+
+
+IDEA PARA TIENDA
+agregar una configuracion para obtener preferencias y mostrar productos por rango de años
+por ejemplo :  
+producto : Leche NAN 1
+categoria : Leches/lactancia
+preferencias : [0-3] años
+
+las preferencias van a decidir  la consulta en la tienda por la edad de los hijos que tengan registrado, se tendria que calcular la 
+edad por la fecha de nacimiento.
+
+

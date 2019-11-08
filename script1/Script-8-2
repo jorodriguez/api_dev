@@ -1,0 +1,75 @@
+
+
+
+delete from cat_tipo_cargo;
+insert into cat_tipo_cargo(id,nombre,genero) values(1,'Producto',1),(2,'Servicio',1);
+
+--servicios
+update cat_cargo set cat_tipo_cargo = 2;
+
+--productos
+update cat_cargo set cat_tipo_cargo = 1 where  id = 1000;
+
+-- para guardar las caracteristicas en un array json
+alter table cat_cargo add column caracteristicas json;
+
+
+-- creat la categforia del producto
+CREATE TABLE cat_categoria
+(
+  id serial not null,
+  nombre text NOT NULL,
+  descripcion text NOT NULL,  
+  fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  fecha_modifico timestamp without time zone,
+  genero integer NOT NULL,
+  modifico integer,
+  eliminado boolean NOT NULL DEFAULT false ,
+  CONSTRAINT cat_categoria_pkey PRIMARY KEY (id),
+  CONSTRAINT cat_categoria_genero_fkey FOREIGN KEY (genero)
+      REFERENCES usuario (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT cat_categoria_modifico_fkey FOREIGN KEY (modifico)
+      REFERENCES public.usuario (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION  
+);
+
+
+
+alter table cat_cargo add column cat_categoria integer;
+ALTER TABLE cat_cargo ADD CONSTRAINT cat_categoria_constraint_fkey FOREIGN KEY (cat_categoria) REFERENCES cat_categoria(id);
+
+insert into cat_categoria(id,nombre,descripcion,genero) values(1,'General','',1),(2,'Uniformes','',1);
+
+update cat_cargo set cat_categoria = 1;
+
+update cat_cargo set cat_categoria = 2 where id = 1000;
+
+--control de existencias
+alter table cat_cargo add existencia integer not null default 0;
+
+
+
+
+
+-- medidas
+
+
+CREATE TABLE cat_medida
+(
+  id serial not null,
+  nombre text NOT NULL,
+  descripcion text ,  
+  fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  fecha_modifico timestamp without time zone,
+  genero integer NOT NULL,
+  modifico integer,
+  eliminado boolean NOT NULL DEFAULT false ,
+  CONSTRAINT cat_medida_pkey PRIMARY KEY (id),
+  CONSTRAINT cat_medida_genero_fkey FOREIGN KEY (genero)
+      REFERENCES usuario (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT cat_medida_modifico_fkey FOREIGN KEY (modifico)
+      REFERENCES public.usuario (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION  
+);
