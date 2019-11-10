@@ -326,14 +326,19 @@ const getListaAsistencia = (request, response) => {
                     u.nombre usuario_registro,
                     date_trunc('minute',al.hora_entrada)::time  as hora_entra,
                     date_trunc('minute',al.hora_salida)::time   as hora_sale,
-                    date_trunc(
-						'minute',
-						age((getDate('')+al.hora_salida)::timestamp,(getDate('')+getHora(''))::timestamp) 	
-					)::text
-                    as tiempo,
-                    age((getDate('')+al.hora_salida)::timestamp,(getDate('')+getHora(''))::timestamp) < '00:00:00' as alerta_tiempo
+                    CASE 
+                    WHEN a.hora_salida  is not null THEN 
+                        date_trunc('minute',age(a.fecha::date + a.hora_salida::time,a.fecha::date + a.hora_entrada::time))::text
+                    ELSE
+                         date_trunc('minute',age((getDate('')+getHora(''))::timestamp,a.fecha::date + a.hora_entrada::time))::text
+                    END  as tiempo_dentro,
+                            age((a.fecha+al.hora_salida)::timestamp,coalesce(a.fecha::date + a.hora_salida::time,(getDate('')+getHora(''))::timestamp)) < '00:00:00' as alerta_tiempo,
+                    date_trunc('minutes',
+                            age((a.fecha+al.hora_salida)::timestamp,coalesce(a.fecha::date + a.hora_salida::time,(getDate('')+getHora(''))::timestamp))
+                            )::text as tiempo
+
             FROM 
-                co_asistencia a inner join co_alumno al on al.id = a.co_alumno
+                co_asistencia a left join co_alumno al on al.id = a.co_alumno
                 inner join co_grupo grupo on grupo.id = al.co_grupo
                 inner join usuario u on u.id = a.usuario
             WHERE
