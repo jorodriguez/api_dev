@@ -288,11 +288,11 @@ GET('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes', reporteDeudas.getR
 
 
 GET('/', (request, response) => {
-	response.json({ info: 'MagicIntelligence API v1.0.16' })
+	response.json({ info: 'MagicIntelligence API v1.0.17' })
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.16`)
+	console.log(`App corriendo en el puerto ${port} v1.0.17`)
 });
 
 //GET('/encriptar/:clave', authController.encriptar);
@@ -349,7 +349,7 @@ schedule.scheduleJob('0 */31 * * * 1-5', function () {
 	//schedule.scheduleJob('0 */31 * * * 1-5', function () {
 	console.log('CALCULANDO CARGOS DE HORAS EXTRAS DE ALUMNOS ' + new Date());
 	try {
-		tareas_programadas.ejecutarProcesoHorasExtrasAuto();
+		//tareas_programadas.ejecutarProcesoHorasExtrasAuto();
 
 	} catch (e) {
 		console.log("Error al ejecutar el proceso de calculo de horas extras " + e);
