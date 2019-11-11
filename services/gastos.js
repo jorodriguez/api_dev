@@ -129,6 +129,7 @@ const getGastosPorSucursal = (request, response) => {
                     tipo.nombre as nombre_tipo_gasto, 
                     fpago.nombre as nombre_tipo_pago,
                     suc.nombre as nombre_sucursal,
+                    g.fecha::date as fecha,
                     g.*
                 from co_gasto g inner join cat_tipo_gasto tipo on g.cat_tipo_gasto = tipo.id
                     inner join co_forma_pago fpago on g.co_forma_pago = fpago.id
