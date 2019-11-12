@@ -150,6 +150,8 @@ POST('/asistencia/entradaAlumnos', asistencia.registrarEntradaAlumnos);
 POST('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
 // Reporte de asistencias
 GET('/asistencia/reporte/:id_sucursal/:fecha',asistencia.getListaAsistencia);
+//GET('/asistencia/reporte_por_alumno/:id_alumno/:numero_mes',asistencia.getListaAsistenciaPorAlumno);
+GET('/asistencia/reporte_por_alumno/:id_alumno',asistencia.getListaAsistenciaPorAlumno);
 
 
 //grupo

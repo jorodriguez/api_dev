@@ -2,7 +2,7 @@
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const { validarToken } = require('../helpers/helperToken');
-const { USUARIO_DEFAULT,ENTRADA,SALIDA } = require('../utils/Constantes');
+const { USUARIO_DEFAULT, ENTRADA, SALIDA } = require('../utils/Constantes');
 const mensajeria = require('./mensajesFirebase');
 
 
@@ -360,70 +360,39 @@ const getListaAsistencia = (request, response) => {
 }
 
 
-/*
-const getListaAsistencia = (request, response) => {
-    console.log("@obtenerAsistencia");
-    
-    const {id_sucursal,fecha} = request.params;
+//lista simple
+const getListaAsistenciaPorAlumno = (request, response) => {
+    console.log("@getListaAsistenciaPorAlumno");
 
-    console.log("id_suc = "+id_sucursal);
-    console.log("fecha = "+fecha);
+    const { id_alumno } = request.params;
+
+    console.log("id_alumno = " + id_alumno);
+    //console.log("numero_mes = " + numero_mes);
     try {
         pool.query(`
-        with alumnos AS (
-            SELECT
-                    a.id as id,
-                    to_char(a.fecha,'DD-MM-YYYY')       AS fecha,
-                    extract(dow from a.fecha)::integer  AS num_dia,
-                    to_char(a.fecha,'MM')::integer      AS num_mes,		
-                    to_char(a.fecha,'YY')               AS num_anio,
-                    al.foto,
-                    date_trunc('seconds',a.hora_entrada::time)  AS hora_entrada,
-                    date_trunc('seconds',a.hora_salida::time)  AS hora_salida,
-                    al.id as id_alumno,
-                    al.nombre as nombre_alumno,
-                    al.apellidos as apellido_alumno,
-                    grupo.id as id_grupo,
-                    grupo.nombre as nombre_grupo,
-                    u.nombre usuario_registro,
-                    date_trunc('seconds',al.hora_entrada) as hora_entra,
-                    date_trunc('seconds',al.hora_salida) as hora_sale,
-                    date_trunc(
-						'seconds',
-						age((getDate('')+al.hora_salida)::timestamp,(getDate('')+getHora(''))::timestamp) 	
-						)
-                    as tiempo,
-                    age((getDate('')+al.hora_salida)::timestamp,(getDate('')+getHora(''))::timestamp) < '00:00:00' as alerta_tiempo
-             FROM 
-                co_asistencia a inner join co_alumno al on al.id = a.co_alumno
-                inner join co_grupo grupo on grupo.id = al.co_grupo
-                inner join usuario u on u.id = a.usuario
-            WHERE
-                al.co_sucursal = $1 
-                and a.fecha = $2::date
-                and a.eliminado = false
-            ORDER BY  grupo.nombre,al.nombre asc
-            ) select 	grup.id,
-					grup.nombre as label, 
-					array_to_json(array_agg(to_json(a.*))) as children,
-					count(*) as contador,
-					false as html,
-					'span' as mode
-			from alumnos a inner join co_grupo grup on grup.id = a.id_grupo
-			group by grup.id,grup.nombre
+                    select
+                        a.fecha as fecha,
+                        to_char(a.fecha,'YYYY') as anio,
+                            to_char(a.fecha,'MM') as mes,
+                        to_char(a.fecha,'DD') as dia,
+                        date_trunc('minute',a.hora_entrada) hora_entrada,
+                        date_trunc('minute',a.hora_salida) as hora_salida
+                    from  co_asistencia a
+                    where to_char(a.fecha,'MMYYYY') = '112019'
+                        and a.co_alumno = $1 
+                        and a.eliminado = false    
 
-            `,[id_sucursal,new Date(fecha)]).then((results) => {
-                console.log("resultado lista de asistencia");                
-                response.status(200).json(results.rows);
-            }).catch((error) => {
-                handle.callbackError(error, response);
-            });
+            `, [id_alumno]).then((results) => {
+            console.log("resultado lista de asistencia");
+            response.status(200).json(results.rows);
+        }).catch((error) => {
+            handle.callbackError(error, response);
+        });
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
 }
-*/
 
 const ejecutarProcesoSalidaAutomatica = () => {
     try {
@@ -437,12 +406,12 @@ const ejecutarProcesoSalidaAutomatica = () => {
                     return;
                 }
 
-                console.log(JSON.stringify(results));                
+                console.log(JSON.stringify(results));
                 let ids = results.rows[0].ids;
 
-                if (ids != null) {                   
-                    console.log("ids "+ids);
-                    procesoSalidaAlumnos(ids,USUARIO_DEFAULT)
+                if (ids != null) {
+                    console.log("ids " + ids);
+                    procesoSalidaAlumnos(ids, USUARIO_DEFAULT)
                         .then((results) => {
                             console.log("Resultado " + JSON.stringify(results));
                             if (results.rowCount > 0) {
@@ -451,7 +420,7 @@ const ejecutarProcesoSalidaAutomatica = () => {
                         }).catch((e) => {
                             console.log("Excepcion al sacar alumnos automaticamente " + e);
                         });
-                }else{console.log("no existieron alumnos para salida automatica ");}
+                } else { console.log("no existieron alumnos para salida automatica "); }
             });
 
     } catch (e) {
@@ -489,5 +458,6 @@ module.exports = {
     registrarEntradaAlumnos,
     registrarSalidaAlumnos,
     getListaAsistencia,
-    ejecutarProcesoSalidaAutomatica
+    ejecutarProcesoSalidaAutomatica,
+    getListaAsistenciaPorAlumno
 }
