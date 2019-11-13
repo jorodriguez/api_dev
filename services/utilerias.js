@@ -12,6 +12,7 @@ const getMesesActivos = (request, response) => {
                ) select u.fecha::date,
                        extract(month from u.fecha) as numero_mes,
                        extract(year from u.fecha) as numero_anio,
+                       to_char(u.fecha,'MMYYYY') as mes_anio,
                        to_char(u.fecha,'Mon') as nombre_mes
                from universo u 
     `;

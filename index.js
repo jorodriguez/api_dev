@@ -152,6 +152,7 @@ POST('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
 GET('/asistencia/reporte/:id_sucursal/:fecha',asistencia.getListaAsistencia);
 //GET('/asistencia/reporte_por_alumno/:id_alumno/:numero_mes',asistencia.getListaAsistenciaPorAlumno);
 GET('/asistencia/reporte_por_alumno/:id_alumno',asistencia.getListaAsistenciaPorAlumno);
+GET('/asistencia/reporte_mes_alumno/:id_alumno',asistencia.getListaMesAsistenciaPorAlumno);
 
 
 //grupo

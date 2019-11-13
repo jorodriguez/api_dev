@@ -1,0 +1,49 @@
+
+--obtener el mes de asistencias el alumno
+with fechas as (
+	select (date_trunc('week', date_trunc('month', getDate(''))) - interval '1 day')::timestamp AS primer_domingo,
+	       (date_trunc('month',  getDate('')) + interval '1 month' - interval '1 day') as ultimo_dia_mes		   
+),serie as (
+		SELECT g::date as fecha			  
+		FROM fechas f, generate_series(f.primer_domingo,f.ultimo_dia_mes,'1 day')  g
+)select 
+	s.fecha,
+	to_char(s.fecha,'DD')::int as num_dia,
+	to_char(s.fecha,'d') as num_dia_semana,
+	to_char(s.fecha,'Day') as nombre_dia,
+	count(a.*) > 0 as asistencia,
+	count(a.*)
+	from serie s left join co_asistencia a on s.fecha = a.fecha
+	and a.co_alumno = 62
+	group by s.fecha
+	order by s.fecha
+	
+
+
+--agreupados por semana
+
+with fechas as (
+	select (date_trunc('week', date_trunc('month', getDate(''))) - interval '1 day')::timestamp AS primer_domingo,
+	       (date_trunc('month',  getDate('')) + interval '1 month' - interval '1 day') as ultimo_dia_mes		   
+),serie as (
+		SELECT g::date as fecha			  
+		FROM fechas f, generate_series(f.primer_domingo,f.ultimo_dia_mes,'1 day')  g
+), asistencias as(select 
+	s.fecha,
+	to_char(s.fecha,'DD')::int as num_dia,
+	to_char(s.fecha,'d') as num_dia_semana,
+	to_char(s.fecha,'Day') as nombre_dia,
+	extract(week from s.fecha) as num_semana,	
+	to_char(s.fecha,'MM') as num_mes,
+	count(a.*) > 0 as asistencia,
+	count(a.*)
+ from serie s left join co_asistencia a on s.fecha = a.fecha
+	and a.co_alumno = 62
+ group by s.fecha
+ order by s.fecha
+)select 
+	a.num_dia_semana,
+	array_to_json(array_agg(row_to_json(a.*)))
+	from asistencias a
+	group by a.num_dia_semana
+order by a.num_dia_semana
