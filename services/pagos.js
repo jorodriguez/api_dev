@@ -114,7 +114,7 @@ const getCargosAlumno = (request, response) => {
                     return;
                 }
                 
-                //console.log("====> "+JSON.stringify(results.rows));
+                console.log("====> "+JSON.stringify(results.rows));
 
                 response.status(200).json(results.rows);
             });

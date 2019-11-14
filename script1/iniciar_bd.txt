@@ -209,6 +209,13 @@ and eliminado = false;
 														and pago.eliminado = false
 			group by to_char(m.fecha,'YYYYMM'),mes_anio
 			order by to_char(m.fecha,'YYYYMM') desc
-			
+
+//alta de usuarios
+
+insert into usuario(nombre,correo,password,co_sucursal,permiso_gerente,genero)
+values
+('Miss Audrey','audrey@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',1,false,1),
+('Miss Fanny','fanny@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',1,false,1)
+
 				
 					
