@@ -1,0 +1,45 @@
+
+--Elimina por el tipo de cargo y por sucursal
+--do eliminar_cargos_alumno(id_sucursal integer) 
+DO
+$$
+DECLARE 
+	alumno_loop RECORD;			
+	total_cargos_suma numeric := 0;
+	ID_GENERO integer := 1;
+	TIEMPO_EXTRA integer := 3;
+	ID_SUCURSAL integer :=3;
+BEGIN  
+		raise notice 'eliminar todos los cargos '; 
+			
+		FOR alumno_loop IN ( 
+			select *
+			from co_alumno 
+			where co_sucursal = ID_SUCURSAL 
+			/*eliminado = false*/
+		) LOOP 
+					raise notice 'recalculando balance %  ', alumno_loop.nombre;		
+						 
+					delete 
+					from co_cargo_balance_alumno 
+					where co_balance_alumno = alumno_loop.co_balance_alumno 
+						 and pagado = false and cat_cargo = TIEMPO_EXTRA;
+						
+					select coalesce(sum(total),0) 
+					from co_cargo_balance_alumno 
+					where co_balance_alumno =  alumno_loop.co_balance_alumno 
+						and eliminado = false
+					INTO total_cargos_suma;
+	
+			raise notice 'total cargos %  ',total_cargos_suma;
+				
+			update co_balance_alumno 			
+			SET total_adeudo = total_cargos_suma,			
+				total_cargos = total_cargos_suma,
+				fecha_modifico = (getDate('')+getHora(''))::timestamp,
+				modifico = ID_GENERO
+			where id = alumno_loop.co_balance_alumno;									
+		END LOOP; 	
+
+END;
+$$ 

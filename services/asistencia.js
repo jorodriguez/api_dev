@@ -19,7 +19,9 @@ const SQL_ALUMNOS_RECIBIDOS =
             grupo.id as co_grupo,
             grupo.nombre as nombre_grupo,
             true as visible,
-            false as seleccionado
+            false as seleccionado,
+            (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp as calcular_horas_extra,
+			age((getDate('')+getHora(''))::timestamp,(asistencia.fecha+alumno.hora_salida)::timestamp) as tiempo_expirado   
             FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id 
                               inner join co_grupo grupo on alumno.co_grupo = grupo.id         
         WHERE asistencia.hora_salida is null AND alumno.eliminado=false 
@@ -195,7 +197,6 @@ function enviarMensajeEntradaSalida(ids_asistencias, operacion) {
                         let cuerpo_mensaje = (operacion == ENTRADA ? mensaje_entrada : mensaje_salida);
 
                         //token,titulo,cuerpo
-
                         mensajeria.enviarMensajeToken(e.tokens, titulo_mensaje, cuerpo_mensaje);
                         //Enviar correo
                     });
@@ -214,13 +215,27 @@ const registrarSalidaAlumnos = (request, response) => {
     console.log("@registrarSalidaAlumnos");
 
     try {
-        const { ids, genero } = request.body;
+        console.log(" = "+JSON.stringify(request.body));
+        const { listaSalida=[], genero } = request.body;
+        
+        console.log("PAsa 1" + JSON.stringify(request.body));
+        const arrayIdSalidas = listaSalida.map(function(obj){                         
+            return obj.id;
+        });        
+        console.log("PAsa 2");
+        const  filtro = listaSalida.filter(e=>e.calcular_horas_extra);
+        const arrayIdSalidasCalcularHoraExtras= filtro.map(function(obj){                         
+            return obj.id;
+        });
 
-        procesoSalidaAlumnos(ids, genero)
+        console.log("arrayIdSalidas "+JSON.stringify(arrayIdSalidas));
+        console.log("arrayIdSalidasCalcularHoraExtras "+JSON.stringify(arrayIdSalidasCalcularHoraExtras));
+
+        procesoSalidaAlumnos(arrayIdSalidas,arrayIdSalidasCalcularHoraExtras, genero)
             .then((results) => {
                 console.log("Resultado " + JSON.stringify(results));
-                if (results.rowCount > 0) {
-                    enviarMensajeEntradaSalida(ids, SALIDA);
+                if (results.rowCount > 0) {                    
+                    enviarMensajeEntradaSalida(arrayIdSalidas, SALIDA);
                 }
                 response.status(200).json(results.rowCount);
             }).catch((e) => {
@@ -278,12 +293,13 @@ const registrarSalidaAlumnos = (request, response) => {
     }
 };
 
-const procesoSalidaAlumnos = (ids, genero) => {
-    console.log("IDS de asistencia recibidos " + ids);
+const procesoSalidaAlumnos = (idSalidas,arrayIdSalidasCalcularHoraExtras = [], genero) => {
+    console.log("IDS de asistencia recibidos " + idSalidas);
     var idsAsistencias = '';
+    var idsAsistenciasCalculoHorasExtras = '';
     var first = true;
-
-    ids.forEach(element => {
+    
+    idSalidas.forEach(element => {
         if (first) {
             idsAsistencias += (element + "");
             first = false;
@@ -292,8 +308,23 @@ const procesoSalidaAlumnos = (ids, genero) => {
         }
     });
 
-    console.log(" === > " + idsAsistencias);
-    return pool.query("SELECT registrar_salida_alumno('" + idsAsistencias + "'," + genero + ");");
+    first=true;
+
+    arrayIdSalidasCalcularHoraExtras.forEach(element => {
+        if (element.calcular_horas_extra) {
+            if (first) {
+                idsAsistenciasCalculoHorasExtras += (element + "");
+                first = false;
+            } else {
+                idsAsistenciasCalculoHorasExtras += (',' + element);
+            }
+        }
+
+    });
+
+    console.log(" === > asistencias " + idsAsistencias);
+    console.log(" === > asistencias para generar horas extras " + idsAsistenciasCalculoHorasExtras);
+    return pool.query(`SELECT registrar_salida_alumno('${idsAsistencias}','${idsAsistenciasCalculoHorasExtras}',${genero});`);
 
 }
 
