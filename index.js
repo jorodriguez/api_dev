@@ -148,11 +148,14 @@ GET('/asistencia/alumnos_recibidos/:id_sucursal', asistencia.getAlumnosRecibidos
 GET('/asistencia/alumnos_por_recibidos/:id_sucursal', asistencia.getAlumnosPorRecibir);
 POST('/asistencia/entradaAlumnos', asistencia.registrarEntradaAlumnos);
 POST('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
+GET('/asistencia/salidaAlumnos/alumno_tiempo_extra/:lista_id_asistencias',asistencia.getListaAsistenciaAlumnoPorSalirConHorasExtras);
 // Reporte de asistencias
 GET('/asistencia/reporte/:id_sucursal/:fecha',asistencia.getListaAsistencia);
 //GET('/asistencia/reporte_por_alumno/:id_alumno/:numero_mes',asistencia.getListaAsistenciaPorAlumno);
 GET('/asistencia/reporte_por_alumno/:id_alumno',asistencia.getListaAsistenciaPorAlumno);
 GET('/asistencia/reporte_mes_alumno/:id_alumno',asistencia.getListaMesAsistenciaPorAlumno);
+
+
 
 
 //grupo

@@ -19,14 +19,33 @@ const SQL_ALUMNOS_RECIBIDOS =
             grupo.id as co_grupo,
             grupo.nombre as nombre_grupo,
             true as visible,
-            false as seleccionado,
-            (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp as calcular_horas_extra,
-			age((getDate('')+getHora(''))::timestamp,(asistencia.fecha+alumno.hora_salida)::timestamp) as tiempo_expirado   
+            false as seleccionado,            
+            (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp as calcular_tiempo_extra,
+			age((getDate('')+getHora(''))::timestamp,(asistencia.fecha+alumno.hora_salida)::timestamp) as tiempo_extra   
             FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id 
                               inner join co_grupo grupo on alumno.co_grupo = grupo.id         
         WHERE asistencia.hora_salida is null AND alumno.eliminado=false 
            AND alumno.co_sucursal = $1
         ORDER BY alumno.nombre ASC`
+    ;
+
+const SQL_ALUMNOS_RECIBIDOS_HORAS_EXTRAS =
+    `SELECT 
+        asistencia.id,
+        asistencia.fecha,
+        asistencia.hora_entrada,    
+        asistencia.hora_salida,
+        alumno.id as id_alumno,
+        alumno.nombre as nombre_alumno,
+        alumno.hora_salida as hora_salida_alumno,  
+             
+        (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp as calcular_tiempo_extra,
+        age((getDate('')+getHora(''))::timestamp,(asistencia.fecha+alumno.hora_salida)::timestamp) as tiempo_extra
+    FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id                               
+    WHERE asistencia.id = ANY($1::int[])
+        and (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp 
+        AND alumno.eliminado=false            
+    ORDER BY alumno.nombre ASC`
     ;
 /*
 const getAlumnosRecibidos = (request, response) => {
@@ -215,26 +234,26 @@ const registrarSalidaAlumnos = (request, response) => {
     console.log("@registrarSalidaAlumnos");
 
     try {
-        console.log(" = "+JSON.stringify(request.body));
-        const { listaSalida=[], genero } = request.body;
-        
+        console.log(" = " + JSON.stringify(request.body));
+        const { listaSalida = [], genero } = request.body;
+
         console.log("PAsa 1" + JSON.stringify(request.body));
-        const arrayIdSalidas = listaSalida.map(function(obj){                         
+        const arrayIdSalidas = listaSalida.map(function (obj) {
             return obj.id;
-        });        
+        });
         console.log("PAsa 2");
-        const  filtro = listaSalida.filter(e=>e.calcular_horas_extra);
-        const arrayIdSalidasCalcularHoraExtras= filtro.map(function(obj){                         
+        const filtro = listaSalida.filter(e => e.calcular_horas_extra);
+        const arrayIdSalidasCalcularHoraExtras = filtro.map(function (obj) {
             return obj.id;
         });
 
-        console.log("arrayIdSalidas "+JSON.stringify(arrayIdSalidas));
-        console.log("arrayIdSalidasCalcularHoraExtras "+JSON.stringify(arrayIdSalidasCalcularHoraExtras));
+        console.log("arrayIdSalidas " + JSON.stringify(arrayIdSalidas));
+        console.log("arrayIdSalidasCalcularHoraExtras " + JSON.stringify(arrayIdSalidasCalcularHoraExtras));
 
-        procesoSalidaAlumnos(arrayIdSalidas,arrayIdSalidasCalcularHoraExtras, genero)
+        procesoSalidaAlumnos(arrayIdSalidas, arrayIdSalidasCalcularHoraExtras, genero)
             .then((results) => {
                 console.log("Resultado " + JSON.stringify(results));
-                if (results.rowCount > 0) {                    
+                if (results.rowCount > 0) {
                     enviarMensajeEntradaSalida(arrayIdSalidas, SALIDA);
                 }
                 response.status(200).json(results.rowCount);
@@ -293,12 +312,12 @@ const registrarSalidaAlumnos = (request, response) => {
     }
 };
 
-const procesoSalidaAlumnos = (idSalidas,arrayIdSalidasCalcularHoraExtras = [], genero) => {
+const procesoSalidaAlumnos = (idSalidas, arrayIdSalidasCalcularHoraExtras = [], genero) => {
     console.log("IDS de asistencia recibidos " + idSalidas);
     var idsAsistencias = '';
     var idsAsistenciasCalculoHorasExtras = '';
     var first = true;
-    
+
     idSalidas.forEach(element => {
         if (first) {
             idsAsistencias += (element + "");
@@ -308,7 +327,7 @@ const procesoSalidaAlumnos = (idSalidas,arrayIdSalidasCalcularHoraExtras = [], g
         }
     });
 
-    first=true;
+    first = true;
 
     arrayIdSalidasCalcularHoraExtras.forEach(element => {
         if (element.calcular_horas_extra) {
@@ -482,7 +501,7 @@ order by s.fecha
 const ejecutarProcesoSalidaAutomatica = () => {
     try {
 
-        pool.query(`SELECT string_agg(co_alumno::text,',') as ids 
+        pool.query(`SELECT id as ids 
                     FROM co_asistencia a 
                     WHERE a.hora_salida is null AND a.fecha = getDate('') and a.eliminado = false`,
             (error, results) => {
@@ -496,7 +515,7 @@ const ejecutarProcesoSalidaAutomatica = () => {
 
                 if (ids != null) {
                     console.log("ids " + ids);
-                    procesoSalidaAlumnos(ids, USUARIO_DEFAULT)
+                    procesoSalidaAlumnos(ids, [], USUARIO_DEFAULT)
                         .then((results) => {
                             console.log("Resultado " + JSON.stringify(results));
                             if (results.rowCount > 0) {
@@ -513,6 +532,33 @@ const ejecutarProcesoSalidaAutomatica = () => {
     }
 }
 
+
+const getListaAsistenciaAlumnoPorSalirConHorasExtras = (request, response) => {
+    console.log("@getListaAsistenciaAlumnoPorSalirConHorasExtras");
+
+    const { lista_id_asistencias = [] } = request.params;
+    let array = [];
+    if (lista_id_asistencias != undefined && lista_id_asistencias != []) {       
+        
+         array = lista_id_asistencias.split(',').map(function (item) {
+            return parseInt(item,10);
+        });
+    }
+
+    try {
+        pool.query(SQL_ALUMNOS_RECIBIDOS_HORAS_EXTRAS, [array])
+            .then((results) => {
+                console.log("resultado lista de asistencia");
+                console.log("===> "+JSON.stringify(results.rows));
+                response.status(200).json(results.rows);
+            }).catch((error) => {
+                handle.callbackError(error, response);
+            });
+
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+}
 
 
 const ejecutarProcedimientoCalculoHorasExtra = (ids_alumnos, id_genero) => {
@@ -545,5 +591,6 @@ module.exports = {
     getListaAsistencia,
     ejecutarProcesoSalidaAutomatica,
     getListaAsistenciaPorAlumno,
-    getListaMesAsistenciaPorAlumno
+    getListaMesAsistenciaPorAlumno,
+    getListaAsistenciaAlumnoPorSalirConHorasExtras
 }
