@@ -235,26 +235,18 @@ const registrarSalidaAlumnos = (request, response) => {
 
     try {
         console.log(" = " + JSON.stringify(request.body));
-        const { listaSalida = [],listaCalcularHorasExtras = [], genero } = request.body;
+        const { listaSalida = [], listaCalcularHorasExtras = [], genero } = request.body;
 
         console.log("PAsa 1" + JSON.stringify(request.body));
-        const arrayIdSalidas = listaSalida.map(function (obj) {
-            return obj.id;
-        });
 
-        console.log("Pasa 2");        
-        const arrayIdSalidasCalcularHoraExtras = listaCalcularHorasExtras.map(function (obj) {
-            return obj.id;
-        });
+        console.log("arrayIdSalidas " + JSON.stringify(listaSalida));
+        console.log("arrayIdSalidasCalcularHoraExtras " + JSON.stringify(listaCalcularHorasExtras));
 
-        console.log("arrayIdSalidas " + JSON.stringify(arrayIdSalidas));
-        console.log("arrayIdSalidasCalcularHoraExtras " + JSON.stringify(arrayIdSalidasCalcularHoraExtras));
-
-        procesoSalidaAlumnos(arrayIdSalidas, arrayIdSalidasCalcularHoraExtras, genero)
+        procesoSalidaAlumnos(listaSalida, listaCalcularHorasExtras, genero)
             .then((results) => {
                 console.log("Resultado " + JSON.stringify(results));
                 if (results.rowCount > 0) {
-                    enviarMensajeEntradaSalida(arrayIdSalidas, SALIDA);
+                    enviarMensajeEntradaSalida(listaSalida, SALIDA);
                 }
                 response.status(200).json(results.rowCount);
             }).catch((e) => {
@@ -330,13 +322,11 @@ const procesoSalidaAlumnos = (idSalidas, arrayIdSalidasCalcularHoraExtras = [], 
     first = true;
 
     arrayIdSalidasCalcularHoraExtras.forEach(element => {
-        if (element.calcular_horas_extra) {
-            if (first) {
-                idsAsistenciasCalculoHorasExtras += (element + "");
-                first = false;
-            } else {
-                idsAsistenciasCalculoHorasExtras += (',' + element);
-            }
+        if (first) {
+            idsAsistenciasCalculoHorasExtras += (element + "");
+            first = false;
+        } else {
+            idsAsistenciasCalculoHorasExtras += (',' + element);
         }
 
     });
@@ -538,10 +528,10 @@ const getListaAsistenciaAlumnoPorSalirConHorasExtras = (request, response) => {
 
     const { lista_id_asistencias = [] } = request.params;
     let array = [];
-    if (lista_id_asistencias != undefined && lista_id_asistencias != []) {       
-        
-         array = lista_id_asistencias.split(',').map(function (item) {
-            return parseInt(item,10);
+    if (lista_id_asistencias != undefined && lista_id_asistencias != []) {
+
+        array = lista_id_asistencias.split(',').map(function (item) {
+            return parseInt(item, 10);
         });
     }
 
@@ -549,7 +539,7 @@ const getListaAsistenciaAlumnoPorSalirConHorasExtras = (request, response) => {
         pool.query(SQL_ALUMNOS_RECIBIDOS_HORAS_EXTRAS, [array])
             .then((results) => {
                 console.log("resultado lista de asistencia");
-                console.log("===> "+JSON.stringify(results.rows));
+                console.log("===> " + JSON.stringify(results.rows));
                 response.status(200).json(results.rows);
             }).catch((error) => {
                 handle.callbackError(error, response);

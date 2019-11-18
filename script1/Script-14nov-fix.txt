@@ -2,7 +2,8 @@
 /******************************************************************************************/
 /********** modificacion realizada para no insertar en la tabla co_horas_extra ************/
 /** 14-nov-19 **/
-
+-- Modificacion para que solo regrese el ultimo registro de asistencia
+-- DROP FUNCTION generar_horas_extras_alumno(text,integer) 
 
 CREATE or replace FUNCTION generar_horas_extras_alumno(IN ids_alumnos_param text,ID_GENERO integer,OUT retorno boolean) 
 	RETURNS boolean
@@ -49,13 +50,16 @@ bEGIN
 						(alumno.hora_salida + interval '1 minute' * alumno.minutos_gracia) as hora_salida_mas_minutos_gracia_alumno
 				from co_asistencia a inner join co_alumno alumno on a.co_alumno = alumno.id
 				where a.co_alumno = ANY(ids_alumnos::INT[]) and a.fecha = getDate('') and a.hora_salida is not null and a.eliminado = false	
+				order by a.hora_salida desc
+				limit 1
+
 		) LOOP 
 			-- si hora de salida de asistencia es mayor a la hora salida registrada + minutos gracias
 					IF asistencia.hora_salida_asistencia >= (asistencia.hora_salida_asistencia::date+asistencia.hora_salida_mas_minutos_gracia_alumno) THEN
 					raise notice 'calcular horas extras alumno %',asistencia.nombre_alumno;
 					FOR hora_generate IN ( 															
 								SELECT * FROM generate_series((asistencia.hora_salida_asistencia::date + asistencia.hora_salida_alumno)::timestamp,
-																asistencia.hora_salida_asistencia::timestamp,'30 minutes')
+												asistencia.hora_salida_asistencia::timestamp,'30 minutes')
 							) 
 					LOOP 	
 						hora_inicio_hora_extra := hora_generate;
@@ -74,14 +78,14 @@ bEGIN
 						IF NOT FOUND THEN		
 							raise notice 'SE PROCEDE A LA INSERCIÓN';
 							/*
-							14-nov-19
-							modificacion para no generar registros en la tabla co_hora_extra
+							14-nov-19 */
+							--modificacion para no generar registros en la tabla co_hora_extra
 							INSERT INTO CO_HORA_EXTRA (CO_ASISTENCIA,CO_ALUMNO,FECHA,HORA_INICIO,HORA_FIN,FECHA_GENERO,GENERO)
 							VALUES(asistencia.id_asistencia,
 									asistencia.co_alumno,
 									fecha_current,
 								  	hora_inicio_hora_extra,hora_fin_hora_extra,fecha_current,ID_GENERO);							
-							*/							
+												
 							PERFORM agregar_cargo_alumno(asistencia.co_alumno,ID_HORA_EXTRA,1,
 														'Cargo por Tiempo Extra del '||fecha_current::date||', de '||hora_inicio_hora_extra::time||' a '||(hora_fin_hora_extra)::time||', alumno '
 														||asistencia.nombre_alumno||'.'
@@ -136,41 +140,50 @@ END; --END FUNCTION
 $$ 
 
 
+
+
+
 /***************** se agrega un parametro para calcular las horas extras *************/
 
-drop function registrar_salida_alumno(text,boolean,integer);
+--drop function registrar_salida_alumno(text,boolean,integer);
+DROP FUNCTION registrar_salida_alumno(text,text,integer) ;
 
-CREATE or replace FUNCTION registrar_salida_alumno(IN ids_asistencias_param text,calcular_horas_extras boolean, ID_GENERO integer,OUT retorno boolean) 
+select registrar_salida_alumno('5297,5298','5298',1);
+
+CREATE or replace FUNCTION registrar_salida_alumno(IN ids_asistencias_param text,ids_asistencias_calculo_horas_extras text,ID_GENERO integer,OUT retorno boolean) 
 	RETURNS boolean
  	LANGUAGE plpgsql 	
  AS
 $$
 DECLARE
 	ids_asistencias integer[];
-	id_alumnos_horas_extras text;
+	id_alumnos_horas_extras integer[];
+	id_alumnos_calcular_horas_extras_param text;
 BEGIN
 	IF ids_asistencias_param is null THEN		
 		raise notice 'Es null la lista de ids de asistencias param ';
 		retorno := false;
 	ELSE
 		ids_asistencias := string_to_array(ids_asistencias_param,','); 
-		
+		id_alumnos_horas_extras := string_to_array(ids_asistencias_calculo_horas_extras,','); 
+				
 		UPDATE CO_ASISTENCIA 
                      SET hora_salida = (getDate('')+getHora(''))::timestamp,
-					     fecha_modifico = (getDate('')+getHora(''))::timestamp,
-                     	modifico = ID_GENERO
-        WHERE id = ANY(ids_asistencias::INT[]);
+			 fecha_modifico = (getDate('')+getHora(''))::timestamp,
+                     	  modifico = ID_GENERO
+               WHERE id = ANY(ids_asistencias::INT[]);
 		
 		select string_agg(co_alumno::text,',') 
-			from co_asistencia where id = ANY(ids_asistencias::INT[])
-		INTO id_alumnos_horas_extras;
-					
-		IF calcular_horas_extras THEN
-			PERFORM generar_horas_extras_alumno(id_alumnos_horas_extras,ID_GENERO);		
+		from co_asistencia 
+		where id = ANY(id_alumnos_horas_extras::INT[])
+		INTO id_alumnos_calcular_horas_extras_param;				
+
+		IF id_alumnos_calcular_horas_extras_param is not null THEN
+		
+			PERFORM generar_horas_extras_alumno(id_alumnos_calcular_horas_extras_param,ID_GENERO);		
 		END IF;
 			
 	END IF;	
 	retorno := true;
 END; --END FUNCTION 
-$$ 
-
+$
