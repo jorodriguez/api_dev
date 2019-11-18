@@ -38,7 +38,7 @@ const SQL_ALUMNOS_RECIBIDOS_HORAS_EXTRAS =
         alumno.id as id_alumno,
         alumno.nombre as nombre_alumno,
         alumno.hora_salida as hora_salida_alumno,  
-             
+        false as seleccionado,   
         (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp as calcular_tiempo_extra,
         age((getDate('')+getHora(''))::timestamp,(asistencia.fecha+alumno.hora_salida)::timestamp) as tiempo_extra
     FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id                               
@@ -235,15 +235,15 @@ const registrarSalidaAlumnos = (request, response) => {
 
     try {
         console.log(" = " + JSON.stringify(request.body));
-        const { listaSalida = [], genero } = request.body;
+        const { listaSalida = [],listaCalcularHorasExtras = [], genero } = request.body;
 
         console.log("PAsa 1" + JSON.stringify(request.body));
         const arrayIdSalidas = listaSalida.map(function (obj) {
             return obj.id;
         });
-        console.log("PAsa 2");
-        const filtro = listaSalida.filter(e => e.calcular_horas_extra);
-        const arrayIdSalidasCalcularHoraExtras = filtro.map(function (obj) {
+
+        console.log("Pasa 2");        
+        const arrayIdSalidasCalcularHoraExtras = listaCalcularHorasExtras.map(function (obj) {
             return obj.id;
         });
 
