@@ -26,7 +26,8 @@ const SQL_USUARIO_POR_SALIR =
     from co_asistencia_usuario a inner join usuario u on u.id = a.usuario
 				inner join cat_tipo_usuario tipo on tipo.id = u.cat_tipo_usuario
 				inner join co_sucursal suc on suc.id = u.co_sucursal
-    where u.co_sucursal = $1 and u.eliminado = false
+    where u.co_sucursal = $1 
+            and u.eliminado = false
             and fecha = getDate('')
     order by u.nombre asc
     `
@@ -53,7 +54,12 @@ const SQL_USUARIOS_POR_ENTRAR =
 where u.co_sucursal = $1	
     and tipo.id = 1
     and u.id not in  (
-        select usuario from co_asistencia_usuario where fecha = getDate('') and eliminado = false
+        select usuario
+		from co_asistencia_usuario a inner join usuario u on u.id = a.usuario 
+		where u.co_sucursal = $2
+			and a.fecha = getDate('') 
+			and a.eliminado = false      
+			and u.eliminado = false
     )	
 and u.eliminado = false
 order by u.nombre asc
@@ -69,7 +75,7 @@ const getListaUsuarioPorEntrar = (request, response) => {
 
         const id_sucursal = parseInt(request.params.id_sucursal);
 
-        pool.query(SQL_USUARIOS_POR_ENTRAR, [id_sucursal],
+        pool.query(SQL_USUARIOS_POR_ENTRAR, [id_sucursal,id_sucursal],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
