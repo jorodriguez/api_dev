@@ -31,7 +31,8 @@ const catagolos = require('./services/catalogos');
 const conf = require('./services/configuracion');
 const https = require("https");
 const { validarTokenCompleto } = require('./helpers/helperToken');
-const tiendaService = require('./services/tiendaService');
+const asistenciaUsuario = require('./services/asistencia_usuario');
+//const tiendaService = require('./services/tiendaService');
 
 const port = process.env.PORT || 5000;
 
@@ -155,8 +156,11 @@ GET('/asistencia/reporte/:id_sucursal/:fecha',asistencia.getListaAsistencia);
 GET('/asistencia/reporte_por_alumno/:id_alumno',asistencia.getListaAsistenciaPorAlumno);
 GET('/asistencia/reporte_mes_alumno/:id_alumno',asistencia.getListaMesAsistenciaPorAlumno);
 
-
-
+//Asistencia Usuarios
+GET('/asistencia_usuarios/por_entrar/:id_sucursal',asistenciaUsuario.getListaUsuarioPorEntrar);
+GET('/asistencia_usuarios/por_salir/:id_sucursal',asistenciaUsuario.getListaUsuarioPorSalir);
+POST('/asistencia_usuarios/entrada', asistenciaUsuario.registrarEntradaUsuario);
+POST('/asistencia_usuarios/salida', asistenciaUsuario.registrarSalidaUsuario);
 
 //grupo
 GET('/grupos', catagolos.getGrupos);
@@ -259,7 +263,7 @@ app.post('/cliente/:id_familiar', actividad_reporte.updateTokenMensajeriaFamilia
 app.put('/cliente/:id_familiar', actividad_reporte.updateDatosFamiliar);
 
 
-app.get('/productos/:pagina',tiendaService.getProductos);
+//app.get('/productos/:pagina',tiendaService.getProductos);
 
 //reset password
 GET('/reset_password/:id_familiar', familiar.resetPasswordFamiliar);

@@ -187,3 +187,84 @@ BEGIN
 	retorno := true;
 END; --END FUNCTION 
 $
+
+
+
+CREATE TABLE cat_tipo_usuario
+(
+    id serial not null,
+    prefijo text,
+    nombre text NOT NULL,
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,   
+    CONSTRAINT cat_tipo_usuario_pkey PRIMARY KEY (id),
+    CONSTRAINT cat_tipo_usuario_fkey FOREIGN KEY (genero)
+        REFERENCES usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT cat_tipo_usuario_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
+insert into cat_tipo_usuario(id,nombre,prefijo,genero) values(1,'Maestra','Miss',1);
+alter table usuario add column cat_tipo_usuario integer default 1 not null;
+ALTER TABLE usuario ADD CONSTRAINT usuario_tipo_constraint_fkey FOREIGN KEY (cat_tipo_usuario) REFERENCES cat_genero(id);
+
+alter table usuario add column hora_entrada time;
+alter table usuario add column hora_salida time;
+
+update usuario 
+SET 
+hora_entrada = '07:00:00',
+hora_salida = '20:00:00';
+
+alter table usuario alter column hora_entrada set not null;
+alter table usuario alter column hora_salida set not null;
+alter table usuario alter column cat_tipo_usuario set not null;
+
+alter table usuario add column minutos_gracia_entrada integer;
+
+
+
+/*** Asistencia ****/
+
+CREATE TABLE co_asistencia_usuario
+(
+  id serial not null,
+  fecha date NOT NULL DEFAULT getDate(''),
+  usuario integer NOT NULL,  
+  hora_entrada timestamp without time zone NOT NULL,
+  hora_salida timestamp without time zone,
+  comentario_entrada text,
+  comentario_salida text,
+  fecha_genero timestamp without time zone DEFAULT (getDate('')+getHora('')),
+  fecha_modifico timestamp without time zone,
+  genero integer NOT NULL,
+  modifico integer,
+  eliminado boolean NOT NULL DEFAULT false,
+  CONSTRAINT co_asistencia_usuario_pkey PRIMARY KEY (id),
+  CONSTRAINT co_asistencia_usuario_fkey FOREIGN KEY (usuario)
+      REFERENCES usuario (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT co_asistencia_usuario_genero_fkey FOREIGN KEY (genero)
+      REFERENCES usuario (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT co_asistencia_usuario_modifico_fkey FOREIGN KEY (modifico)
+      REFERENCES usuario (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+
+alter table usuario add column foto text;
+
+ALTER TABLE co_asistencia_usuario ADD CONSTRAINT registro_asistencia_unico UNIQUE (fecha,usuario);
+
+insert into cat_tipo_usuario(id,prefijo,nombre,genero)
+values(2,'','Dueño',1);
+
+update usuario set cat_tipo_usuario = 2 where id in (17,10,1);

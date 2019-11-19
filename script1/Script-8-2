@@ -72,4 +72,4 @@ CREATE TABLE cat_medida
   CONSTRAINT cat_medida_modifico_fkey FOREIGN KEY (modifico)
       REFERENCES public.usuario (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION  
-);
+);algun dia seremos mejor que esto 
