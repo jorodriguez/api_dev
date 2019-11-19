@@ -295,10 +295,8 @@ GET('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes', reporteDeudas.getR
 //GET('/sucursal/:id_sucursal/cargos',reporteDeudas.getAllAlumnosCargos);
 
 
-
-
-GET('/', (request, response) => {
-	response.json({ info: 'MagicIntelligence API v1.0.17' })
+app.get('/', (request, response) => {
+	response.json({ info: 'MagicIntelligence API v1.0.19' })
 });
 
 app.listen(port, () => {
