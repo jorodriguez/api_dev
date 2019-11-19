@@ -268,3 +268,48 @@ insert into cat_tipo_usuario(id,prefijo,nombre,genero)
 values(2,'','Dueño',1);
 
 update usuario set cat_tipo_usuario = 2 where id in (17,10,1);
+
+
+
+
+
+update usuario set hora_entrada = '07:00', hora_salida ='20:00' where id = 14;
+insert into usuario(nombre,correo,password,co_sucursal,permiso_gerente,genero,cat_tipo_usuario,hora_entrada,hora_salida)
+values
+('Miss Melissa','noreply@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',2,false,1,1,'07:00:00','18:00:00'),
+('Miss Vanessa','noreply2@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',2,false,1,1,'08:00','18:00'),
+('Miss Sarai','noreply3@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',2,false,1,1,'07:00:00','12:00:00'),
+('Miss Brissa','noreply4@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',2,false,1,1,'13:00','20:00'),
+
+('Miss Karen','noreply5@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',2,false,1,1,'13:00','20:00'),
+('Miss Mayra','noreply6@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',2,false,1,1,'07:00','16:00'),
+('Miss Leydi','noreply7@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',2,false,1,1,'07:00','14:00');
+
+
+
+ --Emma - 7am a 3pm
+ update usuario set hora_entrada = '07:00', hora_salida ='15:00' where id = 13;
+--Delia - 7am a 8pm
+ update usuario set hora_entrada = '07:00', hora_salida ='20:00' where id = 16;
+ 
+ --Nena - 7am a 4pm
+ insert into usuario(nombre,correo,password,co_sucursal,permiso_gerente,genero,cat_tipo_usuario,hora_entrada,hora_salida)
+values
+('Miss Nena','noreply8@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',3,false,1,1,'07:00:00','16:00:00'),
+('Miss Juany','noreply9@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',3,false,1,1,'07:00:00','19:00:00'),
+('Miss Daniela','noreply10@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',3,false,1,1,'07:00:00','15:00:00'),
+('Miss Ana','noreply11@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',3,false,1,1,'07:00:00','19:00:00'),
+('Miss Mirtala','noreply12@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',3,false,1,1,'07:00:00','15:00:00'),
+('Miss Karla','noreply13@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',3,false,1,1,'07:00:00','13:00:00'),
+('Miss Karla','noreply14@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',3,false,1,1,'07:00:00','13:00:00');
+
+
+insert into usuario(nombre,correo,password,co_sucursal,permiso_gerente,genero,cat_tipo_usuario,hora_entrada,hora_salida)
+values
+('Miss Marlen','noreply15@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',1,false,1,1,'07:00:00','14:00:00'),
+('Miss Isabel','noreply16@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',1,false,1,1,'07:30:00','16:30:00'),
+('Miss Litzy','noreply17@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',1,false,1,1,'13:00:00','20:00:00'),
+('Miss Ana Laura','noreply18@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',1,false,1,1,'11:00:00','19:00:00'),
+('Miss Andrea','noreply19@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',1,false,1,1,'07:00:00','14:00:00'),
+('Miss Mirna','noreply20@magicintelligence.com','$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',1,false,1,1,'12:00:00','19:00:00');
+
