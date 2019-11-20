@@ -1,0 +1,17 @@
+
+
+select * 
+from co_alumno 
+where nombre like '%Andrea%'
+
+select * 
+from co_cargo_balance_alumno
+where co_balance_alumno = ( select co_balance_alumno from co_alumno where id=13)
+
+
+-- Eliminar los 3 registros
+update co_pago_cargo_balance_alumno SET eliminado = true where co_cargo_balance_alumno = 12420;
+update co_cargo_balance_alumno SET eliminado = true where id = 12420;
+update co_pago_balance_alumno SET pago = (pago-3679) where id = 243;
+
+--en caso se no estar pagados actualizar el balance del alumno
