@@ -1,0 +1,25 @@
+
+-- asistencia semanal
+with fechas as (
+    select (date_trunc('week', getDate('')))::timestamp AS primer_dia_semana,
+           (date_trunc('week', getDate('')) + interval '4 days') as ultimo_dia_semana		   	   
+),serie as (
+       SELECT g::date as fecha			  
+       FROM fechas f, generate_series(f.primer_dia_semana,f.ultimo_dia_semana,'1 day')  g
+)
+   select 	
+   to_char(s.fecha,'DD')::int as num_dia,
+   to_char(s.fecha,'DDD')::int as num_dia_anio,
+   to_char(s.fecha,'d') as num_dia_semana,
+   to_char(s.fecha,'Day') as nombre_dia,
+   extract(week from s.fecha) as num_semana,	
+   to_char(s.fecha,'MM') as num_mes,
+   count(a.*) > 0 as asistencia,
+   to_char(s.fecha,'d')::int in (1,7) as es_fin_semana, 
+   count(a.*),
+   s.fecha > getDate('') as fecha_mayor_hoy,  
+   (select count(*) from co_cargo_balance_alumno where fecha = s.fecha) as cargos_extras
+from serie s left join co_asistencia a on s.fecha = a.fecha
+    and a.co_alumno = 62
+group by s.fecha
+order by s.fecha
