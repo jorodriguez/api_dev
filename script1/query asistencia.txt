@@ -23,3 +23,35 @@ from serie s left join co_asistencia a on s.fecha = a.fecha
     and a.co_alumno = 62
 group by s.fecha
 order by s.fecha
+
+
+
+-- asistencia semana ocurriendo agrupado por co_alumno
+-- asistencia semanal
+with fechas as (
+    select (date_trunc('week', getDate('')))::timestamp AS primer_dia_semana,
+           (date_trunc('week', getDate('')) + interval '4 days') as ultimo_dia_semana		   	   
+),serie as (
+       SELECT g::date as fecha			  
+       FROM fechas f, generate_series(f.primer_dia_semana,f.ultimo_dia_semana,'1 day')  g
+),asistencia_alumnos AS(
+   select 	
+   al.id as id_alumno,
+   s.fecha as fecha_completa, 
+   to_char(s.fecha,'DD')::int as num_dia, 
+   to_char(s.fecha,'Day') as nombre_dia,   
+   to_char(s.fecha,'MM') as num_mes,
+   count(a.id) > 0 as asistencia,   
+   count(a.id),   
+   (select count(*) from co_cargo_balance_alumno where fecha = s.fecha) as cargos_extras
+from serie s inner join co_asistencia a on s.fecha = a.fecha
+			 inner join co_alumno al on a.co_alumno = al.id   
+group by s.fecha,al.id
+order by  s.fecha
+) select al.id,
+		 al.nombre,
+		 array_to_json(array_agg(to_json(asistencia.*)))
+  from asistencia_alumnos asistencia inner join co_alumno al on al.id = asistencia.id_alumno
+  where al.co_sucursal = 1
+  group by al.id
+  order by al.nombre
