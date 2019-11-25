@@ -4,6 +4,8 @@ heroku pg:copy DATABASE HEROKU_POSTGRESQL_TEAL --app develop1
 
 2- despues correr el comando
 update co_familiar 
-SET token = (select token from co_familiar where id=54),
-	correo = 'joel.'
+SET token = (select token from co_familiar where id=54)	
 where token is not null and token <> 'joel.rod.roj@hotmail.com';
+
+update co_familiar 
+set correo = 'joel@magicintelligence.com'

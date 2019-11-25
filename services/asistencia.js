@@ -340,8 +340,8 @@ const procesoSalidaAlumnos = (idSalidas, arrayIdSalidasCalcularHoraExtras = [], 
 
 
 //lista simple
-const getListaAsistencia = (request, response) => {
-    console.log("@obtenerAsistencia");
+const getListaAsistenciaPorSucursalFecha = (request, response) => {
+    console.log("@getListaAsistenciaPorSucursalFecha");
 
     const { id_sucursal, fecha } = request.params;
 
@@ -401,7 +401,7 @@ const getListaAsistencia = (request, response) => {
 
 
 //lista simple
-const getListaAsistenciaPorAlumno = (request, response) => {
+const getListaAsistenciaMesPorAlumno = (request, response) => {
     console.log("@getListaAsistenciaPorAlumno");
 
     const { id_alumno } = request.params;
@@ -410,19 +410,30 @@ const getListaAsistenciaPorAlumno = (request, response) => {
     //console.log("numero_mes = " + numero_mes);
     try {
         pool.query(`
-                    select
-                        a.id,
-                        a.fecha as fecha,
-                        to_char(a.fecha,'YYYY') as anio,
-                        to_char(a.fecha,'MM') as mes,
-                        to_char(a.fecha,'DD') as dia,
-                        date_trunc('minute',a.hora_entrada) hora_entrada,
-                        date_trunc('minute',a.hora_salida) as hora_salida,
-                        (select count(*) from co_cargo_balance_alumno where fecha = s.fecha) as cargos_extras
-                    from  co_asistencia a
-                    where to_char(a.fecha,'MMYYYY') = '112019'
-                        and a.co_alumno = $1 
-                        and a.eliminado = false    
+                   
+with fechas as (
+    select (date_trunc('month',  getDate('')))::timestamp AS primer_dia,
+           (date_trunc('month',  getDate('')) + interval '1 month' - interval '1 day')  as ultimo_dia		   	   
+),serie as (
+       SELECT g::date as fecha			  
+       FROM fechas f, generate_series(f.primer_dia,f.ultimo_dia,'1 day')  g
+)
+   select 	
+     s.fecha,
+     to_char(s.fecha,'DD')::int as num_dia,
+     to_char(s.fecha,'MM') as num_mes,
+     to_char(s.fecha,'YYYY') as num_anio,
+     to_char(s.fecha,'Day') as nombre_dia,    
+    count(a.*) > 0 as asistencia,
+    to_char(s.fecha,'d')::int in (1,7) as es_fin_semana, 
+    count(a.*) as numero_asistencia,
+    date_trunc('seconds',a.hora_entrada::time) as hora_entrada,
+    date_trunc('seconds',a.hora_salida::time) as hora_salida,
+    (select count(*) from co_cargo_balance_alumno where fecha = s.fecha) as cargos_extras
+from serie s left join co_asistencia a on s.fecha = a.fecha
+   and a.co_alumno = $1
+group by s.fecha,a.hora_entrada,a.hora_salida
+order by s.fecha 
 
             `, [id_alumno]).then((results) => {
             console.log("resultado lista de asistencia");
@@ -436,6 +447,7 @@ const getListaAsistenciaPorAlumno = (request, response) => {
     }
 }
 
+// para componente de calendrio
 const getListaMesAsistenciaPorAlumno = (request, response) => {
     console.log("@getListaMeAsistenciaPorAlumno");
 
@@ -572,15 +584,81 @@ const ejecutarProcedimientoCalculoHorasExtra = (ids_alumnos, id_genero) => {
 };
 
 
+/* Lista de asistencias e inasistencias por alumno por mes  */
+const getListaMesAsistenciaPorSucursal = (request, response) => {
+    console.log("@getListaMesAsistenciaPorSucursal");
+
+    const { id_sucursal } = request.params;
+
+    console.log("id_sucursal = " + id_sucursal);
+    //console.log("numero_mes = " + numero_mes);
+    try {
+        pool.query(`
+                
+with serie as (
+    SELECT g::date as fecha	  
+    FROM generate_series((date_trunc('month', getDate('')))::timestamp,getDate(''),'1 day')  g
+    where to_char(g::date ,'d')::int not in (1,7) 
+            -- and to_char(g::date ,'d')::int not in (select id from si_dias_asuetos where eliminado = false)
+), dias_activos as ( 
+            select count(*) as num_dias_trabajados 
+            from serie  
+) 
+, alumno_asistencia as(
+select 
+s.fecha ,
+alumno.id as id_alumno,	
+count(a.*) as asistencias,
+count(s.fecha) as count_fechas
+from serie s left join co_asistencia a on s.fecha = a.fecha
+           left join co_alumno alumno on alumno.id = a.co_alumno
+        and alumno.co_sucursal= $1
+        and alumno.eliminado= false
+        and a.eliminado = false
+group by alumno.id,s.fecha
+order by s.fecha,alumno.id
+)select 
+    a.id,
+    a.nombre,
+    a.apellidos,
+    a.foto,
+    grupo.id as id_grupo,
+    grupo.nombre as nombre_grupo,
+    count(asi.count_fechas) as count_fechas,		
+    count(asi.asistencias) as numero_asistencias,		
+    (dias_Activos.num_dias_trabajados - count(asi.count_fechas)) as numero_inasistencias,
+    dias_Activos.num_dias_trabajados
+from dias_activos,
+        co_alumno a left join alumno_asistencia asi on asi.id_alumno = a.id
+                 left join co_grupo grupo on a.co_grupo = grupo.id
+where a.eliminado = false
+        and a.co_sucursal = $2
+group by a.id,grupo.id,dias_activos.num_dias_trabajados
+order by a.nombre
+
+
+            `, [id_sucursal,id_sucursal]).then((results) => {
+            console.log("resultado lista de asistencia");
+            response.status(200).json(results.rows);
+        }).catch((error) => {
+            handle.callbackError(error, response);
+        });
+
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+}
+
 
 module.exports = {
     getAlumnosRecibidos,
     getAlumnosPorRecibir,
     registrarEntradaAlumnos,
     registrarSalidaAlumnos,
-    getListaAsistencia,
+    getListaAsistenciaPorSucursalFecha,
     ejecutarProcesoSalidaAutomatica,
-    getListaAsistenciaPorAlumno,
+    getListaAsistenciaMesPorAlumno,
     getListaMesAsistenciaPorAlumno,
-    getListaAsistenciaAlumnoPorSalirConHorasExtras
+    getListaAsistenciaAlumnoPorSalirConHorasExtras,
+    getListaMesAsistenciaPorSucursal
 }

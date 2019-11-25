@@ -151,10 +151,11 @@ POST('/asistencia/entradaAlumnos', asistencia.registrarEntradaAlumnos);
 POST('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
 GET('/asistencia/salidaAlumnos/alumno_tiempo_extra/:lista_id_asistencias',asistencia.getListaAsistenciaAlumnoPorSalirConHorasExtras);
 // Reporte de asistencias
-GET('/asistencia/reporte/:id_sucursal/:fecha',asistencia.getListaAsistencia);
-//GET('/asistencia/reporte_por_alumno/:id_alumno/:numero_mes',asistencia.getListaAsistenciaPorAlumno);
+GET('/asistencia/reporte/:id_sucursal/:fecha',asistencia.getListaAsistenciaPorSucursalFecha);
 GET('/asistencia/reporte_por_alumno/:id_alumno',asistencia.getListaAsistenciaPorAlumno);
 GET('/asistencia/reporte_mes_alumno/:id_alumno',asistencia.getListaMesAsistenciaPorAlumno);
+GET('/asistencia/reporte_mes_sucursal/:id_sucursal',asistencia.getListaMesAsistenciaPorSucursal);
+GET('/asistencia/mensual/:id_alumno',asistencia.getListaAsistenciaMesPorAlumno);
 
 //Asistencia Usuarios
 GET('/asistencia_usuarios/por_entrar/:id_sucursal',asistenciaUsuario.getListaUsuarioPorEntrar);
