@@ -209,6 +209,8 @@ const getListaFaltasUsuariosSucursalRangoFecha = (request, response) => {
         ) select 
             u.id,
             u.nombre as usuario,
+            u.hora_entrada::text,
+            u.hora_salida::text,
             count(au.id) as count_dias_asistencia,
             d.dias_trabajo - count(au.id) as count_dias_faltas,
             d.dias_trabajo 
