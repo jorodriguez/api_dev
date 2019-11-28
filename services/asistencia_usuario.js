@@ -214,14 +214,16 @@ const getListaFaltasUsuariosSucursalRangoFecha = (request, response) => {
             d.dias_trabajo 
         from dias_activos_trabajados d, usuario u left join co_asistencia_usuario au on au.usuario = u.id 
                                                 and au.fecha between $3::date  and $4::date
-        where u.co_sucursal = $1 and u.cat_tipo_usuario = $4 and u.eliminado = false		  
+        where u.co_sucursal = $1 and u.cat_tipo_usuario = $2 and u.eliminado = false		  
             group by u.id,d.dias_trabajo
             order by u.nombre
      `, [id_sucursal, 
             TIPO_USUARIO.MAESTRA,
             new Date(fecha_inicio),
-            new Date(fecha_fin)],
+            new Date(fecha_fin),
             (id_empresa || ID_EMPRESA_MAGIC)
+        ]
+            
             ).then((results) => {
             console.log("resultado lista de faltas por maestros");
             response.status(200).json(results.rows);
@@ -239,7 +241,7 @@ const getDetalleFaltasUsuariosRangoFecha = (request, response) => {
 
     const { id_usuario, fecha_inicio,fecha_fin } = request.params;
 
-    console.log("id_suc = " + id_sucursal);
+    console.log("id_usuario = " + id_usuario);
     console.log("fecha = " + fecha_inicio + " fecha fin "+fecha_fin);
 
     try {
@@ -250,7 +252,14 @@ const getDetalleFaltasUsuariosRangoFecha = (request, response) => {
 			where  au.fecha between $2::date  and $3::date 				
 					and au.usuario = $1
 					and au.eliminado = false
-		) SELECT g::date as fecha,dias_asuetos.fecha is not null as dia_asueto,au.*
+        ) SELECT 
+                    (g::date)::text as fecha_rango,
+                    dias_asuetos.fecha is not null as dia_asueto,
+                    au.id is null as falta,
+                    (date_trunc('minute',au.hora_entrada)::time)::text as hora_entrada,
+                    (date_trunc('minute',au.hora_salida)::time)::text as hora_salida,
+                    au.comentario_entrada,
+                    au.comentario_salida
 		FROM  generate_series($2::date,$3::date,'1 day')  g left join asistencia_usuario au on au.fecha = g::date																				
 							left join (select fecha 
 										from cat_dias_asueto 
@@ -263,9 +272,8 @@ const getDetalleFaltasUsuariosRangoFecha = (request, response) => {
      `, [id_usuario,             
             new Date(fecha_inicio),
             new Date(fecha_fin),
-            (id_empresa || ID_EMPRESA_MAGIC)
-        ]
-            ).then((results) => {
+             ID_EMPRESA_MAGIC
+        ]).then((results) => {
             console.log("detalle de faltas ");
             response.status(200).json(results.rows);
         }).catch((error) => {
