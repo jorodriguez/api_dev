@@ -19,11 +19,17 @@ const USUARIO_DEFAULT= 1;
 const ENTRADA = 0;
 const SALIDA = 1;
 
+const TIPO_USUARIO = {MAESTRA:1};
+
+const ID_EMPRESA_MAGIC = 1;
+
 module.exports = {
     CARGOS,
     ESTATUS,
     ROWS_POR_PAGINACION,
     TIPO_CARGO,
     USUARIO_DEFAULT,
-    ENTRADA,SALIDA
+    ENTRADA,SALIDA,
+    TIPO_USUARIO,
+    ID_EMPRESA_MAGIC
 };

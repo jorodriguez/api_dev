@@ -157,11 +157,16 @@ GET('/asistencia/reporte_mes_alumno/:id_alumno',asistencia.getListaMesAsistencia
 GET('/asistencia/reporte_mes_sucursal/:id_sucursal',asistencia.getListaMesAsistenciaPorSucursal);
 GET('/asistencia/mensual/:id_alumno',asistencia.getListaAsistenciaMesPorAlumno);
 
+
 //Asistencia Usuarios
 GET('/asistencia_usuarios/por_entrar/:id_sucursal',asistenciaUsuario.getListaUsuarioPorEntrar);
 GET('/asistencia_usuarios/por_salir/:id_sucursal',asistenciaUsuario.getListaUsuarioPorSalir);
 POST('/asistencia_usuarios/entrada', asistenciaUsuario.registrarEntradaUsuario);
 POST('/asistencia_usuarios/salida', asistenciaUsuario.registrarSalidaUsuario);
+
+GET('/asistencia_usuarios/reporte_mes/:id_sucursal/:fecha_inicio/:fecha_fin',asistenciaUsuario.getListaFaltasUsuariosSucursalRangoFecha);
+GET('/asistencia_usuarios/usuario/:id_usuario/:fecha_inicio/:fecha_fin',asistenciaUsuario.getDetalleFaltasUsuariosRangoFecha);
+
 
 //grupo
 GET('/grupos', catagolos.getGrupos);

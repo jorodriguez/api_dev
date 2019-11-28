@@ -1,0 +1,47 @@
+
+ CREATE TABLE cat_empresa(
+    id serial NOT NULL ,
+	usuario int not null,
+    nombre text NOT NULL,	
+	domicilio text,	
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT cat_empresa_pkey PRIMARY KEY (id),
+    CONSTRAINT cat_empresa_genero_fkey FOREIGN KEY (genero)
+        REFERENCES usuario (id),
+    CONSTRAINT cat_empresa_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),
+	CONSTRAINT cat_empresa_usuario_fkey FOREIGN KEY (usuario)
+        REFERENCES usuario (id)
+);
+
+
+ CREATE TABLE cat_dias_asueto(
+    id serial NOT NULL ,
+    cat_empresa int not null,
+    fecha date NOT NULL,
+	descripcion text,
+	activo boolean default true,
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT cat_dias_asueto_pkey PRIMARY KEY (id),
+    CONSTRAINT cat_dias_asueto_genero_fkey FOREIGN KEY (genero)
+        REFERENCES usuario (id),
+    CONSTRAINT cat_dias_asueto_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES usuario (id),
+	CONSTRAINT cat_dias_asueto_empresa_fkey FOREIGN KEY (cat_empresa)
+        REFERENCES cat_empresa (id)  
+);
+
+
+insert into cat_empresa(id,nombre,usuario,genero)
+values(1,'Magic Intelligence',17,1);
+
+insert into cat_dias_asueto(fecha,cat_empresa,genero)
+values('2019-11-20',1,1);
