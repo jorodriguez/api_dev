@@ -409,31 +409,30 @@ const getListaAsistenciaMesPorAlumno = (request, response) => {
     console.log("id_alumno = " + id_alumno);
     //console.log("numero_mes = " + numero_mes);
     try {
-        pool.query(`
-                   
-with fechas as (
-    select (date_trunc('month',  getDate('')))::timestamp AS primer_dia,
-           (date_trunc('month',  getDate('')) + interval '1 month' - interval '1 day')  as ultimo_dia		   	   
-),serie as (
-       SELECT g::date as fecha			  
-       FROM fechas f, generate_series(f.primer_dia,f.ultimo_dia,'1 day')  g
-)
-   select 	
-     s.fecha,
-     to_char(s.fecha,'DD')::int as num_dia,
-     to_char(s.fecha,'MM') as num_mes,
-     to_char(s.fecha,'YYYY') as num_anio,
-     to_char(s.fecha,'Day') as nombre_dia,    
-    count(a.*) > 0 as asistencia,
-    to_char(s.fecha,'d')::int in (1,7) as es_fin_semana, 
-    count(a.*) as numero_asistencia,
-    date_trunc('seconds',a.hora_entrada::time) as hora_entrada,
-    date_trunc('seconds',a.hora_salida::time) as hora_salida,
-    (select count(*) from co_cargo_balance_alumno where fecha = s.fecha) as cargos_extras
-from serie s left join co_asistencia a on s.fecha = a.fecha
-   and a.co_alumno = $1
-group by s.fecha,a.hora_entrada,a.hora_salida
-order by s.fecha 
+        pool.query(`                   
+        with fechas as (
+            select (date_trunc('month',  getDate('')))::timestamp AS primer_dia,
+                (date_trunc('month',  getDate('')) + interval '1 month' - interval '1 day')  as ultimo_dia		   	   
+        ),serie as (
+            SELECT g::date as fecha			  
+            FROM fechas f, generate_series(f.primer_dia,f.ultimo_dia,'1 day')  g
+        )
+        select 	
+            s.fecha,
+            to_char(s.fecha,'DD')::int as num_dia,
+            to_char(s.fecha,'MM') as num_mes,
+            to_char(s.fecha,'YYYY') as num_anio,
+            to_char(s.fecha,'Day') as nombre_dia,    
+            count(a.*) > 0 as asistencia,
+            to_char(s.fecha,'d')::int in (1,7) as es_fin_semana, 
+            count(a.*) as numero_asistencia,
+            date_trunc('seconds',a.hora_entrada::time) as hora_entrada,
+            date_trunc('seconds',a.hora_salida::time) as hora_salida,
+            (select count(*) from co_cargo_balance_alumno where fecha = s.fecha) as cargos_extras
+        from serie s left join co_asistencia a on s.fecha = a.fecha
+        and a.co_alumno = $1
+        group by s.fecha,a.hora_entrada,a.hora_salida
+        order by s.fecha 
 
             `, [id_alumno]).then((results) => {
             console.log("resultado lista de asistencia");
@@ -637,7 +636,7 @@ group by a.id,grupo.id,dias_activos.num_dias_trabajados
 order by a.nombre
 
 
-            `, [id_sucursal,id_sucursal]).then((results) => {
+            `, [id_sucursal, id_sucursal]).then((results) => {
             console.log("resultado lista de asistencia");
             response.status(200).json(results.rows);
         }).catch((error) => {

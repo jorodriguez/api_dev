@@ -2,7 +2,9 @@
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const { validarToken } = require('../helpers/helperToken');
-const { TIPO_USUARIO,ID_EMPRESA_MAGIC } = require('../utils/Constantes');
+const { TIPO_USUARIO, ID_EMPRESA_MAGIC } = require('../utils/Constantes');
+const { QUERY, getResultQuery, executeQuery } = require('./sqlHelper');
+
 //const mensajeria = require('./mensajesFirebase');
 
 
@@ -76,14 +78,7 @@ const getListaUsuarioPorEntrar = (request, response) => {
 
         const id_sucursal = parseInt(request.params.id_sucursal);
 
-        pool.query(SQL_USUARIOS_POR_ENTRAR, [id_sucursal, id_sucursal],
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).json(results.rows);
-            });
+        getResultQuery(SQL_USUARIOS_POR_ENTRAR, [id_sucursal, id_sucursal], response);
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -95,15 +90,7 @@ const getListaUsuarioPorSalir = (request, response) => {
 
         const id_sucursal = parseInt(request.params.id_sucursal);
 
-        pool.query(SQL_USUARIO_POR_SALIR,
-            [id_sucursal],
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).json(results.rows);
-            });
+        getResultQuery(SQL_USUARIO_POR_SALIR, [id_sucursal], response);
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -118,17 +105,14 @@ const registrarEntradaUsuario = (request, response) => {
         const { id, comentario_entrada = '', genero } = request.body;
         console.log("Ids registrar entrada  " + id);
 
-        pool.query(`
+        executeQuery(`
                 INSERT INTO CO_ASISTENCIA_USUARIO(fecha,hora_entrada,usuario,comentario_entrada,genero)
                 values(getDate(''),(getDate('')+getHora('')),$1,$2,$3) RETURNING hora_entrada;
-        `, [id, comentario_entrada, genero],
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                console.log("" + JSON.stringify(results));
-
+                `,
+            [id, comentario_entrada, genero],
+            response,
+            (results) => {
+                console.log("Ejecucion del inser");             
                 let respuesta = null;
 
                 if (results.rowCount > 0) {
@@ -152,20 +136,16 @@ const registrarSalidaUsuario = (request, response) => {
 
         const { id_asistencia, comentario_salida = '', genero } = request.body;
 
-        pool.query(`
+        executeQuery(`
             update CO_ASISTENCIA_USUARIO
                 SET hora_salida = (getDate('')+getHora('')),
                     comentario_salida =$2,
                     modifico = $3            
             WHERE id = $1 
-            RETURNING hora_salida;
-        
-        `, [id_asistencia, comentario_salida, genero],
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
+            RETURNING hora_salida;        
+        `, [id_asistencia, comentario_salida, genero]
+            , response
+            , (results) => {                
                 let respuesta = null;
 
                 if (results.rowCount > 0) {
@@ -176,8 +156,6 @@ const registrarSalidaUsuario = (request, response) => {
                 }
                 response.status(200).json(respuesta);
             });
-
-
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -187,15 +165,15 @@ const registrarSalidaUsuario = (request, response) => {
 //Lista de faltas por rango de fecha y sucursal
 //FIXME: el id de la empresa debe de enviarse por parametro
 const getListaFaltasUsuariosSucursalRangoFecha = (request, response) => {
-    console.log("@getListaAsistenciaUsuarios");
+    console.log("@getListaFaltasUsuariosSucursalRangoFecha");
 
-    const { id_sucursal, fecha_inicio,fecha_fin,id_empresa} = request.params;
+    const { id_sucursal, fecha_inicio, fecha_fin, id_empresa } = request.params;
 
     console.log("id_suc = " + id_sucursal);
-    console.log("fecha = " + fecha_inicio + " fecha fin "+fecha_fin);
+    console.log("fecha = " + fecha_inicio + " fecha fin " + fecha_fin);
 
     try {
-        pool.query(` 
+        getResultQuery(` 
         with dias_activos_trabajados AS(		
             SELECT count(*) as dias_trabajo			  
             FROM  generate_series($3::date,$4::date,'1 day')  g
@@ -219,35 +197,27 @@ const getListaFaltasUsuariosSucursalRangoFecha = (request, response) => {
         where u.co_sucursal = $1 and u.cat_tipo_usuario = $2 and u.eliminado = false		  
             group by u.id,d.dias_trabajo
             order by u.nombre
-     `, [id_sucursal, 
-            TIPO_USUARIO.MAESTRA,
-            new Date(fecha_inicio),
-            new Date(fecha_fin),
-            (id_empresa || ID_EMPRESA_MAGIC)
-        ]
-            
-            ).then((results) => {
-            console.log("resultado lista de faltas por maestros");
-            response.status(200).json(results.rows);
-        }).catch((error) => {
-            handle.callbackError(error, response);
-        });
+     `, [id_sucursal, TIPO_USUARIO.MAESTRA, new Date(fecha_inicio), new Date(fecha_fin), (id_empresa || ID_EMPRESA_MAGIC)],            
+            response
+        );
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
 }
 
+
 const getDetalleFaltasUsuariosRangoFecha = (request, response) => {
     console.log("@getDetalleFaltasUsuariosRangoFecha");
 
-    const { id_usuario, fecha_inicio,fecha_fin } = request.params;
+    const { id_usuario, fecha_inicio, fecha_fin } = request.params;
 
     console.log("id_usuario = " + id_usuario);
-    console.log("fecha = " + fecha_inicio + " fecha fin "+fecha_fin);
+    console.log("fecha = " + fecha_inicio + " fecha fin " + fecha_fin);
 
     try {
-        pool.query(` 
+
+        getResultQuery(` 
         with asistencia_usuario as(
 			select au.*
 			from co_asistencia_usuario au 
@@ -271,23 +241,13 @@ const getDetalleFaltasUsuariosRangoFecha = (request, response) => {
 											and eliminado = false)	
 											dias_asuetos on dias_asuetos.fecha = g::date
 		WHERE to_char(g::date,'d')::int not in (1,7)
-     `, [id_usuario,             
-            new Date(fecha_inicio),
-            new Date(fecha_fin),
-             ID_EMPRESA_MAGIC
-        ]).then((results) => {
-            console.log("detalle de faltas ");
-            response.status(200).json(results.rows);
-        }).catch((error) => {
-            handle.callbackError(error, response);
-        });
+     `, [id_usuario, new Date(fecha_inicio), new Date(fecha_fin), ID_EMPRESA_MAGIC],            
+        response);
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
 }
-
-
 
 
 module.exports = {

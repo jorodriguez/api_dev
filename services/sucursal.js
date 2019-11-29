@@ -1,10 +1,9 @@
 
-const { QUERY,getCatalogo } = require('./catagolosHelper');
+const { QUERY,getCatalogo } = require('./sqlHelper');
 
 const getSucursales = (request, response) => {
     console.log("@getSucursales");
-
-    getCatalogo(QUERY.SUCURSALES,request,response);
+    getCatalogo(QUERY.SUCURSALES,response);
 };
 
 module.exports = {

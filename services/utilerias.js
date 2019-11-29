@@ -1,7 +1,8 @@
 
 const { pool } = require('../db/conexion');
-const { getCatalogo } = require('./catagolosHelper');
+const { getCatalogo,getResultQuery } = require('./sqlHelper');
 const { validarToken } = require('../helpers/helperToken');
+const { ID_EMPRESA_MAGIC } = require('../utils/Constantes');
 
 const getMesesActivos = (request, response) => {
     console.log("@getMeses");
@@ -17,7 +18,7 @@ const getMesesActivos = (request, response) => {
                from universo u 
     `;
 
-    getCatalogo(mesesSql,request,response);
+    getCatalogo(mesesSql,response);
   
 };
 
@@ -58,10 +59,46 @@ const findCorreoPadre = (correo) => {
                 }                
             });
     });
-
 };
+
+
+const getListaDiasTrabajadosRangoFecha = (request,response) =>{
+
+    console.log("@getListaFaltasUsuariosSucursalRangoFecha");
+
+    const {fecha_inicio, fecha_fin, id_empresa } = request.params;
+
+    console.log("id_empresa = " + id_empresa);
+    console.log("fecha = " + fecha_inicio + " fecha fin " + fecha_fin);
+
+    try {
+        getResultQuery(`  
+        SELECT g::date as fecha,    
+            to_char(g::date,'d')::int in (1,7) as fin_semana,
+            to_char(g::date,'d')::int as num_dia,
+            to_char(g::date,'Day') as nombre_dia,
+            dias_asuetos.fecha is not null as dia_asueto
+        FROM  generate_series($1::date,$2::date,'1 day')  g
+                left join (select fecha 
+                from cat_dias_asueto 
+                where cat_empresa = $3
+                    and fecha between $1::date  and $2::date
+                    and activo=true 
+                    and eliminado = false) dias_asuetos on dias_asuetos.fecha = g::date       
+     `, [new Date(fecha_inicio), new Date(fecha_fin), (id_empresa || ID_EMPRESA_MAGIC)],            
+            response
+        );
+
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+
+  
+}
+
 
 module.exports = {
     getMesesActivos,
     findCorreoPadre,    
+    getListaDiasTrabajadosRangoFecha
 }
