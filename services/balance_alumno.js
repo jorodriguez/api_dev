@@ -15,7 +15,7 @@ const registrarBalanceAlumno = (id_alumno,genero) => {
                     return false;
                 }                
                 console.log("Se creo el balance y se relaciono ");                
-                return results.rowCount >0;                
+                return results.rowCount > 0;                
             });
     } catch (e) {
         console.log("error no controlado  "+error);     

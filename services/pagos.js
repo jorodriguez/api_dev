@@ -3,22 +3,50 @@
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const { validarToken } = require('../helpers/helperToken');
-const { QUERY,getCatalogo } = require('./catagolosHelper');
+const { QUERY,getCatalogo } = require('./sqlHelper');
 
 const notificacionService = require('../utils/NotificacionService');
+const {CARGOS} = require('../utils/Constantes');
 
 //registrar pagos
 const registrarCargo = (request, response) => {
     console.log("@registrarCargo");
-    try {
-       // validarToken(request,response);        
+    try {       
 
-        const { id_alumno, cat_cargo, cantidad, nota, genero } = request.body;
+        const { fecha_cargo,id_alumno, cat_cargo, cantidad,monto, nota, genero } = request.body;
+
+        let parametros = [];
+        let sql = "";
+        
+        let respuesta = {
+            id_cargo:-1,
+            resultado:Boolean,
+            mensaje : ""
+        };
+
+        if(cat_cargo.cat_cargo == CARGOS.ID_CARGO_MENSUALIDAD){
+            if((fecha_cargo == undefined || fecha_cargo == null)){
+                respuesta.resultado = false;                
+                respuesta.mensaje = "Se requiere la fecha del cargo.";
+                return  response.status(200).json(respuesta);
+            }
+            //parametros para mensualidad
+            sql = "select agregar_cargo_alumno($1,$2,$3,$4,$5,$6,$7);";   
+            parametros = [new Date(fecha_cargo),id_alumno,cat_cargo.id, cantidad,monto, nota, genero];            
+        }else{
+            //no es mensualidad
+            if((fecha_cargo == undefined || fecha_cargo == null)){
+                sql =  "select agregar_cargo_alumno(getDate(''),$1,$2,$3,$4,$5,$6);";   
+                parametros = [id_alumno,cat_cargo.id, cantidad,monto, nota, genero];     
+            }else{
+                sql = "select agregar_cargo_alumno($1,$2,$3,$4,$5,$6,$7);";   
+                parametros = [new Date(fecha_cargo),id_alumno,cat_cargo.id, cantidad,monto, nota, genero];            
+            }            
+        }
               
         console.log("=====>> " + JSON.stringify(request.body));
-                
-        pool.query("select agregar_cargo_alumno($1,$2,$3,$4,$5);",
-            [id_alumno, cat_cargo.id, cantidad, nota, genero],
+                //fecha_cargo date,id_alumno integer, id_cargo integer, cantidad integer,monto numeric,nota text, id_genero integer                             
+        pool.query(sql,parametros,
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -29,8 +57,14 @@ const registrarCargo = (request, response) => {
                 //buscar el padre y enviarle la notificacion y el correo del registro del pago
                 if(results.rowCount > 0){
                     let id_cargo_generado = results.rows[0].id;
-                    response.status(200).json(results.rowCount)
-                }                
+                    respuesta.id_cargo = id_cargo_generado;
+                    respuesta.resultado = (id_cargo_generado != null);
+                    respuesta.mensaje = `${results.rowCount} fila afectada`;
+                    response.status(200).json(respuesta);
+                }else{
+                    respuesta.mensaje = "No se guardó el cargo.";
+                    response.status(200).json(respuesta);
+                }       
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -74,7 +108,7 @@ const registrarPago = (request, response) => {
 
 const getCatalogoCargos = (request, response) => {
     console.log("@getCatalogoCargos");
-    getCatalogo(QUERY.CARGOS,request,response);   
+    getCatalogo(QUERY.CARGOS,response);   
 };
 
 

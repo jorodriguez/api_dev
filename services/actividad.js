@@ -4,7 +4,7 @@ const handle = require('../helpers/handlersErrors');
 const mensajeria = require('./mensajesFirebase');
 const { validarToken } = require('../helpers/helperToken');
 
-const { getCatalogo } = require('./catagolosHelper');
+const { getCatalogo } = require('./sqlHelper');
 
 //obtener actividades
 const getCatalogoActividades = (request, response) => {
@@ -31,7 +31,7 @@ const getCatalogoActividades = (request, response) => {
              ) select array_to_json(array_agg(a.*))  as catalogo_actividades 
                FROM actividades a`;
 
-    getCatalogo(actividadesSql,request,response);
+    getCatalogo(actividadesSql,response);
    
 };
 
