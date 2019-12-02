@@ -7,12 +7,18 @@ update cat_cargo set seleccionar_fecha = true where id = 1;
 
 alter table CAT_CARGO add constraint check_monto_mayor_cero_precio check (precio >0 );
 
-
+/*
 insert into cat_cargo(nombre,descripcion,precio,notificar,sistema,escribir_cantidad,escribir_monto,genero)
 values('Posada','Posada ',850,true,false,false,true,1)
-
 insert into cat_cargo(nombre,descripcion,precio,notificar,sistema,escribir_cantidad,escribir_monto,genero)
 values('Cargo Especial','Cargo descrito',1,true,true,true,true,1);
+*/
 
 alter table co_cargo_balance_alumno  add column monto_modificado boolean default false not null;
 alter table co_cargo_balance_alumno  add column monto_original numeric;
+
+
+  update cat_cargo set escribir_cantidad = false,escribir_monto=false;
+    update cat_cargo set escribir_cantidad = true where id = 1000;
+
+  
