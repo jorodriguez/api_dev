@@ -512,21 +512,24 @@ const ejecutarProcesoSalidaAutomatica = () => {
                 }
 
                 console.log(JSON.stringify(results));
-                let ids = results.rows[0].ids;
+                if (results.rowCount > 0) {
+                    let ids = results.rows[0].ids;
 
-                if (ids != null) {
-                    console.log("ids " + ids);
-                    procesoSalidaAlumnos(ids, [], USUARIO_DEFAULT)
-                        .then((results) => {
-                            console.log("Resultado " + JSON.stringify(results));
-                            if (results.rowCount > 0) {
-                                enviarMensajeEntradaSalida(ids, SALIDA);
-                            }
-                        }).catch((e) => {
-                            console.log("Excepcion al sacar alumnos automaticamente " + e);
-                        });
-                } else { console.log("no existieron alumnos para salida automatica "); }
+                    if (ids != null) {
+                        console.log("ids " + ids);
+                        procesoSalidaAlumnos(ids, [], USUARIO_DEFAULT)
+                            .then((results) => {
+                                console.log("Resultado " + JSON.stringify(results));
+                                if (results.rowCount > 0) {
+                                    enviarMensajeEntradaSalida(ids, SALIDA);
+                                }
+                            }).catch((e) => {
+                                console.log("Excepcion al sacar alumnos automaticamente " + e);
+                            });
+                    } else { console.log("no existieron alumnos para salida automatica "); }
+                }
             });
+
 
     } catch (e) {
         console.log("@excepcion " + e);
