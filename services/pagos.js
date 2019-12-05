@@ -261,14 +261,8 @@ const obtenerMesesAdeudaMensualidad = (request, response) => {
     try {
 
         const { id_alumno } = request.params;
-
-<<<<<<< HEAD
-        console.log("Alumno "+id_alumno);
-        console.log("CARGOS.ID_CARGO_MENSUALIDAD " +CARGOS.ID_CARGO_MENSUALIDAD);
-=======
         console.log("ID alumno "+id_alumno);
         console.log("CARGOS.ID_CARGO_MENSUALIDAD "+CARGOS.ID_CARGO_MENSUALIDAD);
->>>>>>> ec13ce42c89b3edc7dd12c9b700aa84c6cf184a0
 
         getResultQuery(QUERY_MESES_SIN_CARGO_MESUALIDAD, [id_alumno, CARGOS.ID_CARGO_MENSUALIDAD], response);
 
