@@ -210,7 +210,8 @@ GET('/cargos', pagos.getCatalogoCargos);
 GET('/cargos/:id_alumno', pagos.getCargosAlumno);
 GET('/balance/:id_alumno', pagos.getBalanceAlumno);
 PUT('/cargos/:id_alumno', pagos.eliminarCargos);
-GET('/cargos/meses_adeuda/:id_alumno', pagos.obtenerMesesSinCargoMensualidad);
+app.get('/cargos/meses_adeuda/:id_alumno', pagos.obtenerMesesAdeudaMensualidad);
+//GET('/cargos/meses_adeuda/:id_alumno', pagos.obtenerMesesAdeudaMensualidad);
 
 GET('/formas_pagos', catagolos.getFormasPago);
 

@@ -23,24 +23,31 @@ const registrarCargo = (request, response) => {
             mensaje: ""
         };
 
-        if (cat_cargo.cat_cargo == CARGOS.ID_CARGO_MENSUALIDAD) {
-            if ((fecha_cargo == undefined || fecha_cargo == null)) {
+        console.log("CARGOS.ID_CARGO_MENSUALIDAD "+JSON.stringify(cat_cargo));
+
+        if (cat_cargo.id == CARGOS.ID_CARGO_MENSUALIDAD) {
+            if ((fecha_cargo == undefined || fecha_cargo == null || fecha_cargo.fecha_mes == undefined || fecha_cargo.fecha_mes == null)) {
                 respuesta.resultado = false;
-                respuesta.mensaje = "Se requiere la fecha del cargo.";
+                respuesta.mensaje = "Se requiere la fecha del cargo.";                
                 return response.status(200).json(respuesta);
             }
+            console.log("cat_cargo.cat_cargo  "+fecha_cargo.fecha_mes);
             //parametros para mensualidad
             sql = "select agregar_cargo_alumno($1,$2,$3,$4,$5,$6,$7);";
-            parametros = [new Date(fecha_cargo), id_alumno, cat_cargo.id, cantidad, monto, nota, genero];
+            parametros = [new Date(fecha_cargo.fecha_mes), id_alumno, cat_cargo.id, cantidad, monto, nota, genero];
         } else {
-            //no es mensualidad
-            if ((fecha_cargo == undefined || fecha_cargo == null)) {
+            //no es mensualidad            
+            sql = "select agregar_cargo_alumno(getDate(''),$1,$2,$3,$4,$5,$6);";
+            parametros = [id_alumno, cat_cargo.id, cantidad, monto, nota, genero];
+
+            /*if ((fecha_cargo == undefined || fecha_cargo == null)) {
                 sql = "select agregar_cargo_alumno(getDate(''),$1,$2,$3,$4,$5,$6);";
                 parametros = [id_alumno, cat_cargo.id, cantidad, monto, nota, genero];
             } else {
+                console.log("cat_cargo.cat_cargo  "+fecha_cargo.fecha_mes);
                 sql = "select agregar_cargo_alumno($1,$2,$3,$4,$5,$6,$7);";
                 parametros = [new Date(fecha_cargo), id_alumno, cat_cargo.id, cantidad, monto, nota, genero];
-            }
+            }*/
         }
 
         console.log("=====>> " + JSON.stringify(request.body));
@@ -255,6 +262,9 @@ const obtenerMesesAdeudaMensualidad = (request, response) => {
 
         const { id_alumno } = request.params;
 
+        console.log("ID alumno "+id_alumno);
+        console.log("CARGOS.ID_CARGO_MENSUALIDAD "+CARGOS.ID_CARGO_MENSUALIDAD);
+
         getResultQuery(QUERY_MESES_SIN_CARGO_MESUALIDAD, [id_alumno, CARGOS.ID_CARGO_MENSUALIDAD], response);
 
     } catch (e) {
@@ -264,41 +274,50 @@ const obtenerMesesAdeudaMensualidad = (request, response) => {
 
 
 const QUERY_MESES_SIN_CARGO_MESUALIDAD = `
-    with  serie_meses as (
-         SELECT g::date as fecha,
-                to_char(g::date,'mm')::int as numero_mes,	
-                to_char(g::date,'YY')::int as numero_anio,		
-                CASE to_char(g::date,'mm'):: int 
-                    WHEN 1 THEN 'ENERO' 
-                    WHEN 2 THEN 'FEBRERO' 
-                    WHEN 3 THEN 'MARZO' 
-                    WHEN 4 THEN 'ABRIL'
-                    WHEN 5 THEN 'MAYO' 
-                    WHEN 6 THEN 'JUNIO'
-                    WHEN 7 THEN 'JULIO'
-                    WHEN 8 THEN 'AGOSTO'
-                    WHEN 9 THEN 'SEPTIEMBRE'
-                    WHEN 10 THEN 'OCTUBRE'
-                    WHEN 11 THEN 'NOVIEMBRE'
-                    WHEN 12 THEN 'DICIEMBRE'
-                END as nombre_mes
-            FROM  generate_series(
-                    date_trunc('year', getDate(''))::timestamp,
-                    (date_trunc('year', getDate(''))) + (interval '1 year') - (interval '1 day'),
-                  '1 month')  g
-            ), meses_pagados AS (
-            select 
-                sm.fecha,	  
-                sm.nombre_mes,
-                count(cb.*) as cout_registro
-            from serie_meses sm inner join co_cargo_balance_alumno cb on to_char(cb.fecha,'MMYYYY') = to_char(sm.fecha,'MMYYYY')
-            where cb.co_balance_alumno = (select co_balance_alumno from co_alumno where id = $1 and eliminado = false) 
-                and cb.cat_cargo = $2
-                and cb.eliminado = false
-        group by  sm.nombre_mes,sm.fecha
-      order by sm.fecha
-    ) select (mp.cout_registro is not null) as cargo_registrado, *	   
-    from serie_meses s left join meses_pagados mp on mp.fecha = s.fecha
+with  serie_meses as (
+    SELECT g::date as fecha_mes,
+           to_char(g::date,'mm')::int as numero_mes,	
+           to_char(g::date,'YY')::int as numero_anio,		
+           CASE to_char(g::date,'mm'):: int 
+               WHEN 1 THEN 'ENERO' 
+               WHEN 2 THEN 'FEBRERO' 
+               WHEN 3 THEN 'MARZO' 
+               WHEN 4 THEN 'ABRIL'
+               WHEN 5 THEN 'MAYO' 
+               WHEN 6 THEN 'JUNIO'
+               WHEN 7 THEN 'JULIO'
+               WHEN 8 THEN 'AGOSTO'
+               WHEN 9 THEN 'SEPTIEMBRE'
+               WHEN 10 THEN 'OCTUBRE'
+               WHEN 11 THEN 'NOVIEMBRE'
+               WHEN 12 THEN 'DICIEMBRE'
+           END as nombre_mes
+       FROM  generate_series(
+               date_trunc('year', getDate(''))::timestamp,
+               (date_trunc('year', getDate(''))) + (interval '1 year') - (interval '1 day'),
+             '1 month')  g
+       ), meses_pagados AS (
+       select 
+            sm.fecha_mes as fecha_registrado,
+           sm.nombre_mes,
+           count(cb.*) as count_registro
+       from serie_meses sm inner join co_cargo_balance_alumno cb on to_char(cb.fecha,'MMYYYY') = to_char(sm.fecha_mes,'MMYYYY')
+       where cb.co_balance_alumno = (select co_balance_alumno from co_alumno where id = $1 and eliminado = false) 
+           and cb.cat_cargo = $2
+           and cb.eliminado = false
+      group by  sm.nombre_mes,sm.fecha_mes
+      order by sm.fecha_mes
+    ) select (mp.count_registro is not null) as cargo_registrado,
+                s.fecha_mes::text,
+                s.nombre_mes,
+                s.fecha_mes,
+                s.numero_mes,
+                s.numero_anio,
+                mp.nombre_mes as nombre_mes_registro_cargo,								
+                mp.nombre_mes as fecha_mes_registro_cargo,								
+                mp.nombre_mes as numero_mes_registro_cargo,	
+                mp.nombre_mes as numero_anio_registro_cargo
+        from serie_meses s left join meses_pagados mp on mp.fecha_registrado = s.fecha_mes
 `;
 
 
