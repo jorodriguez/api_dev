@@ -2,7 +2,7 @@
 const Pool = require('pg').Pool
 
 //const { dbParams } = require('../config/config');
-/*
+
 const dbParams = {
     user: 'vbkxmhcwhsnoxe',
     host: 'ec2-54-243-197-120.compute-1.amazonaws.com',
@@ -10,11 +10,10 @@ const dbParams = {
     password: 'ba3232ca7f43cbd24ae67032e8a29a530e7f2e50b7a68b7d9e63ff545e6d04fb',
     port: 5432,
     ssl: { rejectUnauthorized: false }
-}*/
-
+}
 
 //db desarrollo
-
+/*
 const dbParams = {
     user: 'pffyesodvpvsrp',
     host: 'ec2-174-129-242-183.compute-1.amazonaws.com',
@@ -23,7 +22,7 @@ const dbParams = {
     port: 5432,
     ssl: { rejectUnauthorized: false }
 }
-
+*/
 //const dbParams = dbParamsDev;
 
 const pool = new Pool({
