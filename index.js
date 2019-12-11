@@ -363,17 +363,15 @@ schedule.scheduleJob('0 */10 12-24 * * 1-5', function () {
 	}
 });
 
-schedule.scheduleJob('0 */31 * * * 1-5', function () {
+//schedule.scheduleJob('0 */31 * * * 1-5', function () {
 	//schedule.scheduleJob('0 */31 * * * 1-5', function () {
-	console.log('CALCULANDO CARGOS DE HORAS EXTRAS DE ALUMNOS ' + new Date());
-	try {
-		//tareas_programadas.ejecutarProcesoHorasExtrasAuto();
-
-	} catch (e) {
-		console.log("Error al ejecutar el proceso de calculo de horas extras " + e);
-	}
-
-});
+	//console.log('CALCULANDO CARGOS DE HORAS EXTRAS DE ALUMNOS ' + new Date());
+	//try {
+	//	//tareas_programadas.ejecutarProcesoHorasExtrasAuto(); desabilitado
+	//} catch (e) {
+//		console.log("Error al ejecutar el proceso de calculo de horas extras " + e);
+//	}
+//});
 
 
 //schedule.scheduleJob('0 */33 * * * 1-5', function () {

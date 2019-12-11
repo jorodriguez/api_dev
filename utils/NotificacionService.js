@@ -105,7 +105,8 @@ function enviarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, id
                     cargo.fecha,
                     cargo.cantidad,
                     cargo.total, 
-                    cargo.nota
+                    cargo.nota,
+                    cargo.texto_ayuda
                 from co_cargo_balance_alumno cargo inner join cat_cargo cat on cat.id = cargo.cat_cargo
                 where cargo.id = $1 and cargo.eliminado = false
             `, [id_cargo],
@@ -190,13 +191,15 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
             WITH relacion_cargos AS (
 	            SELECT  cargo.id,
 			        rel.pago,
-			        cat.nombre as nombre_cargo,			
+                    cat.nombre as nombre_cargo,			
+                    cargo.texto_ayuda, --nombre del mes
 			        cargo.pagado,
 			        cargo.nota as nota_cargo,
 			        cargo.cantidad,
 			        cargo.cargo,
 			        cargo.total,
-			        cargo.total_pagado			
+                    cargo.total_pagado,
+                    cat.es_facturable
 		        FROM co_pago_cargo_balance_alumno rel inner join co_cargo_balance_alumno cargo on rel.co_cargo_balance_alumno = cargo.id									
 												inner join cat_cargo cat on cat.id = cargo.cat_cargo												
  		        WHERE rel.co_pago_balance_alumno = $1 and cargo.eliminado = false
@@ -249,7 +252,8 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                             forma_pago: row.forma_pago,
                             factura: row.identificador_factura,
                             numero_cargos: row.count_cargos,
-                            cargos: row.cargos
+                            cargos: row.cargos,
+                            escribir_folio_factura: (row.identificador_factura != null && row.identificador_factura != '')
                         },
                         alumno: {
                             nombre: row.nombre_alumno,
@@ -601,6 +605,7 @@ function obtenerCargos(id_alumno) {
                 b.fecha,
                 b.cantidad,
                 cargo.nombre as nombre_cargo,
+                cargo.texto_ayuda,
                 cat_cargo as id_cargo,
                 cargo.es_facturable,
                 b.total as total,
