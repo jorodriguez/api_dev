@@ -34,7 +34,7 @@ const mailOptions = {
     cc: 'info@magicintelligence.com'
 };
 
-/*
+
 const transporter = nodemailer.createTransport({
     host: 'mail.magicintelligence.com',
     port: 465,
@@ -47,7 +47,7 @@ const transporter = nodemailer.createTransport({
     tls: {
         ciphers: 'SSLv3'
     }
-});*/
+});
 
 //const transporter = nodemailer.createTransport(process.env.MAIL_PARAMS);
 
