@@ -9,7 +9,7 @@ dotenv.config();
 //heroku pg:psql postgresql-sinuous-19615 --app develop1
 
 //BASE DE DATOS DE DESARROLLO
-
+/*
 module.exports = {    
     dbParams:{
         user: 'pffyesodvpvsrp',
@@ -20,7 +20,7 @@ module.exports = {
         ssl: { rejectUnauthorized: false }
     },
     'secret': 'supersecret'   
-};
+};*/
 
 //BASE DE DATOS DE PRODUCCION
 /*

@@ -16,11 +16,11 @@ const dbParams = {
 //db desarrollo
 
 const dbParams = {
-    user: 'pffyesodvpvsrp',
-    host: 'ec2-174-129-242-183.compute-1.amazonaws.com',
-    database: 'd83inhs3bq9ufb',
-    password: 'f4de35950e23261169a79f8ac3007630aaefc8ff887c147b9283a8f68b165019',
-    port: 5432,
+    user: (process.env.USER || 'pffyesodvpvsrp'),
+    host: (process.env.HOST || 'ec2-174-129-242-183.compute-1.amazonaws.com'),
+    database: (process.env.DATABASE || 'd83inhs3bq9ufb'),
+    password: (process.env.PASSWORD ||'f4de35950e23261169a79f8ac3007630aaefc8ff887c147b9283a8f68b165019'),
+    port: (process.env.PORT ||5432),
     ssl: { rejectUnauthorized: false }
 }
 

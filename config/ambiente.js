@@ -6,8 +6,8 @@
 module.exports = {
     configuracion: {
         'secret': 'supersecret',
-        env: '"DEV"',
-        enviar_mensajes: false
+        env:  (process.env.AMBIENTE || '"DEV"'),
+        enviar_mensajes: (process.env.ENVIAR_MENSAJES || false)
     }
 };
 

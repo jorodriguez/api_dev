@@ -34,7 +34,7 @@ const mailOptions = {
     cc: 'info@magicintelligence.com'
 };
 
-
+/*
 const transporter = nodemailer.createTransport({
     host: 'mail.magicintelligence.com',
     port: 465,
@@ -48,6 +48,8 @@ const transporter = nodemailer.createTransport({
         ciphers: 'SSLv3'
     }
 });
+*/
+const transporter = nodemailer.createTransport(process.env.MAIL_PARAMS);
 
 const enviarCorreoTest = (request, response) => {
     console.log("Enviando correo de prueba ");
