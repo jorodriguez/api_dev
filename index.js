@@ -306,7 +306,8 @@ GET('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes', reporteDeudas.getR
 
 
 app.get('/', (request, response) => {
-	response.json({ info: 'MagicIntelligence API v1.0.21',"vars":JSON.stringify(process.env)})
+	console.log(process.env);
+	response.json({ info: 'MagicIntelligence API v1.0.21'})
 });
 
 app.listen(port, () => {
