@@ -47,9 +47,9 @@ const transporter = nodemailer.createTransport({
     tls: {
         ciphers: 'SSLv3'
     }
-});
-*/
-const transporter = nodemailer.createTransport(process.env.MAIL_PARAMS);
+});*/
+
+//const transporter = nodemailer.createTransport(process.env.MAIL_PARAMS);
 
 const enviarCorreoTest = (request, response) => {
     console.log("Enviando correo de prueba ");
