@@ -486,7 +486,7 @@ DECLARE
 	id_balance_alumno integer;
 	existe_cargo boolean := false;
 	proceder_insert boolean := true;
-							
+	texto_ayuda text :='';						
 BEGIN    
 	raise notice 'AGREGAR CARGO';	
 	fecha_current := getDate('');
@@ -520,6 +520,10 @@ BEGIN
 													AND to_char(fecha::date,'MMYYYY') =  to_char(fecha_cargo,'MMYYYY')
 													AND eliminado = false
 						INTO existe_cargo;		
+							
+						--llenar el campo texto_ayuda con el nombre del mes
+						select coalesce(initcap(nombre),'-') from si_meses where id = to_char(fecha_cargo::date,'mm')::int 
+						INTO texto_ayuda;
 				
 						raise notice 'el cargo de mensualidad existe ? %',existe_cargo;
 						IF existe_cargo THEN
@@ -537,8 +541,7 @@ BEGIN
 					raise notice 'ningun cargo especial se toma el precio del catalogo' ;
 					cargo_aplicar := cargo_record.precio;		
 		END CASE;		
-	
-	
+		
 		-- registrar detalle					
 		raise notice 'PROCEDER AL INSERRT %',proceder_insert;
 		
@@ -553,7 +556,7 @@ BEGIN
 			END IF;
 				--(getDate('')+getHora(''))::timestamp
 				INSERT INTO co_cargo_balance_alumno(CO_BALANCE_ALUMNO,Cat_Cargo,FECHA,CANTIDAD,CARGO,
-													TOTAL,NOTA,MONTO_MODIFICADO,MONTO_ORIGINAL,fecha_genero,GENERO)
+													TOTAL,NOTA,MONTO_MODIFICADO,MONTO_ORIGINAL,TEXTO_AYUDA,fecha_genero,GENERO)
 				VALUES(
 							balance_record.ID,
 							id_cargo,
@@ -564,6 +567,7 @@ BEGIN
 							nota,
 							monto_modificado,
 							cargo_original,
+							texto_ayuda,
 							(getDate('')+getHora(''))::timestamp,
 							id_genero
 				) RETURNING ID 
@@ -584,8 +588,6 @@ BEGIN
 	return (select retorno);
 END;
 $function$
-			
-
 
 
 //** nueva version con cambios del procedimiento de agregar cargo

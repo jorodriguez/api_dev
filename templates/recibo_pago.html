@@ -125,9 +125,15 @@
                         <!--<th>Nota</th>-->
                     </tr>
                     <!-- {{#pagado}} PAGADO {{/pagado}}-->
-                    {{#pago.cargos}}
+                    {{#pago.cargos}} <!-- IF -->
                     <tr style="text-align:center">                        
-                        <td style="border-bottom:1pt solid #57A8B6;">{{nombre_cargo}}</td>
+                        <td style="border-bottom:1pt solid #57A8B6;">{{nombre_cargo}} {{texto_ayuda}} 
+                          {{#es_facturable}}
+                            {{#pago.escribir_folio_factura}}
+                             <small style="color:blue;" > (Factura {{pago.factura}})</small>
+                             {{/pago.escribir_folio_factura}}
+                          {{/es_facturable}}
+                        </td>
                         <td style="border-bottom:1pt solid #57A8B6;">{{cantidad}}</td>
                         <td style="border-bottom:1pt solid #57A8B6;text-align:right" align="right">${{cargo}}</td>
                         <td style="border-bottom:2pt solid #57A8B6;text-align:right" align="right">${{total_pagado}}</td>
