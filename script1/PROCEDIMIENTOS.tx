@@ -451,6 +451,8 @@ LANGUAGE 'plpgsql';
 // Agregar la fecha y demas parametros para escribir el monto
 /************************************************************************/
 
+
+
 CREATE OR REPLACE FUNCTION agregar_cargo_alumno(
 		fecha_cargo date,id_alumno integer, id_cargo integer, cantidad integer,monto numeric,nota text, id_genero integer
 	)
@@ -704,12 +706,14 @@ bEGIN
 								  	hora_inicio_hora_extra,hora_fin_hora_extra,fecha_current,ID_GENERO);							
 							
 							--fecha date,id_alumno integer, id_cargo integer, cantidad integer,monto numeric,folio_mensualidad text,nota text, id_genero integer												
+							--fecha_cargo date,id_alumno integer, id_cargo integer, cantidad integer,monto numeric,nota text, id_genero integer
+							raise notice 'fecha %',fecha_current;
+							
 							PERFORM agregar_cargo_alumno(
-														fecha_current,
+														fecha_current::date,
 														asistencia.co_alumno,
-														ID_HORA_EXTRA,1,0,'',
-														'Cargo por Tiempo Extra del '||fecha_current::date||', de '||hora_inicio_hora_extra::time||' a '||(hora_fin_hora_extra)::time||', alumno '
-														||asistencia.nombre_alumno||'.'
+														ID_HORA_EXTRA,1,0,
+														'Cargo por Tiempo Extra del '||fecha_current::date||', de '||hora_inicio_hora_extra::time||' a '||(hora_fin_hora_extra)::time||', alumno '||asistencia.nombre_alumno||'.'
 														,ID_GENERO);
 								
 						--insertar en notificaciones
