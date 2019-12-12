@@ -138,7 +138,8 @@ function enviarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, id
                             forma_pago: row.forma_pago,
                             factura: row.identificador_factura,
                             numero_cargos: row.count_cargos,
-                            cargos: row.cargos
+                            cargos: row.cargos,
+                            escribir_folio_factura:(row.identificador_factura != null && row.identificador_factura != '')
                         },
                         alumno: {
                             nombre: row.nombre_alumno,
