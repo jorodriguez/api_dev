@@ -1,7 +1,7 @@
 
 const { pool } = require('../db/conexion');
 
-const { dbParams } = require('../config/config');
+const { dbParams } = require('../config/configJwt');
 const handle = require('../helpers/handlersErrors');
 const { validarToken } = require('../helpers/helperToken');
 const mensajeria = require('./mensajesFirebase');
