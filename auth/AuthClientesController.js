@@ -1,8 +1,8 @@
 
 const { pool } = require('../db/conexion');
-var jwt = require('jsonwebtoken');
-var bcrypt = require('bcryptjs');
-var config = require('../config/config');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const config = require('../config/configJwt');
 const handle = require('../helpers/handlersErrors');
 
 const helperToken = require('../helpers/helperTokenMovil');

@@ -124,28 +124,30 @@ const getCargosAlumno = (request, response) => {
         var id_alumno = request.params.id_alumno;
 
         getResultQuery(
-            " SELECT a.co_balance_alumno," +
-            "   b.id as id_cargo_balance_alumno," +
-            "   b.fecha," +
-            "   b.cantidad," +
-            "   cargo.nombre as nombre_cargo," +
-            "   cat_cargo as id_cargo," +
-            "   cargo.es_facturable," +
-            "   b.total as total," +
-            "   b.cargo," +
-            "   b.total_pagado," +
-            "   b.nota," +
-            "   b.pagado ," +
-            "   false as checked ," +
-            "   0 as pago " +
-            " FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno " +
-            "                               inner join cat_cargo cargo on b.cat_cargo = cargo.id					" +
-            " WHERE a.id = $1 and b.eliminado = false and a.eliminado = false" +
-            "  ORDER by b.pagado, b.fecha desc" +
-            " LIMIT 20",
+            ` SELECT a.co_balance_alumno,
+               b.id as id_cargo_balance_alumno,
+               b.fecha,
+               b.cantidad,
+               cargo.nombre as nombre_cargo,
+               b.texto_ayuda,
+               cat_cargo as id_cargo,
+               cargo.es_facturable,
+               b.total as total,
+               b.cargo,
+               b.total_pagado,
+               b.nota,
+               b.pagado,
+               false as checked ,
+               0 as pago 
+             FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
+                                           inner join cat_cargo cargo on b.cat_cargo = cargo.id					
+             WHERE a.id = $1 and b.eliminado = false and a.eliminado = false
+              ORDER by b.pagado, b.fecha desc
+             LIMIT 20 `,
             [id_alumno],
             response);
     } catch (e) {
+        console.log("ERROR "+e);
         handle.callbackErrorNoControlado(e, response);
     }
 };
@@ -277,7 +279,8 @@ with  serie_meses as (
     SELECT g::date as fecha_mes,
            to_char(g::date,'mm')::int as numero_mes,	
            to_char(g::date,'YY')::int as numero_anio,		
-           CASE to_char(g::date,'mm'):: int 
+           (select nombre from si_meses where id = to_char(g::date,'mm')::int) as nombre_mes
+           /*CASE to_char(g::date,'mm'):: int 
                WHEN 1 THEN 'ENERO' 
                WHEN 2 THEN 'FEBRERO' 
                WHEN 3 THEN 'MARZO' 
@@ -290,7 +293,7 @@ with  serie_meses as (
                WHEN 10 THEN 'OCTUBRE'
                WHEN 11 THEN 'NOVIEMBRE'
                WHEN 12 THEN 'DICIEMBRE'
-           END as nombre_mes
+           END as nombre_mes*/
        FROM  generate_series(
                date_trunc('year', getDate(''))::timestamp,
                (date_trunc('year', getDate(''))) + (interval '1 year') - (interval '1 day'),

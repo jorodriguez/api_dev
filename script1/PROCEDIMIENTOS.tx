@@ -451,6 +451,8 @@ LANGUAGE 'plpgsql';
 // Agregar la fecha y demas parametros para escribir el monto
 /************************************************************************/
 
+
+
 CREATE OR REPLACE FUNCTION agregar_cargo_alumno(
 		fecha_cargo date,id_alumno integer, id_cargo integer, cantidad integer,monto numeric,nota text, id_genero integer
 	)
@@ -484,7 +486,7 @@ DECLARE
 	id_balance_alumno integer;
 	existe_cargo boolean := false;
 	proceder_insert boolean := true;
-							
+	texto_ayuda text :='';						
 BEGIN    
 	raise notice 'AGREGAR CARGO';	
 	fecha_current := getDate('');
@@ -518,6 +520,10 @@ BEGIN
 													AND to_char(fecha::date,'MMYYYY') =  to_char(fecha_cargo,'MMYYYY')
 													AND eliminado = false
 						INTO existe_cargo;		
+							
+						--llenar el campo texto_ayuda con el nombre del mes
+						select coalesce(initcap(nombre),'-') from si_meses where id = to_char(fecha_cargo::date,'mm')::int 
+						INTO texto_ayuda;
 				
 						raise notice 'el cargo de mensualidad existe ? %',existe_cargo;
 						IF existe_cargo THEN
@@ -535,8 +541,7 @@ BEGIN
 					raise notice 'ningun cargo especial se toma el precio del catalogo' ;
 					cargo_aplicar := cargo_record.precio;		
 		END CASE;		
-	
-	
+		
 		-- registrar detalle					
 		raise notice 'PROCEDER AL INSERRT %',proceder_insert;
 		
@@ -551,7 +556,7 @@ BEGIN
 			END IF;
 				--(getDate('')+getHora(''))::timestamp
 				INSERT INTO co_cargo_balance_alumno(CO_BALANCE_ALUMNO,Cat_Cargo,FECHA,CANTIDAD,CARGO,
-													TOTAL,NOTA,MONTO_MODIFICADO,MONTO_ORIGINAL,fecha_genero,GENERO)
+													TOTAL,NOTA,MONTO_MODIFICADO,MONTO_ORIGINAL,TEXTO_AYUDA,fecha_genero,GENERO)
 				VALUES(
 							balance_record.ID,
 							id_cargo,
@@ -562,6 +567,7 @@ BEGIN
 							nota,
 							monto_modificado,
 							cargo_original,
+							texto_ayuda,
 							(getDate('')+getHora(''))::timestamp,
 							id_genero
 				) RETURNING ID 
@@ -582,8 +588,6 @@ BEGIN
 	return (select retorno);
 END;
 $function$
-			
-
 
 
 //** nueva version con cambios del procedimiento de agregar cargo
@@ -704,12 +708,14 @@ bEGIN
 								  	hora_inicio_hora_extra,hora_fin_hora_extra,fecha_current,ID_GENERO);							
 							
 							--fecha date,id_alumno integer, id_cargo integer, cantidad integer,monto numeric,folio_mensualidad text,nota text, id_genero integer												
+							--fecha_cargo date,id_alumno integer, id_cargo integer, cantidad integer,monto numeric,nota text, id_genero integer
+							raise notice 'fecha %',fecha_current;
+							
 							PERFORM agregar_cargo_alumno(
-														fecha_current,
+														fecha_current::date,
 														asistencia.co_alumno,
-														ID_HORA_EXTRA,1,0,'',
-														'Cargo por Tiempo Extra del '||fecha_current::date||', de '||hora_inicio_hora_extra::time||' a '||(hora_fin_hora_extra)::time||', alumno '
-														||asistencia.nombre_alumno||'.'
+														ID_HORA_EXTRA,1,0,
+														'Cargo por Tiempo Extra del '||fecha_current::date||', de '||hora_inicio_hora_extra::time||' a '||(hora_fin_hora_extra)::time||', alumno '||asistencia.nombre_alumno||'.'
 														,ID_GENERO);
 								
 						--insertar en notificaciones

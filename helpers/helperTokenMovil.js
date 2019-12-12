@@ -1,5 +1,5 @@
 
-const config = require('../config/config');
+const config = require('../config/configJwt');
 const jwt = require('jsonwebtoken');
 
 const noTokenProvider={ auth: false, message: 'No token provided.' };
