@@ -64,6 +64,8 @@ const createAlumno = (request, response) => {
                     hora_salida,costo_inscripcion,costo_colegiatura,
                     minutos_gracia,foto,fecha_inscripcion,fecha_reinscripcion,
                     fecha_limite_pago_mensualidad,
+                    numero_dia_limite_pago,
+                    numero
                     sexo,
                     genero) 
                  VALUES(
@@ -72,7 +74,8 @@ const createAlumno = (request, response) => {
                     $7,$8,$9,
                     $10,$11,$12,
                     $13,$14,($14::date + interval '1 year'),
-                    ($14::date + interval '7 days'),
+                    ($14::date + (interval '1 month') + (interval '7 days')),
+                    to_char($14,'dd')::integer,
                     $15,
                     $16
                 ) RETURNING id;`
@@ -155,26 +158,27 @@ const updateAlumno = (request, response) => {
 
         new Promise((resolve, reject) => {
             pool.query(
-                "UPDATE CO_ALUMNO  " +
-                "SET nombre = $2, " +
-                "apellidos = $3 ," +
-                "fecha_nacimiento = $4::date," +
-                "alergias = $5," +
-                "nota = $6," +
-                "hora_entrada = $7," +
-                "hora_salida=$8," +
-                "costo_inscripcion = $9," +
-                "costo_colegiatura = $10," +
-                "minutos_gracia = $11," +
-                "foto= $12," +
-                "fecha_reinscripcion = $13," +
-                "co_grupo = $14, " +
-                "nombre_carino = $15, " +
-                "sexo = $16 ," +
-                "modifico = $17, " +
-                "fecha_inscripcion = $18, " +
-                "fecha_limite_pago_mensualidad = $19 " +
-                " WHERE id = $1",
+                `UPDATE CO_ALUMNO  
+                SET nombre = $2, 
+                apellidos = $3 ,
+                fecha_nacimiento = $4::date,
+                alergias = $5,
+                nota = $6,
+                hora_entrada = $7,
+                hora_salida=$8,
+                costo_inscripcion = $9,
+                costo_colegiatura = $10,
+                minutos_gracia = $11,
+                foto= $12,
+                fecha_reinscripcion = $13,
+                co_grupo = $14, 
+                nombre_carino = $15, 
+                sexo = $16 ,
+                 modifico = $17, 
+                fecha_inscripcion = $18, 
+                fecha_limite_pago_mensualidad = $19,
+                numero_dia_limite_pago = to_char($19::date,'dd')::integer,
+                 WHERE id = $1`,
                 [
                     id,
                     alumno.nombre, alumno.apellidos, (alumno.fecha_nacimiento == "" ? null : alumno.fecha_nacimiento), alumno.alergias,

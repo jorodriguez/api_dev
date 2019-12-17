@@ -7,3 +7,13 @@ update co_alumno set numero_dia_limite_pago = 7;
 
 update co_alumno 
 set fecha_limite_pago_mensualidad = (numero_dia_limite_pago::text||'-'||to_char(getDate(''),'mm')||'-'||to_char(getDate(''),'YYYY'))::date;
+
+
+--los que ya pagaron su mensualidad de diciembre el proximo aviso sera en enero
+update co_alumno 
+	set fecha_limite_pago_mensualidad = ('2019-12-07'::date + interval '1 month ')
+where co_balance_alumno in
+(select cargo.co_balance_alumno
+from co_pago_cargo_balance_alumno rel inner join co_Cargo_balance_alumno cargo on cargo.id = rel.co_Cargo_balance_alumno
+where cargo.cat_cargo = 1 and to_char(cargo.fecha,'mmYYYY') = '122019' )
+
