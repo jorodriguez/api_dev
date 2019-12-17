@@ -56,28 +56,32 @@ const createAlumno = (request, response) => {
 
         console.log("insertando alumno");
         new Promise((resolve, reject) => {
-            pool.query("INSERT INTO CO_ALUMNO(" +
-                "co_sucursal,co_grupo," +
-                "nombre,apellidos,fecha_nacimiento," +
-                "alergias,nota,hora_entrada," +
-                "hora_salida,costo_inscripcion,costo_colegiatura," +
-                "minutos_gracia,foto,fecha_inscripcion,fecha_reinscripcion," +
-                "sexo," +
-                "genero" +
-                " ) " +
-                " VALUES(" +
-                " $1,$2,$3," +
-                " $4,$5,$6," +
-                " $7,$8,$9," +
-                " $10,$11,$12," +
-                " $13,$14,(getDate('') + interval '1 year'),$15,$16" +
-                ") RETURNING id;"
+            pool.query(`
+                INSERT INTO CO_ALUMNO(
+                    co_sucursal,co_grupo,
+                    nombre,apellidos,fecha_nacimiento,
+                    alergias,nota,hora_entrada,
+                    hora_salida,costo_inscripcion,costo_colegiatura,
+                    minutos_gracia,foto,fecha_inscripcion,fecha_reinscripcion,
+                    fecha_limite_pago_mensualidad,
+                    sexo,
+                    genero) 
+                 VALUES(
+                    $1,$2,$3,
+                    $4,$5,$6,
+                    $7,$8,$9,
+                    $10,$11,$12,
+                    $13,$14,($14::date + interval '1 year'),
+                    ($14::date + interval '7 days'),
+                    $15,
+                    $16
+                ) RETURNING id;`
                 , [
                     p.co_sucursal, p.co_grupo,
                     p.nombre, p.apellidos, p.fecha_nacimiento,
                     p.alergias, p.nota, p.hora_entrada,
                     p.hora_salida, p.costo_inscripcion, p.costo_colegiatura,
-                    p.minutos_gracia, p.foto, p.fecha_inscripcion,
+                    p.minutos_gracia, p.foto, p.fecha_inscripcion,                    
                     p.sexo,
                     p.genero
                 ],
@@ -168,7 +172,8 @@ const updateAlumno = (request, response) => {
                 "nombre_carino = $15, " +
                 "sexo = $16 ," +
                 "modifico = $17, " +
-                "fecha_inscripcion = $18 " +
+                "fecha_inscripcion = $18, " +
+                "fecha_limite_pago_mensualidad = $19 " +
                 " WHERE id = $1",
                 [
                     id,
@@ -178,7 +183,8 @@ const updateAlumno = (request, response) => {
                     alumno.foto, (alumno.fecha_reinscripcion == "" ? null : alumno.fecha_reinscripcion),
                     alumno.co_grupo, alumno.nombre_carino,
                     alumno.sexo, alumno.genero,
-                    (alumno.fecha_inscripcion == "" ? null : alumno.fecha_inscripcion)
+                    (alumno.fecha_inscripcion == "" ? null : alumno.fecha_inscripcion),
+                    alumno.fecha_limite_pago_mensualidad
                 ],
                 (error, results) => {
                     if (error) {

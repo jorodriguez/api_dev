@@ -1,0 +1,9 @@
+
+alter table co_alumno add column numero_dia_limite_pago integer default 0;
+alter table co_alumno add column fecha_limite_pago_mensualidad date;
+
+
+update co_alumno set numero_dia_limite_pago = 7;
+
+update co_alumno 
+set fecha_limite_pago_mensualidad = (numero_dia_limite_pago::text||'-'||to_char(getDate(''),'mm')||'-'||to_char(getDate(''),'YYYY'))::date;
