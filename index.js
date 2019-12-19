@@ -313,7 +313,7 @@ app.get('/', (request, response) => {
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.23 :::::: ${ JSON.stringify(configuracion)} ${JSON.stringify(process.env)}`)
+	console.log(`App corriendo en el puerto ${port} v1.0.23 :::::: ${ JSON.stringify(configuracion)} ${JSON.stringify(process.env.ENV)}`)
 });
 
 //GET('/encriptar/:clave', authController.encriptar);
