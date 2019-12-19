@@ -228,11 +228,11 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
 									inner join co_grupo grupo on al.co_grupo = grupo.id
 									inner join co_sucursal suc on al.co_sucursal = suc.id									
 	            where pago.id = $2
-                group by pago.id,fpago.nombre,al.nombre,al.apellidos,grupo.nombre,suc.nombre,suc.direccion 
+                group by pago.id,fpago.nombre,al.nombre,al.apellidos,grupo.nombre,suc.id,suc.nombre,suc.direccion 
           `, [id_pago, id_pago],
         (error, results) => {
             if (error) {
-                console.log("No se envio el correo del recibo");
+                console.log("No se envio el correo del recibo Fallo algo en el query");
                 return;
             }
             if (results.rowCount > 0) {
@@ -304,7 +304,7 @@ const enviarCorreoReciboPago = (para, asunto, params) => {
                     if (result != null && result.rowCount > 0) {
                         cc = result.rows[0].correos_copia;
                     }
-
+                    
                     enviarCorreo(para, cc, asunto, renderHtml);
 
                 });
