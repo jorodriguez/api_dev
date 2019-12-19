@@ -34,6 +34,8 @@ const { validarTokenCompleto } = require('./helpers/helperToken');
 const asistenciaUsuario = require('./services/asistencia_usuario');
 //const tiendaService = require('./services/tiendaService');
 
+//const { pool } = require('./db/conexion');
+
 const port = process.env.PORT || 5000;
 
 //es un middleware que serializa los cuerpos de las respuestas 
@@ -311,7 +313,7 @@ app.get('/', (request, response) => {
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.23`)
+	console.log(`App corriendo en el puerto ${port} v1.0.23 :::::: ${ JSON.stringify(configuracion)} ${JSON.stringify(process.env)}`)
 });
 
 //GET('/encriptar/:clave', authController.encriptar);
@@ -330,7 +332,7 @@ schedule.scheduleJob('0 */10 12-24 * * 1-5', function () {
 	//schedule.scheduleJob('0 */2 * * * 1-5', function () {
 	console.log("========== MANTENIENDO VIVA LA APP ==================");
 	try {
-		if (configuracion.env != 'DEV') {
+		if (configuracion.env == 'PRODUCTION') {
 
 			https.get('https://api-ambiente-produccion.herokuapp.com', (response) => {
 				let todo = '';

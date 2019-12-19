@@ -15,8 +15,8 @@ module.exports = {
 module.exports = {
     configuracion: {
         'secret': 'supersecret',
-        env: '"PRODUCTION"',
-        enviar_mensajes: true
+        env: process.env.ENV,
+        enviar_mensajes: (process.env.SEND_MESSAGE_MOVIL == 'true'),
     }
 };
 
