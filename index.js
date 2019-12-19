@@ -276,7 +276,7 @@ app.put('/cliente/:id_familiar', actividad_reporte.updateDatosFamiliar);
 //app.get('/productos/:pagina',tiendaService.getProductos);
 
 //reset password
-GET('/reset_password/:id_familiar', familiar.resetPasswordFamiliar);
+GET('/reset_password/:id_familiar/:id_sucursal', familiar.resetPasswordFamiliar);
 
 //reporte de mensualidades facturadas
 GET('/reporte_mensualidades', reporte_mensualidades.getReporteContadoresSucursalesMesActual);
@@ -307,11 +307,11 @@ GET('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes', reporteDeudas.getR
 
 app.get('/', (request, response) => {
 	console.log(process.env);
-	response.json({ info: 'MagicIntelligence API v1.0.22'})
+	response.json({ info: 'MagicIntelligence API v1.0.23'})
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.22`)
+	console.log(`App corriendo en el puerto ${port} v1.0.23`)
 });
 
 //GET('/encriptar/:clave', authController.encriptar);
@@ -420,6 +420,6 @@ schedule.scheduleJob({hour: 20, minute: 0}, function () {
 		} catch (e) {
 			console.log("Error al ejecutar el proceso de revision de salida " + e);
 		}
-	});
+});
 	
 
