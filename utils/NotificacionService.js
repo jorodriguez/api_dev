@@ -31,7 +31,7 @@ const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
 
     //Debe de ir el nombre de la empresa-s
 const mailOptions = {
-    from: 'Mi Guardería <info@magicintelligence.com>',
+    from: 'Magic Intelligence <info@magicintelligence.com>',
     cc: 'info@magicintelligence.com'
 };
 
