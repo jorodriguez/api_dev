@@ -41,7 +41,7 @@ const transporter = nodemailer.createTransport({
     secureConnection: false,
     auth: {
         user: 'info@magicintelligence.com',
-        pass:'Clave.01'
+        pass: 'Clave.01'
         //pass: 'Secreta.03'
     },
     tls: {
@@ -139,7 +139,7 @@ function enviarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, id
                             factura: row.identificador_factura,
                             numero_cargos: row.count_cargos,
                             cargos: row.cargos,
-                            escribir_folio_factura:(row.identificador_factura != null && row.identificador_factura != '')
+                            escribir_folio_factura: (row.identificador_factura != null && row.identificador_factura != '')
                         },
                         alumno: {
                             nombre: row.nombre_alumno,
@@ -154,20 +154,20 @@ function enviarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, id
                     });
 
                 //enviar mensaje te text
-                enviarMensajeMovil(lista_tokens,titulo_mensaje,cuerpo_mensaje);               
+                enviarMensajeMovil(lista_tokens, titulo_mensaje, cuerpo_mensaje);
 
             }
         });
 }
 
-function enviarMensajeMovil(tokens,titulo,cuerpo){
+function enviarMensajeMovil(tokens, titulo, cuerpo) {
     console.log("Enviando mensaje a movil");
     if (tokens != null && tokens != [] && tokens.length > 0) {
         console.log("Enviando msj al token " + tokens);
         mensajeria.enviarMensajeToken(tokens, titulo, cuerpo);
-    } else { 
+    } else {
         console.log("No existen tokens registrados ");
-     }
+    }
 
 }
 
@@ -213,7 +213,8 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
 		            TO_CHAR(pago.fecha, 'dd-mm-yyyy') as fecha,
 		            grupo.nombre as nombre_grupo,
 		            al.nombre as nombre_alumno,
-		            al.apellidos as apellidos_alumno,
+                    al.apellidos as apellidos_alumno,
+                    suc.id as id_sucursal,
 		            suc.nombre as nombre_sucursal,
 		            suc.direccion as direccion_sucursal,		
 		            count(cargo.id) as count_cargos,		
@@ -264,6 +265,7 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                             grupo: row.nombre_grupo
                         },
                         sucursal: {
+                            id: row.id_sucursal,
                             nombre: row.nombre_sucursal,
                             direccion: row.direccion_sucursal
                         },
@@ -272,7 +274,7 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                     });
 
                 //enviar mensaje te text
-                enviarMensajeMovil(lista_tokens,titulo_mensaje,cuerpo_mensaje);
+                enviarMensajeMovil(lista_tokens, titulo_mensaje, cuerpo_mensaje);
                 /*if (lista_tokens != null && lista_tokens != [] && lista_tokens.length > 0) {
                     console.log("Enviando msj al token " + lista_tokens);
                     mensajeria.enviarMensajeToken(lista_tokens, titulo_mensaje, cuerpo_mensaje);
@@ -287,37 +289,53 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
 const enviarCorreoReciboPago = (para, asunto, params) => {
     console.log("@enviarCorreoReciboPago");
 
-    loadTemplateReciboPago(params)
+    const ID_TEMA_NOTIFICACION_PAGOS = 2;
+
+    //loadTemplateReciboPago(params)
+    loadTemplate(TEMPLATE_RECIBO_PAGO,params)
         .then((renderHtml) => {
 
-            if (renderHtml != null) {
+            //obtener correos copia por sucursal y tema
+            obtenerCorreosCopiaPorTema(params.sucursal.id, ID_TEMA_NOTIFICACION_PAGOS)
+                .then(result => {
 
-                const mailData = {
-                    from: mailOptions.from,
-                    cc: mailOptions.cc,
-                    to: para,
-                    subject: asunto,
-                    html: renderHtml
-                };
-
-                transporter.sendMail(mailData, function (error, info) {
-                    if (error) {
-                        console.log("Error al enviar correo : " + error);
-                    } else {
-                        console.log(JSON.stringify(info));
-                        console.log('Email sent: ' + info.response);
+                    let cc = "";
+                    if (result != null && result.rowCount > 0) {
+                        cc = result.rows[0];
                     }
+
+                    enviarCorreo(para, cc, asunto, renderHtml);
+
                 });
 
-                transporter.close();
-            } else {
-                console.log("No se envio el correo");
-            }
+            /* if (renderHtml != null) {
+ 
+                 const mailData = {
+                     from: mailOptions.from,
+                     cc: mailOptions.cc,
+                     to: para,
+                     subject: asunto,
+                     html: renderHtml
+                 };
+ 
+                 transporter.sendMail(mailData, function (error, info) {
+                     if (error) {
+                         console.log("Error al enviar correo : " + error);
+                     } else {
+                         console.log(JSON.stringify(info));
+                         console.log('Email sent: ' + info.response);
+                     }
+                 });
+ 
+                 transporter.close();
+             } else {
+                 console.log("No se envio el correo");
+             }*/
         }).catch(e => {
             console.log("Excepción en el envio de correo : " + e);
         });
 };
-
+/*
 function loadTemplateReciboPago(param) {
     var html = null;
     return new Promise((resolve, reject) => {
@@ -332,9 +350,10 @@ function loadTemplateReciboPago(param) {
         }
     });
 }
-
+*/
 
 // no se usa aun
+/*
 const enviarCorreoCambioSucursal = (para, asunto, params) => {
     console.log("@enviarCorreoCambioSucursalComplemento");
 
@@ -368,7 +387,7 @@ const enviarCorreoCambioSucursal = (para, asunto, params) => {
             transporter.close();
         });
 };
-
+*/
 
 
 // no se usa aun
@@ -399,10 +418,22 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
 
             console.log(JSON.stringify(row));
 
+            const ID_TEMA_NOTIFICACION_ALTA_FAMILIAR = 4;
+
             loadTemplate(TEMPLATE_GENERICO, params)
                 .then((renderHtml) => {
                     console.log("Dentro d");
-                    if (renderHtml != null) {
+                    obtenerCorreosCopiaPorTema(params.sucursal.id, ID_TEMA_NOTIFICACION_ALTA_FAMILIAR)
+                        .then(result => {
+                            let cc = "";
+                            if (result != null && result.rowCount > 0) {
+                                cc = result.rows[0];
+                            }
+
+                            enviarCorreo(para, cc, asunto, renderHtml);
+
+                        });
+                    /*if (renderHtml != null) {                       
 
                         const mailData = {
                             from: mailOptions.from,
@@ -423,7 +454,7 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
                         transporter.close();
                     } else {
                         console.log("No se envio el correo");
-                    }
+                    }*/
                 }).catch(e => {
                     console.log("Excepción en el envio de correo : " + e);
                 });
@@ -454,8 +485,6 @@ function loadTemplate(templateName, params) {
 const getAlumnosInfoCorreoAlumnos = (request, response) => {
     console.log("@getAlumnosInfoCorreo");
     try {
-       
-        //validarToken(request,response);
 
         const { ids } = request.body;
 
@@ -479,12 +508,10 @@ const getAlumnosInfoCorreoAlumnos = (request, response) => {
     }
 };
 
-
+/*
 const enviarRecordatorioPago = (request, response) => {
     console.log("@enviarRecordatorioPago");
     try {
-
-       // validarToken(request,response);
 
         var id_alumno = request.params.id_alumno;
         var { nota, nota_escrita } = request.body;
@@ -511,7 +538,7 @@ const enviarRecordatorioPago = (request, response) => {
                     }
                     //let para = row.correos;
                     console.log("correos obtenidos " + row.correos);
-                    let para = configuracion.env == 'DEV' ? "joel.rod.roj@hotmail.com":row.correos;
+                    let para = configuracion.env == 'DEV' ? "joel.rod.roj@hotmail.com" : row.correos;
                     let asunto = "Recordatorio de pago";
                     let lista_tokens = row.tokens;
                     //enviar 
@@ -519,7 +546,7 @@ const enviarRecordatorioPago = (request, response) => {
                         .then((results) => {
 
                             if (results.rowCount > 0) {
-                                
+
                                 let resultado = results.rows[0];
 
                                 let total = resultado.total_adeudo;
@@ -541,7 +568,7 @@ const enviarRecordatorioPago = (request, response) => {
                                     };
 
                                     //Enviar aviso al telefono                                    
-                                    enviarMensajeMovil(lista_tokens,titulo,"Hola, "+nombres_padres+". "+ mensaje_envio + " Monto $"+total+".");
+                                    enviarMensajeMovil(lista_tokens, titulo, "Hola, " + nombres_padres + ". " + mensaje_envio + " Monto $" + total + ".");
 
                                     loadTemplate(TEMPLATE_AVISO_PAGO, params)
                                         .then((renderHtml) => {
@@ -584,7 +611,7 @@ const enviarRecordatorioPago = (request, response) => {
                                 response.status(200).json({ estatus: false, respuesta: "No existen cargos." });
                             }
                         }).catch(e => {
-                            console.log("Error "+e);
+                            console.log("Error " + e);
                             response.status(200).json({ estatus: false, respuesta: "Falló " });
                         });
                     //tokens para el cel
@@ -597,7 +624,7 @@ const enviarRecordatorioPago = (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
-
+*/
 function obtenerCargos(id_alumno) {
 
     return pool.query(
@@ -634,13 +661,60 @@ function obtenerCargos(id_alumno) {
 }
 
 
+function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
+    return pool.query(`
+        SELECT distinct string_agg(correo,',') as correos_copia
+        FROM co_correo_copia_notificacion
+        WHERE co_sucursal = $1 and co_tema_notificacion = $2
+   `, [co_sucursal, id_tema]);
+
+}
+
+function enviarCorreo(para, conCopia, asunto, renderHtml) {
+
+    if (para == undefined || conCopia == undefined
+        || para == '' && conCopia == ''
+        || para == null && conCopia == null
+    ) {
+        console.log("############ NO EXISTEN CORREOS EN NINGUN CONTENEDOR (para,cc)######");
+        return;
+    }
+
+    if (renderHtml != null) {
+
+        const mailData = {
+            from: mailOptions.from,
+            to: para,
+            cc: conCopia,
+            subject: asunto,
+            html: renderHtml
+        };
+
+        console.log("Correo para "+para);
+        console.log("Correo cc "+conCopia);
+        console.log("asuto "+asunto);
+
+        transporter.sendMail(mailData, function (error, info) {
+            if (error) {
+                console.log("Error al enviar correo : " + error);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
+
+        transporter.close();
+    } else {
+        console.log("No se envio el correo, no existe HTML");
+    }
+}
+
 
 module.exports = {
     notificarReciboPago,
     enviarCorreoTest,
-    enviarCorreoCambioSucursal,
+  //  enviarCorreoCambioSucursal,
     enviarCorreoClaveFamiliar,
     getAlumnosInfoCorreoAlumnos,
-    enviarRecordatorioPago
+   // enviarRecordatorioPago
 
 }

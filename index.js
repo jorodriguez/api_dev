@@ -420,6 +420,6 @@ schedule.scheduleJob({hour: 20, minute: 0}, function () {
 		} catch (e) {
 			console.log("Error al ejecutar el proceso de revision de salida " + e);
 		}
-	});
+});
 	
 

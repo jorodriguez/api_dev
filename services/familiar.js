@@ -13,8 +13,7 @@ const ID_MADRE = 2;
 const crearFamiliar = (request, response) => {
     console.log("@create familiar autorizado");
     try {
-        //validarToken(request,response);
-        
+                
         var id_alumno = request.params.id_alumno;
 
         console.log("request.body "+JSON.stringify(request.body));
@@ -532,7 +531,7 @@ const getParams = (body) => {
         nombre,
         telefono, fecha_nacimiento, correo, password, celular, religion,
         nota_celebracion_dia, co_parentesco,
-        cat_genero
+        cat_genero,co_sucursal
     } = body;
 
     return parametros;
