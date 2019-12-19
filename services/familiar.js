@@ -48,7 +48,7 @@ const crearFamiliar = (request, response) => {
 
                             relacionarAlumnoFamilia(id_alumno, id_familiar, p.co_parentesco, p.genero).then((id) => {
                                 //enviar correo
-                                enviarClaveFamiliar(id_familiar);
+                                enviarClaveFamiliar(id_familiar,p.co_sucursal);
                                 response.status(200).json({ mensaje: "Familiar agregado.", estatus: true });
                             }).catch((e) => {
                                 console.log("Excepcion al crear familia " + e);
@@ -79,8 +79,11 @@ const resetPasswordFamiliar = (request, response) => {
         //validarToken(request,response);
 
         var id_familiar = request.params.id_familiar;
+        var id_sucursal = request.params.id_sucursal;
 
-        enviarClaveFamiliar(id_familiar);
+        console.log("id_suc "+id_sucursal );
+
+        enviarClaveFamiliar(id_familiar,id_sucursal);
 
         response.status(200).json(id_familiar);
 
@@ -90,7 +93,7 @@ const resetPasswordFamiliar = (request, response) => {
     }
 }
 
-const enviarClaveFamiliar = (id_familiar) => {
+const enviarClaveFamiliar = (id_familiar,id_sucursal) => {
     try {
 
         pool.query(
@@ -126,7 +129,8 @@ const enviarClaveFamiliar = (id_familiar) => {
                                             titulo: "Hola " + (row.nombre != undefined ? row.nombre:"") +",",
                                             subtitulo: "Enviamos tu contraseña de acceso a la aplicación",
                                             contenido: `<strong>Usuario : </strong> ${row.correo} <br/>
-                                                       <strong>Contraseña : </strong> ${password}` 
+                                                       <strong>Contraseña : </strong> ${password}` ,
+                                            sucursal :{id:id_sucursal} 
                                         }
                                     );
                             }

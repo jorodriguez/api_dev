@@ -28,9 +28,7 @@ CREATE TABLE public.co_correo_copia_notificacion
         REFERENCES public.co_tema_notificacion (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION    
-)
-
-
+);
 
 
 insert into co_tema_notificacion(id,nombre,genero)

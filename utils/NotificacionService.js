@@ -42,6 +42,7 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: 'info@magicintelligence.com',
         pass: 'Clave.01'
+        //user: 'joel@magicintelligence.com',       
         //pass: 'Secreta.03'
     },
     tls: {
@@ -301,7 +302,7 @@ const enviarCorreoReciboPago = (para, asunto, params) => {
 
                     let cc = "";
                     if (result != null && result.rowCount > 0) {
-                        cc = result.rows[0];
+                        cc = result.rows[0].correos_copia;
                     }
 
                     enviarCorreo(para, cc, asunto, renderHtml);
@@ -427,7 +428,7 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
                         .then(result => {
                             let cc = "";
                             if (result != null && result.rowCount > 0) {
-                                cc = result.rows[0];
+                                cc = result.rows[0].correos_copia;
                             }
 
                             enviarCorreo(para, cc, asunto, renderHtml);
@@ -663,7 +664,7 @@ function obtenerCargos(id_alumno) {
 
 function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
     return pool.query(`
-        SELECT distinct string_agg(correo,',') as correos_copia
+        SELECT array_to_json(array_agg(to_json(correo))) as correos_copia
         FROM co_correo_copia_notificacion
         WHERE co_sucursal = $1 and co_tema_notificacion = $2
    `, [co_sucursal, id_tema]);
@@ -671,13 +672,15 @@ function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
 }
 
 function enviarCorreo(para, conCopia, asunto, renderHtml) {
-
-    if (para == undefined || conCopia == undefined
-        || para == '' && conCopia == ''
-        || para == null && conCopia == null
+ console.log("Para "+para);
+ console.log("CCC "+conCopia);
+    if (para == undefined  || para == ''  || para == null 
     ) {
         console.log("############ NO EXISTEN CORREOS EN NINGUN CONTENEDOR (para,cc)######");
         return;
+    }
+    if (conCopia == undefined  || conCopia == ''  || conCopia == null ) {
+        conCopia = "";
     }
 
     if (renderHtml != null) {
@@ -691,7 +694,7 @@ function enviarCorreo(para, conCopia, asunto, renderHtml) {
         };
 
         console.log("Correo para "+para);
-        console.log("Correo cc "+conCopia);
+        console.log("Correo cc "+JSON.stringify(conCopia));
         console.log("asuto "+asunto);
 
         transporter.sendMail(mailData, function (error, info) {
