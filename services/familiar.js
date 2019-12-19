@@ -48,7 +48,7 @@ const crearFamiliar = (request, response) => {
 
                             relacionarAlumnoFamilia(id_alumno, id_familiar, p.co_parentesco, p.genero).then((id) => {
                                 //enviar correo
-                                enviarClaveFamiliar(id_familiar,p.co_sucursal);
+                                enviarClaveFamiliar(id_familiar,p.id_sucursal);
                                 response.status(200).json({ mensaje: "Familiar agregado.", estatus: true });
                             }).catch((e) => {
                                 console.log("Excepcion al crear familia " + e);
@@ -535,7 +535,7 @@ const getParams = (body) => {
         nombre,
         telefono, fecha_nacimiento, correo, password, celular, religion,
         nota_celebracion_dia, co_parentesco,
-        cat_genero,co_sucursal
+        cat_genero,id_sucursal
     } = body;
 
     return parametros;

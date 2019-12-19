@@ -29,8 +29,9 @@ const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
             and rel.eliminado = false
     group by a.nombre,a.id `;
 
+    //Debe de ir el nombre de la empresa-s
 const mailOptions = {
-    from: 'info@magicintelligence.com',
+    from: 'Mi Guardería <info@magicintelligence.com>',
     cc: 'info@magicintelligence.com'
 };
 
@@ -40,10 +41,10 @@ const transporter = nodemailer.createTransport({
     port: 465,
     secureConnection: false,
     auth: {
-        user: 'info@magicintelligence.com',
-        pass: 'Clave.01'
-        //user: 'joel@magicintelligence.com',       
-        //pass: 'Secreta.03'
+        //user: 'info@magicintelligence.com',
+        //pass: 'Clave.01'
+        user: 'joel@magicintelligence.com',       
+        pass: 'Secreta.03'
     },
     tls: {
         ciphers: 'SSLv3'
@@ -243,7 +244,7 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                 let cuerpo_mensaje = "Hola, recibimos un pago correspondiente a " + row.count_cargos + " cargos del alumno "
                     + row.nombre_alumno + ", enviamos el recibo de pago a su correo registrado.";
                 console.log("Enviando correo a " + JSON.stringify(lista_correos));
-                //console.log("info "+JSON.stringify(row));
+                
                 enviarCorreoReciboPago(
                     lista_correos,
                     tituloCorreo,
@@ -433,29 +434,7 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
 
                             enviarCorreo(para, cc, asunto, renderHtml);
 
-                        });
-                    /*if (renderHtml != null) {                       
-
-                        const mailData = {
-                            from: mailOptions.from,
-                            to: para,
-                            cc: mailOptions.cc,
-                            subject: asunto,
-                            html: renderHtml
-                        };
-
-                        transporter.sendMail(mailData, function (error, info) {
-                            if (error) {
-                                console.log("Error al enviar correo : " + error);
-                            } else {
-                                console.log('Email sent: ' + info.response);
-                            }
-                        });
-
-                        transporter.close();
-                    } else {
-                        console.log("No se envio el correo");
-                    }*/
+                        });                  
                 }).catch(e => {
                     console.log("Excepción en el envio de correo : " + e);
                 });
@@ -666,7 +645,7 @@ function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
     return pool.query(`
         SELECT array_to_json(array_agg(to_json(correo))) as correos_copia
         FROM co_correo_copia_notificacion
-        WHERE co_sucursal = $1 and co_tema_notificacion = $2
+        WHERE co_sucursal = $1 and co_tema_notificacion = $2 and eliminado = false
    `, [co_sucursal, id_tema]);
 
 }
