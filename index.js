@@ -34,6 +34,8 @@ const { validarTokenCompleto } = require('./helpers/helperToken');
 const asistenciaUsuario = require('./services/asistencia_usuario');
 //const tiendaService = require('./services/tiendaService');
 
+//const { pool } = require('./db/conexion');
+
 const port = process.env.PORT || 5000;
 
 //es un middleware que serializa los cuerpos de las respuestas 
@@ -276,7 +278,7 @@ app.put('/cliente/:id_familiar', actividad_reporte.updateDatosFamiliar);
 //app.get('/productos/:pagina',tiendaService.getProductos);
 
 //reset password
-GET('/reset_password/:id_familiar', familiar.resetPasswordFamiliar);
+GET('/reset_password/:id_familiar/:id_sucursal', familiar.resetPasswordFamiliar);
 
 //reporte de mensualidades facturadas
 GET('/reporte_mensualidades', reporte_mensualidades.getReporteContadoresSucursalesMesActual);
@@ -307,11 +309,11 @@ GET('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes', reporteDeudas.getR
 
 app.get('/', (request, response) => {
 	console.log(process.env);
-	response.json({ info: 'MagicIntelligence API v1.0.22'})
+	response.json({ info: `MagicIntelligence API v1.0.23 ${JSON.stringify(process.env.ENV)}`})
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.22`)
+	console.log(`App corriendo en el puerto ${port} v1.0.23 :::::: ${ JSON.stringify(configuracion)}`)
 });
 
 //GET('/encriptar/:clave', authController.encriptar);
@@ -330,7 +332,7 @@ schedule.scheduleJob('0 */10 12-24 * * 1-5', function () {
 	//schedule.scheduleJob('0 */2 * * * 1-5', function () {
 	console.log("========== MANTENIENDO VIVA LA APP ==================");
 	try {
-		if (configuracion.env != 'DEV') {
+		if (configuracion.env == 'PRODUCTION') {
 
 			https.get('https://api-ambiente-produccion.herokuapp.com', (response) => {
 				let todo = '';
@@ -420,6 +422,6 @@ schedule.scheduleJob({hour: 20, minute: 0}, function () {
 		} catch (e) {
 			console.log("Error al ejecutar el proceso de revision de salida " + e);
 		}
-	});
+});
 	
 

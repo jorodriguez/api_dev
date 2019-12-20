@@ -13,8 +13,7 @@ const ID_MADRE = 2;
 const crearFamiliar = (request, response) => {
     console.log("@create familiar autorizado");
     try {
-        //validarToken(request,response);
-        
+                
         var id_alumno = request.params.id_alumno;
 
         console.log("request.body "+JSON.stringify(request.body));
@@ -49,7 +48,7 @@ const crearFamiliar = (request, response) => {
 
                             relacionarAlumnoFamilia(id_alumno, id_familiar, p.co_parentesco, p.genero).then((id) => {
                                 //enviar correo
-                                enviarClaveFamiliar(id_familiar);
+                                enviarClaveFamiliar(id_familiar,p.id_sucursal);
                                 response.status(200).json({ mensaje: "Familiar agregado.", estatus: true });
                             }).catch((e) => {
                                 console.log("Excepcion al crear familia " + e);
@@ -80,8 +79,11 @@ const resetPasswordFamiliar = (request, response) => {
         //validarToken(request,response);
 
         var id_familiar = request.params.id_familiar;
+        var id_sucursal = request.params.id_sucursal;
 
-        enviarClaveFamiliar(id_familiar);
+        console.log("id_suc "+id_sucursal );
+
+        enviarClaveFamiliar(id_familiar,id_sucursal);
 
         response.status(200).json(id_familiar);
 
@@ -91,7 +93,7 @@ const resetPasswordFamiliar = (request, response) => {
     }
 }
 
-const enviarClaveFamiliar = (id_familiar) => {
+const enviarClaveFamiliar = (id_familiar,id_sucursal) => {
     try {
 
         pool.query(
@@ -127,7 +129,8 @@ const enviarClaveFamiliar = (id_familiar) => {
                                             titulo: "Hola " + (row.nombre != undefined ? row.nombre:"") +",",
                                             subtitulo: "Enviamos tu contraseña de acceso a la aplicación",
                                             contenido: `<strong>Usuario : </strong> ${row.correo} <br/>
-                                                       <strong>Contraseña : </strong> ${password}` 
+                                                       <strong>Contraseña : </strong> ${password}` ,
+                                            sucursal :{id:id_sucursal} 
                                         }
                                     );
                             }
@@ -532,7 +535,7 @@ const getParams = (body) => {
         nombre,
         telefono, fecha_nacimiento, correo, password, celular, religion,
         nota_celebracion_dia, co_parentesco,
-        cat_genero
+        cat_genero,id_sucursal
     } = body;
 
     return parametros;

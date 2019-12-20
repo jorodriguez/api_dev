@@ -1,0 +1,50 @@
+
+CREATE TABLE public.co_correo_copia_notificacion
+(
+    id serial NOT NULL,
+    correo text NOT NULL,
+	descripcion text,
+    co_tema_notificacion integer NOT NULL,
+    co_sucursal integer NOT NULL,
+    fecha_genero timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_modifico timestamp without time zone,
+    genero integer NOT NULL,
+    modifico integer,
+    eliminado boolean NOT NULL DEFAULT false,
+    CONSTRAINT co_correo_copia_notificacion_pkey PRIMARY KEY (id),
+    CONSTRAINT co_correo_copia_notificacion_genero_fkey FOREIGN KEY (genero)
+        REFERENCES public.usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT co_correo_copia_notificacion_modifico_fkey FOREIGN KEY (modifico)
+        REFERENCES public.usuario (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT co_correo_copia_notificacion_sucursal_fkey FOREIGN KEY (co_sucursal)
+        REFERENCES public.co_sucursal (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT co_correo_copia_notificacion_tema_fkey FOREIGN KEY (co_tema_notificacion)
+        REFERENCES public.co_tema_notificacion (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION    
+);
+
+
+insert into co_tema_notificacion(id,nombre,genero)
+values(4,'Alta Familiar',1);
+
+
+insert into co_correo_copia_notificacion(correo,descripcion,co_tema_notificacion,co_sucursal,genero)
+values('magicmonterrey@magicintelligence.com','',2,1,1),
+	  ('magicmonterrey@magicintelligence.com','',4,1,1);
+
+
+insert into co_correo_copia_notificacion(correo,descripcion,co_tema_notificacion,co_sucursal,genero)
+values('magicapodaca@magicintelligence.com','',2,2,1),
+	  ('magicapodaca@magicintelligence.com','',4,2,1);
+
+insert into co_correo_copia_notificacion(correo,descripcion,co_tema_notificacion,co_sucursal,genero)
+values('magiccontry@magicintelligence.com','',2,3,1),
+	  ('magiccontry@magicintelligence.com','',4,3,1);
+
