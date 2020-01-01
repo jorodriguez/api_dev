@@ -41,10 +41,10 @@ const transporter = nodemailer.createTransport({
     port: 465,
     secureConnection: false,
     auth: {
-        //user: 'info@magicintelligence.com',
-        //pass: 'Clave.01'
-        user: 'joel@magicintelligence.com',       
-        pass: 'Secreta.03'
+        user: 'info@magicintelligence.com',
+        pass: 'Clave.01'
+        //user: 'joel@magicintelligence.com',       
+        //pass: 'Secreta.03'
     },
     tls: {
         ciphers: 'SSLv3'
