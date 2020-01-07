@@ -13,16 +13,9 @@ dotenv.config();
     ssl:  { rejectUnauthorized: false }
 }
 */
+     
 //db desarrollo
-const dbParams = {
-    user:process.env.USER_DB,
-    host: process.env.HOST_DB,
-    database: process.env.DATABASE_NAME,
-    password: process.env.PASSWORD_DB,
-    port: process.env.PORT_DB,
-    ssl: { rejectUnauthorized: false }
-}
-/*
+
 const dbParams = {
     user: (process.env.USER_DB || 'pffyesodvpvsrp'),
     host: (process.env.HOST_DB || 'ec2-174-129-242-183.compute-1.amazonaws.com'),
@@ -31,7 +24,7 @@ const dbParams = {
     port: (process.env.PORT_DB ||5432),
     ssl: { rejectUnauthorized: false }
 }
-*/
+
 /*
 const dbParams = {
     user: 'pffyesodvpvsrp',
@@ -43,7 +36,7 @@ const dbParams = {
 }*/
 
 //const dbParams = dbParamsDev;
-/*
+
 const pool = new Pool({
     user: dbParams.user,
     host: dbParams.host,
@@ -52,7 +45,9 @@ const pool = new Pool({
     port: dbParams.port,
     ssl: true
 });
-*/
+
+
+/*
 const pool = new Pool({
     user:process.env.USER_DB,
     host: process.env.HOST_DB,
@@ -60,7 +55,7 @@ const pool = new Pool({
     password: process.env.PASSWORD_DB,
     port: process.env.PORT_DB,    
     ssl: true
-})
+});*/
 
 
 module.exports = {
