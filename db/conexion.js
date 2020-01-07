@@ -1,9 +1,10 @@
-
 const Pool = require('pg').Pool
+const dotenv = require('dotenv');
+dotenv.config();
 
 //const { dbParams } = require('../config/config');
 
-const dbParams = {
+/*const dbParams = {
     user: 'guard_user_dev',
     host: 'siscop.mpg-ihsa.com.mx',
     database: 'guard_dev',
@@ -11,18 +12,26 @@ const dbParams = {
     port: 5432,
     ssl:  { rejectUnauthorized: false }
 }
-
+*/
 //db desarrollo
-
+const dbParams = {
+    user:process.env.USER_DB,
+    host: process.env.HOST_DB,
+    database: process.env.DATABASE_NAME,
+    password: process.env.PASSWORD_DB,
+    port: process.env.PORT_DB,
+    ssl: { rejectUnauthorized: false }
+}
 /*
 const dbParams = {
-    user: (process.env.USER || 'pffyesodvpvsrp'),
-    host: (process.env.HOST || 'ec2-174-129-242-183.compute-1.amazonaws.com'),
-    database: (process.env.DATABASE || 'd83inhs3bq9ufb'),
-    password: (process.env.PASSWORD ||'f4de35950e23261169a79f8ac3007630aaefc8ff887c147b9283a8f68b165019'),
-    port: (process.env.PORT ||5432),
+    user: (process.env.USER_DB || 'pffyesodvpvsrp'),
+    host: (process.env.HOST_DB || 'ec2-174-129-242-183.compute-1.amazonaws.com'),
+    database: (process.env.DATABASE_NAME || 'd83inhs3bq9ufb'),
+    password: (process.env.PASSWORD_DB ||'f4de35950e23261169a79f8ac3007630aaefc8ff887c147b9283a8f68b165019'),
+    port: (process.env.PORT_DB ||5432),
     ssl: { rejectUnauthorized: false }
-}*/
+}
+*/
 /*
 const dbParams = {
     user: 'pffyesodvpvsrp',
@@ -34,15 +43,25 @@ const dbParams = {
 }*/
 
 //const dbParams = dbParamsDev;
-
+/*
 const pool = new Pool({
     user: dbParams.user,
     host: dbParams.host,
     database: dbParams.database,
     password: dbParams.password,
     port: dbParams.port,
-    ssl: { rejectUnauthorized: false }
+    ssl: true
 });
+*/
+const pool = new Pool({
+    user:process.env.USER_DB,
+    host: process.env.HOST_DB,
+    database: process.env.DATABASE_NAME,
+    password: process.env.PASSWORD_DB,
+    port: process.env.PORT_DB,    
+    ssl: true
+})
+
 
 module.exports = {
     pool
