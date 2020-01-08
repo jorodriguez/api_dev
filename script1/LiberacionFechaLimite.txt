@@ -1,4 +1,7 @@
 
+
+alter table co_alumno drop column fecha_limite_pago_mensualidad
+
 alter table co_alumno add column numero_dia_limite_pago integer default 0;
 alter table co_alumno add column fecha_limite_pago_mensualidad date;
 
@@ -11,9 +14,9 @@ set fecha_limite_pago_mensualidad = (numero_dia_limite_pago::text||'-'||to_char(
 
 --los que ya pagaron su mensualidad de diciembre el proximo aviso sera en enero
 update co_alumno 
-	set fecha_limite_pago_mensualidad = ('2019-12-07'::date + interval '1 month ')
+	set fecha_limite_pago_mensualidad = ('2020-01-07'::date + interval '1 month ')
 where co_balance_alumno in
 (select cargo.co_balance_alumno
 from co_pago_cargo_balance_alumno rel inner join co_Cargo_balance_alumno cargo on cargo.id = rel.co_Cargo_balance_alumno
-where cargo.cat_cargo = 1 and to_char(cargo.fecha,'mmYYYY') = '122019' )
+where cargo.cat_cargo = 1 and to_char(cargo.fecha,'mmYYYY') = '012020' )
 

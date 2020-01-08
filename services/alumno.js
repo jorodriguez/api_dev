@@ -177,7 +177,7 @@ const updateAlumno = (request, response) => {
                 sexo = $16 ,
                  modifico = $17, 
                 fecha_inscripcion = $18, 
-                fecha_limite_pago_mensualidad = $19,
+                fecha_limite_pago_mensualidad = $19::date,
                 numero_dia_limite_pago = to_char($19::date,'dd')::integer
                  WHERE id = $1`,
                 [
@@ -189,7 +189,7 @@ const updateAlumno = (request, response) => {
                     alumno.co_grupo, alumno.nombre_carino,
                     alumno.sexo, alumno.genero,
                     (alumno.fecha_inscripcion == "" ? null : alumno.fecha_inscripcion),
-                    alumno.fecha_limite_pago_mensualidad
+                    new Date(alumno.fecha_limite_pago_mensualidad)
                 ],
                 (error, results) => {
                     if (error) {

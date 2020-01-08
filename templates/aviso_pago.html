@@ -177,13 +177,11 @@
 
                     <table width="100%" border="0" cellspacing="2" cellpadding="2">
                       <tr>
-                        <th style="border-bottom:1pt solid #57A8B6;" width="40%">Descripción</th>
+                        <th style="border-bottom:1pt solid #57A8B6;" width="40%">Concepto</th>
                         <!--<th>Adeuda</th>-->
                         <th style="border-bottom:1pt solid #57A8B6;" width="30%">Cant.</th>
-                        <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="30%" align="right">Precio
-                        </th>
-                        <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="30%" align="right">Pagado
-                        </th>                        
+                        <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="30%" align="right">Monto
+                        </th>                                                                        
                       </tr>
                       <!-- {{#pagado}} PAGADO {{/pagado}}-->
                       {{#cargos}}
@@ -191,7 +189,7 @@
                         <td style="border-bottom:1pt solid #57A8B6;">{{nombre_cargo}}</td>
                         <td style="border-bottom:1pt solid #57A8B6;">{{cantidad}}</td>
                         <td style="border-bottom:1pt solid #57A8B6;text-align:right" align="right">${{cargo}}</td>
-                        <td style="border-bottom:2pt solid #57A8B6;text-align:right" align="right">${{total_pagado}}
+                       <!-- <td style="border-bottom:2pt solid #57A8B6;text-align:right" align="right">${{total_pagado}}-->
                         </td>
                         <!--<td>{{nota}}</td>-->
                       </tr>
@@ -206,6 +204,7 @@
                         </td>
                       </tr>
                     </table>
+                    <p class="h2">{{nota_pie}}</p>
                     <!--[if (gte mso 9)|(IE)]>
           </td>
         </tr>

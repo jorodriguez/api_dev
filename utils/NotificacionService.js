@@ -94,7 +94,7 @@ const notificarCargo = (id_alumno, id_cargo) => {
             }
             if (results.rowCount > 0) {
                 let row = results.rows[0];
-                enviarNotificacionCargo(row.correos, row.tokens, row.nombres_padres, id_pago, nombre_alumno);
+                enviarNotificacionCargo(row.correos, row.tokens, row.nombres_padres, id_cargo, nombre_alumno);
             } else {
                 console.log("No se encontraron registros de padres para el alumno " + id_alumno);
             }
@@ -305,34 +305,10 @@ const enviarCorreoReciboPago = (para, asunto, params) => {
                     if (result != null && result.rowCount > 0) {
                         cc = result.rows[0].correos_copia;
                     }
-                    
+                   
                     enviarCorreo(para, cc, asunto, renderHtml);
-
                 });
-
-            /* if (renderHtml != null) {
- 
-                 const mailData = {
-                     from: mailOptions.from,
-                     cc: mailOptions.cc,
-                     to: para,
-                     subject: asunto,
-                     html: renderHtml
-                 };
- 
-                 transporter.sendMail(mailData, function (error, info) {
-                     if (error) {
-                         console.log("Error al enviar correo : " + error);
-                     } else {
-                         console.log(JSON.stringify(info));
-                         console.log('Email sent: ' + info.response);
-                     }
-                 });
- 
-                 transporter.close();
-             } else {
-                 console.log("No se envio el correo");
-             }*/
+         
         }).catch(e => {
             console.log("Excepción en el envio de correo : " + e);
         });
