@@ -146,9 +146,10 @@ const updateAlumno = (request, response) => {
 
         const alumno = request.body;
 
-        console.log(" CCCC " + JSON.stringify(alumno));
+        //console.log(" CCCC " + JSON.stringify(alumno));
 
         const formato = alumno.formato_inscripcion;
+        console.log("Fecha limite de pago "+alumno.fecha_limite_pago_mensualidad);
 
         //const padre = alumno.padre;
 
@@ -177,7 +178,7 @@ const updateAlumno = (request, response) => {
                  modifico = $17, 
                 fecha_inscripcion = $18, 
                 fecha_limite_pago_mensualidad = $19,
-                numero_dia_limite_pago = to_char($19::date,'dd')::integer,
+                numero_dia_limite_pago = to_char($19::date,'dd')::integer
                  WHERE id = $1`,
                 [
                     id,
