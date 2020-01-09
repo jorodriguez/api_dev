@@ -215,8 +215,8 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                 let row = results.rows[0];
                 let tituloCorreo = "Recibo de pago ✔";
                 let titulo_mensaje = "Pago realizado ✔";
-                let cuerpo_mensaje = "Hola, recibimos un pago correspondiente a " + row.count_cargos + " cargos del alumno "
-                    + row.nombre_alumno + ", enviamos el recibo de pago a su correo registrado.";
+                let cuerpo_mensaje = `Hola, recibimos un pago correspondiente a ${row.count_cargos} cargo${row.count_cargos > 0 ? '':'s'} del alumno 
+                    ${row.nombre_alumno}, enviamos el recibo de pago a su correo.`;
                 console.log("Enviando correo a " + JSON.stringify(lista_correos));
                 
                 enviarCorreoReciboPago(

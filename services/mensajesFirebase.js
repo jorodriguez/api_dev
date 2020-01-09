@@ -3,6 +3,7 @@ const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const firebase = require("firebase-admin");
 const { configuracion } = require('../config/ambiente');
+const { quitarElementosVaciosArray } = require('../utils/Utils');
 
 const serviceAccount = require('./../config/google_service_messages.json');
 
@@ -92,6 +93,9 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
         var retorno = {};
 
         if (configuracion.enviar_mensajes) {
+            
+            quitarElementosVaciosArray(token);
+
             retorno = firebase.messaging().sendToDevice(token, payloadMensaje, options);
         } else {
             console.log("Caso contrario no enviar mensajes");
