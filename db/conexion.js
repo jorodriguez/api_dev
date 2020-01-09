@@ -14,8 +14,6 @@ const dbParams = {
     ssl: { rejectUnauthorized: false }
 }*/
 
-
-
 /*const dbParams = {
     user: 'guard_user_dev',
     host: 'siscop.mpg-ihsa.com.mx',
@@ -25,9 +23,18 @@ const dbParams = {
     ssl:  { rejectUnauthorized: false }
 }
 */
+
+const dbParams = {
+    user: (process.env.USER_DB || 'guard_user_dev'),
+    host: (process.env.HOST_DB || 'siscop.mpg-ihsa.com.mx'),
+    database: (process.env.DATABASE_NAME || 'guard_dev'),
+    password: (process.env.PASSWORD_DB ||'f4de35950e23261169a79f8ac3007630aaefc8ff887c147b9283a8f68b165019'),
+    port: (process.env.PORT_DB ||5432),
+    ssl: { rejectUnauthorized: false }
+}
      
 //db desarrollo
-
+/*
 const dbParams = {
     user: (process.env.USER_DB || 'pffyesodvpvsrp'),
     host: (process.env.HOST_DB || 'ec2-174-129-242-183.compute-1.amazonaws.com'),
@@ -36,7 +43,7 @@ const dbParams = {
     port: (process.env.PORT_DB ||5432),
     ssl: { rejectUnauthorized: false }
 }
-
+*/
 /*
 const dbParams = {
     user: 'pffyesodvpvsrp',
@@ -55,7 +62,7 @@ const pool = new Pool({
     database: dbParams.database,
     password: dbParams.password,
     port: dbParams.port,
-    ssl: true
+    ssl: false
 });
 
 

@@ -94,7 +94,7 @@ const notificarCargo = (id_alumno, ...id_cargos) => {
             }
             if (results.rowCount > 0) {
                 let row = results.rows[0];
-                enviarNotificacionCargo(row.correos, row.tokens, row.nombres_padres, id_cargos, nombre_alumno);
+                enviarNotificacionCargo(row.correos, row.tokens, row.nombres_padres, nombre_alumno,id_cargos);
             } else {
                 console.log("No se encontraron registros de padres para el alumno " + id_alumno);
             }
@@ -102,7 +102,7 @@ const notificarCargo = (id_alumno, ...id_cargos) => {
 };
 
 //Aqui me quede
-function enviarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, ...id_cargos, nombre_alumno) {
+function enviarNotificacionCargo(lista_correos, lista_tokens, nombres_padres,  nombre_alumno,...id_cargos) {
 
     pool.query(` select cat.nombre,		
                     cat.precio,
@@ -127,33 +127,7 @@ function enviarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, ..
                 let cuerpo_mensaje = "Hola, se realizó un cargo de " + row.total + " por " + row.nombre + " del alumno " + nombre_alumno + ".";
 
                 console.log("Enviando correo a " + JSON.stringify(lista_correos));
-                enviarCorreoReciboPago(
-                    lista_correos,
-                    tituloCorreo,
-                    {
-                        titulo: "Magic Intelligence",
-                        nombre_empresa: "Magic Intelligence",
-                        nombre_cliente: nombres_padres,
-                        pago: {
-                            fecha: row.fecha,
-                            pago: row.pago,
-                            forma_pago: row.forma_pago,
-                            factura: row.identificador_factura,
-                            numero_cargos: row.count_cargos,
-                            cargos: row.cargos,
-                            escribir_folio_factura: (row.identificador_factura != null && row.identificador_factura != '')
-                        },
-                        alumno: {
-                            nombre: row.nombre_alumno,
-                            apellidos: row.apellidos_alumno,
-                            grupo: row.nombre_grupo
-                        },
-                        sucursal: {
-                            nombre: row.nombre_sucursal,
-                            direccion: row.direccion_sucursal
-                        },
-                        mensaje_pie: "Agradecemos tu confianza. <br/> Atentamente Magic Intelligence."
-                    });
+                /*hacer el desarrollo */ 
 
                 //enviar mensaje te text
                 enviarMensajeMovil(lista_tokens, titulo_mensaje, cuerpo_mensaje);
@@ -314,7 +288,7 @@ const enviarCorreoReciboPago = (para, asunto, params) => {
         });
 };
 
-
+/*
 const enviarNotificacionCargo = (para, asunto, params) => {
     console.log("@enviarCorreoCargo");
 
@@ -337,7 +311,7 @@ const enviarNotificacionCargo = (para, asunto, params) => {
             console.log("Excepción en el envio de correo : " + e);
         });
 };
-
+*/
 
 
 // no se usa aun
