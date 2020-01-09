@@ -64,8 +64,7 @@ const createAlumno = (request, response) => {
                     hora_salida,costo_inscripcion,costo_colegiatura,
                     minutos_gracia,foto,fecha_inscripcion,fecha_reinscripcion,
                     fecha_limite_pago_mensualidad,
-                    numero_dia_limite_pago,
-                    numero
+                    numero_dia_limite_pago,                    
                     sexo,
                     genero) 
                  VALUES(
