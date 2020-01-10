@@ -1,0 +1,22 @@
+{
+    "env":"PRODUCTION",
+    "config_mail": {
+        "host": "mail.magicintelligence.com",
+        "port": 465,
+        "secureConnection": false,
+        "auth": {
+            "user": "ingo@magicintelligence.com",
+            "pass": "Clave.01"
+        },
+        "tls": {
+            "ciphers": "SSLv3"
+        }
+    },
+    "mailOptions": {
+        "from": "Magic Intelligence <info@magicintelligence.com>",
+        "cc": "info@magicintelligence.com"
+    },
+    "template_mail":{
+        "mensaje_pie":"Agradecemos tu confianza. <br/> Atentamente Magic Intelligence."
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "env":"DEVELOPMENT",
+    "configMail": {
+        "host": "mail.magicintelligence.com",
+        "port": 465,
+        "secureConnection": false,
+        "auth": {
+            "user": "joel@magicintelligence.com",
+            "pass": "Secreta.03"
+        },
+        "tls": {
+            "ciphers": "SSLv3"
+        }
+    },
+    "mailOptions": {
+        "from": "Magic Intelligence (PRUEBAS)<joel@magicintelligence.com>",
+        "cc": "joel@magicintelligence.com"
+    },   
+    "template_mail":{
+        "mensaje_pie":"Agradecemos tu confianza. <br/> Atentamente Magic Intelligence."
+    }
+}
