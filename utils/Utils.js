@@ -5,7 +5,14 @@ function quitarElementosVaciosArray(array){
         console.log("El elemeto para limpiar no es un array.");
         return;
     }
-    return array.filter(Boolean);    
+
+    var newArray = []; //new Array();
+    for( var i = 0; i < actual.length; i++ ){
+        if ( actual[ i ] ){
+          newArray.push( actual[ i ] );
+      }
+    }
+    return newArray;    
 }
 
 module.exports = {
