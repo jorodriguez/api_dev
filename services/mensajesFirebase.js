@@ -62,7 +62,9 @@ const enviarMensajeActividad = (titulo, cuerpo, token) => {
             }
         };
 
-        firebase.messaging().sendToDevice(token, payloadMensaje, options)
+        let new_tokens = quitarElementosVaciosArray(token);
+
+        firebase.messaging().sendToDevice(new_tokens, payloadMensaje, options)
             .then((response) => {
                 console.log(" result" + JSON.stringify(response));
                 return response;
@@ -94,9 +96,9 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
 
         if (configuracion.enviar_mensajes) {
             
-            quitarElementosVaciosArray(token);
+           let new_tokens = quitarElementosVaciosArray(token);
 
-            retorno = firebase.messaging().sendToDevice(token, payloadMensaje, options);
+            retorno = firebase.messaging().sendToDevice(new_tokens, payloadMensaje, options);
         } else {
             console.log("Caso contrario no enviar mensajes");
             retorno = new Promise((resolve, reject) => {
