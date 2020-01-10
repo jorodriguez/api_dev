@@ -33,21 +33,13 @@ const registrarCargo = (request, response) => {
             }
             console.log("cat_cargo.cat_cargo  "+fecha_cargo.fecha_mes);
             //parametros para mensualidad
-            sql = "select agregar_cargo_alumno($1,$2,$3,$4,$5,$6,$7);";
+            sql = "select agregar_cargo_alumno($1,$2,$3,$4,$5,$6,$7) as id_cargo_generado;";
             parametros = [new Date(fecha_cargo.fecha_mes), id_alumno, cat_cargo.id, cantidad, monto, nota, genero];
         } else {
             //no es mensualidad            
-            sql = "select agregar_cargo_alumno(getDate(''),$1,$2,$3,$4,$5,$6);";
+            sql = "select agregar_cargo_alumno(getDate(''),$1,$2,$3,$4,$5,$6) as id_cargo_generado;";
             parametros = [id_alumno, cat_cargo.id, cantidad, monto, nota, genero];
-
-            /*if ((fecha_cargo == undefined || fecha_cargo == null)) {
-                sql = "select agregar_cargo_alumno(getDate(''),$1,$2,$3,$4,$5,$6);";
-                parametros = [id_alumno, cat_cargo.id, cantidad, monto, nota, genero];
-            } else {
-                console.log("cat_cargo.cat_cargo  "+fecha_cargo.fecha_mes);
-                sql = "select agregar_cargo_alumno($1,$2,$3,$4,$5,$6,$7);";
-                parametros = [new Date(fecha_cargo), id_alumno, cat_cargo.id, cantidad, monto, nota, genero];
-            }*/
+           
         }
 
         console.log("=====>> " + JSON.stringify(request.body));
@@ -61,10 +53,13 @@ const registrarCargo = (request, response) => {
                 //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
                 //buscar el padre y enviarle la notificacion y el correo del registro del pago
                 if (results.rowCount > 0) {
-                    let id_cargo_generado = results.rows[0].id;
+                    var id_cargo_generado = results.rows[0].id_cargo_generado;
+                    console.log("IDE CARGO GENERADO RESULT "+JSON.stringify(results.rows));
                     respuesta.id_cargo = id_cargo_generado;
                     respuesta.resultado = (id_cargo_generado != null);
                     respuesta.mensaje = `${results.rowCount} fila afectada`;
+                    notificacionService.notificarCargo(id_alumno,id_cargo_generado);
+
                     response.status(200).json(respuesta);
                 } else {
                     respuesta.mensaje = "No se guardó el cargo.";

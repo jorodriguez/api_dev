@@ -194,7 +194,12 @@ function enviarMensajeEntradaSalida(ids_asistencias, operacion) {
             date_trunc('minute',a.hora_salida)::time  AS hora_salida,
             c.correos,
             c.nombres_padres,
-            c.tokens
+            c.tokens,
+            (select count(*) as recargos_tiempo_extra
+                 from co_cargo_balance_alumno 
+                where fecha = a.fecha and co_balance_alumno = (select id from co_alumno where co_balance_alumno = al.id ) 
+                    and cat_cargo = 3 --tiempo extra
+                  and eliminado = false)
         from co_asistencia a inner join co_alumno al on a.co_alumno = al.id
                                 left join correos c on c.id_alumno = al.id
         where a.id = ANY($2::int[])	 -- IDS DE ASISTENCIAS	 
@@ -211,8 +216,9 @@ function enviarMensajeEntradaSalida(ids_asistencias, operacion) {
                     let asistencias = results.rows;
                     asistencias.forEach(e => {
                         let titulo_mensaje = (operacion == ENTRADA ? "Entrada de " + e.nombre : "Salida de " + e.nombre);
-                        let mensaje_entrada = "Hola, " + e.nombres_padres + " recibimos a " + e.nombre + " a las " + e.hora_entrada + ".";
-                        let mensaje_salida = "Hola, " + e.nombres_padres + " entregamos a " + e.nombre + " a las " + e.hora_salida + ".";
+                        let mensaje_entrada = `Hola ${e.nombres_padres} recibimos a ${e.nombre} a las ${e.hora_entrada}.`;
+                        let mensaje_salida = `Hola ${e.nombres_padres} entregamos a ${e.nombre} a las ${e.hora_salida}.
+                        ${e.recargos_tiempo_extra > 0 ?' se registraron '+e.recargos_tiempo_extra+' recargos por tiempo extra.':''}`;
                         let cuerpo_mensaje = (operacion == ENTRADA ? mensaje_entrada : mensaje_salida);
 
                         //token,titulo,cuerpo
