@@ -58,34 +58,30 @@ const createAlumno = (request, response) => {
         new Promise((resolve, reject) => {
             pool.query(`
                 INSERT INTO CO_ALUMNO(
-                    co_sucursal,co_grupo,
-                    nombre,apellidos,fecha_nacimiento,
-                    alergias,nota,hora_entrada,
-                    hora_salida,costo_inscripcion,costo_colegiatura,
-                    minutos_gracia,foto,fecha_inscripcion,fecha_reinscripcion,
-                    fecha_limite_pago_mensualidad,
-                    numero_dia_limite_pago,                    
-                    sexo,
-                    genero) 
+                    co_sucursal,co_grupo,nombre,
+                    apellidos,fecha_nacimiento,alergias,
+                    nota,hora_entrada,hora_salida,
+                    costo_inscripcion,costo_colegiatura,minutos_gracia,
+                    foto,fecha_inscripcion,fecha_reinscripcion,                                      
+                    sexo,genero,
+                    fecha_limite_pago_mensualidad) 
                  VALUES(
                     $1,$2,$3,
                     $4,$5,$6,
                     $7,$8,$9,
                     $10,$11,$12,
-                    $13,$14,($14::date + interval '1 year'),
-                    ($14::date + (interval '1 month') + (interval '7 days')),
-                    to_char($14,'dd')::integer,
-                    $15,
-                    $16
+                    $13,$14,($14::date + interval '1 year')
+                    ,$15,$16
+                    ,$17             
                 ) RETURNING id;`
                 , [
-                    p.co_sucursal, p.co_grupo,
-                    p.nombre, p.apellidos, p.fecha_nacimiento,
-                    p.alergias, p.nota, p.hora_entrada,
-                    p.hora_salida, p.costo_inscripcion, p.costo_colegiatura,
-                    p.minutos_gracia, p.foto, p.fecha_inscripcion,                    
-                    p.sexo,
-                    p.genero
+                    p.co_sucursal, p.co_grupo, p.nombre, //3
+                    p.apellidos, p.fecha_nacimiento,p.alergias,//6 
+                    p.nota, p.hora_entrada, p.hora_salida, //9
+                    p.costo_inscripcion, p.costo_colegiatura, p.minutos_gracia, //12
+                    p.foto, p.fecha_inscripcion,//14
+                    p.sexo, p.genero, //16
+                    fecha_limite_pago_mensualidad //17
                 ],
                 (error, results) => {
                     if (error) {
@@ -271,7 +267,7 @@ const getParams = (body) => {
         alergias, nota, hora_entrada,
         hora_salida, costo_inscripcion, costo_colegiatura,
         minutos_gracia, foto, fecha_inscripcion,
-        genero
+        genero,fecha_limite_pago_mensualidad
     } = body;
 
     return parametros;

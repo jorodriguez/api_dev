@@ -158,12 +158,12 @@
 
                 <tr>
                   <td class="h2">
-                    <strong>Hola, {{nombre_cliente}}.</strong>
+                    <strong>Hola {{nombre_cliente}},</strong>
                   </td>
                 </tr>
                 <tr>
                   <td class="h2">
-                    <small> {{nota}}</small>
+                    <p style="text-align: justify;"> {{nota_inicial}}</p>
                   </td>
                 </tr>
                 <tr>
@@ -177,32 +177,19 @@
 
                     <table width="100%" border="0" cellspacing="2" cellpadding="2">
                       <tr>
+                       <th style="border-bottom:1pt solid #57A8B6;" width="20%">Fecha</th>
                         <th style="border-bottom:1pt solid #57A8B6;" width="40%">Concepto</th>
-                        <!--<th>Adeuda</th>-->
-                        <th style="border-bottom:1pt solid #57A8B6;" width="30%">Cant.</th>
-                        <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="30%" align="right">Monto
+                                          <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="30%" align="right">Monto
                         </th>                                                                        
                       </tr>
-                      <!-- {{#pagado}} PAGADO {{/pagado}}-->
-                      {{#cargos}}
-                      <tr style="text-align:center">
-                        <td style="border-bottom:1pt solid #57A8B6;">{{nombre_cargo}}</td>
-                        <td style="border-bottom:1pt solid #57A8B6;">{{cantidad}}</td>
-                        <td style="border-bottom:1pt solid #57A8B6;text-align:right" align="right">${{cargo}}</td>
-                       <!-- <td style="border-bottom:2pt solid #57A8B6;text-align:right" align="right">${{total_pagado}}-->
-                        </td>
-                        <!--<td>{{nota}}</td>-->
+                           
+                      <tr style="text-align:right">
+                        <td style="border-bottom:1pt solid #57A8B6;text-align:right" align="right">{{fecha}}</td>       
+                        <td style="border-bottom:1pt solid #57A8B6;">{{nombre_cargo}} {{texto_ayuda}} <small>{{nota}}</small> </td>
+                        
+                        <td style="border-bottom:1pt solid #57A8B6;text-align:right" align="right">${{cargo}}</td>                       
                       </tr>
-                      {{/cargos}}
-                      <tr>
-                        <td colspan="3" style="text-align:right">
-                          <strong>Total:</strong>
-                        </td>
-                        <td style="border-bottom:2pt solid #57A8B6;text-align:right;background-color:#F7F7F7"
-                          align="right">
-                          <h4><strong> ${{total}}</strong> </h4>
-                        </td>
-                      </tr>
+                                         
                     </table>
                     <p class="h2">{{nota_pie}}</p>
                     <!--[if (gte mso 9)|(IE)]>

@@ -1,0 +1,16 @@
+
+
+	select * from usuario
+
+	--sucursales
+	--1 mty
+	--2 contry
+	--3 apodaca
+	insert into usuario(nombre,correo,co_sucursal,password,permiso_gerente,cat_tipo_usuario,hora_entrada,hora_salida,genero)
+	values('Miss Liz','liz@mnoreply.com',1,'$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',false,1,'08:00:00','12:00:00',1);
+
+
+	insert into usuario(nombre,correo,co_sucursal,password,permiso_gerente,cat_tipo_usuario,hora_entrada,hora_salida,genero)
+	values('Miss Liz','liz2@noreply.com',3,'$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',false,2,'08:00:00','12:00:00',1);
+
+	select * from usuario

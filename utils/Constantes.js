@@ -1,6 +1,6 @@
 
 const CARGOS = {
-      ID_CARGO_MENSUALIDAD : 1  
+      ID_CARGO_MENSUALIDAD : 1,ID_TIEMPO_EXTRA:3
 };
 
 const ESTATUS = {
