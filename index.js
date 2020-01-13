@@ -2,6 +2,9 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
+
+const { pool } = require('./db/conexion');
+
 const usuario = require('./services/usuario');
 const alumno = require('./services/alumno');
 const asistencia = require('./services/asistencia');
@@ -307,7 +310,9 @@ GET('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes', reporteDeudas.getR
 
 app.get('/', (request, response) => {
 	console.log(process.env);
-	response.json({ info: `MagicIntelligence API v1.0.23 (env:${process.env.ENV})`})
+	console.log("=====================");
+	console.log(JSON.stringify(pool));
+	response.json({ info: `MagicIntelligence API v1.0.25 (env:${process.env.ENV})`})
 });
 
 app.listen(port, () => {
