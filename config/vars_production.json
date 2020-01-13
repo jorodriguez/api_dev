@@ -1,6 +1,6 @@
 {
     "env":"PRODUCTION",
-    "config_mail": {
+    "configMail": {
         "host": "mail.magicintelligence.com",
         "port": 465,
         "secureConnection": false,
