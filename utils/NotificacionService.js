@@ -115,7 +115,7 @@ function completarNotificacionCargo(lista_correos, lista_tokens, nombres_padres,
                 var params = {
                     fecha:row.fecha,
                     nombre_cliente: nombres_padres,
-                    nota_inicial: `Se registró el siguiente cargo en la cuenta de ${nombre_alumno}.`,
+                    nota_inicial: `Se registró el siguiente cargo en la cuenta de ${nombre_alumno}`,
                     nombre_cargo:row.nombre_cargo,
                     texto_ayuda:row.texto_ayuda,
                     nota:row.nota,
