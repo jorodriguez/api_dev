@@ -12,6 +12,11 @@ const TIPO_CARGO = {
     SERVICIO : 2
 };
 
+const TEMA_NOTIFICACION ={  ID_TEMA_NOTIFICACION_PAGOS:2,
+                            ID_TEMA_DATOS_FACTURACION:3,
+                            ID_TEMA_NOTIFICACION_ALTA_FAMILIAR:5
+                        };
+
 const ROWS_POR_PAGINACION = 5;
 
 const USUARIO_DEFAULT= 1;
@@ -32,5 +37,6 @@ module.exports = {
     USUARIO_DEFAULT,
     ENTRADA,SALIDA,
     TIPO_USUARIO,
-    ID_EMPRESA_MAGIC
+    ID_EMPRESA_MAGIC,
+    TEMA_NOTIFICACION
 };

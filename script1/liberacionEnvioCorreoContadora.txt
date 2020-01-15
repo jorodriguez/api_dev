@@ -1,0 +1,11 @@
+update cat_cargo set notificar = false ;
+update cat_cargo set notificar = true where id in (3,4) ;
+
+
+insert into co_tema_notificacion(id,nombre,genero)
+values(5,'ENVIO DATOS FACTURACIÓN',1);
+
+
+--cambiar correo por olgaluna561@gmail.com
+insert into co_correo_copia_notificacion(correo,co_tema_notificacion,co_sucursal,genero)
+values('velocirraptor79.1@gmail.com',5,1,1),('velocirraptor79.1@gmail.com',5,2,1),('velocirraptor79.1@gmail.com',5,3,1);

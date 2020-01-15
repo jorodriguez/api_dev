@@ -8,12 +8,16 @@ const mustache = require('mustache');
 var fs = require('fs');
 var path = require('path');
 const mensajeria = require('../services/mensajesFirebase');
-const { CARGOS } = require('../utils/Constantes');
+const { CARGOS ,TEMA_NOTIFICACION} = require('../utils/Constantes');
 const { variables } = require('../config/ambiente');
 
 const TEMPLATE_GENERICO = "generico.html";
 const TEMPLATE_RECIBO_PAGO = "recibo_pago.html";
 const TEMPLATE_AVISO_CARGO = "aviso_cargo.html";
+const TEMPLATE_DATOS_FACTURACION = "datos_factura.html";
+
+//pasar al archivo de sonc
+//const ID_TEMA_NOTIFICACION_PAGOS = 2;
 
 //Params [id_alumno]
 const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
@@ -75,16 +79,16 @@ const notificarCargo = (id_alumno, id_cargos) => {
             }
             if (results.rowCount > 0) {
                 let row = results.rows[0];
-                completarNotificacionCargo(row.correos, row.tokens, row.nombres_padres, row.nombre_alumno,id_cargos,row.co_sucursal);                
+                completarNotificacionCargo(row.correos, row.tokens, row.nombres_padres, row.nombre_alumno, id_cargos, row.co_sucursal);
             } else {
                 console.log("No se encontraron registros de padres para el alumno " + id_alumno);
             }
         });
 };
 
-function completarNotificacionCargo(lista_correos, lista_tokens, nombres_padres,  nombre_alumno,id_cargo,id_sucursal) {
-   console.log("completar envio notificacion");
-    if(lista_correos == null || lista_correos== undefined || lista_correos.length ==[]){
+function completarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, nombre_alumno, id_cargo, id_sucursal) {
+    console.log("completar envio notificacion");
+    if (lista_correos == null || lista_correos == undefined || lista_correos.length == []) {
         console.log("No existen correos para notificar el cargo");
         return;
     }
@@ -96,7 +100,8 @@ function completarNotificacionCargo(lista_correos, lista_tokens, nombres_padres,
                     cargo.cantidad,
                     cargo.total as cargo, 
                     cargo.nota,
-                    cargo.texto_ayuda
+                    cargo.texto_ayuda,
+                    cat.notificar
                 FROM co_cargo_balance_alumno cargo inner join cat_cargo cat on cat.id = cargo.cat_cargo
                 WHERE cargo.id = $1 and cargo.eliminado = false
             `, [id_cargo],
@@ -107,26 +112,28 @@ function completarNotificacionCargo(lista_correos, lista_tokens, nombres_padres,
             }
             if (results.rowCount > 0) {
 
-                let row = results.rows[0];                
-                let titulo_mensaje = `${row.nombre_cargo} de ${nombre_alumno}`;
-                let cuerpo_mensaje = `Hola ${nombres_padres}, se realizó un cargo de $${row.cargo} por ${row.nombre_cargo} ${row.texto_ayuda != '' ? '('+row.texto_ayuda+')':''} ${row.id_cat_cargo == CARGOS.ID_TIEMPO_EXTRA ? row.nota : ''}.`;
+                let row = results.rows[0];
 
-                console.log("Enviando correo a " + JSON.stringify(lista_correos));           
-                var params = {
-                    fecha:row.fecha,
-                    nombre_cliente: nombres_padres,
-                    nota_inicial: `Se registró el siguiente cargo en la cuenta de ${nombre_alumno}`,
-                    nombre_cargo:row.nombre_cargo,
-                    texto_ayuda:row.texto_ayuda,
-                    nota:row.nota,
-                    cargo:row.cargo,
-                    id_sucursal:id_sucursal,
-                    nota_pie:''                    
-                };
-                enviarNotificacionCargo(lista_correos,titulo_mensaje,params);
-                //enviar mensaje te text
-                enviarMensajeMovil(lista_tokens, titulo_mensaje, cuerpo_mensaje);
+                if (row.notificar) {
+                    let titulo_mensaje = `${row.nombre_cargo} de ${nombre_alumno}`;
+                    let cuerpo_mensaje = `Hola ${nombres_padres}, se realizó un cargo de $${row.cargo} por ${row.nombre_cargo} ${row.texto_ayuda != '' ? '(' + row.texto_ayuda + ')' : ''} ${row.id_cat_cargo == CARGOS.ID_TIEMPO_EXTRA ? row.nota : ''}.`;
 
+                    console.log("Enviando correo a " + JSON.stringify(lista_correos));
+                    var params = {
+                        fecha: row.fecha,
+                        nombre_cliente: nombres_padres,
+                        nota_inicial: `Se registró el siguiente cargo en la cuenta de ${nombre_alumno}`,
+                        nombre_cargo: row.nombre_cargo,
+                        texto_ayuda: row.texto_ayuda,
+                        nota: row.nota,
+                        cargo: row.cargo,
+                        id_sucursal: id_sucursal,
+                        nota_pie: ''
+                    };
+                    enviarNotificacionCargo(lista_correos, titulo_mensaje, params);
+                    //enviar mensaje te text
+                    enviarMensajeMovil(lista_tokens, titulo_mensaje, cuerpo_mensaje);
+                }else{console.log("El cargo no esta configurado para notificar cargo")}
             }
         });
 }
@@ -135,21 +142,21 @@ function completarNotificacionCargo(lista_correos, lista_tokens, nombres_padres,
 const enviarNotificacionCargo = (para, asunto, params) => {
     console.log("@enviarNotificacionCargo");
 
-    const ID_TEMA_NOTIFICACION_PAGOS = 2;
+    //const ID_TEMA_NOTIFICACION_PAGOS = 2;
 
-    loadTemplate(TEMPLATE_AVISO_CARGO,params)
-        .then((renderHtml) => {           
-            obtenerCorreosCopiaPorTema(params.id_sucursal, ID_TEMA_NOTIFICACION_PAGOS)
+    loadTemplate(TEMPLATE_AVISO_CARGO, params)
+        .then((renderHtml) => {
+            obtenerCorreosCopiaPorTema(params.id_sucursal, TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_PAGOS)
                 .then(result => {
 
                     let cc = "";
                     if (result != null && result.rowCount > 0) {
                         cc = result.rows[0].correos_copia;
                     }
-                   
+
                     enviarCorreo(para, cc, asunto, renderHtml);
                 });
-         
+
         }).catch(e => {
             console.log("Excepción en el envio de correo : " + e);
         });
@@ -205,12 +212,15 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
  		        WHERE rel.co_pago_balance_alumno = $1 and cargo.eliminado = false
             ) select pago.id,
  		            pago.pago,
-		            fpago.nombre as forma_pago,
+                    fpago.nombre as forma_pago,
+                    fpago.permite_factura as permite_factura_forma_pago,
                     pago.identificador_factura,
 		            TO_CHAR(pago.fecha, 'dd-mm-yyyy') as fecha,
 		            grupo.nombre as nombre_grupo,
 		            al.nombre as nombre_alumno,
                     al.apellidos as apellidos_alumno,
+                    al.factura, 
+                    (select to_json(a.*) from co_datos_facturacion a where a.id = al.co_datos_facturacion and a.eliminado = false) AS datos_factura,
                     suc.id as id_sucursal,
 		            suc.nombre as nombre_sucursal,
 		            suc.direccion as direccion_sucursal,		
@@ -224,7 +234,7 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
 									inner join co_grupo grupo on al.co_grupo = grupo.id
 									inner join co_sucursal suc on al.co_sucursal = suc.id									
 	            where pago.id = $2
-                group by pago.id,fpago.nombre,al.nombre,al.apellidos,grupo.nombre,suc.id,suc.nombre,suc.direccion 
+                group by pago.id,fpago.permite_factura,fpago.nombre,al.nombre,al.apellidos,al.factura,al.co_datos_facturacion,grupo.nombre,suc.id,suc.nombre,suc.direccion 
           `, [id_pago, id_pago],
         (error, results) => {
             if (error) {
@@ -236,41 +246,78 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                 let row = results.rows[0];
                 let tituloCorreo = "Recibo de pago ✔";
                 let titulo_mensaje = "Pago realizado ✔";
-                let cuerpo_mensaje = `Hola, recibimos un pago correspondiente a ${row.count_cargos} cargo${row.count_cargos > 0 ? '':'s'} del alumno ${row.nombre_alumno}, enviamos el recibo de pago a su correo.`;
+                let cuerpo_mensaje = `Hola, recibimos un pago correspondiente a ${row.count_cargos} cargo${row.count_cargos > 0 ? '' : 's'} del alumno ${row.nombre_alumno}, enviamos el recibo de pago a su correo.`;
                 console.log("Enviando correo a " + JSON.stringify(lista_correos));
-                
+
+                var  pago = {
+                    fecha: row.fecha,
+                    pago: row.pago,
+                    forma_pago: row.forma_pago,
+                    factura: row.identificador_factura,
+                    numero_cargos: row.count_cargos,
+                    cargos: row.cargos,
+                    escribir_folio_factura: (row.identificador_factura != null && row.identificador_factura != '')
+                };
+
+               var alumno = {
+                    nombre: row.nombre_alumno,
+                    apellidos: row.apellidos_alumno,
+                    grupo: row.nombre_grupo
+                };
+                var sucursal = {
+                    id: row.id_sucursal,
+                    nombre: row.nombre_sucursal,
+                    direccion: row.direccion_sucursal
+                };
+                var params = {
+                    titulo: "Magic Intelligence",
+                    nombre_empresa: "Magic Intelligence",
+                    nombre_cliente: nombres_padres,
+                    pago:pago,
+                    alumno:alumno,
+                    sucursal:sucursal,
+                    mensaje_pie: variables.template_mail.mensaje_pie
+                }
+
                 enviarCorreoReciboPago(
                     lista_correos,
                     tituloCorreo,
-                    {
-                        titulo: "Magic Intelligence",
-                        nombre_empresa: "Magic Intelligence",
-                        nombre_cliente: nombres_padres,
-                        pago: {
-                            fecha: row.fecha,
-                            pago: row.pago,
-                            forma_pago: row.forma_pago,
-                            factura: row.identificador_factura,
-                            numero_cargos: row.count_cargos,
-                            cargos: row.cargos,
-                            escribir_folio_factura: (row.identificador_factura != null && row.identificador_factura != '')
-                        },
-                        alumno: {
-                            nombre: row.nombre_alumno,
-                            apellidos: row.apellidos_alumno,
-                            grupo: row.nombre_grupo
-                        },
-                        sucursal: {
-                            id: row.id_sucursal,
-                            nombre: row.nombre_sucursal,
-                            direccion: row.direccion_sucursal
-                        },
-                        mensaje_pie: variables.template_mail.mensaje_pie
+                    params
+                    );
 
-                    });
-               
                 enviarMensajeMovil(lista_tokens, titulo_mensaje, cuerpo_mensaje);
-               
+
+                //enviar datos para facturacion
+
+                if (row.factura && row.permite_factura_forma_pago) {
+                    
+                    let listaCargos = row.cargos;
+                    var listaCargosFacturables = [];
+                    var total_pagado_cargos = 0;
+                    for (var item in listaCargos) {
+                        if (item.es_facturable) {
+                            listaCargosFacturables.push(item);
+                            total_pagado_cargos +=item.total_pagado;
+                        }
+                    }
+                    
+                    const nuevoParams = { ...params };
+
+                    nuevoParams.pago.cargos = listaCargosFacturables;
+                    nuevoParams.pago.total = total_pagado_cargos;
+                    nuevoParams.datos_factura = row.datos_factura;
+
+                    if (listaCargosFacturables.length > 0 ) {
+                        console.log("Enviar correo para facturacion ");                        
+                        enviarCorreoParaTemaNotificacion(
+                                                        'Registrar Factura - '+row.nombre_sucursal,
+                                                        params,
+                                                        TEMPLATE_DATOS_FACTURACION,
+                                                        TEMA_NOTIFICACION.ID_TEMA_DATOS_FACTURACION
+                                                        );
+
+                    }
+                }
             }
         });
 }
@@ -280,10 +327,12 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
 const enviarCorreoReciboPago = (para, asunto, params) => {
     console.log("@enviarCorreoReciboPago");
 
-    const ID_TEMA_NOTIFICACION_PAGOS = 2;
+    params.id_sucursal = params.sucursal.id;
+
+    enviarCorreoConCopiaTemaNotificacion(para,asunto,params,TEMPLATE_RECIBO_PAGO,TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_PAGOS);
 
     //loadTemplateReciboPago(params)
-    loadTemplate(TEMPLATE_RECIBO_PAGO,params)
+    /*loadTemplate(TEMPLATE_RECIBO_PAGO, params)
         .then((renderHtml) => {
 
             //obtener correos copia por sucursal y tema
@@ -294,14 +343,60 @@ const enviarCorreoReciboPago = (para, asunto, params) => {
                     if (result != null && result.rowCount > 0) {
                         cc = result.rows[0].correos_copia;
                     }
-                   
+
                     enviarCorreo(para, cc, asunto, renderHtml);
                 });
-         
+
         }).catch(e => {
             console.log("Excepción en el envio de correo : " + e);
-        });
+        });*/
 };
+
+function enviarCorreoConCopiaTemaNotificacion(para,asunto,params,template,idTemaNotificacion){
+    console.log("@enviarCorreoPorTemaNotificacion");
+    
+    loadTemplate(template, params)
+    .then((renderHtml) => {
+
+        //obtener correos copia por sucursal y tema
+        obtenerCorreosCopiaPorTema(params.id_sucursal, idTemaNotificacion)
+            .then(result => {
+
+                let cc = "";
+                if (result != null && result.rowCount > 0) {
+                    cc = result.rows[0].correos_copia;
+                }
+
+                enviarCorreo(para, cc, asunto, renderHtml);
+            });
+
+    }).catch(e => {
+        console.log("Excepción en el envio de correo : " + e);
+    });
+}
+
+
+function enviarCorreoParaTemaNotificacion(asunto,params,template,idTemaNotificacion){
+    console.log("@enviarCorreoParaTemaNotificacion");
+    
+    loadTemplate(template, params)
+    .then((renderHtml) => {
+        //obtener correos copia por sucursal y tema
+        obtenerCorreosCopiaPorTema(params.id_sucursal, idTemaNotificacion)
+            .then(result => {
+
+                let para = "";
+                if (result != null && result.rowCount > 0) {
+                    para = result.rows[0].correos_copia;
+                }
+
+                enviarCorreo(para,"", asunto, renderHtml);
+            });
+
+    }).catch(e => {
+        console.log("Excepción en el envio de correo : " + e);
+    });
+}
 
 
 
@@ -371,12 +466,12 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
 
             console.log(JSON.stringify(row));
 
-            const ID_TEMA_NOTIFICACION_ALTA_FAMILIAR = 4;
+           // const ID_TEMA_NOTIFICACION_ALTA_FAMILIAR = 4;
 
             loadTemplate(TEMPLATE_GENERICO, params)
                 .then((renderHtml) => {
                     console.log("Dentro d");
-                    obtenerCorreosCopiaPorTema(params.sucursal.id, ID_TEMA_NOTIFICACION_ALTA_FAMILIAR)
+                    obtenerCorreosCopiaPorTema(params.sucursal.id, TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_ALTA_FAMILIAR)
                         .then(result => {
                             let cc = "";
                             if (result != null && result.rowCount > 0) {
@@ -385,7 +480,7 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
 
                             enviarCorreo(para, cc, asunto, renderHtml);
 
-                        });                  
+                        });
                 }).catch(e => {
                     console.log("Excepción en el envio de correo : " + e);
                 });
@@ -485,14 +580,14 @@ function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
 }
 
 function enviarCorreo(para, conCopia, asunto, renderHtml) {
- console.log("Para "+para);
- console.log("CCC "+conCopia);
-    if (para == undefined  || para == ''  || para == null 
+    console.log("Para " + para);
+    console.log("CCC " + conCopia);
+    if (para == undefined || para == '' || para == null
     ) {
         console.log("############ NO EXISTEN CORREOS EN NINGUN CONTENEDOR (para,cc)######");
         return;
     }
-    if (conCopia == undefined  || conCopia == ''  || conCopia == null ) {
+    if (conCopia == undefined || conCopia == '' || conCopia == null) {
         conCopia = "";
     }
 
@@ -508,9 +603,9 @@ function enviarCorreo(para, conCopia, asunto, renderHtml) {
 
         console.log(`Ambiente ${variables.env}`);
         console.log(`Sender FROM ${variables.mailOptions.from}`);
-        console.log("Correo para "+para);
-        console.log("Correo cc "+JSON.stringify(conCopia));
-        console.log("asuto "+asunto);
+        console.log("Correo para " + para);
+        console.log("Correo cc " + JSON.stringify(conCopia));
+        console.log("asuto " + asunto);
 
         transporter.sendMail(mailData, function (error, info) {
             if (error) {
@@ -530,10 +625,10 @@ function enviarCorreo(para, conCopia, asunto, renderHtml) {
 module.exports = {
     notificarReciboPago,
     enviarCorreoTest,
-  //  enviarCorreoCambioSucursal,
+    //  enviarCorreoCambioSucursal,
     enviarCorreoClaveFamiliar,
     getAlumnosInfoCorreoAlumnos,
-   // enviarRecordatorioPago
-   notificarCargo
+    // enviarRecordatorioPago
+    notificarCargo
 
 }

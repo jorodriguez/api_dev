@@ -93,6 +93,8 @@ const registrarPago = (request, response) => {
                     let retorno = results.rows[0];
                     console.log("Retorno el ID " + JSON.stringify(results.rows));
                     notificacionService.notificarReciboPago(id_alumno, retorno.agregar_pago_alumno);
+                    //enviar datos de facturacion al canal de notificaciones 
+                    enviarDatosParaFactura(id_alumno,retorno.agregar_pago_alumno);
                 }
                 response.status(200).json(results.rowCount);
             });
@@ -101,6 +103,14 @@ const registrarPago = (request, response) => {
 
     }
 };
+
+function enviarDatosParaFactura(id_alumno,id_pago){
+    try{
+
+    }catch(e){
+        console.log("Error al enviar los datos para la factura "+e);
+    }
+}
 
 
 const getCatalogoCargos = (request, response) => {
