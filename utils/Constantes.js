@@ -13,8 +13,8 @@ const TIPO_CARGO = {
 };
 
 const TEMA_NOTIFICACION ={  ID_TEMA_NOTIFICACION_PAGOS:2,
-                            ID_TEMA_DATOS_FACTURACION:3,
-                            ID_TEMA_NOTIFICACION_ALTA_FAMILIAR:5
+                            ID_TEMA_DATOS_FACTURACION:5,
+                            ID_TEMA_NOTIFICACION_ALTA_FAMILIAR:4
                         };
 
 const ROWS_POR_PAGINACION = 5;

@@ -44,7 +44,7 @@ const dbParams = {
     user: 'pffyesodvpvsrp',
     host: 'ec2-174-129-242-183.compute-1.amazonaws.com',
     database: 'd83inhs3bq9ufb',
-    password: 'f4de35950e23261169a79f8ac3007630aaefc8ff887c147b9283a8f68b165019',
+    password: 'C',
     port:5432,
     ssl: { rejectUnauthorized: false }
 }*/

@@ -94,7 +94,7 @@ const registrarPago = (request, response) => {
                     console.log("Retorno el ID " + JSON.stringify(results.rows));
                     notificacionService.notificarReciboPago(id_alumno, retorno.agregar_pago_alumno);
                     //enviar datos de facturacion al canal de notificaciones 
-                    enviarDatosParaFactura(id_alumno,retorno.agregar_pago_alumno);
+                    //enviarDatosParaFactura(id_alumno,retorno.agregar_pago_alumno);
                 }
                 response.status(200).json(results.rowCount);
             });

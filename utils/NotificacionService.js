@@ -288,30 +288,37 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                 enviarMensajeMovil(lista_tokens, titulo_mensaje, cuerpo_mensaje);
 
                 //enviar datos para facturacion
-
+                    console.log("Iniciando envio de datos de factura factura "+row.factura+" permite "+row.permite_factura_forma_pago);
                 if (row.factura && row.permite_factura_forma_pago) {
-                    
-                    let listaCargos = row.cargos;
+                                    
+                    console.log("CARGOS "+ JSON.stringify(row.cargos));
+
                     var listaCargosFacturables = [];
                     var total_pagado_cargos = 0;
-                    for (var item in listaCargos) {
-                        if (item.es_facturable) {
-                            listaCargosFacturables.push(item);
-                            total_pagado_cargos +=item.total_pagado;
+
+                    for (var item in row.cargos) {
+                        let item_row = row.cargos[item];
+                        console.log("item "+JSON.stringify(item_row));
+                        if (item_row.es_facturable) {
+                            listaCargosFacturables.push(item_row);
+                            total_pagado_cargos +=item_row.total_pagado;
                         }
+                        console.log("item "+JSON.stringify(listaCargosFacturables));
                     }
                     
-                    const nuevoParams = { ...params };
+                    const nuevoParams = JSON.parse(JSON.stringify(params));                   
 
                     nuevoParams.pago.cargos = listaCargosFacturables;
-                    nuevoParams.pago.total = total_pagado_cargos;
+                    nuevoParams.pago.pago = total_pagado_cargos;
                     nuevoParams.datos_factura = row.datos_factura;
+                    console.log(JSON.stringify(nuevoParams));
 
+                    console.log("Cargos para facturar "+JSON.stringify(nuevoParams.pago.cargos));
                     if (listaCargosFacturables.length > 0 ) {
                         console.log("Enviar correo para facturacion ");                        
                         enviarCorreoParaTemaNotificacion(
                                                         'Registrar Factura - '+row.nombre_sucursal,
-                                                        params,
+                                                        nuevoParams,
                                                         TEMPLATE_DATOS_FACTURACION,
                                                         TEMA_NOTIFICACION.ID_TEMA_DATOS_FACTURACION
                                                         );
