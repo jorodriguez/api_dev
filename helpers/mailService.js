@@ -1,6 +1,5 @@
 
 const { pool } = require('../db/conexion');
-
 const handle = require('./handlersErrors');
 const helperToken = require('./helperTokenMovil');
 

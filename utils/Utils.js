@@ -1,3 +1,4 @@
+var bcrypt = require('bcryptjs');
 
 
 function quitarElementosVaciosArray(array){
@@ -9,8 +10,25 @@ function quitarElementosVaciosArray(array){
     return array.filter(Boolean);    
 }
 
+function encriptar(texto:string){
+
+    return  bcrypt.hashSync(texto, 8);
+    
+}
+
+function isEmpty(obj) {
+    for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}
+
+
 module.exports = {
-    quitarElementosVaciosArray,    
+    quitarElementosVaciosArray,   
+    isEmpty , 
+    encriptar
 };
 
 /*

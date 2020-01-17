@@ -3,6 +3,7 @@ const { pool } = require('../db/conexion');
 const Joi = require('@hapi/joi');
 const handle = require('../helpers/handlersErrors');
 const { validarToken } = require('../helpers/helperToken');
+var bcrypt = require('bcryptjs');
 
 // GET a Login 
 const login = (request, response) => {
@@ -56,7 +57,7 @@ const getUserById = (request, response) => {
 
 		const id = parseInt(request.params.id);
 
-		pool.query('SELECT * FROM usuario WHERE id = $1', [id], (error, results) => {
+		pool.query('SELECT * FROM usuario WHERE id = $1 and eliminado = false', [id], (error, results) => {
 			if (error) {
 				handle.callbackError(error, response);
 				return;
@@ -72,11 +73,12 @@ const getUserById = (request, response) => {
 //  POST — users | createUser()
 const createUser = (request, response) => {
 	try {
-		//validarToken(request,response);		
 
-		const { nombre, correo, password } = request.body;
+		const { usuario } = request.body;
 
-		pool.query('INSERT INTO USUARIO (NOMBRE,CORREO,PASSWORD) VALUES($1,$2,$3)', [nombre, correo, password], (error, results) => {
+		pool.query('INSERT INTO USUARIO (NOMBRE,CORREO,PASSWORD,CO_SUCURSAL,PERMISO_GERENTE) VALUES($1,$2,$3)',
+			 [nombre, correo, password], 
+		(error, results) => {
 			if (error) {
 				handle.callbackError(error, response);
 				return;
@@ -88,6 +90,36 @@ const createUser = (request, response) => {
 		handle.callbackErrorNoControlado(e, response);
 	}
 };
+
+
+
+function insertarUsuario(usuario){
+	try {
+
+		const { usuario } = request.body;
+		
+		pool.query(`INSERT INTO USUARIO (NOMBRE,NOMBRE_COMPLETO,
+										CORREO,PASSWORD,										
+										PERMISO_GERENTE,
+										HORA_ENTRADA,
+										HORA_SALIDA,
+										CAT_TIPO_USUARIO,
+										CO_SUCURSAL,										
+										GENERO) 
+					VALUES($1,$2,$3)`,
+			 [nombre, correo, password], 
+		(error, results) => {
+			if (error) {
+				handle.callbackError(error, response);
+				return;
+			}
+			response.status(201).send(`User added with ID: ${results.insertId}`)
+		})
+
+	} catch (e) {
+		handle.callbackErrorNoControlado(e, response);
+	}
+}
 
 
 // PUT — /users/:id | updateUser()

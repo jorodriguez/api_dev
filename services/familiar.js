@@ -1,7 +1,7 @@
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const { validarToken } = require('../helpers/helperToken');
-const { isEmpty } = require('../helpers/Utils');
+const { isEmpty,encriptar } = require('../utils/Utils');
 const mailService = require('../utils/NotificacionService');
 const utilerias = require('./utilerias');
 
