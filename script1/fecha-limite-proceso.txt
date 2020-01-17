@@ -1,0 +1,26 @@
+
+	SELECT 	   a.fecha_limite_pago_mensualidad,
+		       a.nombre,
+			   a.co_balance_alumno,
+               b.id as id_cargo_balance_alumno,
+               b.fecha,
+               b.cantidad,
+               cargo.nombre as nombre_cargo,
+               b.texto_ayuda,
+               cat_cargo as id_cargo,
+               cargo.es_facturable,
+               b.total as total,
+               b.cargo,
+               b.total_pagado,
+               b.nota,
+               b.pagado               
+             FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
+                                           inner join cat_cargo cargo on b.cat_cargo = cargo.id					
+             WHERE a.co_sucursal =2
+					and a.fecha_limite_pago_mensualidad = getDate('')					
+					and b.pagado = false
+					and cargo.id = 1
+					and b.eliminado = false 
+					and a.eliminado = false
+             ORDER by b.pagado, b.fecha desc
+
