@@ -106,8 +106,11 @@ const registrarEntradaUsuario = (request, response) => {
         console.log("Ids registrar entrada  " + id);
 
         executeQuery(`
-                INSERT INTO CO_ASISTENCIA_USUARIO(fecha,hora_entrada,usuario,comentario_entrada,genero)
-                values(getDate(''),(getDate('')+getHora('')),$1,$2,$3) RETURNING hora_entrada;
+                INSERT INTO CO_ASISTENCIA_USUARIO(fecha,hora_entrada,horario_entrada,usuario,comentario_entrada,genero)
+                values(getDate('')
+                        ,(getDate('')+getHora(''))
+                        ,(SELECT (getDate('') + hora_entrada)::timestamp FROM USUARIO WHERE id = $1 )
+                        ,$1,$2,$3) RETURNING hora_entrada;
                 `,
             [id, comentario_entrada, genero],
             response,
@@ -118,7 +121,7 @@ const registrarEntradaUsuario = (request, response) => {
                 if (results.rowCount > 0) {
                     respuesta = {
                         registrado: (results.rowCount > 0),
-                        hora_entrada: results.rows[0].hora_entrada
+                        hora_entrada: (results.rowCount > 0) ? results.rows[0].hora_entrada :null
                     };
                 }
                 response.status(200).json(respuesta);
@@ -138,8 +141,10 @@ const registrarSalidaUsuario = (request, response) => {
 
         executeQuery(`
             update CO_ASISTENCIA_USUARIO
-                SET hora_salida = (getDate('')+getHora('')),
-                    comentario_salida =$2,
+                SET hora_salida = (getDate('')+getHora(''))::timestamp,
+                    horario_salida = (SELECT (getDate('') + u.hora_salida)::timestamp FROM USUARIO u WHERE u.id = usuario ),
+                    comentario_salida =$2,                    
+                    fecha_modifico = (getDate('')+getHora(''))::timestamp,
                     modifico = $3            
             WHERE id = $1 
             RETURNING hora_salida;        

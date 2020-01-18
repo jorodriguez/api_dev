@@ -10,7 +10,7 @@ function quitarElementosVaciosArray(array){
     return array.filter(Boolean);    
 }
 
-function encriptar(texto:string){
+function encriptar(texto){
 
     return  bcrypt.hashSync(texto, 8);
     

@@ -436,9 +436,9 @@ const getListaAsistenciaMesPorAlumno = (request, response) => {
             date_trunc('seconds',a.hora_salida::time) as hora_salida,
             (select count(*) from co_cargo_balance_alumno where fecha = s.fecha) as cargos_extras
         from serie s left join co_asistencia a on s.fecha = a.fecha
-        and a.co_alumno = $1
-        group by s.fecha,a.hora_entrada,a.hora_salida
-        order by s.fecha 
+            and a.co_alumno = $1
+            group by s.fecha,a.hora_entrada,a.hora_salida
+            order by s.fecha 
 
             `, [id_alumno]).then((results) => {
             console.log("resultado lista de asistencia");

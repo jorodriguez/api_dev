@@ -2,7 +2,7 @@
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const { validarToken } = require('../helpers/helperToken');
-const { isEmpty } = require('../helpers/Utils');
+const { isEmpty } = require('../utils/Utils');
 const Joi = require('@hapi/joi');
 
 const inscripcion = require('./inscripcion');
@@ -64,7 +64,8 @@ const createAlumno = (request, response) => {
                     costo_inscripcion,costo_colegiatura,minutos_gracia,
                     foto,fecha_inscripcion,fecha_reinscripcion,                                      
                     sexo,genero,
-                    fecha_limite_pago_mensualidad) 
+                    fecha_limite_pago_mensualidad,
+                    numero_dia_limite_pago) 
                  VALUES(
                     $1,$2,$3,
                     $4,$5,$6,
@@ -72,7 +73,8 @@ const createAlumno = (request, response) => {
                     $10,$11,$12,
                     $13,$14,($14::date + interval '1 year')
                     ,$15,$16
-                    ,$17             
+                    ,$17
+                    ,to_char($17::date,'dd')::integer             
                 ) RETURNING id;`
                 , [
                     p.co_sucursal, p.co_grupo, p.nombre, //3
