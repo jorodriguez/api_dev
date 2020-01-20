@@ -5,8 +5,6 @@ const { dbParams } = require('../config/configJwt');
 const handle = require('../helpers/handlersErrors');
 const { validarToken } = require('../helpers/helperToken');
 const mensajeria = require('./mensajesFirebase');
-
-
 var schedule = require('node-schedule');
 
 

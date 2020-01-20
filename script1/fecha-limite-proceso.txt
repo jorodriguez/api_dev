@@ -1,7 +1,7 @@
 
 	SELECT 	   a.fecha_limite_pago_mensualidad,
 		       a.nombre,
-			   a.co_balance_alumno,
+	        a.co_balance_alumno,
                b.id as id_cargo_balance_alumno,
                b.fecha,
                b.cantidad,
@@ -17,12 +17,14 @@
              FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
                                            inner join cat_cargo cargo on b.cat_cargo = cargo.id					
              WHERE a.co_sucursal =2
-					and a.fecha_limite_pago_mensualidad = getDate('')					
+					and a.fecha_limite_pago_mensualidad < getDate('') 			
+					and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')
 					and b.pagado = false
-					and cargo.id = 1
+					and cargo.id = 1				
+					and b.recargo = false	
 					and b.eliminado = false 
-					and a.eliminado = false
-             ORDER by b.pagado, b.fecha desc
+					and a.eliminado = false					
+             ORDER by a.nombre,b.fecha desc
 
 
 --- para guardar los horarios de entrada salida de mises y de alumno --
@@ -144,3 +146,21 @@ BEGIN
 	retorno := true;
 END; --END FUNCTION 
 $$;
+
+
+
+
+/* ************** modificaciones para el proceso de recargos  */
+
+alter table co_cargo_balance_alumno add column co_cargo_balance_alumno integer;
+ALTER TABLE co_cargo_balance_alumno ADD CONSTRAINT constraint_co_cargo_balance_alumno_fk FOREIGN KEY (co_cargo_balance_alumno) REFERENCES co_cargo_balance_alumno(id);
+
+alter table co_cargo_balance_alumno add column recargo boolean default false;
+
+
+
+
+//---template correo 
+
+    alter table co_sucursal add column  encabeza_template_correo text;
+             alter table co_sucursal add column  pie_template_correo text;
