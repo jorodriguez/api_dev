@@ -259,52 +259,6 @@ const registrarSalidaAlumnos = (request, response) => {
                 handle.callbackErrorNoControlado(e, response);
             });
 
-
-        /*     console.log("IDS de asistencia recibidos " + ids);
-             // obtener para el proceso de horas extras
-             var idsAsistencias = '';
-             var first = true;
-     
-             ids.forEach(element => {
-                 if (first) {
-                     idsAsistencias += (element + "");
-                     first = false;
-                 } else {
-                     idsAsistencias += (',' + element);
-                 }
-             });
-     
-             console.log(" === > " + idsAsistencias);
-     
-             pool.query("SELECT registrar_salida_alumno('" + idsAsistencias + "'," + genero + ");")
-                 .then((results) => {
-                     console.log("Resultado " + JSON.stringify(results));
-                     if (results.rowCount > 0) {
-                         enviarMensajeEntradaSalida(ids, SALIDA);
-                     }
-                     response.status(200).json(results.rowCount);
-                 }).catch((e) => {
-                     handle.callbackErrorNoControlado(e, response);
-                 });
-     */
-        // Jala 
-        /*pool.query("UPDATE CO_ASISTENCIA " +
-            " SET hora_salida = (getDate('')+getHora(''))::timestamp," +
-            "  modifico = $1 " +
-            " WHERE id IN " + sqlComplete,
-            [genero])
-            .then((results) => {
-                console.log("Resultafdo "+JSON.stringify(results));
-
-                if (results.rowCount > 0) {
-
-                    ejecutarProcedimientoCalculoHorasExtra(idsForHorasExtras, genero);
-                }
-
-                response.status(200).json(results.rowCount);
-            }).catch((e) => {
-                handle.callbackErrorNoControlado(e, response);
-            });*/
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }

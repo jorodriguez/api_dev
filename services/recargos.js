@@ -2,8 +2,13 @@
 const mensajeria = require('./mensajesFirebase');
 const mailService = require('../utils/NotificacionService');
 const { getCatalogo,getResultQuery } = require('./sqlHelper');
+const CRITERIO = {
+     VENCEN_HOY :'=',     
+     VENCIDOS :'<'
+};
 
-const QUERY_RECARGOS = `
+const QUERY_RECARGOS =  function(criterio){
+return `
         SELECT 	   
            a.fecha_limite_pago_mensualidad,
            a.nombre,
@@ -23,7 +28,7 @@ const QUERY_RECARGOS = `
          FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
                                        inner join cat_cargo cargo on b.cat_cargo = cargo.id					
          WHERE a.co_sucursal = $1
-                and a.fecha_limite_pago_mensualidad < getDate('') 			
+                and a.fecha_limite_pago_mensualidad ${criterio} getDate('')
                 and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')
                 and b.pagado = false
                 and cargo.id = 1
@@ -31,13 +36,20 @@ const QUERY_RECARGOS = `
                 and b.eliminado = false 
                 and a.eliminado = false					
          ORDER by a.nombre,b.fecha desc`;
+}
 
 //FIXME: incluir el id de la empresa
 function procesoRecargosMensualidad(id_sucursal){
     console.log("Inicinado ejecución del proceso para calular recargos sucursal "+id_sucursal);
     try{
-        getResultQuery(QUERY_RECARGOS);
         
+        pool.query(QUERY_RECARGOS(CRITERIO.VENCIDOS), [id_sucursal])
+            .then(handler || hadlerGenerico)
+            .catch((error) => {
+                console.log("XXXX EXCEPCION Al CONSULTAR " + error);              
+                return;
+            });
+               
     }catch(e){
         console.log("Excepcion al ejecutar el proceso de recargos "+e);
         //enviar un correo al equipo de soporte

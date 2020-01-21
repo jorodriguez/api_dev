@@ -22,8 +22,7 @@ const getCatalogo = (query, response) => {
             return;
         }
 
-        pool.query(query,
-            (error, results) => {
+        pool.query(query, (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
@@ -37,77 +36,110 @@ const getCatalogo = (query, response) => {
 };
 
 
-const getResultQuery = (query, params, response, handler) => {
-    console.log("@getResultQuery");
+function getResults(query, params, handler) {
+
+    getResults(query, params, handler, undefined)
+};
+
+
+function getResults(query, params, handler, handlerCatch) {
+    console.log("@getResults");
     try {
 
-
-        if (query == undefined || query == '' || params == null) {
+        if (query == undefined || query == '' || query == null) {
             console.log("No esta definido el query");
             return;
         }
 
-        /* if(params == undefined || params == [] || params == null){
-             console.log("No estan definidos los parametros []");
-             return;
-         }*/
+        if (handler == undefined || handler == '' || handler == null) {
+            console.log("No esta definido el handler el query");
+            return;
+        }
+
+
+        if (handlerCatch == undefined || handlerCatch == '' || handlerCatch == null) {
+
+            handlerCatch = (error) => {
+                console.log("Exepcion al realizar el query " + query + " /n causa " + error);
+            }
+        }
 
         let tiene_parametros = tieneParametros(params);
 
-        let hadlerGenerico = (results) => { console.log("Query Ejecutado correctamente.."); response.status(200).json(results.rows); };
-
-        console.log(handler ? 'hanlder definido' : 'handler NO Definido');
-        console.log("====> Con parametros " + tiene_parametros);
+        console.log("tiene parametros " + tiene_parametros);
 
         if (tiene_parametros) {
             pool.query(query, params)
-                .then(handler || hadlerGenerico)
-                .catch((error) => {
-                    handle.callbackError(error, response);
-                    return;
-                });
+                .then(handler)
+                .catch(handlerCatch);
         } else {
             pool.query(query)
-                .then(handler || hadlerGenerico)
-                .catch((error) => {
-                    handle.callbackError(error, response);
-                    return;
-                });
+                .then(handler)
+                .catch(handlerCatch);
+        }
+    } catch (e) {
+        console.log("Excepción al ejecutar el query " + e);
+    }
+};
+
+
+
+const getResultQuery = (query, params, response, handler) => {
+    console.log("@getResultQuery");
+    try {
+
+       let hadlerGenerico = (results) => {
+            console.log("Query Ejecutado correctamente..");
+            response.status(200).json(results.rows);
+        };
+
+       let handlerCatch = (error) => {
+           console.log("Excepcion al ejecutar el query "+error);
+            handle.callbackError(error, response);
+            return;
         }
 
+        console.log("*****************************************************");
+        getResults(query, params, handler || hadlerGenerico, handlerCatch);
+
+        
+        
+        
+           /*     if (query == undefined || query == '' || query == null) {
+                    console.log("No esta definido el query");
+                    return;
+                }
+             
+        
+                let tiene_parametros = tieneParametros(params);
+        
+                let hadlerGenerico = (results) => { console.log("Query Ejecutado correctamente.."); response.status(200).json(results.rows); };
+        
+                console.log(handler ? 'hanlder definido' : 'handler NO Definido');
+                console.log("====> Con parametros " + tiene_parametros);
+        
+                if (tiene_parametros) {
+                    pool.query(query, params)
+                        .then(handler || hadlerGenerico)
+                        .catch((error) => {
+                            handle.callbackError(error, response);
+                            return;
+                        });
+                } else {
+                    pool.query(query)
+                        .then(handler || hadlerGenerico)
+                        .catch((error) => {
+                            handle.callbackError(error, response);
+                            return;
+                        });
+                }
+        */
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
 };
-
 /*
-EJEMPLO DE invocacion con hander 
-executeQuery(`INSERT INTO USUARIO(nombre) VALUES($1)`,
-                ['Joel Rodriguez Rojas'],
-                response,
-        (results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                let respuesta = null;
-
-                if (results.rowCount > 0) {
-                    respuesta = {
-                        registrado: (results.rowCount > 0),
-                        hora_salida: results.rows[0].hora_salida
-                    };
-                }
-                response.status(200).json(respuesta);
-    });
-
- --EJEMPLO SIN HANDLER
-
-  executeQuery(`INSERT INTO USUARIO(nombre) VALUES($1)`,
-                ['Joel Rodriguez Rojas'],
-                response)
-*/
 
 const executeQuery = (query, params, response, handler) => {
     console.log("@executeQuery");
@@ -117,47 +149,45 @@ const executeQuery = (query, params, response, handler) => {
             console.log("No esta definido el query");
             return;
         }
-        
-        /*if (params == undefined || params == [] || params == null) {
-            console.log("No estan definidos los parametros []");
-            return;
-        }*/
+
+      
         let tiene_parametros = tieneParametros(params);
 
         let hadlerGenerico = (results) => {
             response.status(200).json(results.rowCount);
         };
 
-        if(tieneParametros){
+        if (tiene_parametros) {
             pool.query(query, params)
-            .then(handler || hadlerGenerico)
-            .catch((error) => {
-                console.log("XXXX EXCEPCION AL INSERT,UPDATE " + error);
-                handle.callbackError(error, response);
-                return;
-            });
-        }else{
+                .then(handler || hadlerGenerico)
+                .catch((error) => {
+                    console.log("XXXX EXCEPCION AL INSERT,UPDATE " + error);
+                    handle.callbackError(error, response);
+                    return;
+                });
+        } else {
             pool.query(query)
-            .then(handler || hadlerGenerico)
-            .catch((error) => {
-                console.log("XXXX EXCEPCION AL INSERT,UPDATE " + error);
-                handle.callbackError(error, response);
-                return;
-            });
+                .then(handler || hadlerGenerico)
+                .catch((error) => {
+                    console.log("XXXX EXCEPCION AL INSERT,UPDATE " + error);
+                    handle.callbackError(error, response);
+                    return;
+                });
         }
-       
+
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
 };
+*/
 
-function tieneParametros(params){
+function tieneParametros(params) {
     return (params != undefined || params != null || params != []);
 }
 
 module.exports = {
     QUERY,
     getCatalogo,
-    getResultQuery,
-    executeQuery
+    getResultQuery,    
+   // executeQuery
 }
