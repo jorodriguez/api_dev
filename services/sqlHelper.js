@@ -10,6 +10,16 @@ const QUERY = {
     SERVICIOS: "SELECT * FROM cat_servicio WHERE ELIMINADO = false order by nombre",
     CARGOS: "SELECT * FROM CAT_CARGO WHERE ELIMINADO = false order by nombre",
     SUCURSALES: "SELECT id,nombre,direccion,class_color FROM CO_SUCURSAL WHERE ELIMINADO = false ",
+    TEMPLATE_EMPRESA : `
+        SELECT t.nombre as nombre_template,
+            t.encabezado,
+            t.pie,
+            em.nombre as nombre_empresa,
+            em.direccion,
+            em.telefono		
+        from co_template t inner join co_empresa em on em.id = t.id
+        where em.id = $1 and t.eliminado = false"`
+    
 };
 
 
@@ -185,9 +195,15 @@ function tieneParametros(params) {
     return (params != undefined || params != null || params != []);
 }
 
+function getQueryInstance(){
+    return pool.query;
+}
+
 module.exports = {
+    getQueryInstance,
     QUERY,
     getCatalogo,
     getResultQuery,    
+    getResults
    // executeQuery
 }

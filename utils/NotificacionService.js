@@ -8,17 +8,17 @@ const mustache = require('mustache');
 var fs = require('fs');
 var path = require('path');
 const mensajeria = require('../services/mensajesFirebase');
-const { CARGOS ,TEMA_NOTIFICACION} = require('../utils/Constantes');
+const { CARGOS, TEMA_NOTIFICACION } = require('../utils/Constantes');
 const { variables } = require('../config/ambiente');
+const correoService = require('./CorreoService');
+const { TEMPLATES } = require('./CorreoService');
 
+/*
 const TEMPLATE_GENERICO = "generico.html";
 const TEMPLATE_RECIBO_PAGO = "recibo_pago.html";
 const TEMPLATE_AVISO_CARGO = "aviso_cargo.html";
 const TEMPLATE_DATOS_FACTURACION = "datos_factura.html";
-
-//pasar al archivo de sonc
-//const ID_TEMA_NOTIFICACION_PAGOS = 2;
-
+*/
 //Params [id_alumno]
 const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
     `SELECT  	a.id,
@@ -36,36 +36,37 @@ const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
             and rel.eliminado = false
     group by a.nombre,a.id `;
 
+/*
 const transporter = nodemailer.createTransport(variables.configMail);
 
 const enviarCorreoTest = (request, response) => {
-    console.log("Enviando correo de prueba ");
-    const mailData = {
-        from: variables.mailOptions.from,
-        //to: 'joel.rod.roj@hotmail.com',
-        to: 'joel@magicintelligence.com',
-        subject: 'Test',
-        html: "<h3>Test</h3>"
-    };
-    try {
-        transporter.sendMail(mailData, function (error, info) {
-            if (error) {
-                console.log("Error al enviar correo : " + error);
-            } else {
-                console.log(JSON.stringify(info));
-                console.log('Email sent: ' + info.response);
-            }
-        });
-
-        transporter.close();
-
-        response.status(200).json({ envio: "Ok" });
-        console.log("Enviado OK");
-    } catch (e) {
-        console.log("Error " + e);
-        transporter.close();
-    }
+console.log("Enviando correo de prueba ");
+const mailData = {
+    from: variables.mailOptions.from,
+    //to: 'joel.rod.roj@hotmail.com',
+    to: 'joel@magicintelligence.com',
+    subject: 'Test',
+    html: "<h3>Test</h3>"
 };
+try {
+    transporter.sendMail(mailData, function (error, info) {
+        if (error) {
+            console.log("Error al enviar correo : " + error);
+        } else {
+            console.log(JSON.stringify(info));
+            console.log('Email sent: ' + info.response);
+        }
+    });
+
+    transporter.close();
+
+    response.status(200).json({ envio: "Ok" });
+    console.log("Enviado OK");
+} catch (e) {
+    console.log("Error " + e);
+    transporter.close();
+}
+};*/
 
 
 
@@ -133,7 +134,7 @@ function completarNotificacionCargo(lista_correos, lista_tokens, nombres_padres,
                     enviarNotificacionCargo(lista_correos, titulo_mensaje, params);
                     //enviar mensaje te text
                     enviarMensajeMovil(lista_tokens, titulo_mensaje, cuerpo_mensaje);
-                }else{console.log("El cargo no esta configurado para notificar cargo")}
+                } else { console.log("El cargo no esta configurado para notificar cargo") }
             }
         });
 }
@@ -144,22 +145,32 @@ const enviarNotificacionCargo = (para, asunto, params) => {
 
     //const ID_TEMA_NOTIFICACION_PAGOS = 2;
 
-    loadTemplate(TEMPLATE_AVISO_CARGO, params)
-        .then((renderHtml) => {
-            obtenerCorreosCopiaPorTema(params.id_sucursal, TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_PAGOS)
-                .then(result => {
-
-                    let cc = "";
-                    if (result != null && result.rowCount > 0) {
-                        cc = result.rows[0].correos_copia;
-                    }
-
-                    enviarCorreo(para, cc, asunto, renderHtml);
-                });
-
-        }).catch(e => {
-            console.log("Excepción en el envio de correo : " + e);
-        });
+    correoService
+        .enviarCorreoConCopiaTemaNotificacion(
+            asunto,
+            para,
+            params.id_sucursal,
+            TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_PAGOS,
+            params,
+            TEMPLATES.TEMPLATE_AVISO_CARGO
+        );
+    /*
+        loadTemplate(TEMPLATE_AVISO_CARGO, params)
+            .then((renderHtml) => {
+                obtenerCorreosCopiaPorTema(params.id_sucursal, TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_PAGOS)
+                    .then(result => {
+    
+                        let cc = "";
+                        if (result != null && result.rowCount > 0) {
+                            cc = result.rows[0].correos_copia;
+                        }
+    
+                        enviarCorreo(para, cc, asunto, renderHtml);
+                    });
+    
+            }).catch(e => {
+                console.log("Excepción en el envio de correo : " + e);
+            });*/
 };
 
 
@@ -249,7 +260,7 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                 let cuerpo_mensaje = `Hola, recibimos un pago correspondiente a ${row.count_cargos} cargo${row.count_cargos > 0 ? '' : 's'} del alumno ${row.nombre_alumno}, enviamos el recibo de pago a su correo.`;
                 console.log("Enviando correo a " + JSON.stringify(lista_correos));
 
-                var  pago = {
+                var pago = {
                     fecha: row.fecha,
                     pago: row.pago,
                     forma_pago: row.forma_pago,
@@ -259,7 +270,7 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                     escribir_folio_factura: (row.identificador_factura != null && row.identificador_factura != '')
                 };
 
-               var alumno = {
+                var alumno = {
                     nombre: row.nombre_alumno,
                     apellidos: row.apellidos_alumno,
                     grupo: row.nombre_grupo
@@ -273,9 +284,9 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                     titulo: "Magic Intelligence",
                     nombre_empresa: "Magic Intelligence",
                     nombre_cliente: nombres_padres,
-                    pago:pago,
-                    alumno:alumno,
-                    sucursal:sucursal,
+                    pago: pago,
+                    alumno: alumno,
+                    sucursal: sucursal,
                     mensaje_pie: variables.template_mail.mensaje_pie
                 }
 
@@ -283,45 +294,51 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                     lista_correos,
                     tituloCorreo,
                     params
-                    );
+                );
 
                 enviarMensajeMovil(lista_tokens, titulo_mensaje, cuerpo_mensaje);
 
                 //enviar datos para facturacion
-                    console.log("Iniciando envio de datos de factura factura "+row.factura+" permite "+row.permite_factura_forma_pago);
+                console.log("Iniciando envio de datos de factura factura " + row.factura + " permite " + row.permite_factura_forma_pago);
                 if (row.factura && row.permite_factura_forma_pago) {
-                                    
-                    console.log("CARGOS "+ JSON.stringify(row.cargos));
+
+                    console.log("CARGOS " + JSON.stringify(row.cargos));
 
                     var listaCargosFacturables = [];
                     var total_pagado_cargos = 0;
 
                     for (var item in row.cargos) {
                         let item_row = row.cargos[item];
-                        console.log("item "+JSON.stringify(item_row));
+                        console.log("item " + JSON.stringify(item_row));
                         if (item_row.es_facturable) {
                             listaCargosFacturables.push(item_row);
-                            total_pagado_cargos +=item_row.total_pagado;
+                            total_pagado_cargos += item_row.total_pagado;
                         }
-                        console.log("item "+JSON.stringify(listaCargosFacturables));
+                        console.log("item " + JSON.stringify(listaCargosFacturables));
                     }
-                    
-                    const nuevoParams = JSON.parse(JSON.stringify(params));                   
+
+                    const nuevoParams = JSON.parse(JSON.stringify(params));
 
                     nuevoParams.pago.cargos = listaCargosFacturables;
                     nuevoParams.pago.pago = total_pagado_cargos;
                     nuevoParams.datos_factura = row.datos_factura;
                     console.log(JSON.stringify(nuevoParams));
 
-                    console.log("Cargos para facturar "+JSON.stringify(nuevoParams.pago.cargos));
-                    if (listaCargosFacturables.length > 0 ) {
-                        console.log("Enviar correo para facturacion ");                        
-                        enviarCorreoParaTemaNotificacion(
-                                                        'Registrar Factura - '+row.nombre_sucursal,
-                                                        nuevoParams,
-                                                        TEMPLATE_DATOS_FACTURACION,
-                                                        TEMA_NOTIFICACION.ID_TEMA_DATOS_FACTURACION
-                                                        );
+                    console.log("Cargos para facturar " + JSON.stringify(nuevoParams.pago.cargos));
+                    if (listaCargosFacturables.length > 0) {
+                        console.log("Enviar correo para facturacion ");
+                        correoService.enviarCorreoParaTemaNotificacion(
+                                'Registrar Factura - ' + row.nombre_sucursal,
+                                params.id_sucursal,
+                                TEMA_NOTIFICACION.ID_TEMA_DATOS_FACTURACION,
+                                TEMPLATES.TEMPLATE_DATOS_FACTURACION
+                        );
+                        /*enviarCorreoParaTemaNotificacion(
+                            'Registrar Factura - ' + row.nombre_sucursal,
+                            nuevoParams,
+                            TEMPLATE_DATOS_FACTURACION,
+                            TEMA_NOTIFICACION.ID_TEMA_DATOS_FACTURACION
+                        );*/
 
                     }
                 }
@@ -336,7 +353,15 @@ const enviarCorreoReciboPago = (para, asunto, params) => {
 
     params.id_sucursal = params.sucursal.id;
 
-    enviarCorreoConCopiaTemaNotificacion(para,asunto,params,TEMPLATE_RECIBO_PAGO,TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_PAGOS);
+    //enviarCorreoConCopiaTemaNotificacion(para,asunto,params,TEMPLATE_RECIBO_PAGO,TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_PAGOS);
+    correoService.enviarCorreoConCopiaTemaNotificacion(
+        asunto,
+        para,
+        params.id_sucursal,
+        TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_PAGOS,
+        params,
+        TEMPLATES.TEMPLATE_RECIBO_PAGO
+    )
 
     //loadTemplateReciboPago(params)
     /*loadTemplate(TEMPLATE_RECIBO_PAGO, params)
@@ -358,7 +383,7 @@ const enviarCorreoReciboPago = (para, asunto, params) => {
             console.log("Excepción en el envio de correo : " + e);
         });*/
 };
-
+/*
 function enviarCorreoConCopiaTemaNotificacion(para,asunto,params,template,idTemaNotificacion){
     console.log("@enviarCorreoPorTemaNotificacion");
     
@@ -380,9 +405,9 @@ function enviarCorreoConCopiaTemaNotificacion(para,asunto,params,template,idTema
     }).catch(e => {
         console.log("Excepción en el envio de correo : " + e);
     });
-}
+}*/
 
-
+/*
 function enviarCorreoParaTemaNotificacion(asunto,params,template,idTemaNotificacion){
     console.log("@enviarCorreoParaTemaNotificacion");
     
@@ -404,7 +429,7 @@ function enviarCorreoParaTemaNotificacion(asunto,params,template,idTemaNotificac
         console.log("Excepción en el envio de correo : " + e);
     });
 }
-
+*/
 
 
 // no se usa aun
@@ -473,9 +498,19 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
 
             console.log(JSON.stringify(row));
 
-           // const ID_TEMA_NOTIFICACION_ALTA_FAMILIAR = 4;
+            // const ID_TEMA_NOTIFICACION_ALTA_FAMILIAR = 4;
 
-            loadTemplate(TEMPLATE_GENERICO, params)
+            correoService
+                .enviarCorreoConCopiaTemaNotificacion(
+                    asunto,
+                    para,
+                    params.sucursal.id,
+                    TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_ALTA_FAMILIAR,
+                    params,
+                    TEMPLATES.TEMPLATE_DATOS_FACTURACION
+                );
+
+            /*loadTemplate(TEMPLATE_GENERICO, params)
                 .then((renderHtml) => {
                     console.log("Dentro d");
                     obtenerCorreosCopiaPorTema(params.sucursal.id, TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_ALTA_FAMILIAR)
@@ -490,7 +525,7 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
                         });
                 }).catch(e => {
                     console.log("Excepción en el envio de correo : " + e);
-                });
+                });*/
         }).catch((e) => {
             console.log("Excepción en el envio de correo : " + e);
         });
@@ -498,6 +533,7 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
 
 
 //mejorar esto param = {titulo:"",subtitulo:"",contenido:""}
+/*
 function loadTemplate(templateName, params) {
     var html = null;
     //fixme : ir a la bd
@@ -514,7 +550,7 @@ function loadTemplate(templateName, params) {
         }
     });
 }
-
+*/
 
 const getAlumnosInfoCorreoAlumnos = (request, response) => {
     console.log("@getAlumnosInfoCorreo");
@@ -587,6 +623,7 @@ function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
 
 }
 
+/*
 function enviarCorreo(para, conCopia, asunto, renderHtml) {
     console.log("Para " + para);
     console.log("CCC " + conCopia);
@@ -628,11 +665,11 @@ function enviarCorreo(para, conCopia, asunto, renderHtml) {
         console.log("No se envio el correo, no existe HTML");
     }
 }
-
+*/
 
 module.exports = {
     notificarReciboPago,
-    enviarCorreoTest,
+    //enviarCorreoTest,
     //  enviarCorreoCambioSucursal,
     enviarCorreoClaveFamiliar,
     getAlumnosInfoCorreoAlumnos,

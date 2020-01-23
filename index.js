@@ -292,14 +292,14 @@ GET('/configuracion', conf.getConfiguracion);
 //Mensajes
 GET('/mensaje', mensajeria.sendMessage);
 
-GET('/enviar_correo', correo_service.enviarCorreoTest);
+//GET('/enviar_correo', correo_service.enviarCorreoTest);
 
 //sucursales y cambios
 GET('/sucursal', sucursales.getSucursales);
 PUT('/cambio_sucursal/:id_alumno', alumnoSucursal.cambiarSucursalAlumno);
 
 //PUT('/getInfoCorreoAlumnos',correo_service.getAlumnosInfoCorreoAlumnos);
-PUT('/enviar_recordatorio_pago/:id_alumno', correo_service.enviarRecordatorioPago);
+//PUT('/enviar_recordatorio_pago/:id_alumno', correo_service.enviarRecordatorioPago);
 
 //reporte ingresos vs cargos
 GET('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes', reporteDeudas.getReporteGastosIngresosSucursalPorMes);

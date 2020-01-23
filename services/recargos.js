@@ -1,13 +1,15 @@
 
 const mensajeria = require('./mensajesFirebase');
 const mailService = require('../utils/NotificacionService');
-const { getCatalogo,getResultQuery } = require('./sqlHelper');
+const { QUERY,getResults } = require('./sqlHelper');
+
 const CRITERIO = {
-     VENCEN_HOY :'=',     
-     VENCIDOS :'<'
+     VENCEN_HOY :" AND a.fecha_limite_pago_mensualidad = getDate('') and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",     
+     VENCEN_MANANA :" AND a.fecha_limite_pago_mensualidad = getDate('') + 1 and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",     
+     VENCIDOS :" AND a.fecha_limite_pago_mensualidad < getDate('') "
 };
 
-const QUERY_RECARGOS =  function(criterio){
+const getQueryBase =  function(criterio){
 return `
         SELECT 	   
            a.fecha_limite_pago_mensualidad,
@@ -24,31 +26,42 @@ return `
            b.cargo,
            b.total_pagado,
            b.nota,
-           b.pagado               
+           b.pagado
          FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
                                        inner join cat_cargo cargo on b.cat_cargo = cargo.id					
          WHERE a.co_sucursal = $1
-                and a.fecha_limite_pago_mensualidad ${criterio} getDate('')
-                and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')
+                ${criterio}                 
                 and b.pagado = false
                 and cargo.id = 1
                 and b.recargo = false	
                 and b.eliminado = false 
-                and a.eliminado = false					
+                and a.eliminado = false	                
          ORDER by a.nombre,b.fecha desc`;
 }
 
 //FIXME: incluir el id de la empresa
+//--Registrar un Cargo a cada alumno que tiene registrada su fecha.
 function procesoRecargosMensualidad(id_sucursal){
-    console.log("Inicinado ejecución del proceso para calular recargos sucursal "+id_sucursal);
+    console.log("Inicinado ejecución del proceso para calcular recargos sucursal "+id_sucursal);
     try{
         
-        pool.query(QUERY_RECARGOS(CRITERIO.VENCIDOS), [id_sucursal])
+        /*pool.query(QUERY_RECARGOS(CRITERIO.VENCEN_HOY), [id_sucursal])
             .then(handler || hadlerGenerico)
             .catch((error) => {
                 console.log("XXXX EXCEPCION Al CONSULTAR " + error);              
                 return;
-            });
+            });*/
+
+            getResults(getQueryBase(CRITERIO.VENCEN_HOY),
+                        [id_sucursal],
+                        (results)=>{
+                            if(results.rowcount > 0){
+                            let filas = results.rows;
+                                for(let item in filas){
+                                    console.log("REGISTRANDO RECARGO PARA "+item.nombre);  
+                                }                        
+                            }    
+                        });          
                
     }catch(e){
         console.log("Excepcion al ejecutar el proceso de recargos "+e);
@@ -59,7 +72,23 @@ function procesoRecargosMensualidad(id_sucursal){
 
 //enviar notificacion a mises por sucursar de los recargos que se van a realizar mañana
 //enviar la lista completa a los dueños
+function ejecutarProcesoRecargosMensualidad(){
+    try{
 
+        getResults(QUERY.SUCURSALES,[],(results)=>{
+            if(results.rowcount > 0){
+                let filas = results.rows;
+                for(let item in filas){
+                      console.log("REGISTRANDO RECARGO PARA LA SUCURSAL"+item.nombre);  
+                }  
+            }
+        });
+
+    }catch(e){
+        console.log("Fallo la ejecucion del proceso que realiza recargos "+e);
+    }   
+
+}
 
 
 

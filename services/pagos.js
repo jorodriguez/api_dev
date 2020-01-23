@@ -4,7 +4,6 @@ const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const { CARGOS } = require('../utils/Constantes');
 const { QUERY, getCatalogo, getResultQuery } = require('./sqlHelper');
-
 const notificacionService = require('../utils/NotificacionService');
 
 //registrar pagos
