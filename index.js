@@ -279,7 +279,7 @@ app.put('/cliente/:id_familiar', actividad_reporte.updateDatosFamiliar);
 //app.get('/productos/:pagina',tiendaService.getProductos);
 
 //reset password
-GET('/reset_password/:id_familiar/:id_sucursal', familiar.resetPasswordFamiliar);
+GET('/reset_password/:id_familiar', familiar.resetPasswordFamiliar);
 
 //reporte de mensualidades facturadas
 GET('/reporte_mensualidades', reporte_mensualidades.getReporteContadoresSucursalesMesActual);

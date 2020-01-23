@@ -37,21 +37,23 @@ function loadTemplate(templateName, params) {
 
 
 function enviarCorreoConCopiaTemaNotificacion(asunto, para, idSucursalTemaCopia, idTemaNotificacion, params, template) {
-    console.log("@enviarCorreoPorTemaNotificacion");
+    console.log("@enviarCorreoPorTemaNotificacion copia a la suc " + idSucursalTemaCopia + " tema " + idTemaNotificacion);
 
     loadTemplate(template, params)
         .then((renderHtml) => {
             //obtener correos copia por sucursal y tema
             obtenerCorreosCopiaPorTema(idSucursalTemaCopia, idTemaNotificacion)
                 .then(result => {
-
+                    console.log("Correos copia iniciando");
                     let cc = "";
                     if (result != null && result.rowCount > 0) {
                         cc = result.rows[0].correos_copia;
                     }
 
                     enviarCorreo(para, cc, asunto, renderHtml);
-                });
+                }).catch(e => {
+                    console.log("Excepción al consultar correos copia: " + e);
+                });;
 
         }).catch(e => {
             console.log("Excepción en el envio de correo : " + e);
@@ -80,6 +82,20 @@ function enviarCorreoParaTemaNotificacion(asunto, idSucursalTemaCopia, idTemaNot
         });
 }
 
+
+function enviarCorreoTemplate(para, cc, asunto, params, template) {
+    console.log("@enviarCorreoTemplate");
+
+    loadTemplate(template, params)
+        .then((renderHtml) => {           
+            
+            enviarCorreo(para, cc, asunto, renderHtml);
+
+        }).catch(e => {
+            console.log("Excepción en el envio de correo : " + e);
+        });
+}
+
 function loadTemplate(templateName, params) {
     var html = '';
     //fixme : ir a la bd
@@ -87,23 +103,22 @@ function loadTemplate(templateName, params) {
 
     return new Promise((resolve, reject) => {
         try {
-            getQueryInstance(
-                QUERY.TEMPLATE_EMPRESA,
-                [ID_EMPRESA_MAGIC],
-                (rowTemplate) => {
-                    console.log("TEMPLATE ENCONTRADO");
-                   if(rowTemplate.rowCount > 0){        
+            getQueryInstance(QUERY.TEMPLATE_EMPRESA, [ID_EMPRESA_MAGIC])
+                .then((rowTemplate) => {
+                    console.log("TEMPLATE ENCONTRADO EN LA BD");
+                    if (rowTemplate.rowCount > 0) {
                         let row = rowTemplate.rows[0];
-                            console.log(""+JSON.stringify(row));
-                           fs.readFile(path.resolve(__dirname, "../templates/" + templateName), 'utf8', (err, data) => {                        
-                            params.nombre_empresa= row.nombre_empresa;                            
-                            let cuerpo = mustache.to_html(data, params);
-                            html.concat(row.encabezado);
-                            html.concat(cuerpo);                            
-                            html.concat(row.pie);
+                        // console.log(""+JSON.stringify(row));
+                        fs.readFile(path.resolve(__dirname, "../templates/" + templateName), 'utf8', (err, data) => {
+                            params.nombre_empresa = row.nombre_empresa;
+                            let htmlTemp = '';
+                            htmlTemp = htmlTemp.concat(row.encabezado, (data || ''), row.pie);
+                            console.log("html final");
+                            html = mustache.to_html(htmlTemp, params);
+                            console.log(html);
                             resolve(html);
                         });
-                    }else{
+                    } else {
                         console.log("Resolver con templates Fisicos");
                         //resolver con archivos
                         /*fs.readFile(path.resolve(__dirname, "../templates/" + templateName), 'utf8', (err, data) => {                        
@@ -114,26 +129,25 @@ function loadTemplate(templateName, params) {
                             html.concat(row.pie);
                             resolve(html);
                         });*/
-                    } 
-                },(e)=>{
+                    }
+                }).catch((e) => {
                     //leer template de archivos
                     console.log("Error al obtener el template de la BD");
-                    reject(e);        
+                    reject(e);
                 });
-
         } catch (e) {
             reject(e);
         }
     });
 }
 
-function obtenerTemplateBD(idEmpresa) {
+/*function obtenerTemplateBD(idEmpresa) {
     try {
         getQueryInstance(QUERY.TEMPLATE_EMPRESA, [idEmpresa]);
     } catch (e) {
         console.log("Fallo al leer el template de la empresa " + e);
     }
-}
+}*/
 
 function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
     return getQueryInstance(`
@@ -166,11 +180,12 @@ function enviarCorreo(para, conCopia, asunto, renderHtml) {
             html: renderHtml
         };
 
-        console.log(`Ambiente ${variables.env}`);
+
         console.log(`Sender FROM ${variables.mailOptions.from}`);
         console.log("Correo para " + para);
         console.log("Correo cc " + JSON.stringify(conCopia));
-        console.log("asuto " + asunto);
+        console.log("Asunto " + asunto);
+        console.log(`Ambiente ${variables.env}`);
 
         transporter.sendMail(mailData, function (error, info) {
             if (error) {
@@ -222,5 +237,6 @@ module.exports = {
     enviarCorreoConCopiaTemaNotificacion,
     enviarCorreoParaTemaNotificacion,
     enviarCorreo,
+    enviarCorreoTemplate
 
 }

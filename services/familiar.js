@@ -79,11 +79,11 @@ const resetPasswordFamiliar = (request, response) => {
         //validarToken(request,response);
 
         var id_familiar = request.params.id_familiar;
-        var id_sucursal = request.params.id_sucursal;
+       // var id_sucursal = request.params.id_sucursal;
 
-        console.log("id_suc "+id_sucursal );
+       // console.log("id_suc "+id_sucursal );
 
-        enviarClaveFamiliar(id_familiar,id_sucursal);
+        enviarClaveFamiliar(id_familiar);
 
         response.status(200).json(id_familiar);
 
@@ -93,7 +93,7 @@ const resetPasswordFamiliar = (request, response) => {
     }
 }
 
-const enviarClaveFamiliar = (id_familiar,id_sucursal) => {
+const enviarClaveFamiliar = (id_familiar) => {
     try {
 
         pool.query(
@@ -130,7 +130,7 @@ const enviarClaveFamiliar = (id_familiar,id_sucursal) => {
                                             subtitulo: "Enviamos tu contraseña de acceso a la aplicación",
                                             contenido: `<strong>Usuario : </strong> ${row.correo} <br/>
                                                        <strong>Contraseña : </strong> ${password}` ,
-                                            sucursal :{id:id_sucursal} 
+                                           // sucursal :{id:id_sucursal} 
                                         }
                                     );
                             }
