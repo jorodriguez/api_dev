@@ -18,7 +18,7 @@ const QUERY = {
             em.direccion,
             em.telefono		
         from co_template t inner join co_empresa em on em.id = t.id
-        where em.id = $1 and t.eliminado = false order by id desc limit 1`
+        where em.id = $1 and t.eliminado = false order by t.id desc limit 1`
     
 };
 
@@ -195,8 +195,9 @@ function tieneParametros(params) {
     return (params != undefined || params != null || params != []);
 }
 
-function getQueryInstance(){
-    return pool.query;
+function getQueryInstance(query,params){
+    
+    return pool.query(query,params);
 }
 
 module.exports = {

@@ -331,6 +331,7 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                                 'Registrar Factura - ' + row.nombre_sucursal,
                                 params.id_sucursal,
                                 TEMA_NOTIFICACION.ID_TEMA_DATOS_FACTURACION,
+                                nuevoParams,
                                 TEMPLATES.TEMPLATE_DATOS_FACTURACION
                         );
                         /*enviarCorreoParaTemaNotificacion(
@@ -500,7 +501,9 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
 
             // const ID_TEMA_NOTIFICACION_ALTA_FAMILIAR = 4;
 
-            correoService
+            correoService.enviarCorreoTemplate(para,'',asunto,params,TEMPLATES.TEMPLATE_GENERICO);
+
+           /* correoService
                 .enviarCorreoConCopiaTemaNotificacion(
                     asunto,
                     para,
@@ -508,7 +511,7 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
                     TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_ALTA_FAMILIAR,
                     params,
                     TEMPLATES.TEMPLATE_DATOS_FACTURACION
-                );
+                );*/
 
             /*loadTemplate(TEMPLATE_GENERICO, params)
                 .then((renderHtml) => {
