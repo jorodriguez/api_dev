@@ -1,13 +1,12 @@
 
-
-const { pool } = require('../db/conexion');
 const nodemailer = require('nodemailer');
 const mustache = require('mustache');
 var fs = require('fs');
 var path = require('path');
-//const mensajeria = require('../services/mensajesFirebase');
 const { variables } = require('../config/ambiente');
 const { QUERY, getQueryInstance } = require('../services/sqlHelper');
+const { ID_EMPRESA_MAGIC } = require('./Constantes');
+
 const transporter = nodemailer.createTransport(variables.configMail);
 
 const TEMPLATES = {
@@ -82,27 +81,46 @@ function enviarCorreoParaTemaNotificacion(asunto, idSucursalTemaCopia, idTemaNot
 }
 
 function loadTemplate(templateName, params) {
-    var html = null;
+    var html = '';
     //fixme : ir a la bd
     params.nombre_empresa = "Magic Intelligence";
 
     return new Promise((resolve, reject) => {
         try {
-            getQueryInstance(QUERY.TEMPLATE_EMPRESA,
-                [idEmpresa],
+            getQueryInstance(
+                QUERY.TEMPLATE_EMPRESA,
+                [ID_EMPRESA_MAGIC],
                 (rowTemplate) => {
-                    aqui me qyede
-                    fs.readFile(path.resolve(__dirname, "../templates/" + templateName), 'utf8', (err, data) => {
-                        
-                        html = mustache.to_html(data, params);
-                        resolve(html);
-                    });
+                    console.log("TEMPLATE ENCONTRADO");
+                   if(rowTemplate.rowCount > 0){        
+                        let row = rowTemplate.rows[0];
+                            console.log(""+JSON.stringify(row));
+                           fs.readFile(path.resolve(__dirname, "../templates/" + templateName), 'utf8', (err, data) => {                        
+                            params.nombre_empresa= row.nombre_empresa;                            
+                            let cuerpo = mustache.to_html(data, params);
+                            html.concat(row.encabezado);
+                            html.concat(cuerpo);                            
+                            html.concat(row.pie);
+                            resolve(html);
+                        });
+                    }else{
+                        console.log("Resolver con templates Fisicos");
+                        //resolver con archivos
+                        /*fs.readFile(path.resolve(__dirname, "../templates/" + templateName), 'utf8', (err, data) => {                        
+                            params.nombre_empresa= row.nombre_empresa;                            
+                            let cuerpo = mustache.to_html(data, params);
+                            html.concat(row.encabezado);
+                            html.concat(cuerpo);                            
+                            html.concat(row.pie);
+                            resolve(html);
+                        });*/
+                    } 
                 },(e)=>{
                     //leer template de archivos
                     console.log("Error al obtener el template de la BD");
                     reject(e);        
-                }
-            );
+                });
+
         } catch (e) {
             reject(e);
         }
@@ -117,6 +135,14 @@ function obtenerTemplateBD(idEmpresa) {
     }
 }
 
+function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
+    return getQueryInstance(`
+        SELECT array_to_json(array_agg(to_json(correo))) as correos_copia
+        FROM co_correo_copia_notificacion
+        WHERE co_sucursal = $1 and co_tema_notificacion = $2 and eliminado = false
+   `, [co_sucursal, id_tema]);
+
+}
 
 function enviarCorreo(para, conCopia, asunto, renderHtml) {
     console.log("Para " + para);
@@ -150,7 +176,7 @@ function enviarCorreo(para, conCopia, asunto, renderHtml) {
             if (error) {
                 console.log("Error al enviar correo : " + error);
             } else {
-                console.log('Email sent: ' + info.response);
+                console.log('CORREO ENVIADO ======>>>: ' + info.response);
             }
         });
 

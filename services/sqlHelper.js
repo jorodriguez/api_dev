@@ -18,7 +18,7 @@ const QUERY = {
             em.direccion,
             em.telefono		
         from co_template t inner join co_empresa em on em.id = t.id
-        where em.id = $1 and t.eliminado = false"`
+        where em.id = $1 and t.eliminado = false order by id desc limit 1`
     
 };
 

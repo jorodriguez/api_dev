@@ -614,14 +614,7 @@ function obtenerCargos(id_alumno) {
 }
 
 
-function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
-    return pool.query(`
-        SELECT array_to_json(array_agg(to_json(correo))) as correos_copia
-        FROM co_correo_copia_notificacion
-        WHERE co_sucursal = $1 and co_tema_notificacion = $2 and eliminado = false
-   `, [co_sucursal, id_tema]);
 
-}
 
 /*
 function enviarCorreo(para, conCopia, asunto, renderHtml) {
