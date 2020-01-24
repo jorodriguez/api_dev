@@ -24,11 +24,26 @@ function isEmpty(obj) {
     return true;
 }
 
+function isEmptyOrNull(...values){
+    
+    if(values === null ||  values === undefined || values.length === 0 ){
+        return true;
+    }else{
+        for(let obj in values){
+            if(obj === null || obj == undefined || obj === null){
+                  return true;
+            }
+        }
+    }
+    return false; 
+}
+
 
 module.exports = {
     quitarElementosVaciosArray,   
     isEmpty , 
-    encriptar
+    encriptar,
+    isEmptyOrNull
 };
 
 /*

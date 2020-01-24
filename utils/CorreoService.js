@@ -99,7 +99,7 @@ function enviarCorreoTemplate(para, cc, asunto, params, template) {
 function loadTemplate(templateName, params) {
     var html = '';
     //fixme : ir a la bd
-    params.nombre_empresa = "Magic Intelligence";
+    params.nombre_empresa = "Mi Empresa";
 
     return new Promise((resolve, reject) => {
         try {
@@ -141,21 +141,12 @@ function loadTemplate(templateName, params) {
     });
 }
 
-/*function obtenerTemplateBD(idEmpresa) {
-    try {
-        getQueryInstance(QUERY.TEMPLATE_EMPRESA, [idEmpresa]);
-    } catch (e) {
-        console.log("Fallo al leer el template de la empresa " + e);
-    }
-}*/
-
 function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
     return getQueryInstance(`
         SELECT array_to_json(array_agg(to_json(correo))) as correos_copia
         FROM co_correo_copia_notificacion
         WHERE co_sucursal = $1 and co_tema_notificacion = $2 and eliminado = false
    `, [co_sucursal, id_tema]);
-
 }
 
 function enviarCorreo(para, conCopia, asunto, renderHtml) {

@@ -11,3 +11,7 @@ las preferencias van a decidir  la consulta en la tienda por la edad de los hijo
 edad por la fecha de nacimiento.
 
 
+
+
+MIGRAR aESTA ARQUITECTURA
+https://github.com/siro47/CornerCleanArchitectureNode/blob/v4/routes/routes.js

@@ -2,7 +2,7 @@
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const mensajeria = require('../services/mensajesFirebase');
-const { CARGOS, TEMA_NOTIFICACION } = require('../utils/Constantes');
+const { CARGOS, TEMA_NOTIFICACION } = require('./Constantes');
 const { variables } = require('../config/ambiente');
 const correoService = require('./CorreoService');
 const { TEMPLATES } = require('./CorreoService');

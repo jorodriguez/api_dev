@@ -4,13 +4,23 @@ const handle = require('../helpers/handlersErrors');
 const { validarToken } = require('../helpers/helperToken');
 const mensajeria = require('./mensajesFirebase');
 
+const gastoService = require('../domain/gastoService');
+
 //registrar gasto
 const registrarGasto = (request, response) => {
     console.log("@registrarGasto");
     try {
-        //validarToken(request,response);
-        
-        const { cat_tipo_gasto, co_forma_pago, co_sucursal, fecha, gasto, observaciones, genero } = request.body;
+
+        var gastoData = request.body;
+
+        gastoService.registrarGasto(gastoData)
+        .then(id=>{
+            response.status(200).json(id) 
+        }).catch(error=>{
+            handle.callbackError(error, response);
+        });
+                
+        /*const { cat_tipo_gasto, co_forma_pago, co_sucursal, fecha, gasto, observaciones, genero } = request.body;        
 
         console.log("=====>> " + JSON.stringify(request.body));
 
@@ -24,7 +34,7 @@ const registrarGasto = (request, response) => {
                 }
                 //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));                
                 response.status(200).json(results.rowCount)
-            });
+            });*/
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
 
@@ -37,7 +47,16 @@ const modificarGasto = (request, response) => {
     try {
         //validarToken(request,response);
 
-        const { id, cat_tipo_gasto, co_forma_pago, fecha, gasto, observaciones, genero } = request.body;
+        var gastoData = request.body;
+
+        gastoService.modificarGasto(gastoData)
+        .then(id=>{
+            response.status(200).json(id);
+        }).catch(error=>{
+            handle.callbackError(error, response);
+        });
+
+        /*const { id, cat_tipo_gasto, co_forma_pago, fecha, gasto, observaciones, genero } = request.body;
 
         pool.query(`
                     UPDATE CO_GASTO
@@ -57,7 +76,7 @@ const modificarGasto = (request, response) => {
                     return;
                 }
                 response.status(200).json(results.rowCount)
-            });
+            });*/
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
 
@@ -68,7 +87,17 @@ const modificarGasto = (request, response) => {
 const eliminarGasto = (request, response) => {
     console.log("@eliminarGasto");
     try {
-        //validarToken(request,response);
+        const id = request.params.id;
+        const { genero } = request.body;
+
+        gastoService.eliminarGasto(id,genero)
+        .then(id=>{
+            response.status(200).json(id);
+        }).catch(error=>{
+            handle.callbackError(error, response);
+        });
+       
+       /* //validarToken(request,response);
 
         const id = request.params.id;
         const { genero } = request.body;
@@ -87,7 +116,7 @@ const eliminarGasto = (request, response) => {
                     return;
                 }
                 response.status(200).json(results.rowCount)
-            });
+            });*/
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
 

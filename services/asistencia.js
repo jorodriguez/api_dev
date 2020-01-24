@@ -218,7 +218,7 @@ function enviarMensajeEntradaSalida(ids_asistencias, operacion) {
                         let titulo_mensaje = (operacion == ENTRADA ? "Entrada de " + e.nombre : "Salida de " + e.nombre);
                         let mensaje_entrada = `Hola ${e.nombres_padres} recibimos a ${e.nombre} a las ${e.hora_entrada}.`;
                         let mensaje_salida = `Hola ${e.nombres_padres} entregamos a ${e.nombre} a las ${e.hora_salida}.
-                        ${e.recargos_tiempo_extra > 0 ?' se registraron '+e.recargos_tiempo_extra+' recargos por tiempo extra.':''}`;
+                        ${e.recargos_tiempo_extra > 0 ? ' se registraron ' + e.recargos_tiempo_extra + ' recargos por tiempo extra.' : ''}`;
                         let cuerpo_mensaje = (operacion == ENTRADA ? mensaje_entrada : mensaje_salida);
 
                         //token,titulo,cuerpo

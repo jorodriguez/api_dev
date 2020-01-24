@@ -1,16 +1,16 @@
 
 const mensajeria = require('./mensajesFirebase');
 const mailService = require('../utils/NotificacionService');
-const { QUERY,getResults } = require('./sqlHelper');
+const { QUERY, getResults } = require('./sqlHelper');
 
 const CRITERIO = {
-     VENCEN_HOY :" AND a.fecha_limite_pago_mensualidad = getDate('') and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",     
-     VENCEN_MANANA :" AND a.fecha_limite_pago_mensualidad = getDate('') + 1 and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",     
-     VENCIDOS :" AND a.fecha_limite_pago_mensualidad < getDate('') "
+    VENCEN_HOY: " AND a.fecha_limite_pago_mensualidad = getDate('') and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",
+    VENCEN_MANANA: " AND a.fecha_limite_pago_mensualidad = getDate('') + 1 and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",
+    VENCIDOS: " AND a.fecha_limite_pago_mensualidad < getDate('') "
 };
 
-const getQueryBase =  function(criterio){
-return `
+const getQueryBase = function (criterio) {
+    return `
         SELECT 	   
            a.fecha_limite_pago_mensualidad,
            a.nombre,
@@ -41,52 +41,46 @@ return `
 
 //FIXME: incluir el id de la empresa
 //--Registrar un Cargo a cada alumno que tiene registrada su fecha.
-function procesoRecargosMensualidad(id_sucursal){
-    console.log("Inicinado ejecución del proceso para calcular recargos sucursal "+id_sucursal);
-    try{
-        
-        /*pool.query(QUERY_RECARGOS(CRITERIO.VENCEN_HOY), [id_sucursal])
-            .then(handler || hadlerGenerico)
-            .catch((error) => {
-                console.log("XXXX EXCEPCION Al CONSULTAR " + error);              
-                return;
-            });*/
+function procesoRecargosMensualidad(id_sucursal) {
+    console.log("Inicinado ejecución del proceso para calcular recargos sucursal " + id_sucursal);
+    try {
+        getResults(getQueryBase(CRITERIO.VENCEN_HOY),
+            [id_sucursal],
+            (results) => {
+                if (results.rowcount > 0) {
+                    let filas = results.rows;
+                    for (let item in filas) {
+                        console.log("REGISTRANDO RECARGO PARA " + item.nombre);
+                    }
+                }
+            });
 
-            getResults(getQueryBase(CRITERIO.VENCEN_HOY),
-                        [id_sucursal],
-                        (results)=>{
-                            if(results.rowcount > 0){
-                            let filas = results.rows;
-                                for(let item in filas){
-                                    console.log("REGISTRANDO RECARGO PARA "+item.nombre);  
-                                }                        
-                            }    
-                        });          
-               
-    }catch(e){
-        console.log("Excepcion al ejecutar el proceso de recargos "+e);
+    } catch (e) {
+        console.log("Excepcion al ejecutar el proceso de recargos " + e);
         //enviar un correo al equipo de soporte
+        
+
     }
 
 }
 
 //enviar notificacion a mises por sucursar de los recargos que se van a realizar mañana
 //enviar la lista completa a los dueños
-function ejecutarProcesoRecargosMensualidad(){
-    try{
+function ejecutarProcesoRecargosMensualidad() {
+    try {
 
-        getResults(QUERY.SUCURSALES,[],(results)=>{
-            if(results.rowcount > 0){
+        getResults(QUERY.SUCURSALES, [], (results) => {
+            if (results.rowcount > 0) {
                 let filas = results.rows;
-                for(let item in filas){
-                      console.log("REGISTRANDO RECARGO PARA LA SUCURSAL"+item.nombre);  
-                }  
+                for (let item in filas) {
+                    console.log("REGISTRANDO RECARGO PARA LA SUCURSAL" + item.nombre);
+                }
             }
         });
 
-    }catch(e){
-        console.log("Fallo la ejecucion del proceso que realiza recargos "+e);
-    }   
+    } catch (e) {
+        console.log("Fallo la ejecucion del proceso que realiza recargos " + e);
+    }
 
 }
 
