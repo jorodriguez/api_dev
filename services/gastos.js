@@ -18,23 +18,8 @@ const registrarGasto = (request, response) => {
             response.status(200).json(id) 
         }).catch(error=>{
             handle.callbackError(error, response);
-        });
-                
-        /*const { cat_tipo_gasto, co_forma_pago, co_sucursal, fecha, gasto, observaciones, genero } = request.body;        
-
-        console.log("=====>> " + JSON.stringify(request.body));
-
-        pool.query(`INSERT INTO CO_GASTO(cat_tipo_gasto,co_forma_pago,co_sucursal,fecha,gasto,observaciones,genero)
-                    VALUES($1,$2,$3,$4,$5,$6,$7);`,
-            [cat_tipo_gasto, co_forma_pago, co_sucursal, fecha, gasto, observaciones, genero],
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));                
-                response.status(200).json(results.rowCount)
-            });*/
+        });              
+     
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
 
@@ -45,8 +30,7 @@ const registrarGasto = (request, response) => {
 const modificarGasto = (request, response) => {
     console.log("@modificarGasto");
     try {
-        //validarToken(request,response);
-
+     
         var gastoData = request.body;
 
         gastoService.modificarGasto(gastoData)
@@ -55,28 +39,7 @@ const modificarGasto = (request, response) => {
         }).catch(error=>{
             handle.callbackError(error, response);
         });
-
-        /*const { id, cat_tipo_gasto, co_forma_pago, fecha, gasto, observaciones, genero } = request.body;
-
-        pool.query(`
-                    UPDATE CO_GASTO
-                        SET cat_tipo_gasto = $2,
-                            co_forma_pago = $3,                            
-                            fecha = $4,
-                            gasto = $5,
-                            observaciones = $6,
-                            modifico = $7,
-                            fecha_modifico = (getDate('')+getHora(''))::timestamp
-                     WHERE ID = $1;
-                    `,
-            [id, cat_tipo_gasto, co_forma_pago, fecha, gasto, observaciones, genero],
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).json(results.rowCount)
-            });*/
+       
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
 
@@ -97,26 +60,6 @@ const eliminarGasto = (request, response) => {
             handle.callbackError(error, response);
         });
        
-       /* //validarToken(request,response);
-
-        const id = request.params.id;
-        const { genero } = request.body;
-
-        pool.query(`
-                    UPDATE CO_GASTO
-                        SET eliminado = true,
-                            modifico= $2,
-                             fecha_modifico = (getDate('')+getHora(''))::timestamp
-                     WHERE ID = $1;
-                    `,
-            [id, genero],
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).json(results.rowCount)
-            });*/
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
 
@@ -126,17 +69,14 @@ const eliminarGasto = (request, response) => {
 const getCatalogoTipoGasto = (request, response) => {
     console.log("@getCatalogoTipoGasto");
     try {
-        //validarToken(request,response);
 
-        pool.query(
-            "SELECT * from cat_tipo_gasto where eliminado = false order by nombre",
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).json(results.rows);
-            });
+        gastoService.getCatalogoTipoGasto()
+        .then(results =>{
+            response.status(200).json(results);
+        }).catch(error=>{
+            handle.callbackError(error, response);
+        })
+       
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -146,10 +86,18 @@ const getCatalogoTipoGasto = (request, response) => {
 const getGastosPorSucursal = (request, response) => {
     console.log("@getGastosPorSucursal");
     try {
-        //validarToken(request,response);
-
         console.log("request.params.co_sucursal" + request.params.co_sucursal);
+        const co_sucursal = request.params.co_sucursal;
+        const anio_mes = request.params.anio_mes;
 
+        gastoService.getGastosPorSucursal(co_sucursal,anio_mes)
+        .then(results=>{
+            response.status(200).json(results);
+        }).catch(error=>{
+            handle.callbackError(error, response);
+        });
+
+/*
         const co_sucursal = request.params.co_sucursal;
         const anio_mes = request.params.anio_mes;
         pool.query(
@@ -175,7 +123,7 @@ const getGastosPorSucursal = (request, response) => {
                 }
 
                 response.status(200).json(results.rows);
-            });
+            });*/
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -190,7 +138,13 @@ const getSumaMesGastosPorSucursal = (request, response) => {
         console.log("request.params.co_sucursal" + request.params.co_sucursal);
 
         const co_sucursal = request.params.co_sucursal;
-
+        gastoService.getSumaMesGastosPorSucursal(co_sucursal)
+        .then(results=>{
+            response.status(200).json(results);
+        }).catch(error=>{
+            handle.callbackError(error, response);
+        });
+/*
         pool.query(
             `
             with meses AS(
@@ -212,7 +166,7 @@ const getSumaMesGastosPorSucursal = (request, response) => {
                 }
 
                 response.status(200).json(results.rows);
-            });
+            });*/
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -229,7 +183,13 @@ const getGastosAgrupadosPorSucursal = (request, response) => {
         console.log("request.params.co_sucursal" + request.params.co_sucursal);
 
         const co_sucursal = request.params.co_sucursal;
-
+        gastoService.getGastosAgrupadosPorSucursal(co_sucursal)
+        .then(results=>{
+            response.status(200).json(results);
+        }).catch(error=>{
+            handle.callbackError(error, response);
+        });
+/*
         pool.query(
             `               
             select 
@@ -252,6 +212,7 @@ const getGastosAgrupadosPorSucursal = (request, response) => {
 
                 response.status(200).json(results.rows);
             });
+            */
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -263,6 +224,6 @@ module.exports = {
     getCatalogoTipoGasto,
     getGastosPorSucursal,
     eliminarGasto,
-    getSumaMesGastosPorSucursal
-
+    getSumaMesGastosPorSucursal,
+    getGastosAgrupadosPorSucursal
 }
