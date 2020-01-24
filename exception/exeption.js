@@ -27,7 +27,7 @@ class ExceptionBD extends Exception{
     constructor(mensajeError){
         super(mensajeError,"¡Ups! Ocurrió un error contacte al equipo de soporte.")
     }
-
 }
+
 
 module.exports = {Exception,ExceptionBD}

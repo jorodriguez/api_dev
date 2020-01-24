@@ -38,12 +38,20 @@ function isEmptyOrNull(...values){
     return false; 
 }
 
+function existeValorArray(array){
+    if(array === null || array === undefined || array == []){
+        return false;
+    }
+    return true;
+}
+
 
 module.exports = {
     quitarElementosVaciosArray,   
     isEmpty , 
     encriptar,
-    isEmptyOrNull
+    isEmptyOrNull,
+    existeValorArray
 };
 
 /*

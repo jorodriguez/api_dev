@@ -4,34 +4,73 @@ const handle = require('../helpers/handlersErrors');
 const { validarToken } = require('../helpers/helperToken');
 const { USUARIO_DEFAULT, ENTRADA, SALIDA } = require('../utils/Constantes');
 const mensajeria = require('./mensajesFirebase');
-const asistenciaService = require('../dao/asistenciaDao');
+
+
+//FIXME : agregar el parametro de fecha
+const SQL_ALUMNOS_RECIBIDOS =
+    `SELECT asistencia.id,
+            asistencia.fecha,
+            asistencia.hora_entrada,
+            asistencia.hora_salida,
+            alumno.id as id_alumno,
+            alumno.nombre as nombre_alumno,
+            alumno.apellidos as apellido_alumno,
+            grupo.id as co_grupo,
+            grupo.nombre as nombre_grupo,
+            true as visible,
+            false as seleccionado,            
+            (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp as calcular_tiempo_extra,
+			age((getDate('')+getHora(''))::timestamp,(asistencia.fecha+alumno.hora_salida)::timestamp) as tiempo_extra   
+            FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id 
+                              inner join co_grupo grupo on alumno.co_grupo = grupo.id         
+        WHERE asistencia.hora_salida is null AND alumno.eliminado=false 
+           AND alumno.co_sucursal = $1
+        ORDER BY alumno.nombre ASC`
+    ;
+
+const SQL_ALUMNOS_RECIBIDOS_HORAS_EXTRAS =
+    `SELECT 
+        asistencia.id,
+        asistencia.fecha,
+        asistencia.hora_entrada,    
+        asistencia.hora_salida,
+        alumno.id as id_alumno,
+        alumno.nombre as nombre_alumno,
+        alumno.hora_salida as hora_salida_alumno,  
+        false as seleccionado,   
+        (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp as calcular_tiempo_extra,
+        age((getDate('')+getHora(''))::timestamp,(asistencia.fecha+alumno.hora_salida)::timestamp) as tiempo_extra
+    FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id                               
+    WHERE asistencia.id = ANY($1::int[])
+        and (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp 
+        AND alumno.eliminado=false            
+    ORDER BY alumno.nombre ASC`
+    ;
+/*
+const getAlumnosRecibidos = (request, response) => {
+    const id_sucursal = parseInt(request.params.id_sucursal);
+    let sqlHelper = new SqlHelper(SQL_ALUMNOS_RECIBIDOS, [id_sucursal]);
+    let result = sqlHelper.ejecutar() || [];    
+    response.status(200).json(result);
+};*/
 
 
 const getAlumnosRecibidos = (request, response) => {
     console.log("@getAlumnosRecibidos");
     try {
+
         console.log("Iniciando consulta de alumno ");
 
         const id_sucursal = parseInt(request.params.id_sucursal);
 
-        asistenciaService
-            .getAlumnosRecibidos(id_sucursal)
-            .then(results => {
-                console.log("Alumnos "+JSON.stringify(results));
-                response.status(200).json(results);
-            }).catch(error => {
-                console.log("exepcion al obtener la lisa de alumno "+error);
-                handle.callbackError(error, response);
-            });
-
-        /*pool.query(SQL_ALUMNOS_RECIBIDOS, [id_sucursal],
+        pool.query(SQL_ALUMNOS_RECIBIDOS, [id_sucursal],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
                 }
                 response.status(200).json(results.rows);
-            });*/
+            });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -40,46 +79,36 @@ const getAlumnosRecibidos = (request, response) => {
 const getAlumnosPorRecibir = (request, response) => {
     console.log("@getAlumnosPorRecibir");
     try {
+        // validarToken(request,response);
 
         const id_sucursal = parseInt(request.params.id_sucursal);
-        asistenciaService
-            .getAlumnosPorRecibir(id_sucursal)
-            .then(results => {
+
+        pool.query(
+            `SELECT 
+                    grupo.nombre as nombre_grupo,
+                    false as visible,
+					a.*
+             FROM co_alumno a INNER JOIN co_grupo grupo ON a.co_grupo = grupo.id		
+              WHERE a.id not in (
+                           SELECT asistencia.co_alumno
+                               FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno=alumno.id            
+                               WHERE asistencia.hora_salida is null and  asistencia.eliminado = false 
+              AND alumno.co_sucursal = $1
+              AND asistencia.eliminado=false
+            ) 
+             AND a.co_sucursal = $2
+             AND a.eliminado = false 
+             ORDER BY a.nombre ASC
+            `,
+            [id_sucursal, id_sucursal],
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
                 response.status(200).json(results.rows);
-            })
-            .catch(error => {
-                handle.callbackError(error, response);
-            })
-            ;
+            });
 
-        /* 
-        const id_sucursal = parseInt(request.params.id_sucursal);
-         pool.query(
-              `SELECT 
-                      grupo.nombre as nombre_grupo,
-                      false as visible,
-                      a.*
-               FROM co_alumno a INNER JOIN co_grupo grupo ON a.co_grupo = grupo.id		
-                WHERE a.id not in (
-                             SELECT asistencia.co_alumno
-                                 FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno=alumno.id            
-                                 WHERE asistencia.hora_salida is null and  asistencia.eliminado = false 
-                AND alumno.co_sucursal = $1
-                AND asistencia.eliminado=false
-              ) 
-               AND a.co_sucursal = $2
-               AND a.eliminado = false 
-               ORDER BY a.nombre ASC
-              `,
-              [id_sucursal, id_sucursal],
-              (error, results) => {
-                  if (error) {
-                      handle.callbackError(error, response);
-                      return;
-                  }
-                  response.status(200).json(results.rows);
-              });
-  */
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -89,19 +118,7 @@ const getAlumnosPorRecibir = (request, response) => {
 const registrarEntradaAlumnos = (request, response) => {
     console.log("@registrarEntrada");
     try {
-
-        const params = { ids, genero } = request.body;
-
-        asistenciaService
-            .registrarEntradaAlumnos(params)
-            .then(results => {
-                response.status(200).json(results);
-            })
-            .catch(error => {
-                handle.callbackError(error, response);
-            });
-
-        /*
+        // validarToken(request,response);
 
         const { ids, genero } = request.body;
 
@@ -135,18 +152,16 @@ const registrarEntradaAlumnos = (request, response) => {
 
                 response.status(200).json(results.rowCount);
             });
-*/
+
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
 
     }
 };
 
-/*function enviarMensajeEntradaSalida(ids_asistencias, operacion) {
+function enviarMensajeEntradaSalida(ids_asistencias, operacion) {
     console.log(" ids asis  " + ids_asistencias + " operacion " + operacion);
     try {
-       
-        
         if (ids_asistencias == undefined || ids_asistencias == null) {
             console.log("La lista de ids de asistencia es null");
             return;
@@ -217,7 +232,7 @@ const registrarEntradaAlumnos = (request, response) => {
         console.log("Excepcion no controlada");
 
     }
-}*/
+}
 
 
 const registrarSalidaAlumnos = (request, response) => {
@@ -225,17 +240,6 @@ const registrarSalidaAlumnos = (request, response) => {
 
     try {
         console.log(" = " + JSON.stringify(request.body));
-        const params = { listaSalida =[], listaCalcularHorasExtras =[], genero } = request.body;
-        asistenciaService
-            .registrarSalidaAlumnos(params)
-            .then(results => {
-                response.status(200).json(results);
-            }).catch(error => {
-                handle.callbackError(error, response);
-            })
-
-        /*
-        
         const { listaSalida = [], listaCalcularHorasExtras = [], genero } = request.body;
 
         console.log("PAsa 1" + JSON.stringify(request.body));
@@ -253,13 +257,12 @@ const registrarSalidaAlumnos = (request, response) => {
             }).catch((e) => {
                 handle.callbackErrorNoControlado(e, response);
             });
-*/
+
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
 };
 
-/*
 const procesoSalidaAlumnos = (idSalidas, arrayIdSalidasCalcularHoraExtras = [], genero) => {
     console.log("IDS de asistencia recibidos " + idSalidas);
     var idsAsistencias = '';
@@ -292,75 +295,63 @@ const procesoSalidaAlumnos = (idSalidas, arrayIdSalidasCalcularHoraExtras = [], 
     return pool.query(`SELECT registrar_salida_alumno('${idsAsistencias}','${idsAsistenciasCalculoHorasExtras}',${genero});`);
 
 }
-*/
+
 
 
 //lista simple
 const getListaAsistenciaPorSucursalFecha = (request, response) => {
     console.log("@getListaAsistenciaPorSucursalFecha");
 
+    const { id_sucursal, fecha } = request.params;
+
+    console.log("id_suc = " + id_sucursal);
+    console.log("fecha = " + fecha);
     try {
+        pool.query(`
+            SELECT
+                   a.id as id,
+                    to_char(a.fecha,'DD-MM-YYYY')       AS fecha,
+                    extract(dow from a.fecha)::integer  AS num_dia,
+                    to_char(a.fecha,'MM')::integer      AS num_mes,		
+                    to_char(a.fecha,'YY')               AS num_anio,
+                    al.foto,
+                    date_trunc('minute',a.hora_entrada)::time  AS hora_entrada,
+                    date_trunc('minute',a.hora_salida)::time    AS hora_salida,
+                    al.id                               as id_alumno,
+                    al.nombre                           as nombre_alumno,
+                    al.apellidos                        as apellido_alumno,
+                    grupo.id                            as id_grupo,
+                    grupo.nombre                        as nombre_grupo,
+                    u.nombre usuario_registro,
+                    date_trunc('minute',al.hora_entrada)::time  as hora_entra,
+                    date_trunc('minute',al.hora_salida)::time   as hora_sale,
+                    CASE 
+                    WHEN a.hora_salida  is not null THEN 
+                        date_trunc('minute',age(a.fecha::date + a.hora_salida::time,a.fecha::date + a.hora_entrada::time))::text
+                    ELSE
+                         date_trunc('minute',age((getDate('')+getHora(''))::timestamp,a.fecha::date + a.hora_entrada::time))::text
+                    END  as tiempo_dentro,
+                            age((a.fecha+al.hora_salida)::timestamp,coalesce(a.fecha::date + a.hora_salida::time,(getDate('')+getHora(''))::timestamp)) < '00:00:00' as alerta_tiempo,
+                    date_trunc('minutes',
+                            age((a.fecha+al.hora_salida)::timestamp,coalesce(a.fecha::date + a.hora_salida::time,(getDate('')+getHora(''))::timestamp))
+                            )::text as tiempo
 
-        const { id_sucursal, fecha } = request.params;
+            FROM 
+                co_asistencia a left join co_alumno al on al.id = a.co_alumno
+                inner join co_grupo grupo on grupo.id = al.co_grupo
+                inner join usuario u on u.id = a.usuario
+            WHERE
+                al.co_sucursal = $1 
+                and a.fecha = $2::date
+                and a.eliminado = false
+            ORDER BY  grupo.nombre,al.nombre asc
 
-        console.log("id_suc = " + id_sucursal);
-        console.log("fecha = " + fecha);
-
-        asistenciaService
-            .getListaAsistenciaPorSucursalFecha(id_sucursal, fecha)
-            .then(results => {
-                response.status(200).json(results);
-            }).catch(error => {
-                handle.callbackError(error, response);
-            });
-
-        /*
-                
-                pool.query(`
-                    SELECT
-                           a.id as id,
-                            to_char(a.fecha,'DD-MM-YYYY')       AS fecha,
-                            extract(dow from a.fecha)::integer  AS num_dia,
-                            to_char(a.fecha,'MM')::integer      AS num_mes,		
-                            to_char(a.fecha,'YY')               AS num_anio,
-                            al.foto,
-                            date_trunc('minute',a.hora_entrada)::time  AS hora_entrada,
-                            date_trunc('minute',a.hora_salida)::time    AS hora_salida,
-                            al.id                               as id_alumno,
-                            al.nombre                           as nombre_alumno,
-                            al.apellidos                        as apellido_alumno,
-                            grupo.id                            as id_grupo,
-                            grupo.nombre                        as nombre_grupo,
-                            u.nombre usuario_registro,
-                            date_trunc('minute',al.hora_entrada)::time  as hora_entra,
-                            date_trunc('minute',al.hora_salida)::time   as hora_sale,
-                            CASE 
-                            WHEN a.hora_salida  is not null THEN 
-                                date_trunc('minute',age(a.fecha::date + a.hora_salida::time,a.fecha::date + a.hora_entrada::time))::text
-                            ELSE
-                                 date_trunc('minute',age((getDate('')+getHora(''))::timestamp,a.fecha::date + a.hora_entrada::time))::text
-                            END  as tiempo_dentro,
-                                    age((a.fecha+al.hora_salida)::timestamp,coalesce(a.fecha::date + a.hora_salida::time,(getDate('')+getHora(''))::timestamp)) < '00:00:00' as alerta_tiempo,
-                            date_trunc('minutes',
-                                    age((a.fecha+al.hora_salida)::timestamp,coalesce(a.fecha::date + a.hora_salida::time,(getDate('')+getHora(''))::timestamp))
-                                    )::text as tiempo
-        
-                    FROM 
-                        co_asistencia a left join co_alumno al on al.id = a.co_alumno
-                        inner join co_grupo grupo on grupo.id = al.co_grupo
-                        inner join usuario u on u.id = a.usuario
-                    WHERE
-                        al.co_sucursal = $1 
-                        and a.fecha = $2::date
-                        and a.eliminado = false
-                    ORDER BY  grupo.nombre,al.nombre asc
-        
-                    `, [id_sucursal, new Date(fecha)]).then((results) => {
-                    console.log("resultado lista de asistencia");
-                    response.status(200).json(results.rows);
-                }).catch((error) => {
-                    handle.callbackError(error, response);
-                });*/
+            `, [id_sucursal, new Date(fecha)]).then((results) => {
+            console.log("resultado lista de asistencia");
+            response.status(200).json(results.rows);
+        }).catch((error) => {
+            handle.callbackError(error, response);
+        });
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -372,50 +363,42 @@ const getListaAsistenciaPorSucursalFecha = (request, response) => {
 const getListaAsistenciaMesPorAlumno = (request, response) => {
     console.log("@getListaAsistenciaPorAlumno");
 
+    const { id_alumno } = request.params;
+
+    console.log("id_alumno = " + id_alumno);
+    //console.log("numero_mes = " + numero_mes);
     try {
-        const { id_alumno } = request.params;
+        pool.query(`                   
+        with fechas as (
+            select (date_trunc('month',  getDate('')))::timestamp AS primer_dia,
+                (date_trunc('month',  getDate('')) + interval '1 month' - interval '1 day')  as ultimo_dia		   	   
+        ),serie as (
+            SELECT g::date as fecha			  
+            FROM fechas f, generate_series(f.primer_dia,f.ultimo_dia,'1 day')  g
+        )
+        select 	
+            s.fecha,
+            to_char(s.fecha,'DD')::int as num_dia,
+            to_char(s.fecha,'MM') as num_mes,
+            to_char(s.fecha,'YYYY') as num_anio,
+            to_char(s.fecha,'Day') as nombre_dia,    
+            count(a.*) > 0 as asistencia,
+            to_char(s.fecha,'d')::int in (1,7) as es_fin_semana, 
+            count(a.*) as numero_asistencia,
+            date_trunc('seconds',a.hora_entrada::time) as hora_entrada,
+            date_trunc('seconds',a.hora_salida::time) as hora_salida,
+            (select count(*) from co_cargo_balance_alumno where fecha = s.fecha) as cargos_extras
+        from serie s left join co_asistencia a on s.fecha = a.fecha
+            and a.co_alumno = $1
+            group by s.fecha,a.hora_entrada,a.hora_salida
+            order by s.fecha 
 
-        console.log("id_alumno = " + id_alumno);
-
-        asistenciaService
-            .getListaAsistenciaMesPorAlumno(id_alumno)
-            .then(results => {
-                response.status(200).json(results);
-            }).catch(error => {
-                handle.callbackError(error, response);
-            })
-
-        /* pool.query(`                   
-         with fechas as (
-             select (date_trunc('month',  getDate('')))::timestamp AS primer_dia,
-                 (date_trunc('month',  getDate('')) + interval '1 month' - interval '1 day')  as ultimo_dia		   	   
-         ),serie as (
-             SELECT g::date as fecha			  
-             FROM fechas f, generate_series(f.primer_dia,f.ultimo_dia,'1 day')  g
-         )
-         select 	
-             s.fecha,
-             to_char(s.fecha,'DD')::int as num_dia,
-             to_char(s.fecha,'MM') as num_mes,
-             to_char(s.fecha,'YYYY') as num_anio,
-             to_char(s.fecha,'Day') as nombre_dia,    
-             count(a.*) > 0 as asistencia,
-             to_char(s.fecha,'d')::int in (1,7) as es_fin_semana, 
-             count(a.*) as numero_asistencia,
-             date_trunc('seconds',a.hora_entrada::time) as hora_entrada,
-             date_trunc('seconds',a.hora_salida::time) as hora_salida,
-             (select count(*) from co_cargo_balance_alumno where fecha = s.fecha) as cargos_extras
-         from serie s left join co_asistencia a on s.fecha = a.fecha
-             and a.co_alumno = $1
-             group by s.fecha,a.hora_entrada,a.hora_salida
-             order by s.fecha 
- 
-             `, [id_alumno]).then((results) => {
-             console.log("resultado lista de asistencia");
-             response.status(200).json(results.rows);
-         }).catch((error) => {
-             handle.callbackError(error, response);
-         });*/
+            `, [id_alumno]).then((results) => {
+            console.log("resultado lista de asistencia");
+            response.status(200).json(results.rows);
+        }).catch((error) => {
+            handle.callbackError(error, response);
+        });
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -425,24 +408,13 @@ const getListaAsistenciaMesPorAlumno = (request, response) => {
 // para componente de calendrio
 const getListaMesAsistenciaPorAlumno = (request, response) => {
     console.log("@getListaMeAsistenciaPorAlumno");
+
+    const { id_alumno } = request.params;
+
+    console.log("id_alumno = " + id_alumno);
+    //console.log("numero_mes = " + numero_mes);
     try {
-
-        const { id_alumno } = request.params;
-
-        console.log("id_alumno = " + id_alumno);
-        
-        asistenciaService
-            .getListaMesAsistenciaPorAlumno(id_alumno)
-            .then(results=>{
-                console.log("resultado lista de asistencia");
-                response.status(200).json(results.rows);
-            }).catch(error=>{
-                handle.callbackError(error, response);
-            });
-
-
-
-      /*  pool.query(`
+        pool.query(`
                   
        
 with fechas as (
@@ -480,21 +452,16 @@ order by s.fecha
         }).catch((error) => {
             handle.callbackError(error, response);
         });
-        */
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
 }
 
-
 const ejecutarProcesoSalidaAutomatica = () => {
     try {
 
-        asistenciaService
-            .ejecutarProcesoSalidaAutomatica();
-
-       /* pool.query(`SELECT id as ids 
+        pool.query(`SELECT id as ids 
                     FROM co_asistencia a 
                     WHERE a.hora_salida is null AND a.fecha = getDate('') and a.eliminado = false`,
             (error, results) => {
@@ -521,7 +488,7 @@ const ejecutarProcesoSalidaAutomatica = () => {
                     } else { console.log("no existieron alumnos para salida automatica "); }
                 }
             });
-        */
+
 
     } catch (e) {
         console.log("@excepcion " + e);
@@ -532,21 +499,7 @@ const ejecutarProcesoSalidaAutomatica = () => {
 const getListaAsistenciaAlumnoPorSalirConHorasExtras = (request, response) => {
     console.log("@getListaAsistenciaAlumnoPorSalirConHorasExtras");
 
-    try {
-
-        const params = { lista_id_asistencias = [] } = request.params;
-
-        asistenciaService
-            .getListaAsistenciaAlumnoPorSalirConHorasExtras(params)
-            .then(results=>{
-                console.log("resultado lista de asistencia");
-                response.status(200).json(results);
-            }).catch(error=>{
-                handle.callbackError(error, response);  
-            });
-
-  /*  
-        const { lista_id_asistencias = [] } = request.params;
+    const { lista_id_asistencias = [] } = request.params;
     let array = [];
     if (lista_id_asistencias != undefined && lista_id_asistencias != []) {
 
@@ -555,7 +508,7 @@ const getListaAsistenciaAlumnoPorSalirConHorasExtras = (request, response) => {
         });
     }
 
-   
+    try {
         pool.query(SQL_ALUMNOS_RECIBIDOS_HORAS_EXTRAS, [array])
             .then((results) => {
                 console.log("resultado lista de asistencia");
@@ -564,13 +517,13 @@ const getListaAsistenciaAlumnoPorSalirConHorasExtras = (request, response) => {
             }).catch((error) => {
                 handle.callbackError(error, response);
             });
-*/
+
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
 }
 
-/*
+
 const ejecutarProcedimientoCalculoHorasExtra = (ids_alumnos, id_genero) => {
     console.log("@ejecutarProcedimeintoCalculoHorasExtra");
 
@@ -589,7 +542,7 @@ const ejecutarProcedimientoCalculoHorasExtra = (ids_alumnos, id_genero) => {
     } catch (e) {
         console.log("Error al ejecutar el procedimiento calculo extra " + e);
     }
-};*/
+};
 
 
 /* Lista de asistencias e inasistencias por alumno por mes  */
@@ -599,17 +552,9 @@ const getListaMesAsistenciaPorSucursal = (request, response) => {
     const { id_sucursal } = request.params;
 
     console.log("id_sucursal = " + id_sucursal);
-    
-    asistenciaService
-        .getListaMesAsistenciaPorSucursal(id_sucursal)
-        .then(results =>{
-            response.status(200).json(results);
-        }).catch(error=>{
-            handle.callbackError(error, response);
-        });
-
+    //console.log("numero_mes = " + numero_mes);
     try {
-      /*  pool.query(`
+        pool.query(`
                 
 with serie as (
     SELECT g::date as fecha	  
@@ -659,7 +604,6 @@ order by a.nombre
         }).catch((error) => {
             handle.callbackError(error, response);
         });
-        */
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);

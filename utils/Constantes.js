@@ -29,6 +29,9 @@ const TIPO_USUARIO = {MAESTRA:1};
 //quitar despues de crear la funcionalidad de empresa
 const ID_EMPRESA_MAGIC = 1;
 
+
+const MENSAJE_ALGO_FALLO = "¡Ups! Algo falló"
+
 module.exports = {
     CARGOS,
     ESTATUS,
