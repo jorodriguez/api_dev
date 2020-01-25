@@ -30,4 +30,12 @@ class ExceptionBD extends Exception{
 }
 
 
-module.exports = {Exception,ExceptionBD}
+class ExceptionDatosFaltantes extends Exception{
+    constructor(mensajeError){
+        super("Faltan Datos",mensajeError)
+    }
+}
+
+
+
+module.exports = {Exception,ExceptionBD,ExceptionDatosFaltantes}

@@ -42,7 +42,7 @@ const registrarGasto = (gastoData) => {
         getQueryInstance(
             `INSERT INTO CO_GASTO(cat_tipo_gasto,co_forma_pago,co_sucursal,fecha,gasto,observaciones,genero)
                     VALUES($1,$2,$3,$4,$5,$6,$7) returning id;`,
-            [cat_tipo_gasto, co_forma_pago, co_sucursal, fecha, gasto, observaciones, genero])
+            [cat_tipo_gasto, co_forma_pago, co_sucursal, new Date(fecha), gasto, observaciones, genero])
             .then((results) => {
                 resolve(results.rowCount > 0 ? results.rows[0].id : 0);
             }).catch((error => {
@@ -64,7 +64,7 @@ const modificarGasto = (gastoData) => {
   */
 
         const { id, cat_tipo_gasto, co_forma_pago, fecha, gasto, observaciones, genero } = gastoData;
-
+//
         getQueryInstance(`
             UPDATE CO_GASTO
                 SET cat_tipo_gasto = $2,
@@ -144,29 +144,7 @@ const getSumaMesGastosPorSucursal = (idSucursal) => {
         order by to_char(m.mes,'YYYYMM') desc                             
         `,
             [idSucursal]);
-      /* pool.query(
-            `
-            with meses AS(
-                select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as mes
-			) select
-					to_char(m.mes,'Mon-YYYY') as mes_anio,
-					to_char(m.mes,'YYYYMM') as anio_mes,
-					coalesce(sum(gasto.gasto),0) as suma
-              from meses m left join co_gasto gasto on to_char(m.mes,'YYYYMM') = to_char(gasto.fecha,'YYYYMM') and gasto.eliminado = false			
-                        and gasto.co_sucursal = $1
-			group by to_char(m.mes,'Mon-YYYY'),to_char(m.mes,'YYYYMM')
-			order by to_char(m.mes,'YYYYMM') desc                             
-            `,
-            [co_sucursal],
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-
-                response.status(200).json(results.rows);
-            });*/
-   
+       
 };
 
 
@@ -188,29 +166,7 @@ const getGastosAgrupadosPorSucursal = (idSucursal) => {
         where  g.eliminado  = false
         group by tipo.nombre,fpago.nombre,suc.nombre
         `, [idSucursal]);
-       /* pool.query(
-            `               
-            select 
-                tipo.nombre as nombre_tipo_gasto, 
-                fpago.nombre as nombre_tipo_pago,
-                suc.nombre as nombre_sucursal,
-                sum(g.gasto) as gasto_sucursal
-            from co_gasto g inner join cat_tipo_gasto tipo on g.cat_tipo_gasto = g.id
-                    inner join co_forma_pago fpago on g.co_forma_pago = fpago.id
-                    inner join co_sucursal suc on g.co_sucursal = suc.id
-            where  g.eliminado  = false
-            group by tipo.nombre,fpago.nombre,suc.nombre
-            `,
-            [co_sucursal],
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-
-                response.status(200).json(results.rows);
-            });*/
-   
+        
 };
 
 

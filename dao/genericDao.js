@@ -55,9 +55,26 @@ function execute(query,params){
     });       
 };
 
+function executeProcedureWithParameters(query,params){
+    console.log("@executeProcedureWithParameters");
+    return new Promise((resolve, reject) => { 
+        if(isEmptyOrNull(query,params)){
+            reject(new ExceptionBD("el query o los parametros son null"));
+            return;
+        }
+        getQueryInstance(query,params)
+            .then(results => {
+                resolve(results);
+            }).catch(error => {
+                reject(new ExceptionBD(error));
+            });
+    });       
+};
 
 function executeProcedure(query){
     console.log("@executeProcedure");
+    return executeProcedureWithParameters(query,[]);
+    /*
     return new Promise((resolve, reject) => { 
         if(isEmptyOrNull(query)){
             reject(new ExceptionBD("el query o los parametros son null"));
@@ -69,7 +86,7 @@ function executeProcedure(query){
             }).catch(error => {
                 reject(new ExceptionBD(error));
             });
-    });       
+    });*/       
 };
 
 function eliminarPorId(tabla,id,genero){
@@ -94,4 +111,4 @@ function eliminarPorId(tabla,id,genero){
 };*/
 
 
-module.exports = {findAll,findOne,eliminarPorId,execute,executeProcedure};
+module.exports = {findAll,findOne,eliminarPorId,execute,executeProcedure,executeProcedureWithParameters};

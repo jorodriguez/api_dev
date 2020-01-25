@@ -111,24 +111,7 @@ const registrarEntradaAlumnos = (params) => {
             })
             .catch(error => {
                 reject(new ExceptionBD(error));
-            })
-        /*
-                pool.query("select registrar_entrada_alumno('" + idsAlumnos + "'," + genero + ");",
-                    (error, results) => {
-                        if (error) {
-                            handle.callbackError(error, response);
-                            return;
-                        }
-        
-                        if (results.rowCount > 0) {
-                            //Enviar mensaje de recepcion
-                            console.log("Resultado del procedimiento " + JSON.stringify(results.rows));
-                            var listaIdsAsistencias = results.rows.map(e => e.registrar_entrada_alumno);
-                            enviarMensajeEntradaSalida(listaIdsAsistencias, ENTRADA);
-                        }
-        
-                        response.status(200).json(results.rowCount);
-                    });*/
+            })        
     });
 };
 
@@ -450,17 +433,7 @@ const ejecutarProcedimientoCalculoHorasExtra = (ids_alumnos, id_genero) => {
             console.log("Se ejecuto el procedimiento de horas extras " + JSON.stringify(results));
         }).catch(error => {
             console.log("Error al ejecutar el procedimiento calculo extra " + error);
-        })
-
-    /*        pool.query("SELECT generar_horas_extras_alumno('" + ids_alumnos + "'," + id_genero + ");",
-                (error, results) => {
-                    if (error) {
-                        console.log("Error al ejecutar el procedimiento calculo extra " + error);
-                        return;
-                    }
-                    console.log("Se ejecuto el procedimiento de horas extras " + JSON.stringify(results));
-                });
-      */
+        }) 
 };
 
 

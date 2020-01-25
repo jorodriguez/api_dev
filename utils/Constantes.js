@@ -1,6 +1,6 @@
 
 const CARGOS = {
-      ID_CARGO_MENSUALIDAD : 1,ID_TIEMPO_EXTRA:3
+      ID_CARGO_MENSUALIDAD : 1,ID_TIEMPO_EXTRA:3,ID_RECARGO_MENSUALIDAD :4
 };
 
 const ESTATUS = {
@@ -29,8 +29,9 @@ const TIPO_USUARIO = {MAESTRA:1};
 //quitar despues de crear la funcionalidad de empresa
 const ID_EMPRESA_MAGIC = 1;
 
-
 const MENSAJE_ALGO_FALLO = "¡Ups! Algo falló"
+
+const MENSAJE_RECARGO_POR_MENSUALIDAD_VENCIDA = "RECARGO POR MENSUALIDAD VENCIDA.";
 
 module.exports = {
     CARGOS,
@@ -41,5 +42,6 @@ module.exports = {
     ENTRADA,SALIDA,
     TIPO_USUARIO,
     ID_EMPRESA_MAGIC,
-    TEMA_NOTIFICACION
+    TEMA_NOTIFICACION,
+    MENSAJE_RECARGO_POR_MENSUALIDAD_VENCIDA
 };
