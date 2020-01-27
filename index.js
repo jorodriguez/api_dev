@@ -15,6 +15,7 @@ const familiar = require('./services/familiar');
 const parentesco = require('./services/parentesco');
 const formato_complemento = require('./services/formato_complemento');
 const pagos = require('./services/pagos');
+const cargos = require('./services/cargos');
 const mensajeria = require('./services/mensajesFirebase');
 const tareas_programadas = require('./services/tareas_programadas');
 const schedule = require('node-schedule');
@@ -36,6 +37,7 @@ const https = require("https");
 const { validarTokenCompleto } = require('./helpers/helperToken');
 const asistenciaUsuario = require('./services/asistencia_usuario');
 //const tiendaService = require('./services/tiendaService');
+const recargoService = require('./services/recargos');
 
 const port = process.env.PORT || 5000;
 
@@ -208,14 +210,14 @@ POST('/pagos/registrar', pagos.registrarPago);
 POST('/pagos/:id_alumno', pagos.registrarPago);
 GET('/pagos/:id_cargo_balance_alumno', pagos.getPagosByCargoId);
 
-POST('/cargos/registrar', pagos.registrarCargo);
-GET('/cargos', pagos.getCatalogoCargos);
-GET('/cargos/:id_alumno', pagos.getCargosAlumno);
-GET('/balance/:id_alumno', pagos.getBalanceAlumno);
-PUT('/cargos/:id_alumno', pagos.eliminarCargos);
+POST('/cargos/registrar', cargos.registrarCargo);
+GET('/cargos', cargos.getCatalogoCargos);
+GET('/cargos/:id_alumno', cargos.getCargosAlumno);
+GET('/balance/:id_alumno', cargos.getBalanceAlumno);
+PUT('/cargos/:id_alumno', cargos.eliminarCargos);
 
 //GET('/cargos/meses_adeuda/:id_alumno', pagos.obtenerMesesAdeudaMensualidad);
-app.get('/cargos/meses_adeuda/:id_alumno', pagos.obtenerMesesAdeudaMensualidad);
+app.get('/cargos/meses_adeuda/:id_alumno', cargos.obtenerMesesAdeudaMensualidad);
 //GET('/cargos/meses_adeuda/:id_alumno', pagos.obtenerMesesAdeudaMensualidad);
 
 GET('/formas_pagos', catagolos.getFormasPago);
@@ -409,9 +411,22 @@ schedule.scheduleJob('0 */35 * * * 1-5', function () {
 schedule.scheduleJob('0 1 0 1 * *', function () {
 	console.log('Agregar cargo de mensualidad ' + new Date());
 	//tareas.generarBalanceAlumnos();
-
 });
 
+/********* Calcular Recargos de mensualidades *********/
+//schedule.scheduleJob('0 1 0 1 * *', function () {
+//schedule.scheduleJob('0 48 16 * * *', function () {
+schedule.scheduleJob({hour: 16, minute: 54,second:50}, function () {
+	
+	console.log('Agregar recargos de mensualidad ' + new Date());
+	try{
+			recargoService.procesoRecargosMensualidad();
+	}catch(error){
+		console.error("Error al ejecutar el proceso de recargos "+error);
+	}
+	
+});
+/********* Calcular Recargos de mensualidades *********/
 
 /*
 var rule = new schedule.RecurrenceRule();

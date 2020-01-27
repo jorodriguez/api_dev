@@ -32,8 +32,10 @@ function ejecutarProcesoRecargoMensualidad(){
                             .then(results=>{
                                     cargoService
                                     .relacionarReacargoConMensualidad(cargoMensualidad.id_cargo_balance_alumno,results.id_cargo_generado, CONSTANTES.USUARIO_DEFAULT)
-                                    .then(id=>{
-                                        console.log("relacion ok");
+                                    .then(id=>{                                        
+                                        console.log("====> relacion ok enviar correo ");
+                                        //noti
+
                                     }).catch(error=>console.log("Existio un error"));
                             });
                     }                    
@@ -41,7 +43,7 @@ function ejecutarProcesoRecargoMensualidad(){
             }
         }
     }).catch(error => {
-
+        console.error("Error al ejecutar el proceso de recargos "+error);
     });
 
 }
@@ -54,3 +56,5 @@ function ejecutarProcesoRecargoMensualidad(){
 
 // proceso de recargos en el día enviar correo a cada papa y toda la lista a las mises
 //enviar la lista completa a los dueños de todas las sedes
+
+module.exports = {ejecutarProcesoRecargoMensualidad}
