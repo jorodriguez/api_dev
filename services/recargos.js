@@ -6,7 +6,7 @@ function procesoRecargosMensualidad() {
     try {
         recargoService.ejecutarProcesoRecargoMensualidad();
     } catch (e) {
-        console.log("Excepcion al ejecutar el proceso de recargos " + e);
+        console.log("[recargos] Excepcion al ejecutar el proceso de recargos " + e);
         //enviar un correo al equipo de soporte     
    }
 

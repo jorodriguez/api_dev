@@ -14,7 +14,7 @@ const registrarCargo = (cargoData) => {
             .registrarCargo(cargoData)
             .then(respuesta => {
                 console.log("Enviar correo de cargo");
-                notificacionService.notificarCargo(respuesta.id_alumno, respuesta.id_cargo_generado);
+                notificacionService.notificarCargo(respuesta.id_alumno, respuesta.id_cargo);
                 //Aqui enviar el mensaje al movil
                 resolve(respuesta);
             }).catch(error => {
@@ -47,7 +47,7 @@ const registrarCargo = (cargoData) => {
                 });*/
 };
 
-const relacionarReacrgoConMensualidad = (idCargoMensualidad,idRecargo,genero)=>{
+const relacionarRecargoConMensualidad = (idCargoMensualidad,idRecargo,genero)=>{
     return cargosDao.relacionarRecargoConMensualidad(idCargoMensualidad,idRecargo,genero);
 }
 
@@ -91,5 +91,5 @@ module.exports = {
     getBalanceAlumno,    
     eliminarCargos,
     obtenerMesesAdeudaMensualidad,
-    relacionarReacrgoConMensualidad
+    relacionarRecargoConMensualidad
 }

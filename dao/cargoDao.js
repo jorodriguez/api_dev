@@ -95,13 +95,16 @@ const registrarCargo = (cargoData) => {
 };
 
 const relacionarRecargoConMensualidad = (idCargoMensualidad,idRecargo,genero) =>{
-    return genericDao.execute(`UPDATE co_cargo_balance_alumno 
+
+    console.log(`=========================idCargoMensualidad ${idCargoMensualidad},idRecargo ${idRecargo}, genero ${genero}`)
+
+    return genericDao.execute(` UPDATE co_cargo_balance_alumno 
                                 SET co_cargo_balance_alumno = $2,
                                     recargo = true,
-                                    fecha_modifico = (getDate('')+getHora(''))::timestamp
+                                    fecha_modifico = (getDate('')+getHora(''))::timestamp,
                                     modifico = $3
-                                WHERE id = $1 RETURNING id;
-                                `[idCargoMensualidad,idRecargo,genero]);
+                                WHERE id = $1 RETURNING id;`
+                                ,[idCargoMensualidad,idRecargo,genero]);
 }
 
 

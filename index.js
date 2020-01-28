@@ -416,13 +416,12 @@ schedule.scheduleJob('0 1 0 1 * *', function () {
 /********* Calcular Recargos de mensualidades *********/
 //schedule.scheduleJob('0 1 0 1 * *', function () {
 //schedule.scheduleJob('0 48 16 * * *', function () {
-schedule.scheduleJob({hour: 16, minute: 54,second:50}, function () {
-	
-	console.log('Agregar recargos de mensualidad ' + new Date());
+schedule.scheduleJob({hour: 17, minute:47,second:20}, function () {
+		console.log('Agregar recargos de mensualidad ' + new Date());
 	try{
 			recargoService.procesoRecargosMensualidad();
 	}catch(error){
-		console.error("Error al ejecutar el proceso de recargos "+error);
+		console.error("[index] Error al ejecutar el proceso de recargos "+error);
 	}
 	
 });

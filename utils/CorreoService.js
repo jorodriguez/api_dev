@@ -18,7 +18,7 @@ const TEMPLATES = {
 
 
 //mejorar esto param = {titulo:"",subtitulo:"",contenido:""}
-function loadTemplate(templateName, params) {
+/*function loadTemplate(templateName, params) {
     var html = null;
     //fixme : ir a la bd
     params.nombre_empresa = "Magic Intelligence";
@@ -34,7 +34,7 @@ function loadTemplate(templateName, params) {
         }
     });
 }
-
+*/
 
 function enviarCorreoConCopiaTemaNotificacion(asunto, para, idSucursalTemaCopia, idTemaNotificacion, params, template) {
     console.log("@enviarCorreoPorTemaNotificacion copia a la suc " + idSucursalTemaCopia + " tema " + idTemaNotificacion);
@@ -115,7 +115,7 @@ function loadTemplate(templateName, params) {
                             htmlTemp = htmlTemp.concat(row.encabezado, (data || ''), row.pie);
                             console.log("html final");
                             html = mustache.to_html(htmlTemp, params);
-                            console.log(html);
+                            //console.log(html);
                             resolve(html);
                         });
                     } else {

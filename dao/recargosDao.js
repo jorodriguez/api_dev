@@ -5,12 +5,12 @@ const { existeValorArray,isEmptyOrNull } = require('../utils/Utils');
 
 
 const CRITERIO = {
-    AGREGAR_RECARGO: " AND (a.fecha_limite_pago_mensualidad + 1) <= getDate('') and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",
-    VENCEN_HOY: " AND a.fecha_limite_pago_mensualidad = getDate('') and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",
-    VENCEN_MANANA: " AND (a.fecha_limite_pago_mensualidad + 1) = getDate('') + 1 and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",
-    VENCIDOS: " AND a.fecha_limite_pago_mensualidad < getDate('') "    
+    AGREGAR_RECARGO: " (a.fecha_limite_pago_mensualidad + 1) <= getDate('') and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",
+    VENCEN_HOY: " a.fecha_limite_pago_mensualidad = getDate('') and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",
+    VENCEN_MANANA: "  (a.fecha_limite_pago_mensualidad + 1) = getDate('') + 1 and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",
+    VENCIDOS: " a.fecha_limite_pago_mensualidad < getDate('') "    
 };
-const SELECCIONAR_TODAS_SUCURSALES = undefined;
+const SELECCIONAR_TODAS_SUCURSALES = null;
 
 const getQueryBase = function (criterio,idSucursal) {
     return `
@@ -43,20 +43,20 @@ const getQueryBase = function (criterio,idSucursal) {
                     and a.eliminado = false	                
              ORDER by a.nombre,b.fecha desc
     ) select suc.id as id_sucursal,
-        suc.nombre as nombre_sucusal,
+        suc.nombre as nombre_sucursal,
         suc.direccion as direccion_sucursal,
         array_to_json(array_agg(to_json(u.*))) AS mensualidades_vencidas
     from cargos_universo u right join co_sucursal suc on suc.id = u.co_sucursal 
-    where  ${(idSucursal != null && idSucursal != undefined) ? ` suc.id = ${idSucursal} AND ` :''} 
+    where  ${(idSucursal != null) ? ` suc.id = ${idSucursal} AND ` :''} 
             suc.eliminado = false
     group by suc.id
     
     `;
 }
 
-function validarCriterio(){
+function validarCriterio(criterio){
     if(isEmptyOrNull(criterio)){
-        conseole.log("XX NO SE EJECUTO EL PROCES EL CRITERIO ES NULL XXX");
+        console.log("XX NO SE EJECUTO EL PROCES EL CRITERIO ES NULL XXX");
         throw (new Exception("Error ","El criterio es null o empty"));
     }
 }
@@ -66,9 +66,12 @@ function validarCriterio(){
 //Calcular recargos de mensualidades que vence hoy
 function getMensualidadesParaRecargoTodasSucursales(criterio) {
     console.log("@getMensualidadesParaRecargoTodasSucursales" );
+    console.log("CRITERIO "+criterio);
     //CRITERIO.AGREGAR_RECARGO
     validarCriterio(criterio);
-    return genericDao.findAll(getQueryBase(criterio,SELECCIONAR_TODAS_SUCURSALES), []);       
+    let query = getQueryBase(criterio,SELECCIONAR_TODAS_SUCURSALES);
+    console.log(query);
+    return genericDao.findAll(query, []);       
 }
 
 function getMensualidadesParaRecargoPorSucursal(criterio,idSucursal) {

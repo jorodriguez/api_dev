@@ -29,7 +29,8 @@ function isEmptyOrNull(...values){
     if(values === null ||  values === undefined || values.length === 0 ){
         return true;
     }else{
-        for(let obj in values){
+        for(let index in values){
+            let obj = values[index];
             if(obj === null || obj == undefined || obj === null){
                   return true;
             }

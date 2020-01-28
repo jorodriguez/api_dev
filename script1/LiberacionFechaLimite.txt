@@ -22,3 +22,7 @@ where co_balance_alumno in
 from co_pago_cargo_balance_alumno rel inner join co_Cargo_balance_alumno cargo on cargo.id = rel.co_Cargo_balance_alumno
 where cargo.cat_cargo = 1 and to_char(cargo.fecha,'mmYYYY') = '012020' )
 
+
+
+update co_alumno set foto = 'https://cdn2.iconfinder.com/data/icons/circle-avatars-1/128/037_girl_avatar_profile_woman_child-512.png'
+where sexo = 'Niña'
