@@ -17,25 +17,6 @@ const TEMPLATES = {
 }
 
 
-//mejorar esto param = {titulo:"",subtitulo:"",contenido:""}
-/*function loadTemplate(templateName, params) {
-    var html = null;
-    //fixme : ir a la bd
-    params.nombre_empresa = "Magic Intelligence";
-
-    return new Promise((resolve, reject) => {
-        try {
-            fs.readFile(path.resolve(__dirname, "../templates/" + templateName), 'utf8', (err, data) => {
-                html = mustache.to_html(data, params);
-                resolve(html);
-            });
-        } catch (e) {
-            reject(e);
-        }
-    });
-}
-*/
-
 function enviarCorreoConCopiaTemaNotificacion(asunto, para, idSucursalTemaCopia, idTemaNotificacion, params, template) {
     console.log("@enviarCorreoPorTemaNotificacion copia a la suc " + idSucursalTemaCopia + " tema " + idTemaNotificacion);
 
@@ -45,9 +26,10 @@ function enviarCorreoConCopiaTemaNotificacion(asunto, para, idSucursalTemaCopia,
             obtenerCorreosCopiaPorTema(idSucursalTemaCopia, idTemaNotificacion)
                 .then(result => {
                     console.log("Correos copia iniciando");
-                    let cc = "";
+                    let cc = "";                    
                     if (result != null && result.rowCount > 0) {
                         cc = result.rows[0].correos_copia;
+                        
                     }
 
                     enviarCorreo(para, cc, asunto, renderHtml);
@@ -142,10 +124,22 @@ function loadTemplate(templateName, params) {
 }
 
 function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
-    return getQueryInstance(`
+    /*return getQueryInstance(`
         SELECT array_to_json(array_agg(to_json(correo))) as correos_copia
         FROM co_correo_copia_notificacion
         WHERE co_sucursal = $1 and co_tema_notificacion = $2 and eliminado = false
+   `, [co_sucursal, id_tema]);*/
+     return getQueryInstance(`
+                    SELECT 
+                        (select array_to_json(array_agg(to_json(u.correo)))
+                        FROM co_usuario_notificacion un inner join usuario u on u.id = un.usuario
+                        WHERE un.co_sucursal = $1 and un.co_tema_notificacion = $2
+                        and un.eliminado = false and u.eliminado = false)
+                        AS correos_usuarios,	
+                        (SELECT array_to_json(array_agg(to_json(correo)))
+                        FROM co_correo_copia_notificacion
+                        WHERE co_sucursal = $1 and co_tema_notificacion = $2 and eliminado = false) 
+                        as correos_copia    
    `, [co_sucursal, id_tema]);
 }
 
