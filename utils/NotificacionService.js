@@ -6,7 +6,9 @@ const { CARGOS, TEMA_NOTIFICACION } = require('../utils/Constantes');
 const { variables } = require('../config/ambiente');
 const correoService = require('./CorreoService');
 const { TEMPLATES } = require('./CorreoService');
+const alumnoService = require('../domain/alumnoService');
 
+/*
 const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
     `SELECT  	a.id,
                 a.nombre as nombre_alumno,		
@@ -21,23 +23,34 @@ const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
             and co_parentesco in (1,2) -- solo papa y mama
             and fam.eliminado = false 
             and rel.eliminado = false
-    group by a.nombre,a.id `;
+    group by a.nombre,a.id `;*/
 
 const notificarCargo = (id_alumno, id_cargos) => {
     console.log("notificarCargo " + id_alumno + "    " + id_cargos);
     //ir por alumno
-    pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [[id_alumno]],
-        (error, results) => {
-            if (error) {
-                return;
-            }
-            if (results.rowCount > 0) {
-                let row = results.rows[0];
+    alumnoService
+        .getCorreosTokenAlumno(id_alumno)
+        .then(results => {
+            let row = results;
+            if (row != null) {
                 completarNotificacionCargo(row.correos, row.tokens, row.nombres_padres, row.nombre_alumno, id_cargos, row.co_sucursal);
             } else {
                 console.log("No se encontraron registros de padres para el alumno " + id_alumno);
             }
-        });
+        }).catch(error => console.error(error));
+    /*
+        pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [[id_alumno]],
+            (error, results) => {
+                if (error) {
+                    return;
+                }
+                if (results.rowCount > 0) {
+                    let row = results.rows[0];
+                    completarNotificacionCargo(row.correos, row.tokens, row.nombres_padres, row.nombre_alumno, id_cargos, row.co_sucursal);
+                } else {
+                    console.log("No se encontraron registros de padres para el alumno " + id_alumno);
+                }
+            });*/
 };
 
 function completarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, nombre_alumno, id_cargo, id_sucursal) {
@@ -92,7 +105,7 @@ function completarNotificacionCargo(lista_correos, lista_tokens, nombres_padres,
         });
 }
 
-/*Correo de notificacion de nuevo cargo*/ 
+/*Correo de notificacion de nuevo cargo*/
 const enviarNotificacionCargo = (para, asunto, params) => {
     console.log("@enviarNotificacionCargo");
 
@@ -104,7 +117,7 @@ const enviarNotificacionCargo = (para, asunto, params) => {
             TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_PAGOS,
             params,
             TEMPLATES.TEMPLATE_AVISO_CARGO
-        );   
+        );
 };
 
 
@@ -123,6 +136,17 @@ function enviarMensajeMovil(tokens, titulo, cuerpo) {
 const notificarReciboPago = (id_alumno, id_pago) => {
     console.log("notificarReciboPago " + id_alumno + "    " + id_pago);
     //ir por alumno
+    alumnoService
+        .getCorreosTokenAlumno(id_alumno)
+        .then(results => {
+            let row = results;
+            if (row != null) {
+                enviarReciboComplemento(row.correos, row.tokens, row.nombres_padres, id_pago);
+            } else {
+                console.log("No se encontraron registros de padres para el alumno " + id_alumno);
+            }
+        }).catch(error => console.error(error));
+    /*
     pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [[id_alumno]],
         (error, results) => {
             if (error) {
@@ -134,7 +158,7 @@ const notificarReciboPago = (id_alumno, id_pago) => {
             } else {
                 console.log("No se encontraron registros de padres para el alumno " + id_alumno);
             }
-        });
+        });*/
 };
 
 function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id_pago) {
@@ -262,12 +286,12 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                     if (listaCargosFacturables.length > 0) {
                         console.log("Enviar correo para facturacion ");
                         correoService.enviarCorreoParaTemaNotificacion(
-                                'Registrar Factura - ' + row.nombre_sucursal,
-                                params.id_sucursal,
-                                TEMA_NOTIFICACION.ID_TEMA_DATOS_FACTURACION,
-                                nuevoParams,
-                                TEMPLATES.TEMPLATE_DATOS_FACTURACION
-                        );                       
+                            'Registrar Factura - ' + row.nombre_sucursal,
+                            params.id_sucursal,
+                            TEMA_NOTIFICACION.ID_TEMA_DATOS_FACTURACION,
+                            nuevoParams,
+                            TEMPLATES.TEMPLATE_DATOS_FACTURACION
+                        );
                     }
                 }
             }
@@ -317,14 +341,14 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
             params.url_logo_correo_footer = row.url_logo_correo_footer;
 
             console.log(JSON.stringify(row));
-           
-            correoService.enviarCorreoTemplate(para,'',asunto,params,TEMPLATES.TEMPLATE_GENERICO);
-           
+
+            correoService.enviarCorreoTemplate(para, '', asunto, params, TEMPLATES.TEMPLATE_GENERICO);
+
         }).catch((e) => {
             console.log("Excepción en el envio de correo : " + e);
         });
 };
-
+/*
 const getAlumnosInfoCorreoAlumnos = (request, response) => {
     console.log("@getAlumnosInfoCorreo");
     try {
@@ -338,61 +362,43 @@ const getAlumnosInfoCorreoAlumnos = (request, response) => {
             return;
         }
 
-        pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [ids],
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).json(results.rows);
-            });
+        alumnoService
+            .getCorreosTokenAlumno(ids)
+            .then(results => {               
+                
+                response.status(200).json(results);
+                
+            }).catch(error => console.error(error));
+
+  
+                pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [ids],
+                    (error, results) => {
+                        if (error) {
+                            handle.callbackError(error, response);
+                            return;
+                        }
+                        response.status(200).json(results.rows);
+                    });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
 };
+*/
+function enviarRecordatorioPagoMensualidad(idAlumno) {
 
-function obtenerCargos(id_alumno) {
+    alumnoService
+        .getCorreosTokenAlumno(idAlumno)
+        .then(results => {
+            envia aqui me quede
 
-    return pool.query(
-        `
-     with cargos as (
-	        SELECT a.co_balance_alumno,
-                b.id as id_cargo_balance_alumno,
-                b.fecha,
-                b.cantidad,
-                cargo.nombre as nombre_cargo,
-                cargo.texto_ayuda,
-                cat_cargo as id_cargo,
-                cargo.es_facturable,
-                b.total as total,
-                b.cargo,
-                b.total_pagado,
-                b.nota,
-                b.pagado            
-         FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
-                                       inner join cat_cargo cargo on b.cat_cargo = cargo.id					
-         WHERE a.id = $1 and b.pagado = false and b.eliminado = false and a.eliminado = false
-         ORDER by cargo.nombre 
-)
-	select 
-			a.nombre,
-            b.total_adeudo, 
-            count(c.*) as contador_cargos,
-		    array_to_json(array_agg(to_json(c.*))) AS cargos
-	from co_balance_alumno b inner join co_alumno a on b.id = a.co_balance_alumno
-							  left join cargos c on b.id =  c.co_balance_alumno
-	where a.id = $2 and b.eliminado = false
-	group by a.nombre,b.total_adeudo         `
-        , [id_alumno, id_alumno]);
+        }).catch(error => console.error(error));
+
 }
 
-
-
-
 module.exports = {
-    notificarReciboPago,    
+    notificarReciboPago,
     enviarCorreoClaveFamiliar,
-    getAlumnosInfoCorreoAlumnos,    
+    getAlumnosInfoCorreoAlumnos,
     notificarCargo
 
 }

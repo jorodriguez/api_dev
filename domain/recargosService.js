@@ -3,7 +3,7 @@ const { CRITERIO } = require('../dao/recargosDao');
 const cargoService = require('./cargoService');
 const CONSTANTES = require('../utils/Constantes');
 const { existeValorArray, isEmptyOrNull } = require('../utils/Utils');
-
+const correoService = require('../utils/NotificacionRecargosService');
 
 function ejecutarProcesoRecargoMensualidad() {
 
@@ -77,9 +77,9 @@ function ejecutarProcesoRecargoMensualidad() {
 
 //enviar notificacion a mises por sucursar de los recargos que se van a realizar mañana
 //enviar la lista completa a los dueños
-
-function enviarNotificacionRecargosManana() {
-    recargoDao.getMensualidadesParaRecargoTodasSucursales(CRITERIO.VENCIDOS)
+//Enviarlo a las 10:00am que vence mañana 
+function enviarRecordatorioPagoManana() {
+    recargoDao.getMensualidadesParaRecargoTodasSucursales(CRITERIO.VENCEN_MANANA)
         .then(results => {            
             if (existeValorArray(results)) {
                 let listaSucursales = results;
@@ -89,13 +89,12 @@ function enviarNotificacionRecargosManana() {
 
                     if (!isEmptyOrNull(sucursal)) {
                         console.log("sucursal " + JSON.stringify(sucursal));
-                        console.log("REGISTRANDO RECARGO PARA " + sucursal.nombre_sucursal);
+                        console.log("Enviar recordatorio para la sucursal " + sucursal.nombre_sucursal);
 
                         let cargosAplicarRecargo = sucursal.mensualidades_vencidas;
 
                         if (existeValorArray(cargosAplicarRecargo)) {
-                            
-                            //Aqui enviar el correo
+                                                        
 
                         }
                     }

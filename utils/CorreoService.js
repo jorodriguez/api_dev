@@ -6,6 +6,8 @@ var path = require('path');
 const { variables } = require('../config/ambiente');
 const { QUERY, getQueryInstance } = require('../services/sqlHelper');
 const { ID_EMPRESA_MAGIC } = require('./Constantes');
+const correoTemaService = require('../domain/temaNotificacionService');
+const {existeValorArray} = require('./Utils');
 
 const transporter = nodemailer.createTransport(variables.configMail);
 
@@ -24,13 +26,14 @@ function enviarCorreoConCopiaTemaNotificacion(asunto, para, idSucursalTemaCopia,
         .then((renderHtml) => {
             //obtener correos copia por sucursal y tema
             obtenerCorreosCopiaPorTema(idSucursalTemaCopia, idTemaNotificacion)
-                .then(result => {
+                .then(correos => {
                     console.log("Correos copia iniciando");
-                    let cc = "";                    
+
+                    let cc = correos;
+                    /*let cc = "";                    
                     if (result != null && result.rowCount > 0) {
-                        cc = result.rows[0].correos_copia;
-                        
-                    }
+                        cc = result.rows[0].correos_copia;                        
+                    }*/
 
                     enviarCorreo(para, cc, asunto, renderHtml);
                 }).catch(e => {
@@ -49,14 +52,19 @@ function enviarCorreoParaTemaNotificacion(asunto, idSucursalTemaCopia, idTemaNot
     loadTemplate(template, params)
         .then((renderHtml) => {
             obtenerCorreosCopiaPorTema(idSucursalTemaCopia, idTemaNotificacion)
-                .then(result => {
+                .then(correosCopia => {
 
-                    let para = "";
+                    let para = correosCopia;
+                    /*let para = "";
                     if (result != null && result.rowCount > 0) {
                         para = result.rows[0].correos_copia;
+                    }*/
+                    if(existeValorArray(para)){
+                        enviarCorreo(para, "", asunto, renderHtml);
+                    }else{
+                        console.log("No existen correo para enviar el mail ");
                     }
-
-                    enviarCorreo(para, "", asunto, renderHtml);
+                    
                 });
 
         }).catch(e => {
@@ -129,7 +137,7 @@ function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
         FROM co_correo_copia_notificacion
         WHERE co_sucursal = $1 and co_tema_notificacion = $2 and eliminado = false
    `, [co_sucursal, id_tema]);*/
-     return getQueryInstance(`
+   /*  return getQueryInstance(`
                     SELECT 
                         (select array_to_json(array_agg(to_json(u.correo)))
                         FROM co_usuario_notificacion un inner join usuario u on u.id = un.usuario
@@ -140,7 +148,8 @@ function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
                         FROM co_correo_copia_notificacion
                         WHERE co_sucursal = $1 and co_tema_notificacion = $2 and eliminado = false) 
                         as correos_copia    
-   `, [co_sucursal, id_tema]);
+   `, [co_sucursal, id_tema]);*/
+   return correoTemaService.obtenerCorreosPorTema(co_sucursal,id_tema);
 }
 
 function enviarCorreo(para, conCopia, asunto, renderHtml) {

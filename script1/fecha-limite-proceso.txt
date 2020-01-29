@@ -321,3 +321,21 @@ values(1,'DEFAULT',
 </html>',
 	   1
 	  )
+
+
+/*******************/
+
+insert into co_tema_notificacion(id,nombre,genero)
+values(6,'Reporte de Recargos proxímo día',1);
+
+-- monterrey
+insert into co_usuario_notificacion(usuario,co_tema_notificacion,co_sucursal,genero)
+values(12,6,1,1),(19,6,1,1),(65,6,1,1);
+
+--apodaca
+insert into co_usuario_notificacion(usuario,co_tema_notificacion,co_sucursal,genero)
+values(14,6,2,1),(12,6,2,1);;
+
+--contry
+insert into co_usuario_notificacion(usuario,co_tema_notificacion,co_sucursal,genero)
+values(13,6,3,1),(16,6,3,1),(12,6,3,1);;
