@@ -65,42 +65,20 @@ const registrarCargo = (cargoData) => {
                 respuesta.error = error;
                 console.log("Error al intentar ejecutar el procedimiento de registro de cargo " + error);
                 reject(respuesta);
-            });
-        /*
-                getResultQuery(
-                    sql,
-                    parametros,
-                    response,
-                    (results) => {
-                        console.log("Se llamo a la function de cargo ");
-                        //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
-                        //buscar el padre y enviarle la notificacion y el correo del registro del pago
-                        if (results.rowCount > 0) {
-                            var id_cargo_generado = results.rows[0].id_cargo_generado;
-                            console.log("IDE CARGO GENERADO RESULT "+JSON.stringify(results.rows));
-                            respuesta.id_cargo = id_cargo_generado;
-                            respuesta.resultado = (id_cargo_generado != null);
-                            respuesta.mensaje = `${results.rowCount} fila afectada`;
-                            notificacionService.notificarCargo(id_alumno,id_cargo_generado);
-        
-                            response.status(200).json(respuesta);
-                        } else {
-                            respuesta.mensaje = "No se guardó el cargo.";
-                            response.status(200).json(respuesta);
-                        }
-                    });*/
+            });      
 
     });
 
 };
 
-const relacionarRecargoConMensualidad = (idCargoMensualidad,idRecargo,genero) =>{
+const completarRegistroRecargoMensualidad = (idCargoMensualidad,idRecargo,genero) =>{
 
     console.log(`=========================idCargoMensualidad ${idCargoMensualidad},idRecargo ${idRecargo}, genero ${genero}`)
 
     return genericDao.execute(` UPDATE co_cargo_balance_alumno 
                                 SET co_cargo_balance_alumno = $2,
                                     recargo = true,
+                                    fecha_limite_pago_mensualidad = (fecha_limite_pago_mensualidad + interval '1 month')
                                     fecha_modifico = (getDate('')+getHora(''))::timestamp,
                                     modifico = $3
                                 WHERE id = $1 RETURNING id;`
@@ -240,21 +218,7 @@ with  serie_meses as (
     SELECT g::date as fecha_mes,
            to_char(g::date,'mm')::int as numero_mes,	
            to_char(g::date,'YY')::int as numero_anio,		
-           (select nombre from si_meses where id = to_char(g::date,'mm')::int) as nombre_mes
-           /*CASE to_char(g::date,'mm'):: int 
-               WHEN 1 THEN 'ENERO' 
-               WHEN 2 THEN 'FEBRERO' 
-               WHEN 3 THEN 'MARZO' 
-               WHEN 4 THEN 'ABRIL'
-               WHEN 5 THEN 'MAYO' 
-               WHEN 6 THEN 'JUNIO'
-               WHEN 7 THEN 'JULIO'
-               WHEN 8 THEN 'AGOSTO'
-               WHEN 9 THEN 'SEPTIEMBRE'
-               WHEN 10 THEN 'OCTUBRE'
-               WHEN 11 THEN 'NOVIEMBRE'
-               WHEN 12 THEN 'DICIEMBRE'
-           END as nombre_mes*/
+           (select nombre from si_meses where id = to_char(g::date,'mm')::int) as nombre_mes         
        FROM  generate_series(
                date_trunc('year', getDate(''))::timestamp,
                (date_trunc('year', getDate(''))) + (interval '1 year') - (interval '1 day'),
@@ -292,5 +256,5 @@ module.exports = {
     getBalanceAlumno,
     eliminarCargos,
     obtenerMesesAdeudaMensualidad,
-    relacionarRecargoConMensualidad
+    completarRegistroRecargoMensualidad
 }

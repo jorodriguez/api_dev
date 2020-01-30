@@ -47,7 +47,7 @@ const getQueryBase = function (criterio,idSucursal) {
         suc.nombre as nombre_sucursal,
         suc.direccion as direccion_sucursal,
         array_to_json(array_agg(to_json(u.*))) AS mensualidades_vencidas,
-        count(suc.id) > 0 as existen_mensualidades_vencidas
+        count(u.*) > 0 as existen_mensualidades_vencidas
     from cargos_universo u right join co_sucursal suc on suc.id = u.co_sucursal 
     where  ${(idSucursal != null) ? ` suc.id = ${idSucursal} AND ` :''} 
             suc.eliminado = false

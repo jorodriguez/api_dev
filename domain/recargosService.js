@@ -48,9 +48,8 @@ function ejecutarProcesoRecargoMensualidad() {
                                                 .then(id => {
 
                                                     //Agregar a un array los recargos generados actualmente y enviarlos a los roles dueños y sucursales
+                                                    console.log("====> relacion ok enviar correo a relacion" + id);                                                  
 
-                                                    console.log("====> relacion ok enviar correo a relacion" + id);
-                                                    //noti
 
                                                 }).catch(error => console.log("Existio un error al relacionar el recargo " + JSON.stringify(error)));
                                         }).catch(error => {
@@ -71,6 +70,10 @@ function ejecutarProcesoRecargoMensualidad() {
         }).catch(error => {
             console.error("[recargosService] Error al ejecutar el proceso de recargos " + JSON.stringify(error));
         });
+}
+
+
+function modificarFechaLimitePago() {
 
 }
 
@@ -88,9 +91,8 @@ function enviarRecordatorioPagoPadresAlumno() {
                     let sucursal = listaSucursales[index];
 
                     if (!isEmptyOrNull(sucursal)) {
-                        console.log("sucursal " + JSON.stringify(sucursal));
-                        console.log("Enviar recordatorio para la sucursal " + sucursal.nombre_sucursal);                       
-                        
+                        console.log("Enviar recordatorio para la sucursal " + sucursal.nombre_sucursal + " VENCIDAS " + sucursal.mensualidades_vencidas);
+
                         let listaMensualidades = sucursal.mensualidades_vencidas;
 
                         if (sucursal.existen_mensualidades_vencidas) {
@@ -106,8 +108,8 @@ function enviarRecordatorioPagoPadresAlumno() {
                                 }
                             }
                             //Enviar el correo para las maestras de cada suc
-                            notificacionRecargosService.enviarReporteProxRecargos(sucursal,listaMensualidades);
-                        }                    
+                            notificacionRecargosService.enviarReporteProxRecargos(sucursal, listaMensualidades);
+                        }
                     }
                 }
             }
