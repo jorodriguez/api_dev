@@ -384,21 +384,11 @@ const getAlumnosInfoCorreoAlumnos = (request, response) => {
     }
 };
 */
-function enviarRecordatorioPagoMensualidad(idAlumno) {
 
-    alumnoService
-        .getCorreosTokenAlumno(idAlumno)
-        .then(results => {
-            envia aqui me quede
-
-        }).catch(error => console.error(error));
-
-}
 
 module.exports = {
     notificarReciboPago,
-    enviarCorreoClaveFamiliar,
-    getAlumnosInfoCorreoAlumnos,
-    notificarCargo
+    enviarCorreoClaveFamiliar,    
+    notificarCargo   
 
 }

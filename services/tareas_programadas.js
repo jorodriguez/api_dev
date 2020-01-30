@@ -370,31 +370,6 @@ const ejecutarRegistroMensualidadAutomatica = () => {
         });
 }
 
-//proceso de calculo de cargo extra por fecha limite de pago
-const ejecutarProcesoCalculoCargoExtraFechaLimitePagoMensualidad= ()=>{
-    try {
-        pool.query(" select * from co_sucursal where eliminado = false",
-            (error, results) => {
-                if (error) {
-                    console.log("Error al enviar notificacion de expiracion salir " + error);
-                    return;
-                }
-                if (results.rowCount > 0) {
-                    results.rows.forEach(e => {
-                        console.log("inciando envio de  expiracion notificaciones por sucursal " + e.nombre);
-                       
-                    });
-                } else {
-                    console.log("No existen sucursales ");
-                }
-
-            });
-    } catch (e) {
-        console.log("Error al correr el proceso de generacion de horas extras " + e);
-
-    }
-};
-
 module.exports = {
     //generarBalanceAlumnos
     ejecutarProcesoHorasExtrasAuto,

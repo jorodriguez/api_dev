@@ -18,6 +18,7 @@ const getQueryBase = function (criterio,idSucursal) {
         SELECT 	
            a.co_sucursal,   
                a.fecha_limite_pago_mensualidad,
+               to_char(a.fecha_limite_pago_mensualidad,'dd/MM/YYYY')::text as fecha_limite_pago_mensualidad_formateada,
                a.nombre as nombre_alumno,
                a.id as id_alumno,
                a.co_balance_alumno,
@@ -45,7 +46,8 @@ const getQueryBase = function (criterio,idSucursal) {
     ) select suc.id as id_sucursal,
         suc.nombre as nombre_sucursal,
         suc.direccion as direccion_sucursal,
-        array_to_json(array_agg(to_json(u.*))) AS mensualidades_vencidas
+        array_to_json(array_agg(to_json(u.*))) AS mensualidades_vencidas,
+        count(suc.id) > 0 as existen_mensualidades_vencidas
     from cargos_universo u right join co_sucursal suc on suc.id = u.co_sucursal 
     where  ${(idSucursal != null) ? ` suc.id = ${idSucursal} AND ` :''} 
             suc.eliminado = false
@@ -78,7 +80,6 @@ function getMensualidadesParaRecargoPorSucursal(criterio,idSucursal) {
     console.log("@GetMensualidadesParaRecargo" );
     validarCriterio(criterio);
     return genericDao.findAll(getQueryBase(criterio,idSucursal), []);       
-
 }
 
 

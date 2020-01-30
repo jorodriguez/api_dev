@@ -3,7 +3,7 @@ const { CRITERIO } = require('../dao/recargosDao');
 const cargoService = require('./cargoService');
 const CONSTANTES = require('../utils/Constantes');
 const { existeValorArray, isEmptyOrNull } = require('../utils/Utils');
-const correoService = require('../utils/NotificacionRecargosService');
+const notificacionRecargosService = require('../utils/NotificacionRecargosService');
 
 function ejecutarProcesoRecargoMensualidad() {
 
@@ -78,25 +78,36 @@ function ejecutarProcesoRecargoMensualidad() {
 //enviar notificacion a mises por sucursar de los recargos que se van a realizar mañana
 //enviar la lista completa a los dueños
 //Enviarlo a las 10:00am que vence mañana 
-function enviarRecordatorioPagoManana() {
+function enviarRecordatorioPagoPadresAlumno() {
     recargoDao.getMensualidadesParaRecargoTodasSucursales(CRITERIO.VENCEN_MANANA)
-        .then(results => {            
+        .then(results => {
             if (existeValorArray(results)) {
                 let listaSucursales = results;
                 for (let index in listaSucursales) {
-                    
+
                     let sucursal = listaSucursales[index];
 
                     if (!isEmptyOrNull(sucursal)) {
                         console.log("sucursal " + JSON.stringify(sucursal));
-                        console.log("Enviar recordatorio para la sucursal " + sucursal.nombre_sucursal);
+                        console.log("Enviar recordatorio para la sucursal " + sucursal.nombre_sucursal);                       
+                        
+                        let listaMensualidades = sucursal.mensualidades_vencidas;
 
-                        let cargosAplicarRecargo = sucursal.mensualidades_vencidas;
-
-                        if (existeValorArray(cargosAplicarRecargo)) {
-                                                        
-
-                        }
+                        if (sucursal.existen_mensualidades_vencidas) {
+                            for (let ind in listaMensualidades) {
+                                let cargoMes = listaMensualidades[ind];
+                                if (!isEmptyOrNull(cargoMes)) {
+                                    notificacionRecargosService
+                                        .enviarRecordatorioPagoMesualidad(
+                                            cargoMes.id_alumno,
+                                            [cargoMes],
+                                            cargoMes.fecha_limite_pago_mensualidad_formateada
+                                        );
+                                }
+                            }
+                            //Enviar el correo para las maestras de cada suc
+                            notificacionRecargosService.enviarReporteProxRecargos(sucursal,listaMensualidades);
+                        }                    
                     }
                 }
             }
@@ -110,4 +121,4 @@ function enviarRecordatorioPagoManana() {
 // proceso de recargos en el día enviar correo a cada papa y toda la lista a las mises
 //enviar la lista completa a los dueños de todas las sedes
 
-module.exports = { ejecutarProcesoRecargoMensualidad }
+module.exports = { ejecutarProcesoRecargoMensualidad, enviarRecordatorioPagoPadresAlumno }

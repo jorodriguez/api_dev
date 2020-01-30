@@ -1,0 +1,52 @@
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+
+    <tr>
+        <td class="h2">
+            <strong>Hola {{nombre_cliente}},</strong>
+        </td>
+    </tr>
+    <tr>
+        <td class="h2">
+            <p style="text-align: justify;"> {{nota_inicial}}</p>
+        </td>
+    </tr>    
+    <tr>
+        <td class="h2">
+            <p style="text-align: justify;"> {{alumno}}</p>
+        </td>
+    </tr>
+    <tr>
+        <td class="bodycopy">
+
+            <!--[if (gte mso 9)|(IE)]>
+      <table width="600" align="center" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td>
+    <![endif]-->
+
+            <table width="100%" border="0" cellspacing="2" cellpadding="2">
+             {{#lista_cargos}}
+                <tr>
+                    <th style="border-bottom:1pt solid #57A8B6;" width="20%">Fecha</th>
+                    <th style="border-bottom:1pt solid #57A8B6;" width="40%">Concepto</th>
+                    <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="30%" align="right">Monto
+                    </th>
+                </tr>
+
+                <tr style="text-align:right">
+                    <td style="border-bottom:1pt solid #57A8B6;text-align:right" align="right">{{fecha}}</td>
+                    <td style="border-bottom:1pt solid #57A8B6;">{{nombre_cargo}} {{texto_ayuda}} <small>{{nota}}</small> </td>
+
+                    <td style="border-bottom:1pt solid #57A8B6;text-align:right" align="right">${{cargo}}</td>
+                </tr>
+		 {{#lista_cargos}}
+            </table>
+            <p class="h2">{{nota_pie}}</p>
+            <!--[if (gte mso 9)|(IE)]>
+          </td>
+        </tr>
+    </table>
+    <![endif]-->
+        </td>
+    </tr>
+</table>

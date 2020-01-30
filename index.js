@@ -427,6 +427,18 @@ schedule.scheduleJob({hour: 17, minute:47,second:20}, function () {
 });
 /********* Calcular Recargos de mensualidades *********/
 
+///Enviar reportes de recargos
+schedule.scheduleJob({hour: 18, minute:30,second:20}, function () {
+	console.log('Enviando reporte y recordatorios  de recargos de mensualidad ' + new Date());
+try{
+		recargoService.ejecutarEnvioRecordatorioPagoMensualidadPadres();
+
+}catch(error){
+	console.error("[index] Error al ejecutar el proceso de recargos "+error);
+}
+
+});
+
 /*
 var rule = new schedule.RecurrenceRule();
 rule.dayOfWeek = [0, new schedule.Range(1, 5)];

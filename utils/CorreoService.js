@@ -8,14 +8,23 @@ const { QUERY, getQueryInstance } = require('../services/sqlHelper');
 const { ID_EMPRESA_MAGIC } = require('./Constantes');
 const correoTemaService = require('../domain/temaNotificacionService');
 const {existeValorArray} = require('./Utils');
-
 const transporter = nodemailer.createTransport(variables.configMail);
+
 
 const TEMPLATES = {
     TEMPLATE_GENERICO: "generico.html",
     TEMPLATE_RECIBO_PAGO: "recibo_pago.html",
     TEMPLATE_AVISO_CARGO: "aviso_cargo.html",
-    TEMPLATE_DATOS_FACTURACION: "datos_factura.html"
+    TEMPLATE_DATOS_FACTURACION: "datos_factura.html",
+    TEMPLATE_RECORDATORIO_PAGO_MENSUALIDAD:"recordatorio_recargo_mensualidad.html",
+    TEMPLATE_REPORTE_PROX_RECARGOS : "reporte_prox_recargo_mensualidad.html"
+}
+
+
+function enviarCorreoFamiliaresAlumno(asunto,para,cc,params,template){
+
+    enviarCorreoTemplate(para,cc,asunto,params,template);
+
 }
 
 
@@ -104,8 +113,7 @@ function loadTemplate(templateName, params) {
                             let htmlTemp = '';
                             htmlTemp = htmlTemp.concat(row.encabezado, (data || ''), row.pie);
                             console.log("html final");
-                            html = mustache.to_html(htmlTemp, params);
-                            //console.log(html);
+                            html = mustache.to_html(htmlTemp, params);                            
                             resolve(html);
                         });
                     } else {
@@ -155,8 +163,7 @@ function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
 function enviarCorreo(para, conCopia, asunto, renderHtml) {
     console.log("Para " + para);
     console.log("CCC " + conCopia);
-    if (para == undefined || para == '' || para == null
-    ) {
+    if (para == undefined || para == '' || para == null) {
         console.log("############ NO EXISTEN CORREOS EN NINGUN CONTENEDOR (para,cc)######");
         return;
     }
@@ -195,42 +202,12 @@ function enviarCorreo(para, conCopia, asunto, renderHtml) {
     }
 }
 
-const enviarCorreoTest = (request, response) => {
-    console.log("Enviando correo de prueba ");
-    const mailData = {
-        from: variables.mailOptions.from,
-        //to: 'joel.rod.roj@hotmail.com',
-        to: 'joel@magicintelligence.com',
-        subject: 'Test',
-        html: "<h3>Test</h3>"
-    };
-    try {
-        transporter.sendMail(mailData, function (error, info) {
-            if (error) {
-                console.log("Error al enviar correo : " + error);
-            } else {
-                console.log(JSON.stringify(info));
-                console.log('Email sent: ' + info.response);
-            }
-        });
-
-        transporter.close();
-
-        response.status(200).json({ envio: "Ok" });
-        console.log("Enviado OK");
-    } catch (e) {
-        console.log("Error " + e);
-        transporter.close();
-    }
-};
-
-
 module.exports = {
-    TEMPLATES,
-    enviarCorreoTest,
+    TEMPLATES,  
     enviarCorreoConCopiaTemaNotificacion,
     enviarCorreoParaTemaNotificacion,
     enviarCorreo,
-    enviarCorreoTemplate
+    enviarCorreoTemplate,
+    enviarCorreoFamiliaresAlumno
 
 }

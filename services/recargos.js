@@ -11,10 +11,13 @@ function procesoRecargosMensualidad() {
    }
 
 }
-function ejecutarProcesoNotificarRecargosManana() {
+
+function ejecutarEnvioRecordatorioPagoMensualidadPadres() {
+    console.log("@ejecutarEnvioRecordatorioPagoMensualidadPadres");
     try {
 
       //enviar correo con la lista de recargos para aplicar mañana 
+      recargoService.enviarRecordatorioPagoPadresAlumno();
 
     } catch (e) {
         console.log("Fallo la ejecucion del proceso que realiza recargos " + e);
@@ -22,5 +25,5 @@ function ejecutarProcesoNotificarRecargosManana() {
 
 }
 
-module.exports = {procesoRecargosMensualidad,ejecutarProcesoNotificarRecargosManana};
+module.exports = {procesoRecargosMensualidad,ejecutarEnvioRecordatorioPagoMensualidadPadres};
 
