@@ -9,6 +9,7 @@ const genericDao = require('./genericDao');
 const SQL_ALUMNOS_RECIBIDOS =
     `SELECT asistencia.id,
             asistencia.fecha,
+            asistencia.foto,
             asistencia.hora_entrada,
             asistencia.hora_salida,
             alumno.id as id_alumno,
@@ -31,6 +32,7 @@ const SQL_ALUMNOS_RECIBIDOS_HORAS_EXTRAS =
     `SELECT 
         asistencia.id,
         asistencia.fecha,
+        asistencia.foto,
         asistencia.hora_entrada,    
         asistencia.hora_salida,
         alumno.id as id_alumno,

@@ -206,7 +206,7 @@ const updateAlumno = (request, response) => {
                 nombre_carino = $15, 
                 sexo = $16 ,
                  modifico = $17, 
-                fecha_inscripcion = $18, 
+                fecha_inscripcion = $18
                  WHERE id = $1`,
                 [
                     id,

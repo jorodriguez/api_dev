@@ -12,7 +12,7 @@ const getAlumnosRecibidos = (request, response) => {
         asistenciaService
             .getAlumnosRecibidos(id_sucursal)
             .then(results => {
-                console.log("Alumnos "+JSON.stringify(results));
+                //console.log("Alumnos "+JSON.stringify(results));
                 response.status(200).json(results);
             }).catch(error => {
                 console.log("exepcion al obtener la lisa de alumno "+error);
