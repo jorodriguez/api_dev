@@ -71,14 +71,16 @@ const registrarCargo = (cargoData) => {
 
 };
 
+//fecha_limite_pago_mensualidad = (fecha_limite_pago_mensualidad + interval '1 month')
+
+
 const completarRegistroRecargoMensualidad = (idCargoMensualidad,idRecargo,genero) =>{
 
     console.log(`=========================idCargoMensualidad ${idCargoMensualidad},idRecargo ${idRecargo}, genero ${genero}`)
 
     return genericDao.execute(` UPDATE co_cargo_balance_alumno 
                                 SET co_cargo_balance_alumno = $2,
-                                    recargo = true,
-                                    fecha_limite_pago_mensualidad = (fecha_limite_pago_mensualidad + interval '1 month')
+                                    recargo = true,                                    
                                     fecha_modifico = (getDate('')+getHora(''))::timestamp,
                                     modifico = $3
                                 WHERE id = $1 RETURNING id;`
@@ -122,12 +124,12 @@ const getCargosAlumno = (idAlumno) => {
 
 const getBalanceAlumno = (idAlumno) => {
     console.log("@getBalanceAlumno");
-    console.log("request.params.id_alumno " + idAlumno);
+    console.log("id_alumno " + idAlumno);
     return genericDao.findOne(
-        " SELECT al.nombre as nombre_alumno,al.apellidos as apellidos_alumno, bal.* " +
-        " FROM co_alumno al inner join  co_balance_alumno bal on al.co_balance_alumno = bal.id and bal.eliminado = false" +
-        " WHERE al.id = $1 and al.eliminado = false ",
-        [id_alumno]);
+        `SELECT al.nombre as nombre_alumno,al.apellidos as apellidos_alumno, bal.* 
+         FROM co_alumno al inner join  co_balance_alumno bal on al.co_balance_alumno = bal.id and bal.eliminado = false
+         WHERE al.id = $1 and al.eliminado = false `,
+        [idAlumno]);
     /*
     response,
     (results) => {
@@ -205,7 +207,7 @@ const eliminarCargos = (cargosData) => {
 const obtenerMesesAdeudaMensualidad = (idAlumno) => {
     console.log("@obtenerMesesAdeudaMensualidad");
 
-    console.log("ID alumno " + id_alumno);
+    console.log("ID alumno " + idAlumno);
     console.log("CARGOS.ID_CARGO_MENSUALIDAD " + CARGOS.ID_CARGO_MENSUALIDAD);
 
     return genericDao.findAll(QUERY_MESES_SIN_CARGO_MESUALIDAD, [idAlumno, CARGOS.ID_CARGO_MENSUALIDAD]);

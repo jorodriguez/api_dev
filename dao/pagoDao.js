@@ -57,7 +57,7 @@ const getPagosByCargoId = (idCargoBalanceAlumno) => {
                                                    inner join co_forma_pago forma_pago on pago.co_forma_pago = forma_pago.id
                WHERE r.co_cargo_balance_alumno = $1 and r.eliminado = false and pago.eliminado = false
                ORDER BY pago.fecha DESC`,
-        [id_cargo_balance_alumno]);
+        [idCargoBalanceAlumno]);
 };
 
 

@@ -147,7 +147,9 @@ GET('/alumnos/:id_sucursal', alumno.getAlumnos);
 GET('/alumnos/id/:id', alumno.getAlumnoById);
 POST('/alumnos', alumno.createAlumno);
 PUT('/alumnos/:id', alumno.updateAlumno);
+PUT('/alumnos/fecha_limite_pago/:id', alumno.modificarFechaLimitePagoMensualidad);
 DELETE('/alumnos/:id', alumno.deleteAlumno);
+
 
 //asistencia
 GET('/asistencia/alumnos_recibidos/:id_sucursal', asistencia.getAlumnosRecibidos);

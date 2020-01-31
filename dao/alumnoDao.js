@@ -25,9 +25,35 @@ const getCorreosTokensAlumno = (idAlumno) => {
     return genericDao.findOne(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [idAlumno]);
 };
 
+const actualizarProximaFechaLimitePagoMensualidadAlumno = (idAlumno,genero) => {
+    console.log("@actualizarProximaFechaLimitePagoMensualidadAlumno");
+
+       return genericDao.execute(` UPDATE co_alumno 
+                             SET 
+                                fecha_limite_pago_mensualidad = (fecha_limite_pago_mensualidad + INTERVAL '1 month')
+                                fecha_modifico = (getDate('')+getHora(''))::timestamp,
+                                modifico = $2
+                             WHERE id = $1 RETURNING id;`
+        , [idAlumno, genero]);        
+};
+
+const modificarFechaLimitePagoMensualidadAlumno = (idAlumno,fecha,genero) => {
+    console.log("@modificarFechaLimitePagoMensualidadAlumno");
+
+       return genericDao.execute(` 
+                            UPDATE co_alumno 
+                             SET 
+                                fecha_limite_pago_mensualidad = $2::date                                
+                                numero_dia_limite_pago = to_char($2::date,'dd')::integer,
+                                fecha_modifico = (getDate('')+getHora(''))::timestamp,
+                                modifico = $3
+                             WHERE id = $1 RETURNING id;`
+        , [idAlumno,new Date(fecha), genero]);        
+};
 
 
 module.exports = {
-    getCorreosTokensAlumno
+    getCorreosTokensAlumno,actualizarProximaFechaLimitePagoMensualidadAlumno,
+    modificarFechaLimitePagoMensualidadAlumno
 
 }

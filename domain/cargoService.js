@@ -3,6 +3,7 @@
 const handle = require('../helpers/handlersErrors');
 const { CARGOS } = require('../utils/Constantes');
 const cargosDao = require('../dao/cargoDao');
+const alumnoDao = require('../dao/alumnoDao');
 const notificacionService = require('../utils/NotificacionService');
 
 //registrar pagos
@@ -47,8 +48,26 @@ const registrarCargo = (cargoData) => {
                 });*/
 };
 
-const relacionarRecargoConMensualidad = (idCargoMensualidad,idRecargo,genero)=>{
-    return cargosDao.relacionarRecargoConMensualidad(idCargoMensualidad,idRecargo,genero);
+const completarRegistroRecargoMensualidad = (idAlumno,idCargoMensualidad,idRecargo,genero)=>{    
+    return new Promise((resolve,reject)=>{
+            cargosDao
+                .completarRegistroRecargoMensualidad(
+                        idCargoMensualidad,
+                        idRecargo,genero
+                ).then(id=>{
+                    console.log("Registro de recargo relacionado a la mensualidad ");
+                    //actualizar fecha pago proximo mes
+                    alumnoDao
+                        .actualizarProximaFechaLimitePagoMensualidadAlumno(
+                                idAlumno,
+                                genero
+                        ).then(id=>{
+                                console.log("Registro de fecha limite de pago actualizado al proximo mes");
+                            resolve(id);
+                        }).catch(error=>reject(error));
+            }).catch(error=>reject(error));
+    });
+    
 }
 
 
@@ -91,5 +110,5 @@ module.exports = {
     getBalanceAlumno,    
     eliminarCargos,
     obtenerMesesAdeudaMensualidad,
-    relacionarRecargoConMensualidad
+    completarRegistroRecargoMensualidad
 }

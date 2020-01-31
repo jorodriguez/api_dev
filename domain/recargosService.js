@@ -1,6 +1,7 @@
 const recargoDao = require('../dao/recargosDao');
 const { CRITERIO } = require('../dao/recargosDao');
 const cargoService = require('./cargoService');
+const alumnoDao = require('../dao/alumnoDao');
 const CONSTANTES = require('../utils/Constantes');
 const { existeValorArray, isEmptyOrNull } = require('../utils/Utils');
 const notificacionRecargosService = require('../utils/NotificacionRecargosService');
@@ -44,11 +45,11 @@ function ejecutarProcesoRecargoMensualidad() {
                                         .registrarCargo(objetoCargo)
                                         .then(results => {
                                             cargoService
-                                                .relacionarRecargoConMensualidad(cargoMensualidad.id_cargo_balance_alumno, results.id_cargo, CONSTANTES.USUARIO_DEFAULT)
+                                                .completarRegistroRecargoMensualidad(cargoMensualidad.id_cargo_balance_alumno, results.id_cargo, CONSTANTES.USUARIO_DEFAULT)
                                                 .then(id => {
 
                                                     //Agregar a un array los recargos generados actualmente y enviarlos a los roles dueños y sucursales
-                                                    console.log("====> relacion ok enviar correo a relacion" + id);                                                  
+                                                    console.log("====> relacion ok enviar correo a relacion" + id);                                                                                                     
 
 
                                                 }).catch(error => console.log("Existio un error al relacionar el recargo " + JSON.stringify(error)));
@@ -71,12 +72,6 @@ function ejecutarProcesoRecargoMensualidad() {
             console.error("[recargosService] Error al ejecutar el proceso de recargos " + JSON.stringify(error));
         });
 }
-
-
-function modificarFechaLimitePago() {
-
-}
-
 
 //enviar notificacion a mises por sucursar de los recargos que se van a realizar mañana
 //enviar la lista completa a los dueños

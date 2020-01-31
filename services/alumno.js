@@ -2,11 +2,12 @@
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const { validarToken } = require('../helpers/helperToken');
-const { isEmpty } = require('../utils/Utils');
+const { isEmpty,isEmptyOrNull } = require('../utils/Utils');
 const Joi = require('@hapi/joi');
 
+const alumnoService = require('../domain/alumnoService');
 const inscripcion = require('./inscripcion');
-const familiar = require('./familiar');
+const {ExceptionDatosFaltantes} = require('../exception/exeption');
 const formato_complemento = require('./formato_complemento');
 const balance_alumno = require('./balance_alumno');
 
@@ -131,6 +132,39 @@ const createAlumno = (request, response) => {
     }
 };
 
+const modificarFechaLimitePagoMensualidad = (request,response)=>{
+        console.log("modificarFechaLimitePagoMensualidad");
+        try{
+
+            const { fecha,genero }  = request.body;
+            const idAlumno  = request.params.id_alumno;
+
+            if(isEmptyOrNull(idAlumno) || isEmptyOrNull(fecha) || isEmptyOrNull(genero)){
+                console.log("Faltan datos");
+                
+                response.status(200).json(new ExceptionDatosFaltantes("Datos faltantes"));
+
+                return;
+            }
+
+
+            alumnoService
+                .modificarFechaLimitePagoMensualidad(idAlumno,fecha,genero)
+                .then(result =>{
+                    
+                    response.status(200).json(result);
+
+                }).catch(error=>{
+                    console.error(error)
+                    handle.callbackError(error, response);
+                });
+
+        }catch(error){
+            console.log("Error "+error);
+            handle.callbackError(error, response);
+        }
+};
+
 
 // PUT — /alumno/:id | updateAlumno()
 const updateAlumno = (request, response) => {
@@ -146,7 +180,6 @@ const updateAlumno = (request, response) => {
         //console.log(" CCCC " + JSON.stringify(alumno));
 
         const formato = alumno.formato_inscripcion;
-        console.log("Fecha limite de pago "+alumno.fecha_limite_pago_mensualidad);
 
         //const padre = alumno.padre;
 
@@ -174,8 +207,6 @@ const updateAlumno = (request, response) => {
                 sexo = $16 ,
                  modifico = $17, 
                 fecha_inscripcion = $18, 
-                fecha_limite_pago_mensualidad = $19::date,
-                numero_dia_limite_pago = to_char($19::date,'dd')::integer
                  WHERE id = $1`,
                 [
                     id,
@@ -185,8 +216,8 @@ const updateAlumno = (request, response) => {
                     alumno.foto, (alumno.fecha_reinscripcion == "" ? null : alumno.fecha_reinscripcion),
                     alumno.co_grupo, alumno.nombre_carino,
                     alumno.sexo, alumno.genero,
-                    (alumno.fecha_inscripcion == "" ? null : alumno.fecha_inscripcion),
-                    new Date(alumno.fecha_limite_pago_mensualidad)
+                    (alumno.fecha_inscripcion == "" ? null : alumno.fecha_inscripcion)
+                    
                 ],
                 (error, results) => {
                     if (error) {
@@ -221,6 +252,7 @@ const updateAlumno = (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
+
 
 
 // DELETE — /alumnos/:id | deleteAlumno()
@@ -331,5 +363,6 @@ module.exports = {
     createAlumno,
     updateAlumno,
     deleteAlumno,
-    getAlumnoById
+    getAlumnoById,
+    modificarFechaLimitePagoMensualidad
 }

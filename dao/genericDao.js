@@ -27,14 +27,18 @@ function findOne(query,params){
 
     return new Promise((resolve, reject) => {  
         if(isEmptyOrNull(query,params)){
+            console.error("el query o los parametros son null "+query);
             reject(new ExceptionBD("el query o los parametros son null"));
             return;
         }    
+        
         getQueryInstance(query,params)
             .then(results => {
+                console.log("resuls"+results);
                 resolve(results.rowCount > 0 ? results.rows[0]:null);
             }).catch(error => {
                 //reject(new ExceptionBD(error));
+                console.log(error);
                 reject(error);
             });
     });       

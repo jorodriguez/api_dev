@@ -7,5 +7,9 @@ function getCorreosTokenAlumno(idAlumno) {
 }
 
 
+function modificarFechaLimitePagoMensualidad(idAlumno,fecha,genero){
+    return alumnoDao.modificarFechaLimitePagoMensualidadAlumno(idAlumno,fecha,genero);
+}
 
-module.exports = { getCorreosTokenAlumno }
+
+module.exports = { getCorreosTokenAlumno,modificarFechaLimitePagoMensualidad }
