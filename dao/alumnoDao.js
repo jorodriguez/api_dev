@@ -30,7 +30,7 @@ const actualizarProximaFechaLimitePagoMensualidadAlumno = (idAlumno,genero) => {
 
        return genericDao.execute(` UPDATE co_alumno 
                              SET 
-                                fecha_limite_pago_mensualidad = (fecha_limite_pago_mensualidad + INTERVAL '1 month')
+                                fecha_limite_pago_mensualidad = (fecha_limite_pago_mensualidad + INTERVAL '1 month'),
                                 fecha_modifico = (getDate('')+getHora(''))::timestamp,
                                 modifico = $2
                              WHERE id = $1 RETURNING id;`
@@ -43,7 +43,7 @@ const modificarFechaLimitePagoMensualidadAlumno = (idAlumno,fecha,genero) => {
        return genericDao.execute(` 
                             UPDATE co_alumno 
                              SET 
-                                fecha_limite_pago_mensualidad = $2::date                                
+                                fecha_limite_pago_mensualidad = $2::date,                                
                                 numero_dia_limite_pago = to_char($2::date,'dd')::integer,
                                 fecha_modifico = (getDate('')+getHora(''))::timestamp,
                                 modifico = $3

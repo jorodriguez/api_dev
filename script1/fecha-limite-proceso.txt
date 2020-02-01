@@ -339,3 +339,30 @@ values(14,6,2,1),(12,6,2,1);;
 --contry
 insert into co_usuario_notificacion(usuario,co_tema_notificacion,co_sucursal,genero)
 values(13,6,3,1),(16,6,3,1),(12,6,3,1);;
+
+
+
+--color de grupos
+
+alter table co_grupo add column color text default '';
+
+
+--baby magic 1
+update co_grupo set color = '#DA3ACF' where id  =1;
+--baby magic 2
+update co_grupo set color = '#DA3ACF' where id  =4;
+
+--mini magic 1
+update co_grupo set color = '#78BB69' where id  =2;
+--mini magic 2
+update co_grupo set color = '#78BB69' where id  =5;
+
+--super magic 1
+update co_grupo set color = '#639CD1' where id  =3;
+--super magic 2
+update co_grupo set color = '#639CD1' where id  =6;
+
+--kider 1
+update co_grupo set color = '#E8F300' where id  =7;
+update co_grupo set color = '#E8F300' where id  =8;
+update co_grupo set color = '#E8F300' where id  =9;

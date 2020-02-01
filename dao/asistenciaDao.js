@@ -9,7 +9,7 @@ const genericDao = require('./genericDao');
 const SQL_ALUMNOS_RECIBIDOS =
     `SELECT asistencia.id,
             asistencia.fecha,
-            asistencia.foto,
+            alumno.foto,
             asistencia.hora_entrada,
             asistencia.hora_salida,
             alumno.id as id_alumno,
@@ -17,6 +17,7 @@ const SQL_ALUMNOS_RECIBIDOS =
             alumno.apellidos as apellido_alumno,
             grupo.id as co_grupo,
             grupo.nombre as nombre_grupo,
+            grupo.color as color,
             true as visible,
             false as seleccionado,            
             (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp as calcular_tiempo_extra,
@@ -25,14 +26,15 @@ const SQL_ALUMNOS_RECIBIDOS =
                               inner join co_grupo grupo on alumno.co_grupo = grupo.id         
         WHERE asistencia.hora_salida is null AND alumno.eliminado=false 
            AND alumno.co_sucursal = $1
-        ORDER BY alumno.nombre ASC`
+        ORDER BY grupo.nombre ASC`
     ;
 
 const SQL_ALUMNOS_RECIBIDOS_HORAS_EXTRAS =
     `SELECT 
         asistencia.id,
         asistencia.fecha,
-        asistencia.foto,
+        alumno.foto,
+        grupo.color as color,
         asistencia.hora_entrada,    
         asistencia.hora_salida,
         alumno.id as id_alumno,
@@ -42,6 +44,7 @@ const SQL_ALUMNOS_RECIBIDOS_HORAS_EXTRAS =
         (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp as calcular_tiempo_extra,
         age((getDate('')+getHora(''))::timestamp,(asistencia.fecha+alumno.hora_salida)::timestamp) as tiempo_extra
     FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id                               
+                                inner join co_grupo grupo on grupo.id = alumno.co_grupo
     WHERE asistencia.id = ANY($1::int[])
         and (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp 
         AND alumno.eliminado=false            
@@ -60,6 +63,7 @@ const getAlumnosPorRecibir = (idSucursal) => {
     return genericDao.findAll(
         `SELECT 
                 grupo.nombre as nombre_grupo,
+                grupo.color as color,
                 false as visible,
                 a.*
         FROM co_alumno a INNER JOIN co_grupo grupo ON a.co_grupo = grupo.id		
@@ -72,7 +76,7 @@ const getAlumnosPorRecibir = (idSucursal) => {
         ) 
         AND a.co_sucursal = $2
         AND a.eliminado = false 
-        ORDER BY a.nombre ASC
+        ORDER BY grupo.nombre ASC
         `, [idSucursal, idSucursal]);
 };
 
@@ -276,6 +280,7 @@ const getListaAsistenciaPorSucursalFecha = (idSucursal, fecha) => {
                     al.apellidos                        as apellido_alumno,
                     grupo.id                            as id_grupo,
                     grupo.nombre                        as nombre_grupo,
+                    grupo.color                         as color,
                     u.nombre usuario_registro,
                     date_trunc('minute',al.hora_entrada)::time  as hora_entra,
                     date_trunc('minute',al.hora_salida)::time   as hora_sale,

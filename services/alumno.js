@@ -28,6 +28,7 @@ const getAlumnos = (request, response) => {
             "SELECT a.*," +
             "  balance.total_adeudo > 0 As adeuda," +
             " g.nombre as nombre_grupo," +
+            " g.color as color," +
             " s.nombre as nombre_sucursal" +
             " FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id" +
             "                     inner join co_sucursal s on a.co_sucursal = s.id" +
