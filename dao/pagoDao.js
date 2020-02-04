@@ -13,7 +13,7 @@ const registrarPago = (pagoData) => {
 
         genericDao
             .executeProcedure(
-                `SELECT agregar_pago_alumno('${ids_cargos}','${cargos_desglosados}',${id_alumno},${pago},'${nota}',"${cat_forma_pago},'${identificador_factura}',${genero});`)
+                `SELECT agregar_pago_alumno('${ids_cargos}','${cargos_desglosados}',${id_alumno},${pago},'${nota}',${cat_forma_pago},'${identificador_factura}',${genero});`)
             .then(results => {
                 if (results.rowCount > 0) {
                     var retorno = results.rows[0];

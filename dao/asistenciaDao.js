@@ -304,7 +304,7 @@ const getListaAsistenciaPorSucursalFecha = (idSucursal, fecha) => {
                 and a.fecha = $2::date
                 and a.eliminado = false
             ORDER BY  grupo.nombre,al.nombre asc
-            `, [id_sucursal, new Date(fecha)]);
+            `, [idSucursal, new Date(fecha)]);
 }
 
 
@@ -480,6 +480,7 @@ const getListaMesAsistenciaPorSucursal = (idSucursal) => {
             a.foto,
             grupo.id as id_grupo,
             grupo.nombre as nombre_grupo,
+            grupo.color as color,
             count(asi.count_fechas) as count_fechas,		
             count(asi.asistencias) as numero_asistencias,		
             (dias_Activos.num_dias_trabajados - count(asi.count_fechas)) as numero_inasistencias,
@@ -490,7 +491,7 @@ const getListaMesAsistenciaPorSucursal = (idSucursal) => {
         where a.eliminado = false
             and a.co_sucursal = $2
         group by a.id,grupo.id,dias_activos.num_dias_trabajados
-        order by a.nombre `, [id_sucursal, id_sucursal]);
+        order by a.nombre `, [idSucursal, idSucursal]);
 }
 
 
