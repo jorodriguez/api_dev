@@ -8,7 +8,8 @@ const CRITERIO = {
     AGREGAR_RECARGO: " (a.fecha_limite_pago_mensualidad + 1) <= getDate('') and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",
     VENCEN_HOY: " a.fecha_limite_pago_mensualidad = getDate('') and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",
     VENCEN_MANANA: "  (a.fecha_limite_pago_mensualidad + 1) = getDate('') + 1 and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",
-    VENCIDOS: " a.fecha_limite_pago_mensualidad < getDate('') "    
+    VENCIDOS: " a.fecha_limite_pago_mensualidad < getDate('') " ,
+    VENCEN_SEMANA_ACTUAL:" to_char(a.fecha_limite_pago_mensualidad,'IYYY-IW') = to_char(getDate(''),'IYYY-IW')"
 };
 const SELECCIONAR_TODAS_SUCURSALES = null;
 

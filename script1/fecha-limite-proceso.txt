@@ -366,3 +366,8 @@ update co_grupo set color = '#639CD1' where id  =6;
 update co_grupo set color = '#E8F300' where id  =7;
 update co_grupo set color = '#E8F300' where id  =8;
 update co_grupo set color = '#E8F300' where id  =9;
+
+
+
+update co_alumno set foto = 'https://cdn2.iconfinder.com/data/icons/circle-avatars-1/128/037_girl_avatar_profile_woman_child-512.png'
+where sexo = 'Niña'

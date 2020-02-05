@@ -115,7 +115,18 @@ function enviarRecordatorioPagoPadresAlumno() {
 
 
 
-// proceso de recargos en el día enviar correo a cada papa y toda la lista a las mises
-//enviar la lista completa a los dueños de todas las sedes
 
-module.exports = { ejecutarProcesoRecargoMensualidad, enviarRecordatorioPagoPadresAlumno }
+function obtenerPagosVencenSemanaActual(idSucursal) {
+    console.log("@obtenerPagosVencenSemanaActual sucursal "+idSucursal);
+    try {
+      
+      return recargoDao.getMensualidadesParaRecargoPorSucursal(CRITERIO.VENCEN_SEMANA_ACTUAL,idSucursal);
+
+    } catch (e) {
+        console.log( e);
+    }
+
+}
+
+
+module.exports = { ejecutarProcesoRecargoMensualidad, enviarRecordatorioPagoPadresAlumno ,obtenerPagosVencenSemanaActual}

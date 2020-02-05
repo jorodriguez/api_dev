@@ -220,7 +220,9 @@ PUT('/cargos/:id_alumno', cargos.eliminarCargos);
 
 //GET('/cargos/meses_adeuda/:id_alumno', pagos.obtenerMesesAdeudaMensualidad);
 app.get('/cargos/meses_adeuda/:id_alumno', cargos.obtenerMesesAdeudaMensualidad);
-//GET('/cargos/meses_adeuda/:id_alumno', pagos.obtenerMesesAdeudaMensualidad);
+
+//recargos proximos
+GET('/mensualidad/vence_semana_actual/:id_sucursal', recargoService.obtenerPagosVencenSemanaActual);
 
 GET('/formas_pagos', catagolos.getFormasPago);
 
@@ -235,7 +237,7 @@ GET('/balance_crecimiento_global', reporteDeudas.getReporteCrecimientoGlobal);
 GET('/balance_crecimiento_mensual/:id_sucursal', reporteDeudas.getReporteCrecimientoMensualSucursal);
 GET('/alumnos_balance_crecimiento_mensual_sucursal/:id_sucursal/:mes_anio', reporteDeudas.getReporteAlumnosMensualCrecimiento);
 
-//
+
 GET('/meses_activos', utilerias.getMesesActivos);
 //GET('/buscar_correo_padre/:correo', utilerias.findCorreoPadre);
 

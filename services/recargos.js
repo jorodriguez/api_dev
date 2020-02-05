@@ -25,5 +25,33 @@ function ejecutarEnvioRecordatorioPagoMensualidadPadres() {
 
 }
 
-module.exports = {procesoRecargosMensualidad,ejecutarEnvioRecordatorioPagoMensualidadPadres};
+
+const obtenerPagosVencenSemanaActual = (request,response)=>{
+    console.log("=======@obtenerPagosVencenSemanaActual sucursal "+idSucursal);
+    try {
+        
+        let id_sucursal = request.params.id_sucursal;
+
+        if(id_sucursal == undefined || id_sucursal== null || id_sucursal== 0){
+            handle.callbackError("id_sucursal es empty", response);
+            return;
+        }
+      
+        recargoService
+            .obtenerPagosVencenSemanaActual(id_sucursal)
+            .then(results =>{
+                response.status(200).json(results);
+            }).catch(e=>{
+                console.log(e)
+                handle.callbackError(error, response);
+            });
+        } catch (e) {
+            handle.callbackErrorNoControlado(e, response);
+    
+        }
+
+}
+
+
+module.exports = {procesoRecargosMensualidad,ejecutarEnvioRecordatorioPagoMensualidadPadres,obtenerPagosVencenSemanaActual};
 
