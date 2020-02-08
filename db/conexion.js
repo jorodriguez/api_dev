@@ -16,6 +16,7 @@ const dbParams = {
 */
 
 //Nuevos parametros a la DB
+/*
 const dbParams = {
     user: 'abrrmwtzwwecjj',
     host: 'ec2-54-174-229-152.compute-1.amazonaws.com',
@@ -24,7 +25,7 @@ const dbParams = {
     port: 5432,
     ssl: { rejectUnauthorized: false }
 }
-
+*/
 /*const dbParams = {
     user: 'guard_user_dev',
     host: 'siscop.mpg-ihsa.com.mx',
@@ -37,7 +38,7 @@ const dbParams = {
 
 
 //db desarrollo
-/*
+
 const dbParams = {
     user: (process.env.USER_DB || 'pffyesodvpvsrp'),
     host: (process.env.HOST_DB || 'ec2-174-129-242-183.compute-1.amazonaws.com'),
@@ -46,7 +47,7 @@ const dbParams = {
     port: (process.env.PORT_DB ||5432),
     ssl: { rejectUnauthorized: false }
 }
-*/
+
 
 
 /*
