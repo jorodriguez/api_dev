@@ -70,7 +70,8 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
                 cargos.nota as nota_cargo,
                 cargos.pagado as pagado,	
                 cargos.total_pagado as total_pagado_cargo,
-                cargos.texto_ayuda
+                cargos.texto_ayuda, 
+                to_char(cargos.fecha,'YY') as anio
                 --pago.*
             from co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id
                                                  inner join co_cargo_balance_alumno cargos on cargos.co_balance_alumno = balance.id	
@@ -81,7 +82,7 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
                 and cargos.pagado = false
                 and balance.eliminado = false 
                 and cargos.eliminado = false	
-            order by a.id
+            order by cargos.fecha
             ) select a.id,
                            a.foto,
                            a.nombre,
