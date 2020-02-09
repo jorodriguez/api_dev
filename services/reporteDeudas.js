@@ -55,7 +55,13 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
        // validarToken(request,response);        
 
         const id_sucursal = request.params.id_sucursal;
+        const idTipoCargoFiltro = request.params.id_tipo_cargo;
+        
+        const filtrarPorCargo = (idTipoCargoFiltro > 0);
+        console.log("Tipo cargo "+idTipoCargoFiltro);
+        console.log("filtrar ?  "+filtrarPorCargo);
 
+        const parametros = filtrarPorCargo ? [id_sucursal,idTipoCargoFiltro] : [id_sucursal];
         pool.query(
             `
             WITH cargos AS (
@@ -72,13 +78,10 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
                 cargos.total_pagado as total_pagado_cargo,
                 cargos.texto_ayuda, 
                 to_char(cargos.fecha,'YY') as anio
-                --pago.*
             from co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id
                                                  inner join co_cargo_balance_alumno cargos on cargos.co_balance_alumno = balance.id	
                                                  inner join cat_cargo tipo_cargo on  cargos.cat_cargo = tipo_cargo.id
-                                                 --left join co_pago_cargo_balance_alumno pago_cargo on pago_cargo.co_cargo_balance_alumno = cargos.id
-                                                 --left join co_pago_balance_alumno pago on pago.id = pago_cargo.co_pago_balance_alumno 
-            where co_sucursal = $1 
+            where co_sucursal = $1                 
                 and cargos.pagado = false
                 and balance.eliminado = false 
                 and cargos.eliminado = false	
@@ -105,21 +108,37 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
                          From co_alumno a 
                             inner join co_balance_alumno balance on a.co_balance_alumno = balance.id
                             inner join co_grupo grupo on a.co_grupo = grupo.id	
-                            left join cargos c  on c.id_alumno = a.id
+                            LEFT join cargos c  on c.id_alumno = a.id                          
                          WHERE a.co_sucursal = $1 
+                         ${filtrarPorCargo ? `
+                         and a.id in (
+                            select a.id
+                            From co_alumno a 
+                                inner join co_balance_alumno balance on a.co_balance_alumno = balance.id                            												
+                                inner join co_cargo_balance_alumno cargos on cargos.co_balance_alumno = balance.id  
+                            where a.co_sucursal = $1
+                                and a.eliminado = false 
+                                and cargos.cat_cargo = $2 
+                                and cargos.pagado = false 
+                                and cargos.eliminado=false
+                        )	
+                         `:''}
                        and a.eliminado = false
                 group by a.id,balance.id
                     ORDER BY balance.total_adeudo DESC
             `,
-            [id_sucursal],
+            parametros,
             (error, results) => {
                 if (error) {
+                    console.log(error);
                     handle.callbackError(error, response);
                     return;
                 }
+
                 response.status(200).json(results.rows);
             });
     } catch (e) {
+        console.log(e);
         handle.callbackErrorNoControlado(e, response);
     }
 };
@@ -141,6 +160,7 @@ const getReporteBalancePorSucursal = (request, response) => {
                  with universo_cargos as (
                          select suc.id as id_sucursal,									
                                  count(cargos.id) as cargos_pendientes_pago,
+                                 tipo_cargo.id as id_cargo,
                                  tipo_cargo.nombre as tipo_cargo,
                                  sum(cargos.total) as total_cargos_desglose,
                                  sum(cargos.total_pagado) as total_cargos_pagados_desglose,
@@ -151,8 +171,8 @@ const getReporteBalancePorSucursal = (request, response) => {
                                                  and cargos.eliminado = false
                                      inner join cat_cargo tipo_cargo on  cargos.cat_cargo = tipo_cargo.id
                                      inner join co_sucursal suc on a.co_sucursal = suc.id
-                             group by suc.id,tipo_cargo.nombre
-                             order by suc.id
+                             group by suc.id,tipo_cargo.id
+                             order by suc.id,tipo_cargo.id
                          ) select c.id_sucursal,
                                  array_to_json(array_agg(row_to_json((c.*))))::text AS json_array
                              from universo_cargos c
