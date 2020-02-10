@@ -316,7 +316,7 @@ app.get('/', (request, response) => {
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.23 (env:${process.env.ENV})`)
+	console.log(`App corriendo en el puerto ${port} v1.0.23-hotfix (env:${process.env.ENV})`)
 });
 
 //GET('/encriptar/:clave', authController.encriptar);
