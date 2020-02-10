@@ -374,12 +374,17 @@ where sexo = 'Niña'
 
 
 
-"UPDATE co_grupo set color = '#DA3ACF' where id = 1;"
-"UPDATE co_grupo set color = '#DA3ACF' where id = 4;"
-"UPDATE co_grupo set color = '#78BB69' where id = 2;"
-"UPDATE co_grupo set color = '#78BB69' where id = 5;"
-"UPDATE co_grupo set color = '#639CD1' where id = 3;"
-"UPDATE co_grupo set color = '#639CD1' where id = 6;"
-"UPDATE co_grupo set color = '#E8F300' where id = 7;"
-"UPDATE co_grupo set color = '#E8F300' where id = 8;"
-"UPDATE co_grupo set color = '#E8F300' where id = 9;"
+
+
+/*
+-- EN CASO DE TENER NULL EN EL COLOR DE LOS GRUPOS
+UPDATE co_grupo set color = '#DA3ACF' where id = 1;
+UPDATE co_grupo set color = '#DA3ACF' where id = 4;
+UPDATE co_grupo set color = '#78BB69' where id = 2;
+UPDATE co_grupo set color = '#78BB69' where id = 5;
+UPDATE co_grupo set color = '#639CD1' where id = 3;
+UPDATE co_grupo set color = '#639CD1' where id = 6;
+UPDATE co_grupo set color = '#E8F300' where id = 7;
+UPDATE co_grupo set color = '#E8F300' where id = 8;
+UPDATE co_grupo set color = '#E8F300' where id = 9;
+*/

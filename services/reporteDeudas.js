@@ -134,7 +134,7 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
-
+                console.log(" ==> "+results.rows);
                 response.status(200).json(results.rows);
             });
     } catch (e) {
