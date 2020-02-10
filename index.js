@@ -312,7 +312,7 @@ app.get('/', (request, response) => {
 	console.log(process.env);
 	console.log("=====================");
 	console.log(JSON.stringify(pool));
-	response.json({ info: `MagicIntelligence API v1.0.26 (env:${process.env.ENV}) ENCUESTA EN CORREO`})
+	response.json({ info: `MagicIntelligence API v1.0.26 (env:${process.env.ENV}) filtro por cargos en pantalla de admin`})
 });
 
 app.listen(port, () => {
