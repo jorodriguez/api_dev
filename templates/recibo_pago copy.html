@@ -1,10 +1,8 @@
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
 
-
     <tr>
         <td class="h2">
             <strong>Hola {{nombre_cliente}},</strong>
-
         </td>
     </tr>
     <tr>
@@ -72,15 +70,23 @@
                 {{/pago.cargos}}
                 <tr>
                     <td colspan="3" style="text-align:right">
-                        <strong>Total:</strong>
-
-              </td>
-            </tr>
-          </table>
+                       <strong>Total:</strong>
+                    </td>
+                    <td style="border-bottom:2pt solid #57A8B6;text-align:right;background-color:#F7F7F7" align="right">
+                        <h4><strong> ${{pago.pago}}</strong> </h4>
+                    </td>
+                </tr>
+            </table>
+            <!--[if (gte mso 9)|(IE)]>
+          </td>
+        </tr>
+    </table>
+    <![endif]-->
         </td>
-      </tr>     
-      
-      <tr>
+    </tr>
+    
+    <!-- ENCUESTA -->
+     <tr>
         <td class="h1" align="center">                                    <strong><span style="color:#368DDA">Tu opinión nos inspira a ser mejor.</strong>
          <p><small>En Magic Intelligence, escucharte nos inspira a servirte mejor.
          Por ello, queremos pedirte unos minutos para contestar una breve encuesta, en donde pedimos que nos compartas ¿Cómo es tu experiencia con Magic Intelligence?.</small></p>
@@ -89,12 +95,8 @@
       </tr>  
       <tr>
       <td>
-
-
-
-
-
-<!-- Encuesta -->
+      
+      <!-- Encuesta -->
 
 <div class="mj-container container" style="border-radius: 5px; background-color: #FFFFFF; width: 100%;">
         <!--[if mso | IE]> <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" align="center" style="width:600px;"> <tr> <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"> <![endif]-->
@@ -517,12 +519,18 @@
                         <img src="https://cdn.icon-icons.com/icons2/2037/PNG/512/ig_instagram_media_social_icon_124260.png" width="37" height="37" alt="Twitter" border="0" />
                       </a>
                     </td>
-                    <td style="border-bottom:2pt solid #57A8B6;text-align:right;background-color:#F7F7F7" align="right">
-                        <h4><strong> ${{pago.pago}}</strong> </h4>
-                    </td>
-                </tr>
-            </table>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+                   
             <!--[if (gte mso 9)|(IE)]>
+
           </td>
         </tr>
     </table>
@@ -535,6 +543,6 @@
 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 <script src="http://tutsplus.github.io/github-analytics/ga-tracking.min.js"></script>
 
+<!-- FIN - ENCUESTA -->
 
-
-
+</table>

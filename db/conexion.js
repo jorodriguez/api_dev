@@ -17,9 +17,9 @@ const dbParams = {
 
 //Nuevos parametros a la DB
 
-/*
-const dbParams = {
-    user: 'abrrmwtzwwecjj',
+
+/*const dbParams = {
+   user: 'abrrmwtzwwecjj',
     host: 'ec2-54-174-229-152.compute-1.amazonaws.com',
     database: 'd8q9p1up9bd7b7',
     password: '5fd81b93106ce7208d5456059519a5f3d5c29870600bfc63d820f1616540f295',
