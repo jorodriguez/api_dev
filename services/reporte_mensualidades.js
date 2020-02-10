@@ -77,15 +77,17 @@ const getReporteContadoresSucursalesMesActual = (request, response) => {
     try {
 
       //  validarToken(request,response);
-
-        pool.query(
-            getQueryPrincipal(null, true)
-            , [CARGOS.ID_CARGO_MENSUALIDAD],
+console.log("CARGOS.ID_CARGO_MENSUALIDAD "+CARGOS.ID_CARGO_MENSUALIDAD);
+        let id_mensualidad =CARGOS.ID_CARGO_MENSUALIDAD;
+        let query = getQueryPrincipal(null,true);
+        console.log("QUER "+id_mensualidad+"     "+ query);
+        pool.query(query, [id_mensualidad],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
                 }
+                console.log("reporte mensualidad sur mes actual"+JSON.stringify(results.rows));
                 response.status(200).json(results.rows);
             });
 
@@ -115,8 +117,7 @@ const getReporteContadoresMesesPorSucursal = (request, response) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
-                }
-                console.log(JSON.stringify(results.rows));
+                }                
                 response.status(200).json(results.rows);
             });
     } catch (e) {
@@ -162,7 +163,7 @@ function getQueryPrincipal(id_sucursal, isQueryInicial) {
         +` and cargo.eliminado = false 
          GROUP BY m.anio_mes,suc.id,m.numero_mes
          ORDER BY m.numero_mes DESC`;
-console.log(query);
+//console.log(query);
     return query;
 }
 
