@@ -16,7 +16,8 @@ const dbParams = {
 */
 
 //Nuevos parametros a la DB
-/*const dbParams = {
+/*
+const dbParams = {
     user: 'abrrmwtzwwecjj',
     host: 'ec2-54-174-229-152.compute-1.amazonaws.com',
     database: 'd8q9p1up9bd7b7',
@@ -40,15 +41,6 @@ const dbParams = {
 
 
 
-/*
-const dbParams = {
-    user: 'pffyesodvpvsrp',
-    host: 'ec2-174-129-242-183.compute-1.amazonaws.com',
-    database: 'd83inhs3bq9ufb',
-    password: 'C',
-    port:5432,
-    ssl: { rejectUnauthorized: false }
-}*/
 
 //const dbParams = dbParamsDev;
 
