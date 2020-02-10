@@ -228,7 +228,7 @@ GET('/formas_pagos', catagolos.getFormasPago);
 
 //Reporte
 GET('/balance_sucursal', reporteDeudas.getReporteBalancePorSucursal);
-GET('/balance_alumnos_sucursal/:id_sucursal', reporteDeudas.getReporteBalanceAlumnosSucursal);
+GET('/balance_alumnos_sucursal/:id_sucursal/:id_tipo_cargo', reporteDeudas.getReporteBalanceAlumnosSucursal);
 
 GET('/balance_crecimiento', reporteDeudas.getReporteCrecimientoBalancePorSucursal);
 GET('/balance_crecimiento_alumnos/:id_sucursal', reporteDeudas.getReporteCrecimientoBalanceAlumnosSucursal);
@@ -318,11 +318,11 @@ app.get('/', (request, response) => {
 	console.log(process.env);
 	console.log("=====================");
 	console.log(JSON.stringify(pool));
-	response.json({ info: `MagicIntelligence API v1.0.25 (env:${process.env.ENV})`})
+	response.json({ info: `MagicIntelligence API v1.0.26 (env:${process.env.ENV}) filtro por cargos en pantalla de admin`})
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.23 (env:${process.env.ENV})`)
+	console.log(`App corriendo en el puerto ${port} v1.0.23-hotfix (env:${process.env.ENV})`)
 });
 
 //GET('/encriptar/:clave', authController.encriptar);

@@ -1,0 +1,87 @@
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+
+    <tr>
+        <td class="h2">
+            <strong>Hola {{nombre_cliente}},</strong>
+        </td>
+    </tr>
+    <tr>
+        <td class="h2">
+            <small> Enviamos el detalle de tu recibo de pago.</small>
+        </td>
+    </tr>
+    <tr>
+        <td class="h2">
+            <small>
+               ☺ {{alumno.nombre}} - {{alumno.grupo}} 
+                </small>
+        </td>
+    </tr>
+    <tr>
+        <td class="bodycopy">
+            <br/>
+            <table width="90%" style="background-color:white">
+                <tr>
+                    <td><strong>Fecha</strong></td>
+                    <td>{{pago.fecha}}</td>
+                </tr>
+                <tr>
+                    <td><strong>Forma de Pago</strong></td>
+                    <td>{{pago.forma_pago}}</td>
+                </tr>
+                <tr>
+                    <td><strong>Sucursal</strong></td>
+                    <td>{{sucursal.nombre}}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><small>{{sucursal.direccion}}</small></td>
+                </tr>
+            </table>
+            <br/>
+
+            <!--[if (gte mso 9)|(IE)]>
+      <table width="600" align="center" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td>
+    <![endif]-->
+
+            <table width="100%" border="0" cellspacing="2" cellpadding="2">
+                <tr>
+                    <th style="border-bottom:1pt solid #57A8B6;" width="40%">Descripción</th>
+                    <!--<th>Adeuda</th>-->
+                    <th style="border-bottom:1pt solid #57A8B6;" width="30%">Cant.</th>
+                    <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="30%" align="right">Precio</th>
+                    <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="30%" align="right">Pagado</th>
+                    <!--<th>Nota</th>-->
+                </tr>
+                <!-- {{#pagado}} PAGADO {{/pagado}}-->
+                {{#pago.cargos}}
+                <!-- IF -->
+                <tr style="text-align:center">
+                    <td style="border-bottom:1pt solid #57A8B6;">{{nombre_cargo}} {{texto_ayuda}} {{#es_facturable}} {{#pago.escribir_folio_factura}}
+                        <small style="color:blue;"> (Factura {{pago.factura}})</small> {{/pago.escribir_folio_factura}} {{/es_facturable}}
+                    </td>
+                    <td style="border-bottom:1pt solid #57A8B6;">{{cantidad}}</td>
+                    <td style="border-bottom:1pt solid #57A8B6;text-align:right" align="right">${{cargo}}</td>
+                    <td style="border-bottom:2pt solid #57A8B6;text-align:right" align="right">${{total_pagado}}</td>
+                    <!--<td>{{nota}}</td>-->
+                </tr>
+                {{/pago.cargos}}
+                <tr>
+                    <td colspan="3" style="text-align:right">
+                        <strong>Total:</strong>
+                    </td>
+                    <td style="border-bottom:2pt solid #57A8B6;text-align:right;background-color:#F7F7F7" align="right">
+                        <h4><strong> ${{pago.pago}}</strong> </h4>
+                    </td>
+                </tr>
+            </table>
+            <!--[if (gte mso 9)|(IE)]>
+          </td>
+        </tr>
+    </table>
+    <![endif]-->
+        </td>
+    </tr>
+</table>

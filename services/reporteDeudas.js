@@ -2,7 +2,7 @@
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const { validarToken } = require('../helpers/helperToken');
-
+/*
 const getReporteBalanceAlumnosSucursal = (request, response) => {
     console.log("@getReportePrincipal");
     try {
@@ -46,6 +46,103 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
     }
 };
 
+*/
+
+
+const getReporteBalanceAlumnosSucursal = (request, response) => {
+    console.log("@getReportePrincipal");
+    try {
+       // validarToken(request,response);        
+
+        const id_sucursal = request.params.id_sucursal;
+        const idTipoCargoFiltro = request.params.id_tipo_cargo;
+        
+        const filtrarPorCargo = (idTipoCargoFiltro > 0);
+        console.log("Tipo cargo "+idTipoCargoFiltro);
+        console.log("filtrar ?  "+filtrarPorCargo);
+
+        const parametros = filtrarPorCargo ? [id_sucursal,idTipoCargoFiltro] : [id_sucursal];
+        pool.query(
+            `
+            WITH cargos AS (
+            select a.id as id_alumno,
+                cargos.id as id_cargo,
+                tipo_cargo.id as tipo_cargo,	
+                tipo_cargo.nombre as nombre_cargo,	
+                cargos.fecha as fecha_cargo,
+                cargos.cantidad as cantidad_cargo,	
+                cargos.cargo as precio_cargo,
+                cargos.total as total_adeudo,
+                cargos.nota as nota_cargo,
+                cargos.pagado as pagado,	
+                cargos.total_pagado as total_pagado_cargo,
+                cargos.texto_ayuda, 
+                to_char(cargos.fecha,'YY') as anio
+            from co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id
+                                                 inner join co_cargo_balance_alumno cargos on cargos.co_balance_alumno = balance.id	
+                                                 inner join cat_cargo tipo_cargo on  cargos.cat_cargo = tipo_cargo.id
+            where co_sucursal = $1                 
+                and cargos.pagado = false
+                and balance.eliminado = false 
+                and cargos.eliminado = false	
+            order by cargos.fecha
+            ) select a.id,
+                           a.foto,
+                           a.nombre,
+                           a.apellidos,
+                           a.hora_entrada,
+                           a.hora_salida,
+                           a.costo_colegiatura,
+                           a.costo_inscripcion,
+                           a.minutos_gracia,
+                           a.fecha_inscripcion::date,
+                           a.fecha_reinscripcion::date,               
+                           balance.id as id_balance,
+                           balance.total_adeudo,
+                           balance.total_pagos,
+                           balance.total_cargos,
+                           to_char(a.fecha_inscripcion,'YYYYMM') = to_char(getDate(''),'YYYYMM') AS nuevo_ingreso ,
+                           array_to_json(array_agg(row_to_json((c.*)))) AS cargos_array,
+                           count(c.id_alumno) as numero_cargos,
+                           count(c.id_alumno) > 0 as existen_cargos_adeuda
+                         From co_alumno a 
+                            inner join co_balance_alumno balance on a.co_balance_alumno = balance.id
+                            inner join co_grupo grupo on a.co_grupo = grupo.id	
+                            LEFT join cargos c  on c.id_alumno = a.id                          
+                         WHERE a.co_sucursal = $1 
+                         ${filtrarPorCargo ? `
+                         and a.id in (
+                            select a.id
+                            From co_alumno a 
+                                inner join co_balance_alumno balance on a.co_balance_alumno = balance.id                            												
+                                inner join co_cargo_balance_alumno cargos on cargos.co_balance_alumno = balance.id  
+                            where a.co_sucursal = $1
+                                and a.eliminado = false 
+                                and cargos.cat_cargo = $2 
+                                and cargos.pagado = false 
+                                and cargos.eliminado=false
+                        )	
+                         `:''}
+                       and a.eliminado = false
+                group by a.id,balance.id
+                    ORDER BY balance.total_adeudo DESC
+            `,
+            parametros,
+            (error, results) => {
+                if (error) {
+                    console.log(error);
+                    handle.callbackError(error, response);
+                    return;
+                }
+
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        console.log(e);
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
 
 const getReporteBalancePorSucursal = (request, response) => {
     console.log("@getReporteBalancePorSucursal");
@@ -63,6 +160,7 @@ const getReporteBalancePorSucursal = (request, response) => {
                  with universo_cargos as (
                          select suc.id as id_sucursal,									
                                  count(cargos.id) as cargos_pendientes_pago,
+                                 tipo_cargo.id as id_cargo,
                                  tipo_cargo.nombre as tipo_cargo,
                                  sum(cargos.total) as total_cargos_desglose,
                                  sum(cargos.total_pagado) as total_cargos_pagados_desglose,
@@ -73,8 +171,8 @@ const getReporteBalancePorSucursal = (request, response) => {
                                                  and cargos.eliminado = false
                                      inner join cat_cargo tipo_cargo on  cargos.cat_cargo = tipo_cargo.id
                                      inner join co_sucursal suc on a.co_sucursal = suc.id
-                             group by suc.id,tipo_cargo.nombre
-                             order by suc.id
+                             group by suc.id,tipo_cargo.id
+                             order by suc.id,tipo_cargo.id
                          ) select c.id_sucursal,
                                  array_to_json(array_agg(row_to_json((c.*))))::text AS json_array
                              from universo_cargos c
