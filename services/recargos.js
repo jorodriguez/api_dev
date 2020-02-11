@@ -27,7 +27,7 @@ function ejecutarEnvioRecordatorioPagoMensualidadPadres() {
 
 
 const obtenerPagosVencenSemanaActual = (request,response)=>{
-    console.log("=======@obtenerPagosVencenSemanaActual sucursal "+idSucursal);
+    console.log("=======@obtenerPagosVencenSemanaActual sucursal ");
     try {
         
         let id_sucursal = request.params.id_sucursal;
