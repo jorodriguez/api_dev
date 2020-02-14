@@ -388,3 +388,9 @@ UPDATE co_grupo set color = '#E8F300' where id = 7;
 UPDATE co_grupo set color = '#E8F300' where id = 8;
 UPDATE co_grupo set color = '#E8F300' where id = 9;
 */
+
+
+alter table usuario add column activo boolean default true;
+
+alter table usuario add column motivo_baja text;
+alter table usuario add column fecha_baja date default getDate('');
