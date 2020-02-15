@@ -31,6 +31,7 @@ const authClientesController = require('./auth/AuthClientesController');
 const correo_service = require('./utils/NotificacionService');
 const sucursales = require('./services/sucursal');
 const alumnoSucursal = require('./services/alumno_sucursal');
+const usuarioService = require('./services/usuario');
 const catagolos = require('./services/catalogos');
 const conf = require('./services/configuracion');
 const https = require("https");
@@ -264,6 +265,14 @@ GET('/reporte_gastos/:id_sucursal', reporte_gastos.getReporteGastosMensualesPorS
 GET('/reporte_gastos/:id_sucursal/:mes_anio', reporte_gastos.getReporteDetalleGastosPorSucursal);
 GET('/reporte_gastos_global', reporte_gastos.getReporteGastosGlobal);
 GET('/reporte_gastos_mes_actual', reporte_gastos.getReporteGastoMensualActual);
+
+
+//catalogo de maestros
+GET('/usuario/:id_sucursal', usuarioService.getUsuariosPorSucursal);
+POST('/usuario', usuarioService.crearUsuario);
+PUT('/usuario/:id_usuario', usuarioService.modificarUsuario);
+DELETE('/usuario/:id_usuario', usuarioService.desactivarUsuario);
+
 
 
 

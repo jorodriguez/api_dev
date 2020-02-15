@@ -87,19 +87,7 @@ function executeProcedureWithParameters(query,params){
 function executeProcedure(query){
     console.log("@executeProcedure");
     return executeProcedureWithParameters(query,[]);
-    /*
-    return new Promise((resolve, reject) => { 
-        if(isEmptyOrNull(query)){
-            reject(new ExceptionBD("el query o los parametros son null"));
-            return;
-        }
-        getQueryInstance(query,[])
-            .then(results => {
-                resolve(results);
-            }).catch(error => {
-                reject(new ExceptionBD(error));
-            });
-    });*/       
+         
 };
 
 function eliminarPorId(tabla,id,genero){
@@ -111,17 +99,15 @@ function eliminarPorId(tabla,id,genero){
                         `,[id,genero])
 }
 
-/*module.exports = function findAll(query){
-    console.log("@genericQuery");    
-    return new Promise((resolve, reject) => {      
-        getQueryInstance(query,params)
-            .then(results => {
-                resolve(results.rows);
-            }).catch(error => {
-                reject(new ExceptionBD(error));
-            });
-    });       
-};*/
 
+function buscarPorId(tabla,id){
 
-module.exports = {findAll,findOne,eliminarPorId,execute,executeProcedure,executeProcedureWithParameters};
+    if(tabla != undefined && tabla != null){
+        console.log("el nombre de la tabla no esta definido ");        
+        return null;
+    }
+
+    return getQueryInstance(`SELECT * FROM  ${tabla} WHERE ID = $1`,[id]);
+}
+
+module.exports = {findAll,findOne,eliminarPorId,execute,executeProcedure,executeProcedureWithParameters,buscarPorId};

@@ -27,17 +27,9 @@ function validarGasto(gastoData) {
 
 const registrarGasto = (gastoData) => {
     console.log("@registrarGasto");
-
-    console.log("___ " + JSON.stringify(gastoData));
-
     return new Promise((resolve, reject) => {
 
-        /*  if(!validarGasto(gastoData)){
-              reject(new Exception("Datos incompletos","Datos incompletos"));    
-              return;            
-          }       
-  */
-        const { cat_tipo_gasto, co_forma_pago, co_sucursal, fecha, gasto, observaciones, genero } = gastoData;
+      const { cat_tipo_gasto, co_forma_pago, co_sucursal, fecha, gasto, observaciones, genero } = gastoData;
 
         getQueryInstance(
             `INSERT INTO CO_GASTO(cat_tipo_gasto,co_forma_pago,co_sucursal,fecha,gasto,observaciones,genero)

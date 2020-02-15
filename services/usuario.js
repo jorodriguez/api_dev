@@ -1,177 +1,129 @@
 
-const { pool } = require('../db/conexion');
-const Joi = require('@hapi/joi');
+const usuarioService = require('../domain/usuarioService');
 const handle = require('../helpers/handlersErrors');
-const { validarToken } = require('../helpers/helperToken');
-var bcrypt = require('bcryptjs');
 
-// GET a Login 
-const login = (request, response) => {
+const crearUsuario = (request, response) => {
+
 	try {
-		console.log("En el login ");
-		const { correo, password } = request.body;
 
-		pool.query('SELECT * FROM usuario WHERE correo = $1 AND password = $2 AND eliminado = false',
-			[correo, password],
-			(error, results) => {
-				if (error) {
-					handle.callbackError(error, response);
-					return;
-				}
-				console.log("results.rowCount " + results.rowCount);
-				console.log("results.rowCount " + results.rows);
-				if (results.rowCount > 0) {
-					response.status(200).json(results.rows[0]);
-				} else {
-					response.status(200).json({ mensaje: "Usuario no encontrado" });
-				}
+		const usuarioData = { nombre, correo, id_sucursal, hora_entrada, hora_salida, genero } = request.body;
+
+		usuarioService
+			.crearUsuario(usuarioData)
+			.then(result => {
+				//enviar notificacion de alta de usuario
+				console.log("nuevao usuario registrado "+result);
+				response.status(200).json(result);
+
+			}).catch(error => {
+				console.error(error)
+				handle.callbackError(error, response);
 			});
+
 	} catch (e) {
+		console.error(e);
 		handle.callbackErrorNoControlado(e, response);
 	}
 };
 
-//GET — /users | getUsers()
-const getUsers = (request, response) => {
-	try {	
-		//validarToken(request,response);		
 
-		pool.query('SELECT * FROM usuario ORDER BY id ASC', (error, results) => {
-			if (error) {
+const modificarUsuario = (request, response) => {
+
+	try {		
+		const idUsuario = request.params.id_usuario;
+		const usuarioData = { nombre, correo, hora_entrada, hora_salida, genero } = request.body;
+
+		usuarioService
+			.modificarUsuario(idUsuario,usuarioData)
+			.then(result => {
+				
+				console.log(" usuario modificado "+result);
+				response.status(200).json(result);
+
+			}).catch(error => {
+				console.error(error)
 				handle.callbackError(error, response);
-				return;
-			}
-			response.status(200).json(results.rows)
-		});
+			});
 
 	} catch (e) {
+		console.error(e);
 		handle.callbackErrorNoControlado(e, response);
 	}
-
 };
 
-//GET — /users/:id | getUserById()
-const getUserById = (request, response) => {
+
+const desactivarUsuario = (request, response) => {
+
 	try {
-		//validarToken(request,response);		
+		const idUsuario = request.params.id_usuario;
+		const usuarioData = {  motivo_baja, fecha_baja, genero } = request.body;
+		//const idUsuario = request.params.id_usuario;
 
-		const id = parseInt(request.params.id);
+		usuarioService
+			.desactivarUsuario(idUsuario,usuarioData)
+			.then(result => {
+				
+				console.log(" usuario de baja "+result);
+				response.status(200).json(result);
 
-		pool.query('SELECT * FROM usuario WHERE id = $1 and eliminado = false', [id], (error, results) => {
-			if (error) {
+			}).catch(error => {
+				console.error(error)
 				handle.callbackError(error, response);
-				return;
-			}
-			response.status(200).json(results.rows)
-		});
+			});
+
 	} catch (e) {
+		console.error(e);
 		handle.callbackErrorNoControlado(e, response);
 	}
 };
 
 
-//  POST — users | createUser()
-const createUser = (request, response) => {
+const getUsuariosPorSucursal = (request, response) => {
+
 	try {
-
-		const { usuario } = request.body;
-
-		pool.query('INSERT INTO USUARIO (NOMBRE,CORREO,PASSWORD,CO_SUCURSAL,PERMISO_GERENTE) VALUES($1,$2,$3)',
-			 [nombre, correo, password], 
-		(error, results) => {
-			if (error) {
-				handle.callbackError(error, response);
-				return;
-			}
-			response.status(201).send(`User added with ID: ${results.insertId}`)
-		})
-
-	} catch (e) {
-		handle.callbackErrorNoControlado(e, response);
-	}
-};
-
-
-
-function insertarUsuario(usuario){
-	try {
-
-		const { usuario } = request.body;
+		const idSucursal = request.params.id_sucursal;
 		
-		pool.query(`INSERT INTO USUARIO (NOMBRE,NOMBRE_COMPLETO,
-										CORREO,PASSWORD,										
-										PERMISO_GERENTE,
-										HORA_ENTRADA,
-										HORA_SALIDA,
-										CAT_TIPO_USUARIO,
-										CO_SUCURSAL,										
-										GENERO) 
-					VALUES($1,$2,$3)`,
-			 [nombre, correo, password], 
-		(error, results) => {
-			if (error) {
+		usuarioService
+			.getUsuariosPorSucursal(idSucursal)
+			.then(results => {
+							
+				response.status(200).json(results);
+
+			}).catch(error => {
+				console.error(error)
 				handle.callbackError(error, response);
-				return;
-			}
-			response.status(201).send(`User added with ID: ${results.insertId}`)
-		})
-
-	} catch (e) {
-		handle.callbackErrorNoControlado(e, response);
-	}
-}
-
-
-// PUT — /users/:id | updateUser()
-const updateUser = (request, response) => {
-	try {
-		//validarToken(request,response);				   
-
-		const id = parseInt(request.params.id)
-		const { nombre, correo } = request.body
-
-		pool.query(
-			'UPDATE usuario SET nombre = $1, correo = $2  WHERE id = $3',
-			[nombre, correo, id],
-			(error, results) => {
-				if (error) {
-					handle.callbackError(error, response);
-					return;
-				}
-				response.status(200).send(`User modified with ID: ${id}`)
 			});
 
 	} catch (e) {
+		console.error(e);
 		handle.callbackErrorNoControlado(e, response);
 	}
 };
 
-// DELETE — /users/:id | deleteUser()
-const deleteUser = (request, response) => {
+
+const buscarUsuarioPorId = (request, response) => {
+
 	try {
-		//validarToken(request,response);		
+		const idUsuario = request.params.id_usuario;
+		
+		usuarioService
+			.buscarPorId(idUsuario)
+			.then(results => {
+							
+				response.status(200).json(results);
 
-		const id = parseInt(request.params.id)
-
-		pool.query('DELETE FROM usuario WHERE id = $1', [id], (error, results) => {
-			if (error) {
+			}).catch(error => {
+				console.error(error)
 				handle.callbackError(error, response);
-				return;
-			}
-			response.status(200).send(`User deleted with ID: ${id}`)
-		});
+			});
 
 	} catch (e) {
+		console.error(e);
 		handle.callbackErrorNoControlado(e, response);
 	}
-}
+};
 
 
 module.exports = {
-	login,
-	getUsers,
-	getUserById,
-	createUser,
-	updateUser,
-	deleteUser,
+		crearUsuario,modificarUsuario,desactivarUsuario,getUsuariosPorSucursal,buscarUsuarioPorId
 }
