@@ -119,8 +119,8 @@ function enviarRecordatorioPagoPadresAlumno() {
 function obtenerPagosVencenSemanaActual(idSucursal) {
     console.log("@obtenerPagosVencenSemanaActual sucursal "+idSucursal);
     try {
-      
-      return recargoDao.getMensualidadesParaRecargoPorSucursal(CRITERIO.VENCEN_SEMANA_ACTUAL,idSucursal);
+        return recargoDao.getMensualidadesParaRecargoPorSucursal(CRITERIO.VENCIDOS,idSucursal);
+      //return recargoDao.getMensualidadesParaRecargoPorSucursal(CRITERIO.VENCEN_SEMANA_ACTUAL,idSucursal);
 
     } catch (e) {
         console.log( e);

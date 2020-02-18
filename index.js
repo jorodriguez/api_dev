@@ -274,8 +274,6 @@ PUT('/usuario/:id_usuario', usuarioService.modificarUsuario);
 DELETE('/usuario/:id_usuario', usuarioService.desactivarUsuario);
 
 
-
-
 //Para movil
 //Login Clientes - Papás
 //consultas para App
