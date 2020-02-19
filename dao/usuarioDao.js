@@ -18,7 +18,7 @@ function obtenerCorreosPorTema(co_sucursal, id_tema) {
 `, [co_sucursal, id_tema])
 }
 
-const getUsuarioPorSucursal = (idSucursal) => {
+const getUsuarioPorSucursal = (idSucursal,idTipoUsario) => {
     return genericDao.findAll(` 
     SELECT U.ID,
 	        U.NOMBRE,
@@ -38,9 +38,9 @@ const getUsuarioPorSucursal = (idSucursal) => {
         FROM USUARIO U INNER JOIN CO_SUCURSAL SUC ON SUC.ID = U.CO_SUCURSAL 
 		        INNER JOIN CAT_TIPO_USUARIO TIPO_USUARIO ON TIPO_USUARIO.ID = U.CAT_TIPO_USUARIO
         WHERE 	        
-            SUC.ID = $1 
+            SUC.ID = $1 AND U.CAT_TIPO_USUARIO=$2
 	        AND U.ELIMINADO = FALSE
-        ORDER BY U.NOMBRE `, [idSucursal]);
+        ORDER BY U.NOMBRE `, [idSucursal,idTipoUsario]);
 };
 
 

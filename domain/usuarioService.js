@@ -1,7 +1,8 @@
 const usuarioDao = require('../dao/usuarioDao');
+const {TIPO_USUARIO} = require('../utils/Constantes');
 
 function getUsuariosPorSucursal(idSucursal) {
-    return usuarioDao.getUsuarioPorSucursal(idSucursal);
+    return usuarioDao.getUsuarioPorSucursal(idSucursal,TIPO_USUARIO.MAESTRA);
 }
 
 function crearUsuario(usuarioData) {
