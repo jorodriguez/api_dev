@@ -32,7 +32,8 @@ const enviarMensaje = (titulo, cuerpo) => {
             notification: {
                 title: titulo,
                 body: cuerpo,
-            }
+                sound: "default"
+            }, priority:"high"
         };
 
         if (configuracion.enviar_mensajes) {
@@ -59,7 +60,9 @@ const enviarMensajeActividad = (titulo, cuerpo, token) => {
             notification: {
                 title: titulo,
                 body: cuerpo,
-            }
+                sound: "default"
+            },
+            priority:"high"
         };
 
         let new_tokens = quitarElementosVaciosArray(token);
@@ -89,7 +92,9 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
             notification: {
                 title: titulo,
                 body: cuerpo,
-            }
+                sound: "default"
+            },
+            priority:"high"
         };
 
         var retorno = {};
