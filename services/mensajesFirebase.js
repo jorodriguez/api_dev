@@ -33,7 +33,7 @@ const enviarMensaje = (titulo, cuerpo) => {
                 title: titulo,
                 body: cuerpo,
                 sound: "default"
-            }, priority:"high"
+            }
         };
 
         if (configuracion.enviar_mensajes) {
@@ -61,8 +61,7 @@ const enviarMensajeActividad = (titulo, cuerpo, token) => {
                 title: titulo,
                 body: cuerpo,
                 sound: "default"
-            },
-            priority:"high"
+            }          
         };
 
         let new_tokens = quitarElementosVaciosArray(token);
@@ -93,8 +92,7 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
                 title: titulo,
                 body: cuerpo,
                 sound: "default"
-            },
-            priority:"high"
+            }            
         };
 
         var retorno = {};
