@@ -25,6 +25,7 @@ const registrarPago = (pagoData) => {
                     reject(null);
                 }
             }).catch(error => {
+                console.error("No se guardo el pago "+error);
                 reject(error);
             });
         /*

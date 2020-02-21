@@ -146,7 +146,11 @@ const notificarReciboPago = (id_alumno, id_pago) => {
             } else {
                 console.log("XXXX No se encontraron registros de padres para el alumno " + id_alumno);
             }
-        }).catch(error => console.error(error));
+        }).catch(error => {
+            console.error(error);
+            console.trace();           
+
+        });
     /*
     pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [[id_alumno]],
         (error, results) => {

@@ -39,7 +39,7 @@ function findOne(query,params){
             resolve(results.rowCount > 0 ? results.rows[0]:null);
         }).catch(error => {
             //reject(new ExceptionBD(error));
-            console.log("EERROR"+error);
+            console.log("EERROR"+error);            
             reject(error);
         });
         /*
