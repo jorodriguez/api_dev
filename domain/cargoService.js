@@ -15,7 +15,7 @@ const registrarCargo = (cargoData) => {
             .registrarCargo(cargoData)
             .then(respuesta => {
                 console.log("Enviar correo de cargo");
-                notificacionService.notificarCargo(respuesta.id_alumno, respuesta.id_cargo);
+                notificacionService.notificarCargo(cargoData.id_alumno, respuesta.id_cargo);
                 //Aqui enviar el mensaje al movil
                 resolve(respuesta);
             }).catch(error => {

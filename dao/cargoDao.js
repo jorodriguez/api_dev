@@ -124,12 +124,13 @@ const getCargosAlumno = (idAlumno) => {
 
 const getBalanceAlumno = (idAlumno) => {
     console.log("@getBalanceAlumno");
-    console.log("id_alumno " + idAlumno);
+    console.log("id_alumno ** " + idAlumno);
+    let params = [idAlumno];
     return genericDao.findOne(
         `SELECT al.nombre as nombre_alumno,al.apellidos as apellidos_alumno,to_char(al.fecha_limite_pago_mensualidad,'dd-Mon') as fecha_limite_pago_mensualidad, bal.* 
          FROM co_alumno al inner join  co_balance_alumno bal on al.co_balance_alumno = bal.id and bal.eliminado = false
-         WHERE al.id = $1 and al.eliminado = false `,
-        [idAlumno]);
+         WHERE al.id = $1::int and al.eliminado = false `
+        ,[idAlumno]);
     /*
     response,
     (results) => {

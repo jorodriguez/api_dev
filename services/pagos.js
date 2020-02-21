@@ -1,6 +1,7 @@
 
 const pagoService = require('../domain/pagoService');
 const handle = require('../helpers/handlersErrors');
+const notificacionService = require('../utils/NotificacionService');
 
 const registrarPago = (request, response) => {
     console.log("@registrarPago");
@@ -10,6 +11,8 @@ const registrarPago = (request, response) => {
         pagoService
             .registrarPago(pagoData)
             .then(results => {
+                notificacionService.notificarReciboPago(id_alumno, results.agregar_pago_alumno);
+                //notificacionService.notificarReciboPago(id_alumno, retorno.agregar_pago_alumno);
                 response.status(200).json(results);
             }).catch(error => {
                 console.log("No se guardo el pago " + error);

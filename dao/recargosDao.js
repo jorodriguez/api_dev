@@ -38,6 +38,7 @@ const getQueryBase = function (criterio,idSucursal) {
              FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
                                            inner join cat_cargo cargo on b.cat_cargo = cargo.id					
              WHERE  ${criterio}
+                    and b.cargo <> 0
                     and b.pagado = false
                     and cargo.id = 1
                     and b.recargo = false	

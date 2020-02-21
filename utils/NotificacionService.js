@@ -134,16 +134,17 @@ function enviarMensajeMovil(tokens, titulo, cuerpo) {
 }
 
 const notificarReciboPago = (id_alumno, id_pago) => {
-    console.log("notificarReciboPago " + id_alumno + "    " + id_pago);
+    console.log("@@notificarReciboPago " + id_alumno + "    " + id_pago);
     //ir por alumno
     alumnoService
         .getCorreosTokenAlumno(id_alumno)
         .then(results => {
             let row = results;
+            console.log("===>>> "+JSON.stringify(results));
             if (row != null) {
                 enviarReciboComplemento(row.correos, row.tokens, row.nombres_padres, id_pago);
             } else {
-                console.log("No se encontraron registros de padres para el alumno " + id_alumno);
+                console.log("XXXX No se encontraron registros de padres para el alumno " + id_alumno);
             }
         }).catch(error => console.error(error));
     /*

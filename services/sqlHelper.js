@@ -198,7 +198,11 @@ function tieneParametros(params) {
 function getQueryInstance(query,params){
     
     let tiene_parametros = tieneParametros(params);
-    return tiene_parametros ? pool.query(query, params):pool.query(query);
+
+    console.log("Tiene parametros "+tiene_parametros+" PARAMS "+JSON.stringify(params));
+    console.log("Query "+query);
+
+    return tiene_parametros ? pool.query(query, params) : pool.query(query);
 
     //return pool.query(query,params);
 }

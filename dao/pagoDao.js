@@ -19,7 +19,7 @@ const registrarPago = (pagoData) => {
                     var retorno = results.rows[0];
                     console.log("Retorno el ID " + JSON.stringify(results.rows));
 
-                    //   notificacionService.notificarReciboPago(id_alumno, retorno.agregar_pago_alumno);
+                      //notificacionService.notificarReciboPago(id_alumno, retorno.agregar_pago_alumno);
                     resolve(retorno);
                 } else {
                     reject(null);

@@ -2,6 +2,7 @@
 const { getQueryInstance } = require('../services/sqlHelper');
 const { Exception, ExceptionBD } = require('../exception/exeption');
 const { isEmptyOrNull } = require('../utils/Utils');
+const { pool } = require('../db/conexion');
 
  function findAll(query,params){
     console.log("@findAll");
@@ -23,7 +24,7 @@ const { isEmptyOrNull } = require('../utils/Utils');
 };
 
 function findOne(query,params){
-    console.log("@findOne");
+    console.log("@findOne "+JSON.stringify(params));
 
     return new Promise((resolve, reject) => {  
         if(isEmptyOrNull(query,params)){
@@ -31,16 +32,26 @@ function findOne(query,params){
             reject(new ExceptionBD("el query o los parametros son null"));
             return;
         }    
-        
+
+        pool.query(query,params) 
+        .then(results => {
+            console.log("resuls"+ JSON.stringify(results));
+            resolve(results.rowCount > 0 ? results.rows[0]:null);
+        }).catch(error => {
+            //reject(new ExceptionBD(error));
+            console.log("EERROR"+error);
+            reject(error);
+        });
+        /*
         getQueryInstance(query,params)
             .then(results => {
-                console.log("resuls"+results);
+                console.log("resuls"+ JSON.stringify(results));
                 resolve(results.rowCount > 0 ? results.rows[0]:null);
             }).catch(error => {
                 //reject(new ExceptionBD(error));
-                console.log(error);
+                console.log("EERROR"+error);
                 reject(error);
-            });
+            });*/
     });       
 };
 

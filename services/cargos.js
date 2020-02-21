@@ -135,7 +135,7 @@ const getBalanceAlumno = (request, response) => {
 
        console.log("request.params.id_alumno " + request.params.id_alumno);
 
-        const id_alumno = request.params.id_alumno;
+        const id_alumno = parseInt(request.params.id_alumno || 0);
 
         cargoService
         .getBalanceAlumno(id_alumno)
