@@ -171,7 +171,7 @@ function enviarCorreo(para, conCopia, asunto, renderHtml) {
         conCopia = "";
     }
 
-    if (renderHtml != null) {
+    if (renderHtml != null) {     
 
         const mailData = {
             from: variables.mailOptions.from,
@@ -181,7 +181,7 @@ function enviarCorreo(para, conCopia, asunto, renderHtml) {
             html: renderHtml
         };
 
-
+        
         console.log(`Sender FROM ${variables.mailOptions.from}`);
         console.log("Correo para " + para);
         console.log("Correo cc " + JSON.stringify(conCopia));

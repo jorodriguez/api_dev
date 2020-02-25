@@ -15,59 +15,6 @@ const registrarCargo = (request, response) => {
             }).catch(error=>{
                 handle.callbackError(error,response);
             });
-/*
-        let parametros = [];
-        let sql = "";
-
-        let respuesta = {
-            id_cargo: -1,
-            resultado: Boolean,
-            mensaje: ""
-        };
-
-        console.log("CARGOS.ID_CARGO_MENSUALIDAD "+JSON.stringify(cat_cargo));
-
-        if (cat_cargo.id == CARGOS.ID_CARGO_MENSUALIDAD) {
-            if ((fecha_cargo == undefined || fecha_cargo == null || fecha_cargo.fecha_mes == undefined || fecha_cargo.fecha_mes == null)) {
-                respuesta.resultado = false;
-                respuesta.mensaje = "Se requiere la fecha del cargo.";                
-                return response.status(200).json(respuesta);
-            }
-            console.log("cat_cargo.cat_cargo  "+fecha_cargo.fecha_mes);
-            //parametros para mensualidad
-            sql = "select agregar_cargo_alumno($1,$2,$3,$4,$5,$6,$7) as id_cargo_generado;";
-            parametros = [new Date(fecha_cargo.fecha_mes), id_alumno, cat_cargo.id, cantidad, monto, nota, genero];
-        } else {
-            //no es mensualidad            
-            sql = "select agregar_cargo_alumno(getDate(''),$1,$2,$3,$4,$5,$6) as id_cargo_generado;";
-            parametros = [id_alumno, cat_cargo.id, cantidad, monto, nota, genero];
-           
-        }
-
-        console.log("=====>> " + JSON.stringify(request.body));
-        //fecha_cargo date,id_alumno integer, id_cargo integer, cantidad integer,monto numeric,nota text, id_genero integer                             
-        getResultQuery(
-            sql,
-            parametros,
-            response,
-            (results) => {
-                console.log("Se llamo a la function de cargo ");
-                //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
-                //buscar el padre y enviarle la notificacion y el correo del registro del pago
-                if (results.rowCount > 0) {
-                    var id_cargo_generado = results.rows[0].id_cargo_generado;
-                    console.log("IDE CARGO GENERADO RESULT "+JSON.stringify(results.rows));
-                    respuesta.id_cargo = id_cargo_generado;
-                    respuesta.resultado = (id_cargo_generado != null);
-                    respuesta.mensaje = `${results.rowCount} fila afectada`;
-                    //notificacionService.notificarCargo(id_alumno,id_cargo_generado);
-
-                    response.status(200).json(respuesta);
-                } else {
-                    respuesta.mensaje = "No se guardó el cargo.";
-                    response.status(200).json(respuesta);
-                }
-            });*/
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }

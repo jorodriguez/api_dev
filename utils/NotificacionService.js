@@ -147,8 +147,8 @@ const notificarReciboPago = (id_alumno, id_pago) => {
                 console.log("XXXX No se encontraron registros de padres para el alumno " + id_alumno);
             }
         }).catch(error => {
-            console.error(error);
-            console.trace();           
+            console.log("error en el servicio para enviar notificaicones "+error);
+            console.error(error);           
 
         });
     /*
@@ -212,9 +212,10 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
           `, [id_pago, id_pago],
         (error, results) => {
             if (error) {
-                console.log("No se envio el correo del recibo Fallo algo en el query");
+                console.log("x x x x x x x No se envio el correo del recibo Fallo algo en el query x x x x x x xx ");
                 return;
             }
+
             if (results.rowCount > 0) {
 
                 let row = results.rows[0];

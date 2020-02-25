@@ -1,7 +1,7 @@
 const alumnoDao = require('../dao/alumnoDao');
 
 function getCorreosTokenAlumno(idAlumno) {
-
+    console.log("@getCorreosTokenAlumno");
     return alumnoDao.getCorreosTokensAlumno(idAlumno);    
 
 }

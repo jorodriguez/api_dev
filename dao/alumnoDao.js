@@ -21,8 +21,8 @@ const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
     group by a.nombre,a.id `;
 
 const getCorreosTokensAlumno = (idAlumno) => {
-    console.log("@getCatalogoTipoGasto");
-    return genericDao.findOne(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [idAlumno]);
+    console.log("@getCorreosTokensAlumno");
+    return genericDao.findOne(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [[idAlumno]]);
 };
 
 const actualizarProximaFechaLimitePagoMensualidadAlumno = (idAlumno,genero) => {
