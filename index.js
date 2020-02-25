@@ -430,7 +430,7 @@ schedule.scheduleJob('0 1 0 1 * *', function () {
 schedule.scheduleJob({hour: 17, minute:47,second:20}, function () {
 	console.log('Agregar recargos de mensualidad ' + new Date());
 	try{
-			recargoService.procesoRecargosMensualidad();
+			//recargoService.procesoRecargosMensualidad();
 	}catch(error){
 		console.error("[index] Error al ejecutar el proceso de recargos "+error);
 	}
