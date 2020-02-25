@@ -325,11 +325,11 @@ app.get('/', (request, response) => {
 	console.log(process.env);
 	console.log("=====================");
 	console.log(JSON.stringify(pool));
-	response.json({ info: `MagicIntelligence API v1.0.26 (env:${process.env.ENV}) filtro por cargos en pantalla de admin`})
+	response.json({ info: `MagicIntelligence API v1.0.27 (env:${process.env.ENV}) nueva versión de template`})
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.23-hotfix (env:${process.env.ENV})`)
+	console.log(`App corriendo en el puerto ${port} v1.0.27 (env:${process.env.ENV})`)
 });
 
 //GET('/encriptar/:clave', authController.encriptar);
