@@ -149,7 +149,7 @@ const getResultQuery = (query, params, response, handler) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
-/*
+
 
 const executeQuery = (query, params, response, handler) => {
     console.log("@executeQuery");
@@ -189,7 +189,7 @@ const executeQuery = (query, params, response, handler) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
-*/
+
 
 function tieneParametros(params) {
     return (params != undefined || params != null || params != []);
@@ -212,6 +212,6 @@ module.exports = {
     QUERY,
     getCatalogo,
     getResultQuery,    
-    getResults
-   // executeQuery
+    getResults,
+    executeQuery//FIX
 }
