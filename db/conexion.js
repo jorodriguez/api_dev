@@ -38,8 +38,8 @@ const dbParams = {
     port: (process.env.PORT_DB ||5432),
     ssl: { rejectUnauthorized: false }
 }
-*/
 
+*/
 
 //const dbParams = dbParamsDev;
 
