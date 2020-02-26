@@ -1,0 +1,3 @@
+alter table co_sucursal add column hora_inicio_servicio time default '07:00';
+alter table co_sucursal add column hora_fin_servicio time default '20:00';
+ 
