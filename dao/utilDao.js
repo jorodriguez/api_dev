@@ -21,6 +21,6 @@ const generarRandomPassword = () => {
 }
 
 
-consy 
+//const = 
 
 module.exports = { generarRandomPassword };
