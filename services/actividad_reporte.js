@@ -3,7 +3,6 @@ const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 //const helperToken = require('../helpers/helperTokenMovil');
 const {validarToken} = require('../helpers/helperTokenMovil');
-const { ESTATUS } = require('../utils/Constantes');
 
 // NOTA: AL REALIZAR EL CAMBIO DE UNA SOLA TABLA DE USUARIOS
 // SE TIENE QUE CAMBIAR LAS INVOCACIONES DE VALIDACION DE TOKEN, SE DEBEN QUITAR PARA QUE EL MIDDLEWARE REALICE LA VALIDACION
@@ -296,7 +295,7 @@ const getBalanceFamiliarAlumnos = (request, response) => {
                     respuesta.respuesta = results.rows;
                     response.status(respuesta.statusNumber).json(respuesta);
                 } else {
-                    console.log("No existe balance para el alumno " + id_alumno);                                     
+                    console.log("No existe balance para el alumno " + id_familiar);                                     
                     respuesta.respuesta = [];
                     response.status(respuesta.statusNumber).json(respuesta);
                 }
@@ -398,7 +397,7 @@ const updateDatosFamiliar = (request, response) => {
         console.log("Error al actualizar los datos del familiar " + e);
         handle.callbackErrorNoControlado(e, response);
     }
-}
+};
 
 
 const registrarToqueEmocion = (request, response) => {
@@ -470,7 +469,7 @@ const registrarToqueEmocion = (request, response) => {
         console.log("Error al actualizar los datos del familiar " + e);
         handle.callbackErrorNoControlado(e, response);
     }
-}
+};
 
 
 module.exports = {
@@ -481,4 +480,4 @@ module.exports = {
     updateTokenMensajeriaFamiliar,
     updateDatosFamiliar,
     registrarToqueEmocion
-}
+};

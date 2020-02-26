@@ -180,7 +180,7 @@ const encriptar = (request, response) => {
     */
 
     response.status(400).send(hashedPassword);
-}
+};
 
 module.exports = {
     loginCliente,

@@ -1,7 +1,7 @@
 
 const genericDao = require('./genericDao');
-const {Exception,ExceptionBD} = require('../exception/exeption');
-const { existeValorArray,isEmptyOrNull } = require('../utils/Utils');
+const {Exception} = require('../exception/exeption');
+const { isEmptyOrNull } = require('../utils/Utils');
 
 
 const CRITERIO = {
@@ -56,7 +56,7 @@ const getQueryBase = function (criterio,idSucursal) {
     group by suc.id
     
     `;
-}
+};
 
 function validarCriterio(criterio){
     if(isEmptyOrNull(criterio)){
@@ -90,4 +90,4 @@ module.exports = {
     getMensualidadesParaRecargoTodasSucursales,
     getMensualidadesParaRecargoPorSucursal,
     CRITERIO
-}
+};

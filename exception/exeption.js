@@ -38,4 +38,4 @@ class ExceptionDatosFaltantes extends Exception{
 
 
 
-module.exports = {Exception,ExceptionBD,ExceptionDatosFaltantes}
+module.exports = {Exception,ExceptionBD,ExceptionDatosFaltantes};

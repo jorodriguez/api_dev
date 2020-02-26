@@ -1,8 +1,5 @@
 
-const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const { validarToken } = require('../helpers/helperToken');
-const mensajeria = require('./mensajesFirebase');
 
 const gastoService = require('../domain/gastoService');
 
@@ -15,7 +12,7 @@ const registrarGasto = (request, response) => {
 
         gastoService.registrarGasto(gastoData)
         .then(id=>{
-            response.status(200).json(id) 
+            response.status(200).json(id);
         }).catch(error=>{
             handle.callbackError(error, response);
         });              
@@ -75,7 +72,7 @@ const getCatalogoTipoGasto = (request, response) => {
             response.status(200).json(results);
         }).catch(error=>{
             handle.callbackError(error, response);
-        })
+        });
        
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -154,4 +151,4 @@ module.exports = {
     eliminarGasto,
     getSumaMesGastosPorSucursal,
     getGastosAgrupadosPorSucursal
-}
+};

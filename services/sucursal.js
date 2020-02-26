@@ -8,4 +8,4 @@ const getSucursales = (request, response) => {
 
 module.exports = {
     getSucursales
-}
+};

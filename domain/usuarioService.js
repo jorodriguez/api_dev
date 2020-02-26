@@ -27,4 +27,4 @@ function buscarPorId(idUsuario) {
     return usuarioDao.buscarUsuarioId(idUsuario);
 }
 
-module.exports = { getUsuariosPorSucursal,crearUsuario,modificarContrasena,modificarUsuario,desactivarUsuario,buscarPorId}
+module.exports = { getUsuariosPorSucursal,crearUsuario,modificarContrasena,modificarUsuario,desactivarUsuario,buscarPorId};

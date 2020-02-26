@@ -42,7 +42,8 @@ const registrarPago = (request, response) => {
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
-}
+};
+
 const getPagosByCargoId = (request, response) => {
     console.log("@getPagosByCargoId");
     try {
@@ -79,4 +80,4 @@ const getPagosByCargoId = (request, response) => {
 module.exports = {
     registrarPago,
     getPagosByCargoId
-}
+};

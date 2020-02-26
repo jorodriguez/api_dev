@@ -1,7 +1,6 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const { validarToken } = require('../helpers/helperToken');
 
 const getCatalogoParentescoAlumno = (request, response) => {
     console.log("@getParentesco");
@@ -34,4 +33,4 @@ const getCatalogoParentescoAlumno = (request, response) => {
 
 module.exports = {
     getCatalogoParentescoAlumno
-}
+};

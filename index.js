@@ -2,7 +2,6 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
-
 const { pool } = require('./db/conexion');
 
 const usuario = require('./services/usuario');
@@ -17,7 +16,7 @@ const formato_complemento = require('./services/formato_complemento');
 const pagos = require('./services/pagos');
 const cargos = require('./services/cargos');
 const mensajeria = require('./services/mensajesFirebase');
-const tareas_programadas = require('./services/tareas_programadas');
+//const tareas_programadas = require('./services/tareas_programadas');
 const schedule = require('node-schedule');
 const { configuracion } = require('./config/ambiente');
 const reporteDeudas = require('./services/reporteDeudas');
@@ -28,7 +27,6 @@ const gastos = require('./services/gastos');
 const reporte_gastos = require('./services/reporteGastos');
 const actividad_reporte = require('./services/actividad_reporte');
 const authClientesController = require('./auth/AuthClientesController');
-const correo_service = require('./utils/NotificacionService');
 const sucursales = require('./services/sucursal');
 const alumnoSucursal = require('./services/alumno_sucursal');
 const usuarioService = require('./services/usuario');
@@ -44,7 +42,7 @@ const port = process.env.PORT || 5000;
 
 //es un middleware que serializa los cuerpos de las respuestas 
 //   para poder invocar response.param
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 app.use(
 	bodyParser.urlencoded({
 		extended: true,
@@ -83,7 +81,7 @@ const POST = (url, metodo) => {
 			metodo(request, response);
 		}		
 	});
-}
+};
 
 const GET = (url, metodo) => {
 	console.log("registrando get");
@@ -98,7 +96,7 @@ const GET = (url, metodo) => {
 			metodo(request, response);
 		}		
 	});
-}
+};
 
 
 const PUT = (url, metodo) => {
@@ -114,7 +112,7 @@ const PUT = (url, metodo) => {
 			metodo(request, response);
 		}		
 	});
-}
+};
 
 const DELETE = (url, metodo) => {
 	console.log("registrando DELETE");
@@ -129,7 +127,7 @@ const DELETE = (url, metodo) => {
 			metodo(request, response);
 		}		
 	});
-}
+};
 
 
 //usar los queries importados 
@@ -329,7 +327,7 @@ app.get('/', (request, response) => {
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.27 - hotfix (env:${process.env.ENV})`)
+	console.log(`App corriendo en el puerto ${port} v1.0.27 - hotfix (env:${process.env.ENV})`);
 });
 
 //GET('/encriptar/:clave', authController.encriptar);
@@ -350,11 +348,10 @@ schedule.scheduleJob('0 */10 12-24 * * 1-5', function () {
 	try {
 		if (configuracion.env != 'DEV') {
 
-			https.get('https://api-ambiente-produccion.herokuapp.com', (response) => {
-				let todo = '';
+			https.get('https://api-ambiente-produccion.herokuapp.com', (response) => {				
 				// called when a data chunk is received.
 				response.on('data', (chunk) => {
-					console.log("Todo bien al accesar al API");
+					console.log("Todo bien al accesar al API "+chunk);
 				});
 				response.on('end', () => {
 					console.log("fin de la llamada  a la API");
@@ -363,11 +360,10 @@ schedule.scheduleJob('0 */10 12-24 * * 1-5', function () {
 				console.log("Error al acceesar al API: " + error.message);
 			});
 
-			https.get('https://aplicacion-ambiente-produccion.herokuapp.com', (response) => {
-				let todo = '';
+			https.get('https://aplicacion-ambiente-produccion.herokuapp.com', (response) => {				
 				// called when a data chunk is received.
 				response.on('data', (chunk) => {
-					console.log("Llamada a la APPLICATION OK");
+					console.log("Llamada a la APPLICATION OK "+chunk);
 				});
 				response.on('end', () => {
 					console.log("Fin de llamada APPLICATION");

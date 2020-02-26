@@ -18,7 +18,7 @@ const generarRandomPassword = () => {
                 reject(null);
             });
     });
-}
+};
 
 
 //const = 

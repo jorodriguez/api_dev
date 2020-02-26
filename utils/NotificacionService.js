@@ -1,6 +1,5 @@
 
 const { pool } = require('../db/conexion');
-const handle = require('../helpers/handlersErrors');
 const mensajeria = require('../services/mensajesFirebase');
 const { CARGOS, TEMA_NOTIFICACION } = require('../utils/Constantes');
 const { variables } = require('../config/ambiente');
@@ -37,20 +36,7 @@ const notificarCargo = (id_alumno, id_cargos) => {
             } else {
                 console.log("No se encontraron registros de padres para el alumno " + id_alumno);
             }
-        }).catch(error => console.error(error));
-    /*
-        pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [[id_alumno]],
-            (error, results) => {
-                if (error) {
-                    return;
-                }
-                if (results.rowCount > 0) {
-                    let row = results.rows[0];
-                    completarNotificacionCargo(row.correos, row.tokens, row.nombres_padres, row.nombre_alumno, id_cargos, row.co_sucursal);
-                } else {
-                    console.log("No se encontraron registros de padres para el alumno " + id_alumno);
-                }
-            });*/
+        }).catch(error => console.error(error));  
 };
 
 function completarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, nombre_alumno, id_cargo, id_sucursal) {
@@ -100,7 +86,7 @@ function completarNotificacionCargo(lista_correos, lista_tokens, nombres_padres,
                     enviarNotificacionCargo(lista_correos, titulo_mensaje, params);
                     //enviar mensaje te text
                     enviarMensajeMovil(lista_tokens, titulo_mensaje, cuerpo_mensaje);
-                } else { console.log("El cargo no esta configurado para notificar cargo") }
+                } else { console.log("El cargo no esta configurado para notificar cargo"); }
             }
         });
 }
@@ -149,21 +135,7 @@ const notificarReciboPago = (id_alumno, id_pago) => {
         }).catch(error => {
             console.log("error en el servicio para enviar notificaicones "+error);
             console.error(error);           
-
-        });
-    /*
-    pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [[id_alumno]],
-        (error, results) => {
-            if (error) {
-                return;
-            }
-            if (results.rowCount > 0) {
-                let row = results.rows[0];
-                enviarReciboComplemento(row.correos, row.tokens, row.nombres_padres, id_pago);
-            } else {
-                console.log("No se encontraron registros de padres para el alumno " + id_alumno);
-            }
-        });*/
+        });  
 };
 
 function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id_pago) {
@@ -252,7 +224,7 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                     alumno: alumno,
                     sucursal: sucursal,
                     mensaje_pie: variables.template_mail.mensaje_pie
-                }
+                };
 
                 enviarCorreoReciboPago(
                     lista_correos,
@@ -316,8 +288,7 @@ const enviarCorreoReciboPago = (para, asunto, params) => {
         TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_PAGOS,
         params,
         TEMPLATES.TEMPLATE_RECIBO_PAGO
-    )
-
+    );
 };
 
 // no se usa aun
@@ -354,47 +325,10 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
             console.log("Excepción en el envio de correo : " + e);
         });
 };
-/*
-const getAlumnosInfoCorreoAlumnos = (request, response) => {
-    console.log("@getAlumnosInfoCorreo");
-    try {
-
-        const { ids } = request.body;
-
-        console.log("Ids " + ids);
-
-        if (ids == undefined) {
-            response.status(200).json({ estatus: false, respuesta: "No existen correos registrados. " });
-            return;
-        }
-
-        alumnoService
-            .getCorreosTokenAlumno(ids)
-            .then(results => {               
-                
-                response.status(200).json(results);
-                
-            }).catch(error => console.error(error));
-
-  
-                pool.query(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [ids],
-                    (error, results) => {
-                        if (error) {
-                            handle.callbackError(error, response);
-                            return;
-                        }
-                        response.status(200).json(results.rows);
-                    });
-    } catch (e) {
-        handle.callbackErrorNoControlado(e, response);
-    }
-};
-*/
 
 
 module.exports = {
     notificarReciboPago,
     enviarCorreoClaveFamiliar,    
     notificarCargo   
-
-}
+};

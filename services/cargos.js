@@ -28,7 +28,7 @@ const getCatalogoCargos = (request, response) => {
         response.status(200).json(results);
     }).catch(error=>{
         handle.callbackError(error,response);
-    })
+    });
 };
 
 
@@ -185,7 +185,7 @@ const obtenerMesesAdeudaMensualidad = (request, response) => {
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
-}
+};
 
 module.exports = {
     registrarCargo,
@@ -194,5 +194,4 @@ module.exports = {
     getBalanceAlumno,    
     eliminarCargos,
     obtenerMesesAdeudaMensualidad
-
-}
+};

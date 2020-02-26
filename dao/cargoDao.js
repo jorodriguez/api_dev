@@ -1,7 +1,7 @@
 
 
 const { CARGOS } = require('../utils/Constantes');
-const { QUERY, getCatalogo } = require('../services/sqlHelper');
+const { QUERY } = require('../services/sqlHelper');
 const genericDao = require('./genericDao');
 const { ExceptionDatosFaltantes, ExceptionBD } = require('../exception/exeption');
 const { isEmptyOrNull } = require('../utils/Utils');
@@ -76,7 +76,7 @@ const registrarCargo = (cargoData) => {
 
 const completarRegistroRecargoMensualidad = (idCargoMensualidad,idRecargo,genero) =>{
 
-    console.log(`=========================idCargoMensualidad ${idCargoMensualidad},idRecargo ${idRecargo}, genero ${genero}`)
+    console.log(`=========================idCargoMensualidad ${idCargoMensualidad},idRecargo ${idRecargo}, genero ${genero}`);
 
     return genericDao.execute(` UPDATE co_cargo_balance_alumno 
                                 SET co_cargo_balance_alumno = $2,
@@ -85,7 +85,7 @@ const completarRegistroRecargoMensualidad = (idCargoMensualidad,idRecargo,genero
                                     modifico = $3
                                 WHERE id = $1 RETURNING id;`
                                 ,[idCargoMensualidad,idRecargo,genero]);
-}
+};
 
 
 const getCatalogoCargos = () => {
@@ -124,8 +124,7 @@ const getCargosAlumno = (idAlumno) => {
 
 const getBalanceAlumno = (idAlumno) => {
     console.log("@getBalanceAlumno");
-    console.log("id_alumno ** " + idAlumno);
-    let params = [idAlumno];
+    console.log("id_alumno ** " + idAlumno);    
     return genericDao.findOne(
         `SELECT al.nombre as nombre_alumno,al.apellidos as apellidos_alumno,to_char(al.fecha_limite_pago_mensualidad,'dd-Mon') as fecha_limite_pago_mensualidad, bal.* 
          FROM co_alumno al inner join  co_balance_alumno bal on al.co_balance_alumno = bal.id and bal.eliminado = false
@@ -213,7 +212,7 @@ const obtenerMesesAdeudaMensualidad = (idAlumno) => {
 
     return genericDao.findAll(QUERY_MESES_SIN_CARGO_MESUALIDAD, [idAlumno, CARGOS.ID_CARGO_MENSUALIDAD]);
     //getResultQuery(QUERY_MESES_SIN_CARGO_MESUALIDAD, [id_alumno, CARGOS.ID_CARGO_MENSUALIDAD], response);
-}
+};
 
 
 const QUERY_MESES_SIN_CARGO_MESUALIDAD = `
@@ -260,4 +259,4 @@ module.exports = {
     eliminarCargos,
     obtenerMesesAdeudaMensualidad,
     completarRegistroRecargoMensualidad
-}
+};

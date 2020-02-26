@@ -41,7 +41,7 @@ const modificarUsuario = (request, response) => {
 				response.status(200).json(result);
 
 			}).catch(error => {
-				console.error(error)
+				console.error(error);
 				handle.callbackError(error, response);
 			});
 
@@ -90,7 +90,7 @@ const getUsuariosPorSucursal = (request, response) => {
 				response.status(200).json(results);
 
 			}).catch(error => {
-				console.error(error)
+				console.error(error);
 				handle.callbackError(error, response);
 			});
 
@@ -113,7 +113,7 @@ const buscarUsuarioPorId = (request, response) => {
 				response.status(200).json(results);
 
 			}).catch(error => {
-				console.error(error)
+				console.error(error);
 				handle.callbackError(error, response);
 			});
 
@@ -126,4 +126,4 @@ const buscarUsuarioPorId = (request, response) => {
 
 module.exports = {
 		crearUsuario,modificarUsuario,desactivarUsuario,getUsuariosPorSucursal,buscarUsuarioPorId
-}
+};

@@ -1,7 +1,6 @@
 const recargoDao = require('../dao/recargosDao');
 const { CRITERIO } = require('../dao/recargosDao');
 const cargoService = require('./cargoService');
-const alumnoDao = require('../dao/alumnoDao');
 const CONSTANTES = require('../utils/Constantes');
 const { existeValorArray, isEmptyOrNull } = require('../utils/Utils');
 const notificacionRecargosService = require('../utils/NotificacionRecargosService');
@@ -39,7 +38,7 @@ function ejecutarProcesoRecargoMensualidad() {
                                         monto: 0,
                                         nota: CONSTANTES.MENSAJE_RECARGO_POR_MENSUALIDAD_VENCIDA,
                                         genero: CONSTANTES.USUARIO_DEFAULT
-                                    }
+                                    };
                                     console.log("REGISTRAR EL RECARGO ");
                                     cargoService
                                         .registrarCargo(objetoCargo)
@@ -129,4 +128,4 @@ function obtenerPagosVencenSemanaActual(idSucursal) {
 }
 
 
-module.exports = { ejecutarProcesoRecargoMensualidad, enviarRecordatorioPagoPadresAlumno ,obtenerPagosVencenSemanaActual}
+module.exports = { ejecutarProcesoRecargoMensualidad, enviarRecordatorioPagoPadresAlumno ,obtenerPagosVencenSemanaActual};

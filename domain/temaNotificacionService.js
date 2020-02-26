@@ -1,5 +1,5 @@
 const usuarioDao = require('../dao/usuarioDao');
-const { isEmptyOrNull, existeValorArray } = require('../utils/Utils');
+const { isEmptyOrNull } = require('../utils/Utils');
 
 function obtenerCorreosPorTema(idSucursal, idTema) {
 
@@ -28,4 +28,4 @@ function obtenerCorreosPorTema(idSucursal, idTema) {
     });
 }
 
-module.exports = { obtenerCorreosPorTema }
+module.exports = { obtenerCorreosPorTema };

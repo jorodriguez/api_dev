@@ -55,4 +55,4 @@ const getProductos = (request, response) => {
 
 module.exports = {
     getProductos
-}
+};

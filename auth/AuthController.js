@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 const config = require('../config/configJwt');
 const handle = require('../helpers/handlersErrors');
 
-//  POST — users | createUser()
+//  POST—users | createUser()
 const createUser = (request, response) => {
     try {
         //fixme :

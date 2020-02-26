@@ -2,8 +2,8 @@
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const { validarToken } = require('../helpers/helperToken');
-const { isEmpty,isEmptyOrNull } = require('../utils/Utils');
-const Joi = require('@hapi/joi');
+const { isEmptyOrNull } = require('../utils/Utils');
+//const Joi = require('@hapi/joi');
 
 const alumnoService = require('../domain/alumnoService');
 const inscripcion = require('./inscripcion');
@@ -11,7 +11,7 @@ const {ExceptionDatosFaltantes} = require('../exception/exeption');
 const formato_complemento = require('./formato_complemento');
 const balance_alumno = require('./balance_alumno');
 
-//GET — /alumnos/:id_sucursal | getAlumnos()
+//GET—/alumnos/:id_sucursal | getAlumnos()
 const getAlumnos = (request, response) => {
     console.log("@getAlumnos");
     try {
@@ -41,7 +41,7 @@ const getAlumnos = (request, response) => {
                     return;
                 }
                 response.status(200).json(results.rows);
-            })
+            });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -85,7 +85,7 @@ const createAlumno = (request, response) => {
                     p.costo_inscripcion, p.costo_colegiatura, p.minutos_gracia, //12
                     p.foto, p.fecha_inscripcion,//14
                     p.sexo, p.genero, //16
-                    fecha_limite_pago_mensualidad //17
+                    p.fecha_limite_pago_mensualidad //17
                 ],
                 (error, results) => {
                     if (error) {
@@ -103,7 +103,7 @@ const createAlumno = (request, response) => {
                     resolve(null);
                 });
         }).then((id_alumno) => {
-            console.log("alumno creado")
+            console.log("alumno creado");
             if (id_alumno != null) {
                 inscripcion.createFormatoInscripcionInicial(id_alumno, p.genero)
                     .then((id_formato) => {
@@ -119,7 +119,7 @@ const createAlumno = (request, response) => {
 
                 //generare el balanceconsol
                 console.log("Iniciando crear el balance ");
-                balance_alumno.registrarBalanceAlumno(id_alumno, genero);
+                balance_alumno.registrarBalanceAlumno(id_alumno, p.genero);
 
             } else {
                 response.status(200).json(0);
@@ -156,7 +156,7 @@ const modificarFechaLimitePagoMensualidad = (request,response)=>{
                     response.status(200).json(result);
 
                 }).catch(error=>{
-                    console.error(error)
+                    console.error(error);
                     handle.callbackError(error, response);
                 });
 
@@ -167,7 +167,7 @@ const modificarFechaLimitePagoMensualidad = (request,response)=>{
 };
 
 
-// PUT — /alumno/:id | updateAlumno()
+// PUT—/alumno/:id | updateAlumno()
 const updateAlumno = (request, response) => {
     console.log("@updateAlumnos");
     try {
@@ -236,13 +236,13 @@ const updateAlumno = (request, response) => {
                     if (id != null) {
                         formato_complemento.actualizarValoresEsperados(formato);
 
-                        response.status(200).send(`${id}`)
+                        response.status(200).send(`${id}`);
                     } else {
                         handle.callbackError("Error al intentar actualizar la inscripcion", response);
                     }
                 }).catch((e) => {
                     reject(e);
-                    handle.callbackError(error, response);
+                    handle.callbackError(e, response);
                 });
             }
 
@@ -256,7 +256,7 @@ const updateAlumno = (request, response) => {
 
 
 
-// DELETE — /alumnos/:id | deleteAlumno()
+// DELETE—/alumnos/:id | deleteAlumno()
 const deleteAlumno = (request, response) => {
     console.log("@deleteAlumnos");
     try {
@@ -269,14 +269,14 @@ const deleteAlumno = (request, response) => {
                 handle.callbackError(error, response);
                 return;
             }
-            response.status(200).send(`User deleted with ID: ${id}`)
+            response.status(200).send(`User deleted with ID: ${id}`);
         });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
-}
+};
 
-
+/*
 const schemaValidacionAlumno = Joi.object().keys({
     nombre: Joi.string().required().label('Nombre requerido'),
     co_sucursal: Joi.required(),
@@ -292,7 +292,7 @@ const schemaValidacionAlumno = Joi.object().keys({
     minutos_gracia: Joi.number(),
     fecha_inscripcion: Joi.date(),
     genero: Joi.required()
-});
+});*/
 
 const getParams = (body) => {
 
@@ -309,7 +309,7 @@ const getParams = (body) => {
 };
 
 
-//GET — /alumnos | getById()
+//GET—/alumnos | getById()
 const getAlumnoById = (request, response) => {
     console.log(" @getAlumnoById");
     try {
@@ -366,4 +366,4 @@ module.exports = {
     deleteAlumno,
     getAlumnoById,
     modificarFechaLimitePagoMensualidad
-}
+};

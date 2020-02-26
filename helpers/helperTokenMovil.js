@@ -19,7 +19,7 @@ const validarToken = (request,response) => {
         if (!token) {
             console.log(" x x x x x respuestaNoToken x x x x x");
             return respuestaNoToken;
-        };
+        }
 
         var respuesta = respuestaOk;
                
@@ -53,4 +53,4 @@ const validarToken = (request,response) => {
 
 module.exports = {
     validarToken
-}
+};

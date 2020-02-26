@@ -17,8 +17,7 @@ const validarToken = (request, response) => {
         if (!token) {
             console.log(" x x x x x respuestaNoToken x x x x x");
             return respuestaNoToken;
-        };
-
+        }
         var respuesta = respuestaOk;
         //{"name":"TokenExpiredError","message":"jwt expired","expiredAt":"2019-08-29T13:55:47.000Z"}
 
@@ -72,7 +71,7 @@ const validarTokenCompleto = (request, response) => {
         if (!token) {
             console.log(" x x x x x respuestaNoToken x x x x x");
             return respuestaNoToken;
-        };
+        }
 
         var respuesta = respuestaOk;
         //{"name":"TokenExpiredError","message":"jwt expired","expiredAt":"2019-08-29T13:55:47.000Z"}
@@ -121,4 +120,4 @@ const validarTokenCompleto = (request, response) => {
 module.exports = {
     validarToken,validarTokenCompleto
 
-}
+};

@@ -134,5 +134,5 @@ const buscarUsuarioId = (idUsuario) => {
     return genericDao.buscarPorId("USUARIO", idUsuario);
 };
 
-module.exports = { obtenerCorreosPorTema, insertarUsuario, modificarUsuario, desactivarUsuario, buscarUsuarioId, modificarContrasena,getUsuarioPorSucursal }
+module.exports = { obtenerCorreosPorTema, insertarUsuario, modificarUsuario, desactivarUsuario, buscarUsuarioId, modificarContrasena,getUsuarioPorSucursal };
 

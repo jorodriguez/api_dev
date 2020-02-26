@@ -1,7 +1,5 @@
 
 
-const handle = require('../helpers/handlersErrors');
-const { CARGOS } = require('../utils/Constantes');
 const cargosDao = require('../dao/cargoDao');
 const alumnoDao = require('../dao/alumnoDao');
 const notificacionService = require('../utils/NotificacionService');
@@ -22,30 +20,7 @@ const registrarCargo = (cargoData) => {
                 console.log("ERROR al guardar el cargo "+error);
                 reject(error);
             });
-    });
-    /*
-               getResultQuery(
-                sql,
-                parametros,
-                response,
-                (results) => {
-                    console.log("Se llamo a la function de cargo ");
-                    //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
-                    //buscar el padre y enviarle la notificacion y el correo del registro del pago
-                    if (results.rowCount > 0) {
-                        var id_cargo_generado = results.rows[0].id_cargo_generado;
-                        console.log("IDE CARGO GENERADO RESULT "+JSON.stringify(results.rows));
-                        respuesta.id_cargo = id_cargo_generado;
-                        respuesta.resultado = (id_cargo_generado != null);
-                        respuesta.mensaje = `${results.rowCount} fila afectada`;
-                        notificacionService.notificarCargo(id_alumno,id_cargo_generado);
-    
-                        response.status(200).json(respuesta);
-                    } else {
-                        respuesta.mensaje = "No se guardó el cargo.";
-                        response.status(200).json(respuesta);
-                    }
-                });*/
+    });  
 };
 
 const completarRegistroRecargoMensualidad = (idAlumno,idCargoMensualidad,idRecargo,genero)=>{    
@@ -68,7 +43,7 @@ const completarRegistroRecargoMensualidad = (idAlumno,idCargoMensualidad,idRecar
             }).catch(error=>reject(error));
     });
     
-}
+};
 
 
 const getCatalogoCargos = () => {
@@ -100,7 +75,7 @@ const obtenerMesesAdeudaMensualidad = (idAlumno) => {
 
     return cargosDao.obtenerMesesAdeudaMensualidad(idAlumno);
 
-}
+};
 
 
 module.exports = {   
@@ -111,4 +86,4 @@ module.exports = {
     eliminarCargos,
     obtenerMesesAdeudaMensualidad,
     completarRegistroRecargoMensualidad
-}
+};

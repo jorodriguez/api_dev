@@ -1,7 +1,7 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const { validarToken } = require('../helpers/helperToken');
+const { CARGOS } = require('../utils/Constantes');
 /*
 const getReporteBalanceAlumnosSucursal = (request, response) => {
     console.log("@getReportePrincipal");
@@ -295,9 +295,7 @@ const getReporteCrecimientoBalanceAlumnosSucursal = (request, response) => {
 const getReporteCrecimientoGlobal = (request, response) => {
     console.log("@getReporteCrecimientoGlobal");
     try {
-       // validarToken(request,response);        
-
-        const id_sucursal = request.params.id_sucursal;
+    
 
         pool.query(
             "  with universo AS( " +
@@ -636,4 +634,4 @@ module.exports = {
     getReporteAlumnosNuevosIngresosGlobal    ,
     getReporteGastosIngresosSucursalPorMes,
     getAllAlumnosCargos
-}
+};

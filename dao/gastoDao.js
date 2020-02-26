@@ -1,9 +1,9 @@
 
 const { getQueryInstance } = require('../services/sqlHelper');
-const { Exception, ExceptionBD } = require('../exception/exeption');
-const { isEmptyOrNull } = require('../utils/Utils');
+const { ExceptionBD } = require('../exception/exeption');
+//const { isEmptyOrNull } = require('../utils/Utils');
 const genericDao = require('./genericDao');
-
+/*
 function validarGasto(gastoData) {
     console.log("=====>> " + JSON.stringify(gastoData));
     if (gastoData == null || gastoData == undefined) {
@@ -22,8 +22,7 @@ function validarGasto(gastoData) {
 
     console.log("==> " + ret);
     return ret;
-
-}
+}*/
 
 const registrarGasto = (gastoData) => {
     console.log("@registrarGasto");
@@ -171,4 +170,4 @@ module.exports = {
     getSumaMesGastosPorSucursal,
     getGastosAgrupadosPorSucursal
 
-}
+};

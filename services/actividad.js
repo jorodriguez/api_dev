@@ -48,12 +48,12 @@ const registrarActividad = (request, response) => {
 
         var nullOrEmpty = (val) => {
             if (val === null || val === -1 || val === '' || val === undefined)
-                return null
+                return null;
             else return val;
         };
         var nullOrEmptyStr = (val) => {
             if (val === null || val === -1 || val === '' || val === undefined)
-                return ''
+                return '';
             else return val;
         };
 
@@ -72,7 +72,7 @@ const registrarActividad = (request, response) => {
                 "''," +
                 genero
                 + ")";
-        };
+        }
 
         console.log(" SQL " + sqlComplete);
 
@@ -89,7 +89,7 @@ const registrarActividad = (request, response) => {
                 //mensajeria.enviarMensaje("Actividad ",(nota==null || nota=='' ? 'sin nota':nota));
                 //mensajeria.enviarMensajeActividadTest("Actividad ", (nota == null || nota == '' ? 'sin nota' : nota));
                 enviarMensajeActividad(alumnosIds, cat_actividad, tipo_actividad, sub_actividad, nota);
-                response.status(200).json(results.rowCount)
+                response.status(200).json(results.rowCount);
             });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -166,4 +166,4 @@ const enviarMensajeActividad = (alumnosIds, cat_actividad, tipo_actividad, sub_a
 module.exports = {
     getCatalogoActividades,
     registrarActividad
-}
+};

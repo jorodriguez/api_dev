@@ -235,4 +235,4 @@ module.exports = {
     getReporteDetalleGastosPorSucursal,
     getReporteGastosGlobal,
     getReporteGastoMensualActual
-}
+};

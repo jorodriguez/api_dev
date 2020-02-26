@@ -1,8 +1,8 @@
 
-const { pool } = require('../db/conexion');
-const handle = require('../helpers/handlersErrors');
+//const { pool } = require('../db/conexion');
+//const handle = require('../helpers/handlersErrors');
 
-
+/*
 const obtenerProductos = (request, response) => {
     console.log("@obtenerProductos");
     try {
@@ -28,7 +28,7 @@ const obtenerProductos = (request, response) => {
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
-};
+};*/
 
 
 module.exports = {

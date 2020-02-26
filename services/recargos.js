@@ -1,5 +1,5 @@
 const recargoService = require('../domain/recargosService');
-
+const handle = require('../helpers/handlersErrors');
 
 function procesoRecargosMensualidad() {
     console.log("Inicinado ejecución del proceso para calcular recargos sucursal " );
@@ -42,15 +42,15 @@ const obtenerPagosVencenSemanaActual = (request,response)=>{
             .then(results =>{
                 response.status(200).json(results);
             }).catch(e=>{
-                console.log(e)
-                handle.callbackError(error, response);
+                console.log(e);
+                handle.callbackError(e, response);
             });
         } catch (e) {
             handle.callbackErrorNoControlado(e, response);
     
         }
 
-}
+};
 
 
 module.exports = {procesoRecargosMensualidad,ejecutarEnvioRecordatorioPagoMensualidadPadres,obtenerPagosVencenSemanaActual};

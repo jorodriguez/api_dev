@@ -1,8 +1,6 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const { validarToken } = require('../helpers/helperToken');
-const mailService = require('../utils/NotificacionService');
 
 const cambiarSucursalAlumno = (request, response) => {
     console.log("@cambiarSucursalAlumno");
@@ -18,7 +16,7 @@ const cambiarSucursalAlumno = (request, response) => {
         console.log(" dest "+id_sucursal_destino);
         console.log(" genero "+genero);
 
-        if (id_alumno == undefined && id_sucursal == undefined && genero == null) {
+        if (id_alumno == undefined && id_sucursal_destino == undefined && genero == null) {
             response.status(500).json({ mensaje: "Todos los parametros son requeridos" });
             return;
         } else {
@@ -83,4 +81,4 @@ const cambiarSucursalAlumno = (request, response) => {
 
 module.exports = {
     cambiarSucursalAlumno
-}
+};
