@@ -57,7 +57,6 @@ const insertarUsuario = async (usuarioData) => {
 
     //TIPO_USUARIO.MAESTRA
     console.log(" hora entrada " + hora_entrada + " h salida " + hora_salida + " correo " + correo);
-
     let password = await generarRandomPassword();
     console.log("Password generado  "+password);
 
@@ -69,6 +68,11 @@ const insertarUsuario = async (usuarioData) => {
         .execute(sql, [nombre, correo, id_sucursal, TIPO_USUARIO.MAESTRA, hora_entrada, hora_entrada, password, genero]);
 };
 
+
+const validarCorreoUsuario = (correo)=>{
+    return genericDao
+    .findOne("select true from usuario where correo = $1 and eliminado = false",[correo]);  
+};
 
 const modificarUsuario = (idUsuario,usuarioData) => {
     console.log("@modificarUsuario");
@@ -134,5 +138,5 @@ const buscarUsuarioId = (idUsuario) => {
     return genericDao.buscarPorId("USUARIO", idUsuario);
 };
 
-module.exports = { obtenerCorreosPorTema, insertarUsuario, modificarUsuario, desactivarUsuario, buscarUsuarioId, modificarContrasena,getUsuarioPorSucursal };
+module.exports = { obtenerCorreosPorTema, insertarUsuario, modificarUsuario, desactivarUsuario, buscarUsuarioId, modificarContrasena,getUsuarioPorSucursal ,validarCorreoUsuario};
 

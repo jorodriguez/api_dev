@@ -32,7 +32,7 @@ class ExceptionBD extends Exception{
 
 class ExceptionDatosFaltantes extends Exception{
     constructor(mensajeError){
-        super("Faltan Datos",mensajeError)
+        super("Faltan Datos",mensajeError);
     }
 }
 

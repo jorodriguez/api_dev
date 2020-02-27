@@ -1,6 +1,7 @@
 
 const usuarioService = require('../domain/usuarioService');
 const handle = require('../helpers/handlersErrors');
+const { MensajeRetorno } = require('../utils/MensajeRetorno');
 
 const crearUsuario = (request, response) => {
 
@@ -13,10 +14,13 @@ const crearUsuario = (request, response) => {
 			.then(result => {
 				//enviar notificacion de alta de usuario
 				console.log("nuevao usuario registrado "+result);
-				response.status(200).json(result);
+				
+				//let mensajeRetorno = new MensajeRetorno(true,"Usuario registrado",null);
+
+				response.status(200).json(result.toJson());
 
 			}).catch(error => {
-				console.error(error)
+				console.error(error);
 				handle.callbackError(error, response);
 			});
 

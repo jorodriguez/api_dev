@@ -1,30 +1,53 @@
 const usuarioDao = require('../dao/usuarioDao');
-const {TIPO_USUARIO} = require('../utils/Constantes');
+const { TIPO_USUARIO } = require('../utils/Constantes');
+const { MensajeRetorno } = require('../utils/MensajeRetorno');
 
 function getUsuariosPorSucursal(idSucursal) {
-    return usuarioDao.getUsuarioPorSucursal(idSucursal,TIPO_USUARIO.MAESTRA);
+    return usuarioDao.getUsuarioPorSucursal(idSucursal, TIPO_USUARIO.MAESTRA);
 }
 
 function crearUsuario(usuarioData) {
-    return usuarioDao.insertarUsuario(usuarioData);
+    return new Promise((resolve, reject) => {
+        usuarioDao
+            .validarCorreoUsuario(usuarioData.correo)
+            .then(encontrado => {
+                if (encontrado) {
+                    resolve(
+                        new MensajeRetorno(false, "El correo ya existe", null)
+                    );
+                } else {
+                    usuarioDao.insertarUsuario(usuarioData)
+                        .then(result => {
+                            resolve(
+                                new MensajeRetorno(true, "Se registró el usuario", null)
+                            );
+                        }).catch(error => reject(new MensajeRetorno(false, "Error", error)));
+                }
+
+            }).catch(error => reject(new MensajeRetorno(false, "Error", error)));
+    });
+
+
 }
 
-function modificarUsuario(idUsuario,usuarioData) {
-    return usuarioDao.modificarUsuario(idUsuario,usuarioData);
+
+
+function modificarUsuario(idUsuario, usuarioData) {
+    return usuarioDao.modificarUsuario(idUsuario, usuarioData);
 }
 
-function modificarContrasena(idUsuario,usuarioData) {
+function modificarContrasena(idUsuario, usuarioData) {
     //enviar correo de confirmacion de contraseña
-    return usuarioDao.modificarContrasena(idUsuario,usuarioData);
+    return usuarioDao.modificarContrasena(idUsuario, usuarioData);
 }
 
-function desactivarUsuario(idUsuario,usuarioData) {
+function desactivarUsuario(idUsuario, usuarioData) {
     //enviar correo de desactivacion de usuario a rol miss de al suc
-    return usuarioDao.desactivarUsuario(idUsuario,usuarioData);
+    return usuarioDao.desactivarUsuario(idUsuario, usuarioData);
 }
 
 function buscarPorId(idUsuario) {
     return usuarioDao.buscarUsuarioId(idUsuario);
 }
 
-module.exports = { getUsuariosPorSucursal,crearUsuario,modificarContrasena,modificarUsuario,desactivarUsuario,buscarPorId};
+module.exports = { getUsuariosPorSucursal, crearUsuario, modificarContrasena, modificarUsuario, desactivarUsuario, buscarPorId };
