@@ -14,7 +14,7 @@ function crearUsuarioConCorreo(usuarioData) {
             .then(encontrado => {
                 if (encontrado) {
                     resolve(
-                        new MensajeRetorno(false, "El correo ya existe", null)
+                        new MensajeRetorno(false, "El correo ya se encutra registrado con otro usuario", null)
                     );
                 } else {
                     insertarUsuario(usuarioData)
@@ -59,7 +59,7 @@ function modificarUsuarioConCorreo(usuarioData) {
                 console.log("RESUL "+JSON.stringify(results));
                 if (results.length > 1) {                    
                     resolve(
-                        new MensajeRetorno(false, "El correo ya existe", null)
+                        new MensajeRetorno(false, "El correo ya se encutra registrado con otro usuario", null)
                     );
                 } else {
                     console.log("USERDATA OOO "+JSON.stringify(usuarioData));

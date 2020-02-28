@@ -20,11 +20,11 @@ const crearUsuario = (request, response) => {
 
 		proceso.then(result => {
 			//enviar notificacion de alta de usuario
-			console.log("nuevao usuario registrado " + result);
+			console.log("nuevao usuario registrado " + JSON.stringify(result));
 
 			//let mensajeRetorno = new MensajeRetorno(true,"Usuario registrado",null);
 			//ENVIAR CONTRASEÑA 
-			response.status(200).json(result.toJson());
+			response.status(200).json(result);
 
 		}).catch(error => {
 			console.error(error);
