@@ -1,3 +1,9 @@
 alter table co_sucursal add column hora_inicio_servicio time default '07:00';
 alter table co_sucursal add column hora_fin_servicio time default '20:00';
  
+alter table usuario drop constraint constraint_unique_user;
+alter table usuario alter column correo drop NOT NULL;
+
+alter table usuario alter column correo drop NOT NULL;
+
+

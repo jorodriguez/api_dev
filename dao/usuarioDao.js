@@ -1,7 +1,7 @@
 const genericDao = require('./genericDao');
 const { TIPO_USUARIO } = require('../utils/Constantes');
 const { generarRandomPassword } = require('../dao/utilDao');
-const  {encriptar} = require('../utils/Utils');
+const { encriptar } = require('../utils/Utils');
 
 function obtenerCorreosPorTema(co_sucursal, id_tema) {
     return genericDao.findAll(`
@@ -22,7 +22,7 @@ function obtenerCorreosPorTema(co_sucursal, id_tema) {
 `, [co_sucursal, id_tema])
 }
 
-const getUsuarioPorSucursal = (idSucursal,idTipoUsario) => {
+const getUsuarioPorSucursal = (idSucursal, idTipoUsario) => {
     return genericDao.findAll(` 
     SELECT U.ID,
 	        U.NOMBRE,
@@ -46,41 +46,49 @@ const getUsuarioPorSucursal = (idSucursal,idTipoUsario) => {
         WHERE 	        
             SUC.ID = $1 AND U.CAT_TIPO_USUARIO=$2
 	        AND U.ELIMINADO = FALSE
-        ORDER BY U.NOMBRE `, [idSucursal,idTipoUsario]);
+        ORDER BY U.NOMBRE `, [idSucursal, idTipoUsario]);
 };
 
 
 const insertarUsuario = async (usuarioData) => {
     console.log("@insertarUsuario");
 
-    const { nombre, correo, id_sucursal, hora_entrada, hora_salida, genero } = usuarioData;
+    const { nombre, correo,id_tipo_usuario, co_sucursal, hora_entrada, hora_salida, genero } = usuarioData;
 
+    
     //TIPO_USUARIO.MAESTRA
     console.log(" hora entrada " + hora_entrada + " h salida " + hora_salida + " correo " + correo);
     let password = await generarRandomPassword();
-    console.log("Password generado  "+password);
+    console.log("Password generado  " + password);
 
     let sql = `
-            INSERT INTO USUARIO(NOMBRE,CORREO,CO_SUCURSAL,CO_TIPO_USUARIO,HORA_ENTRADA,HORA_SALIDA,PASSWORD,GENERO)
-            VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING ID;
+            INSERT INTO USUARIO(NOMBRE,CORREO,CO_SUCURSAL,CAT_TIPO_USUARIO,HORA_ENTRADA,HORA_SALIDA,PASSWORD,GENERO)
+            VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING ID;
             `;
-   return genericDao
-        .execute(sql, [nombre, correo, id_sucursal, TIPO_USUARIO.MAESTRA, hora_entrada, hora_entrada, password, genero]);
-};
-
-
-const validarCorreoUsuario = (correo)=>{
     return genericDao
-    .findOne("select true from usuario where correo = $1 and eliminado = false",[correo]);  
+        .execute(sql, [nombre, correo, co_sucursal,id_tipo_usuario, hora_entrada, hora_entrada, password.encripted, genero]);
 };
 
-const modificarUsuario = (idUsuario,usuarioData) => {
-    console.log("@modificarUsuario");
 
+const validarCorreoUsuario = (correo) => {
+    return genericDao
+        .findOne("select true from usuario where correo = $1 and eliminado = false", [correo]);
+};
+
+const buscarCorreo = (correo) => {
+    return genericDao
+        .findAll(`select * from usuario where correo = $1 and eliminado = false`
+            , [correo]);
+};
+
+
+const modificarUsuario = (idUsuario, usuarioData) => {
+    console.log("@modificarUsuario");
+    console.log("usuarioDATA "+JSON.stringify(usuarioData));
     const { nombre, correo, hora_entrada, hora_salida, genero } = usuarioData;
 
     //TIPO_USUARIO.MAESTRA
-    console.log(" hora entrada " + hora_entrada + " h salida " + hora_salida + " correo " + correo);
+    
 
     let sql = `
             UPDATE USUARIO SET 
@@ -93,10 +101,10 @@ const modificarUsuario = (idUsuario,usuarioData) => {
             WHERE id = $1
             returning id;
             `;
-    return genericDao.execute(sql, [idUsuario,nombre, correo, hora_entrada, hora_entrada, genero]);
+    return genericDao.execute(sql, [idUsuario, nombre, correo, hora_entrada, hora_salida, genero]);
 };
 
-const modificarContrasena = (idUsuario,usuarioData) => {
+const modificarContrasena = (idUsuario, usuarioData) => {
     console.log("@modificarContrasena");
 
     const { nueva_clave, genero } = usuarioData;
@@ -110,11 +118,11 @@ const modificarContrasena = (idUsuario,usuarioData) => {
             WHERE id = $1
             returning id;
             `;
-    return genericDao.execute(sql, [idUsuario,nuevoPassword, genero]);
+    return genericDao.execute(sql, [idUsuario, nuevoPassword, genero]);
 };
 
 
-const desactivarUsuario = (idUsuario,usuarioData) => {
+const desactivarUsuario = (idUsuario, usuarioData) => {
 
     console.log("@desactivarUsuario");
 
@@ -138,5 +146,15 @@ const buscarUsuarioId = (idUsuario) => {
     return genericDao.buscarPorId("USUARIO", idUsuario);
 };
 
-module.exports = { obtenerCorreosPorTema, insertarUsuario, modificarUsuario, desactivarUsuario, buscarUsuarioId, modificarContrasena,getUsuarioPorSucursal ,validarCorreoUsuario};
+module.exports = {
+    obtenerCorreosPorTema
+    , insertarUsuario
+    , modificarUsuario
+    , desactivarUsuario
+    , buscarUsuarioId
+    , modificarContrasena
+    , getUsuarioPorSucursal
+    , validarCorreoUsuario
+    , buscarCorreo
+};
 

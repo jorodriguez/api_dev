@@ -8,7 +8,8 @@ const generarRandomPassword = () => {
 
         genericDao
             .findOne(
-                `SELECT pass||(random() * 5000 + 1)::int AS password FROM random_pass  ORDER BY random() LIMIT 1;`
+                `SELECT pass||(random() * 5000 + 1)::int AS password FROM random_pass  ORDER BY random() LIMIT 1;`,
+                []
             ).then(result => {
                 respuesta.password = result.password;
                 respuesta.encripted = encriptar(result.password);
