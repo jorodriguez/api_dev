@@ -7,3 +7,10 @@ alter table usuario alter column correo drop NOT NULL;
 alter table usuario alter column correo drop NOT NULL;
 
 
+alter table usuario add column acceso_sistema boolean default false;
+
+update usuario set acceso_sistema = true where correo in (
+'audrey@magicintelligence.com','chely@magicintelligence.com','fanny@magicintelligence.com'
+,'emma@magicintelligence.com','tere@magicintelligence.com','hector@magicintelligence.com',
+'joel@magicintelligence.com','debanhi@magicintelligence.com','delia@magicintelligence.com'
+)

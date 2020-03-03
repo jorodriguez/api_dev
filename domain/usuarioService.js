@@ -14,7 +14,7 @@ function crearUsuarioConCorreo(usuarioData) {
             .then(encontrado => {
                 if (encontrado) {
                     resolve(
-                        new MensajeRetorno(false, "El correo ya se encutra registrado con otro usuario", null)
+                        new MensajeRetorno(false, "El correo ya se encuentra registrado", null)
                     );
                 } else {
                     insertarUsuario(usuarioData)
@@ -46,9 +46,9 @@ function crearUsuario(usuarioData) {
 }
 
 
-function editarUsuario(idUsuario, usuarioData) {
+function editarUsuario(usuarioData) {
     console.log("USERDATA "+JSON.stringify(usuarioData));
-    return usuarioDao.modificarUsuario(idUsuario, usuarioData);
+    return usuarioDao.modificarUsuario(usuarioData);
 }
 
 function modificarUsuarioConCorreo(usuarioData) {
@@ -57,19 +57,36 @@ function modificarUsuarioConCorreo(usuarioData) {
             .buscarCorreo(usuarioData.correo)
             .then(results => {
                 console.log("RESUL "+JSON.stringify(results));
-                if (results.length > 1) {                    
-                    resolve(
-                        new MensajeRetorno(false, "El correo ya se encutra registrado con otro usuario", null)
-                    );
-                } else {
+                let cont = results.length;                
+                var proceder = false;
+
+                if(cont == 0){
+                    console.log("proceder con modificacion no existe el correo");
+                    proceder = true;
+                }else{
+                   if(cont == 1){
+                        console.log("el correo existe una vez, validar que sea del mismo usaurios");
+                       //validar que sea el mismo usuario
+                       let u = results[0];
+                       proceder = (usuarioData.id == u.id);
+                   }
+                }
+
+                if (proceder) {      
                     console.log("USERDATA OOO "+JSON.stringify(usuarioData));
-                    editarUsuario(usuarioData.id,usuarioData)
+                    editarUsuario(usuarioData)
                         .then(result => {
                             resolve(
                                 new MensajeRetorno(true, "Se modificó el usuario", null)
                             );
                         }).catch(error => reject(new MensajeRetorno(false, "Error", error)));
-                }
+
+                } else {      
+                    console.log("El correo ya existe");                                  
+                    resolve(
+                        new MensajeRetorno(false, "El correo ya se encuentra registrado", null)
+                    );
+                          }
             });
     });
 }

@@ -30,17 +30,17 @@ const getUsuarioPorSucursal = (idSucursal, idTipoUsario) => {
 	        U.PASSWORD,
 	        U.CO_SUCURSAL,
 	        U.TOKEN,
-	        --to_char(U.HORA_ENTRADA,'HH:mm')::text as hora_entrada,
-            --to_char(U.HORA_SALIDA,'HH:mm')::text as hora_salida,
-            U.HORA_ENTRADA::text,
-            U.HORA_SALIDA::text,
+	        to_char(U.HORA_ENTRADA,'HH24:MI')::text as hora_entrada,
+            to_char(U.HORA_SALIDA,'HH24:MI')::text as hora_salida,
 	        U.FOTO,
 	        U.ACTIVO,
 	        U.MOTIVO_BAJA,
 	        U.FECHA_BAJA,
 	        U.MINUTOS_GRACIA_ENTRADA,
-	        SUC.NOMBRE AS NOMBRE_SUCURSAL,
-	        TIPO_USUARIO.NOMBRE AS TIPO_USUARIO
+            SUC.NOMBRE AS NOMBRE_SUCURSAL,            
+            TIPO_USUARIO.NOMBRE AS TIPO_USUARIO,
+            U.ACCESO_SISTEMA,
+            EXTRACT(WEEK FROM  u.fecha_genero) = EXTRACT(WEEK FROM  getDate('')) as nuevo_ingreso
         FROM USUARIO U INNER JOIN CO_SUCURSAL SUC ON SUC.ID = U.CO_SUCURSAL 
 		        INNER JOIN CAT_TIPO_USUARIO TIPO_USUARIO ON TIPO_USUARIO.ID = U.CAT_TIPO_USUARIO
         WHERE 	        
@@ -63,45 +63,45 @@ const insertarUsuario = async (usuarioData) => {
 
     let sql = `
             INSERT INTO USUARIO(NOMBRE,CORREO,CO_SUCURSAL,CAT_TIPO_USUARIO,HORA_ENTRADA,HORA_SALIDA,PASSWORD,GENERO)
-            VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING ID;
+            VALUES(TRIM(BOTH FROM $1),TRIM($2),$3,$4,$5,$6,$7,$8) RETURNING ID;
             `;
     return genericDao
-        .execute(sql, [nombre, correo, co_sucursal,id_tipo_usuario, hora_entrada, hora_entrada, password.encripted, genero]);
+        .execute(sql, [nombre, correo, co_sucursal,id_tipo_usuario, hora_entrada, hora_salida, password.encripted, genero]);
 };
 
 
 const validarCorreoUsuario = (correo) => {
     return genericDao
-        .findOne("select true from usuario where correo = $1 and eliminado = false", [correo]);
+        .findOne("select true from usuario where TRIM(correo) = TRIM($1) and eliminado = false", [correo]);
 };
 
 const buscarCorreo = (correo) => {
     return genericDao
-        .findAll(`select * from usuario where correo = $1 and eliminado = false`
+        .findAll(`select * from usuario where TRIM(correo) = TRIM($1) and eliminado = false`
             , [correo]);
 };
 
 
-const modificarUsuario = (idUsuario, usuarioData) => {
+const modificarUsuario = (usuarioData) => {
     console.log("@modificarUsuario");
     console.log("usuarioDATA "+JSON.stringify(usuarioData));
-    const { nombre, correo, hora_entrada, hora_salida, genero } = usuarioData;
+    const { id,nombre, correo, hora_entrada, hora_salida, genero } = usuarioData;
 
     //TIPO_USUARIO.MAESTRA
     
 
     let sql = `
             UPDATE USUARIO SET 
-                            NOMBRE = $2,
-                            CORREO = $3,
+                            NOMBRE = TRIM(BOTH FROM $2),
+                            CORREO = TRIM($3),
                             HORA_ENTRADA = $4,
                             HORA_SALIDA=$5,
-                            MODIFICO = $6,
+                            MODIFICO = $6,                            
                             FECHA_MODIFICO = getDate('')
             WHERE id = $1
             returning id;
             `;
-    return genericDao.execute(sql, [idUsuario, nombre, correo, hora_entrada, hora_salida, genero]);
+    return genericDao.execute(sql, [id, nombre, correo, hora_entrada, hora_salida, genero]);
 };
 
 const modificarContrasena = (idUsuario, usuarioData) => {
