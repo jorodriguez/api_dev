@@ -56,7 +56,8 @@ const insertarUsuario = async (usuarioData) => {
 
     const { nombre, correo,id_tipo_usuario, co_sucursal, hora_entrada, hora_salida, genero } = usuarioData;
 
-    
+    console.log("HOIRA EN "+hora_entrada);
+    console.log("HOIRA EN "+hora_salida);
     //TIPO_USUARIO.MAESTRA
     console.log(" hora entrada " + hora_entrada + " h salida " + hora_salida + " correo " + correo);
     let password = await generarRandomPassword();
@@ -130,6 +131,7 @@ const desactivarUsuario = (idUsuario, usuarioData) => {
     const { motivo_baja, fecha_baja, genero } = usuarioData;
     let sql = `
             UPDATE USUARIO SET 
+                    ELIMINADO=true,
                     ACTIVO = FALSE,                    
                     MOTIVO_BAJA = $2,
                     FECHA_BAJA = $3,
