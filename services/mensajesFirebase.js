@@ -81,7 +81,7 @@ const enviarMensajeActividad = (titulo, cuerpo, token) => {
         return false;
     }
 
-}
+};
 
 //token, string[] or string
 const enviarMensajeToken = (token, titulo, cuerpo) => {
@@ -115,7 +115,7 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
         console.log("Erorr al enviar mensaje " + e);
         return false;
     }
-}
+};
 
 const sendMessage = (request, response) => {
     console.log("@Enviando mensaje " + JSON.stringify(configuracion));
@@ -189,4 +189,4 @@ module.exports = {
     enviarMensajePorTema,
     enviarMensajeActividad
 
-}
+};

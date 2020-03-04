@@ -31,9 +31,9 @@ function castNumDayToSpanish(num_day){
 
 function castNumMonthToSpanish(num_month){
     if(numeroValido() && (num_month >= 1 && num_month <= 12) ){
-        return DIAS.find(e=>e.numero == num_day);
+        return DIAS.find(e=>e.numero == num_month);
     }
-    else return num_day;
+    else return num_month;
 }
 
 function numeroValido(num){

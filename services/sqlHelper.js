@@ -1,7 +1,6 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const { validarToken } = require('../helpers/helperToken');
 
 const QUERY = {
     FORMA_PAGO: "SELECT * FROM CO_FORMA_PAGO WHERE ELIMINADO = FALSE",
@@ -47,9 +46,8 @@ const getCatalogo = (query, response) => {
 
 
 function getResults(query, params, handler) {
-
-    getResults(query, params, handler, undefined)
-};
+    getResults(query, params, handler, undefined);
+}
 
 
 function getResults(query, params, handler, handlerCatch) {
@@ -71,7 +69,7 @@ function getResults(query, params, handler, handlerCatch) {
 
             handlerCatch = (error) => {
                 console.log("Exepcion al realizar el query " + query + " /n causa " + error);
-            }
+            };
         }
 
         let tiene_parametros = tieneParametros(params);
@@ -90,7 +88,7 @@ function getResults(query, params, handler, handlerCatch) {
     } catch (e) {
         console.log("Excepción al ejecutar el query " + e);
     }
-};
+}
 
 
 
@@ -107,7 +105,7 @@ const getResultQuery = (query, params, response, handler) => {
            console.log("Excepcion al ejecutar el query "+error);
             handle.callbackError(error, response);
             return;
-        }
+        };
 
         console.log("*****************************************************");
         getResults(query, params, handler || hadlerGenerico, handlerCatch);
@@ -214,4 +212,4 @@ module.exports = {
     getResultQuery,    
     getResults,
     executeQuery//FIX
-}
+};

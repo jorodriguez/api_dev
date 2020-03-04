@@ -1,8 +1,8 @@
 
 const { pool } = require('../db/conexion');
 const { getCatalogo,getResultQuery } = require('./sqlHelper');
-const { validarToken } = require('../helpers/helperToken');
 const { ID_EMPRESA_MAGIC } = require('../utils/Constantes');
+const handle = require('../helpers/handlersErrors');
 
 const getMesesActivos = (request, response) => {
     console.log("@getMeses");
@@ -91,14 +91,12 @@ const getListaDiasTrabajadosRangoFecha = (request,response) =>{
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
-    }
-
-  
-}
+    } 
+};
 
 
 module.exports = {
     getMesesActivos,
     findCorreoPadre,    
     getListaDiasTrabajadosRangoFecha
-}
+};

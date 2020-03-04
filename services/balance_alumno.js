@@ -1,8 +1,5 @@
 
 const { pool } = require('../db/conexion');
-const handle = require('../helpers/handlersErrors');
-const { validarToken } = require('../helpers/helperToken');
-const mensajeria  = require('./mensajesFirebase');
 
 const registrarBalanceAlumno = (id_alumno,genero) => {
     console.log("@ragistrarBalanceAlumno");
@@ -18,7 +15,7 @@ const registrarBalanceAlumno = (id_alumno,genero) => {
                 return results.rowCount > 0;                
             });
     } catch (e) {
-        console.log("error no controlado  "+error);     
+        console.log("error no controlado  "+e);     
         return false;        
     }
 };

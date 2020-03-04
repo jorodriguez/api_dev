@@ -35,10 +35,7 @@ const getAlumnosPorRecibir = (request, response) => {
             })
             .catch(error => {
                 handle.callbackError(error, response);
-            })
-            ;
-
-       
+            });       
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -79,8 +76,7 @@ const registrarSalidaAlumnos = (request, response) => {
                 response.status(200).json(results);
             }).catch(error => {
                 handle.callbackError(error, response);
-            })
-
+            });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
@@ -108,7 +104,7 @@ const getListaAsistenciaPorSucursalFecha = (request, response) => {
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
-}
+};
 
 
 //lista simple
@@ -126,12 +122,12 @@ const getListaAsistenciaMesPorAlumno = (request, response) => {
                 response.status(200).json(results);
             }).catch(error => {
                 handle.callbackError(error, response);
-            })
+            });
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
-}
+};
 
 // para componente de calendrio
 const getListaMesAsistenciaPorAlumno = (request, response) => {
@@ -153,7 +149,7 @@ const getListaMesAsistenciaPorAlumno = (request, response) => {
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
-}
+};
 
 
 const ejecutarProcesoSalidaAutomatica = () => {
@@ -166,7 +162,7 @@ const ejecutarProcesoSalidaAutomatica = () => {
     } catch (e) {
         console.log("@excepcion " + e);
     }
-}
+};
 
 
 const getListaAsistenciaAlumnoPorSalirConHorasExtras = (request, response) => {
@@ -188,7 +184,7 @@ const getListaAsistenciaAlumnoPorSalirConHorasExtras = (request, response) => {
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
-}
+};
 
 /*
 const ejecutarProcedimientoCalculoHorasExtra = (ids_alumnos, id_genero) => {
@@ -227,8 +223,7 @@ const getListaMesAsistenciaPorSucursal = (request, response) => {
         }).catch(error=>{
             handle.callbackError(error, response);
         });
-
-}
+};
 
 
 module.exports = {
@@ -242,4 +237,4 @@ module.exports = {
     getListaMesAsistenciaPorAlumno,
     getListaAsistenciaAlumnoPorSalirConHorasExtras,
     getListaMesAsistenciaPorSucursal
-}
+};

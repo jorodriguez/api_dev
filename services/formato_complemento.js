@@ -1,7 +1,6 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const { validarToken } = require('../helpers/helperToken');
 
 //obtener actividades
 const getCatalogoValoresEsperados = (request, response) => {
@@ -96,4 +95,4 @@ const actualizarValoresEsperados = (formato) => {
 module.exports = {
     getCatalogoValoresEsperados,
     actualizarValoresEsperados
-}
+};

@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 const config = require('../config/configJwt');
 const handle = require('../helpers/handlersErrors');
 
-//  POST — users | createUser()
+//  POST—users | createUser()
 const createUser = (request, response) => {
     try {
         //fixme :
@@ -62,7 +62,7 @@ const login = (request, response) => {
             " u.permiso_gerente," +
             " su.nombre as nombre_sucursal" +
             " FROM usuario u inner join co_sucursal su on u.co_sucursal = su.id" +
-            " WHERE u.correo = $1 AND u.eliminado = false",
+            " WHERE u.correo = $1 AND u.acceso_sistema = true AND u.eliminado = false",
             [correo],
             (error, results) => {
                 if (error) {

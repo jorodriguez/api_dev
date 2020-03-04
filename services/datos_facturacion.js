@@ -1,7 +1,7 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const { validarToken } = require('../helpers/helperToken');
+
 
 const guardarDatosFacturacionAlumno = (request, response) => {
     console.log("@guardarDatosFacturacionAlumno");
@@ -230,4 +230,4 @@ module.exports = {
     guardarDatosFacturacionAlumno,
     actualizarRequiereFacturaAlumno,
     actualizarRequiereFacturacionAlumno
-}
+};

@@ -1,16 +1,14 @@
 
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const { validarToken } = require('../helpers/helperToken');
-const mensajeria = require('./mensajesFirebase');
 const { CARGOS } = require('../utils/Constantes');
 
 const getReporteMensualidadesPorSucursalMes = (request, response) => {
     console.log("@getReporteMensualidadesPorSucursalMes");
     try {
 
-       // validarToken(request,response);
-        
+        // validarToken(request,response);
+
         const { id_sucursal, mes } = request.params;
         console.log("id_sucursal " + id_sucursal + " mes " + mes);
 
@@ -56,7 +54,7 @@ const getReporteMensualidadesPorSucursalMes = (request, response) => {
             where cargo.cat_cargo = $2 
                 and al.co_sucursal = $3
                 and to_char(cargo.fecha,'YYYYMM') = '`+ mes + "'"
-                +` and cargo.eliminado = false 
+            + ` and cargo.eliminado = false 
             order by cargo.pagado desc,al.nombre, pago.fecha`
             , [id_sucursal, CARGOS.ID_CARGO_MENSUALIDAD, id_sucursal], (error, results) => {
                 if (error) {
@@ -76,23 +74,23 @@ const getReporteContadoresSucursalesMesActual = (request, response) => {
 
     try {
 
-      //  validarToken(request,response);
-console.log("CARGOS.ID_CARGO_MENSUALIDAD "+CARGOS.ID_CARGO_MENSUALIDAD);
-        let id_mensualidad =CARGOS.ID_CARGO_MENSUALIDAD;
-        let query = getQueryPrincipal(null,true);
-        console.log("QUER "+id_mensualidad+"     "+ query);
+        //  validarToken(request,response);
+        console.log("CARGOS.ID_CARGO_MENSUALIDAD " + CARGOS.ID_CARGO_MENSUALIDAD);
+        let id_mensualidad = CARGOS.ID_CARGO_MENSUALIDAD;
+        let query = getQueryPrincipal(null, true);
+        console.log("QUER " + id_mensualidad + "     " + query);
         pool.query(query, [id_mensualidad],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
                 }
-                console.log("reporte mensualidad sur mes actual"+JSON.stringify(results.rows));
+                console.log("reporte mensualidad sur mes actual" + JSON.stringify(results.rows));
                 response.status(200).json(results.rows);
             });
 
     } catch (e) {
-        console.log("Errro "+e);
+        console.log("Errro " + e);
         handle.callbackErrorNoControlado(e, response);
     }
 
@@ -117,7 +115,7 @@ const getReporteContadoresMesesPorSucursal = (request, response) => {
                 if (error) {
                     handle.callbackError(error, response);
                     return;
-                }                
+                }
                 response.status(200).json(results.rows);
             });
     } catch (e) {
@@ -134,7 +132,7 @@ function getQueryPrincipal(id_sucursal, isQueryInicial) {
         //obtener el valor de todas las sucursales en el mes actual
         complementoMes = " and to_char(cargo.fecha,'YYYYMM') = to_char(getDate(''),'YYYYMM') ";
     } else {
-        complementoSucursal = (id_sucursal != null ? " and  suc.id  = " + id_sucursal : "");        
+        complementoSucursal = (id_sucursal != null ? " and  suc.id  = " + id_sucursal : "");
     }
 
     const query = `
@@ -160,10 +158,10 @@ function getQueryPrincipal(id_sucursal, isQueryInicial) {
         where cargo.cat_cargo = $1 `
         + complementoSucursal
         + complementoMes
-        +` and cargo.eliminado = false 
+        + ` and cargo.eliminado = false 
          GROUP BY m.anio_mes,suc.id,m.numero_mes
          ORDER BY m.numero_mes DESC`;
-//console.log(query);
+    //console.log(query);
     return query;
 }
 
@@ -173,5 +171,4 @@ module.exports = {
     getReporteMensualidadesPorSucursalMes,
     getReporteContadoresSucursalesMesActual,
     getReporteContadoresMesesPorSucursal,
-
-}
+};

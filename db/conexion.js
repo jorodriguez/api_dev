@@ -25,7 +25,7 @@ const dbParams = {
     password: '5fd81b93106ce7208d5456059519a5f3d5c29870600bfc63d820f1616540f295',
     port: 5432,
     ssl: { rejectUnauthorized: false }
-}
+};
 
 
 //db desarrollo
@@ -37,10 +37,8 @@ const dbParams = {
     password: (process.env.PASSWORD_DB ||'f4de35950e23261169a79f8ac3007630aaefc8ff887c147b9283a8f68b165019'),
     port: (process.env.PORT_DB ||5432),
     ssl: { rejectUnauthorized: false }
-}
-
+};
 */
-
 //const dbParams = dbParamsDev;
 
 const pool = new Pool({

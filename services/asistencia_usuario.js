@@ -1,9 +1,7 @@
 
-const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const { validarToken } = require('../helpers/helperToken');
 const { TIPO_USUARIO, ID_EMPRESA_MAGIC } = require('../utils/Constantes');
-const { QUERY, getResultQuery, executeQuery } = require('./sqlHelper');
+const { getResultQuery, executeQuery } = require('./sqlHelper');
 
 //const mensajeria = require('./mensajesFirebase');
 
@@ -209,7 +207,7 @@ const getListaFaltasUsuariosSucursalRangoFecha = (request, response) => {
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
-}
+};
 
 
 const getDetalleFaltasUsuariosRangoFecha = (request, response) => {
@@ -252,7 +250,7 @@ const getDetalleFaltasUsuariosRangoFecha = (request, response) => {
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
-}
+};
 
 
 module.exports = {
@@ -262,4 +260,4 @@ module.exports = {
     registrarSalidaUsuario,
     getListaFaltasUsuariosSucursalRangoFecha,
     getDetalleFaltasUsuariosRangoFecha
-}
+};

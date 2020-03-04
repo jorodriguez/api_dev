@@ -207,7 +207,7 @@ const relacionarValorEsperadoEmpresa = (id_formato, valores_esperados_ids, gener
         return new Promise((resolve, reject) => {
 
             var sqlComplete = " VALUES ";
-            for (var i = 0; i < valores_esperados_array.length; i++) {
+            for (var i = 0; i < valores_esperados_ids.length; i++) {
                 if (i > 0) {
                     sqlComplete += ",";
                 }
@@ -237,25 +237,25 @@ const relacionarValorEsperadoEmpresa = (id_formato, valores_esperados_ids, gener
 
 
 
-// DELETE — /inscripcion/:id | deleteFormatoInscripcion()
+// DELETE—/inscripcion/:id | deleteFormatoInscripcion()
 const deleteFormatoInscripcion = (request, response) => {
     console.log("@deleteFormatoInscripcion");
     try {
         //validarToken(request,response);       
 
-        const id = parseInt(request.params.id)
+        const id = parseInt(request.params.id);
         pool.query('UPDATE CO_FORMATO_INSCRIPCION SET eliminado = true WHERE id = $1', [id], (error, results) => {
             if (error) {
 
                 handle.callbackError(error, response);
                 return;
             }
-            response.status(200).send(`User deleted with ID: ${id}`)
+            response.status(200).send(`User deleted with ID: ${id}`);
         });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
-}
+};
 
 
 const getParams = (body) => {
@@ -286,4 +286,4 @@ module.exports = {
     relacionarValorEsperadoEmpresa,
     deleteFormatoInscripcion,
     actualizarFormatoAlumno
-}
+};

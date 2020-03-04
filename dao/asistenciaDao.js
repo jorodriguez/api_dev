@@ -1,7 +1,7 @@
 const { USUARIO_DEFAULT, ENTRADA, SALIDA, MENSAJE_ALGO_FALLO } = require('../utils/Constantes');
 const mensajeria = require('../services/mensajesFirebase');
-const { Exception, ExceptionBD } = require('../exception/exeption');
-const { isEmptyOrNull, existeValorArray } = require('../utils/Utils');
+const {  ExceptionBD } = require('../exception/exeption');
+const {  existeValorArray } = require('../utils/Utils');
 const genericDao = require('./genericDao');
 
 
@@ -112,12 +112,12 @@ const registrarEntradaAlumnos = (params) => {
                     enviarMensajeEntradaSalida(listaIdsAsistencias, ENTRADA);
                     resolve(listaIdsAsistencias);
                 } else {
-                    reject(new ExceptionDB(MENSAJE_ALGO_FALLO));
+                    reject(new ExceptionBD(MENSAJE_ALGO_FALLO));
                 }
             })
             .catch(error => {
                 reject(new ExceptionBD(error));
-            })        
+            });
     });
 };
 
@@ -254,7 +254,7 @@ const procesoSalidaAlumnos = (idSalidas, arrayIdSalidasCalcularHoraExtras = [], 
     console.log(" === > asistencias para generar horas extras " + idsAsistenciasCalculoHorasExtras);
     //return pool.query(`SELECT registrar_salida_alumno('${idsAsistencias}','${idsAsistenciasCalculoHorasExtras}',${genero});`);
     return genericDao.executeProcedure(`SELECT registrar_salida_alumno('${idsAsistencias}','${idsAsistenciasCalculoHorasExtras}',${genero});`);
-}
+};
 
 
 
@@ -305,7 +305,7 @@ const getListaAsistenciaPorSucursalFecha = (idSucursal, fecha) => {
                 and a.eliminado = false
             ORDER BY  grupo.nombre,al.nombre asc
             `, [idSucursal, new Date(fecha)]);
-}
+};
 
 
 //lista simple
@@ -339,9 +339,8 @@ const getListaAsistenciaMesPorAlumno = (idAlumno) => {
             and a.co_alumno = $1
             group by s.fecha,a.hora_entrada,a.hora_salida
             order by s.fecha 
-            `, [id_alumno]);
-
-}
+            `, [idAlumno]);
+};
 
 // para componente de calendrio
 const getListaMesAsistenciaPorAlumno = (idAlumno) => {
@@ -376,8 +375,8 @@ const getListaMesAsistenciaPorAlumno = (idAlumno) => {
                 and a.co_alumno = $1
                 group by s.fecha,a.hora_entrada,a.hora_salida
                 order by s.fecha
-            `, [id_alumno]);
-}
+            `, [idAlumno]);
+};
 
 
 const ejecutarProcesoSalidaAutomatica = () => {
@@ -412,7 +411,7 @@ const ejecutarProcesoSalidaAutomatica = () => {
     } catch (e) {
         console.log("@excepcion " + e);
     }
-}
+};
 
 
 const getListaAsistenciaAlumnoPorSalirConHorasExtras = (params) => {
@@ -427,9 +426,10 @@ const getListaAsistenciaAlumnoPorSalirConHorasExtras = (params) => {
         });
     }
     return genericDao.findAll(SQL_ALUMNOS_RECIBIDOS_HORAS_EXTRAS, [array]);
-}
+};
 
 //Esta desabilitado
+/*
 const ejecutarProcedimientoCalculoHorasExtra = (ids_alumnos, id_genero) => {
     console.log("@ejecutarProcedimeintoCalculoHorasExtra");
 
@@ -440,8 +440,8 @@ const ejecutarProcedimientoCalculoHorasExtra = (ids_alumnos, id_genero) => {
             console.log("Se ejecuto el procedimiento de horas extras " + JSON.stringify(results));
         }).catch(error => {
             console.log("Error al ejecutar el procedimiento calculo extra " + error);
-        }) 
-};
+        });
+};*/
 
 
 /* Lista de asistencias e inasistencias por alumno por mes  */
@@ -492,7 +492,7 @@ const getListaMesAsistenciaPorSucursal = (idSucursal) => {
             and a.co_sucursal = $2
         group by a.id,grupo.id,dias_activos.num_dias_trabajados
         order by a.nombre `, [idSucursal, idSucursal]);
-}
+};
 
 
 module.exports = {
@@ -506,4 +506,4 @@ module.exports = {
     getListaMesAsistenciaPorAlumno,
     getListaAsistenciaAlumnoPorSalirConHorasExtras,
     getListaMesAsistenciaPorSucursal
-}
+};

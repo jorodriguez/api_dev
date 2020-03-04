@@ -18,7 +18,7 @@ const TEMPLATES = {
     TEMPLATE_DATOS_FACTURACION: "datos_factura.html",
     TEMPLATE_RECORDATORIO_PAGO_MENSUALIDAD:"recordatorio_recargo_mensualidad.html",
     TEMPLATE_REPORTE_PROX_RECARGOS : "reporte_prox_recargo_mensualidad.html"
-}
+};
 
 
 function enviarCorreoFamiliaresAlumno(asunto,para,cc,params,template){
@@ -47,7 +47,7 @@ function enviarCorreoConCopiaTemaNotificacion(asunto, para, idSucursalTemaCopia,
                     enviarCorreo(para, cc, asunto, renderHtml);
                 }).catch(e => {
                     console.log("Excepción al consultar correos copia: " + e);
-                });;
+                });
 
         }).catch(e => {
             console.log("Excepción en el envio de correo : " + e);
@@ -139,24 +139,7 @@ function loadTemplate(templateName, params) {
     });
 }
 
-function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
-    /*return getQueryInstance(`
-        SELECT array_to_json(array_agg(to_json(correo))) as correos_copia
-        FROM co_correo_copia_notificacion
-        WHERE co_sucursal = $1 and co_tema_notificacion = $2 and eliminado = false
-   `, [co_sucursal, id_tema]);*/
-   /*  return getQueryInstance(`
-                    SELECT 
-                        (select array_to_json(array_agg(to_json(u.correo)))
-                        FROM co_usuario_notificacion un inner join usuario u on u.id = un.usuario
-                        WHERE un.co_sucursal = $1 and un.co_tema_notificacion = $2
-                        and un.eliminado = false and u.eliminado = false)
-                        AS correos_usuarios,	
-                        (SELECT array_to_json(array_agg(to_json(correo)))
-                        FROM co_correo_copia_notificacion
-                        WHERE co_sucursal = $1 and co_tema_notificacion = $2 and eliminado = false) 
-                        as correos_copia    
-   `, [co_sucursal, id_tema]);*/
+function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {   
    return correoTemaService.obtenerCorreosPorTema(co_sucursal,id_tema);
 }
 
@@ -210,4 +193,4 @@ module.exports = {
     enviarCorreoTemplate,
     enviarCorreoFamiliaresAlumno
 
-}
+};

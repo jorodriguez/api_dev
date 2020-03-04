@@ -1,7 +1,6 @@
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
-const { validarToken } = require('../helpers/helperToken');
-const { isEmpty,encriptar } = require('../utils/Utils');
+const { isEmpty } = require('../utils/Utils');
 const mailService = require('../utils/NotificacionService');
 const utilerias = require('./utilerias');
 
@@ -91,7 +90,7 @@ const resetPasswordFamiliar = (request, response) => {
         console.log("Error al reseterar la clave " + e);
         handle.callbackErrorNoControlado(e, response);
     }
-}
+};
 
 const enviarClaveFamiliar = (id_familiar) => {
     try {
@@ -143,7 +142,7 @@ const enviarClaveFamiliar = (id_familiar) => {
         //handle.callbackErrorNoControlado(e, response);
         return;
     }
-}
+};
 
 
 const modificarFamiliar = (request, response) => {
@@ -196,7 +195,7 @@ const modificarFamiliar = (request, response) => {
                             response.status(200).json({ mensaje: "Ocurrió un error al modificar los datos del familiar.", estatus: false });
                         });
                 }
-            }).catch(err => console.error('Error executing query', err.stack))
+            }).catch(err => console.error('Error executing query', err.stack));
 
     } catch (e) {
 
@@ -271,7 +270,7 @@ const createFamiliar = (id_alumno, familiar, genero) => {
 
         if (id_alumno == null) {
             console.log("no se procede a crear el familiar faltan datos");
-            throw error("id_alumn =es null ");
+            return;
         }
 
         console.log("Familiar en create familia " + JSON.stringify(familiar));
@@ -322,7 +321,7 @@ const createFamiliar = (id_alumno, familiar, genero) => {
                     } else {
                         reject(false);
                     }
-                })
+                });
         });
 
     } catch (e) {
@@ -360,7 +359,7 @@ const relacionarAlumnoFamilia = (id_alumno, id_familiar, id_parentesco, genero) 
         }
     });
 
-}
+};
 
 
 const eliminarRelacionarAlumnoFamilia = (id_relacion, genero) => {
@@ -391,7 +390,7 @@ const eliminarRelacionarAlumnoFamilia = (id_relacion, genero) => {
             reject(null);
         }
     });    
-}
+};
 
 
 const updateFamiliar = (id_familiar, familiar, genero) => {
@@ -550,4 +549,4 @@ module.exports = {
     getFamiliareParaRelacionar,
     resetPasswordFamiliar
  
-}
+};

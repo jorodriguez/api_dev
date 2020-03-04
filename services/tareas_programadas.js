@@ -1,11 +1,8 @@
 
 const { pool } = require('../db/conexion');
-
-const { dbParams } = require('../config/configJwt');
-const handle = require('../helpers/handlersErrors');
-const { validarToken } = require('../helpers/helperToken');
+//const handle = require('../helpers/handlersErrors');
 const mensajeria = require('./mensajesFirebase');
-var schedule = require('node-schedule');
+//var schedule = require('node-schedule');
 
 
 /*
@@ -368,7 +365,7 @@ const ejecutarRegistroMensualidadAutomatica = () => {
         }).catch((e) => {
             console.log("EXCEPCION AL EJECUTAR EL PROCESO AUTOMATICO DE CARGOS DE MENSUALIDAD " + e);
         });
-}
+};
 
 module.exports = {
     //generarBalanceAlumnos
@@ -376,4 +373,4 @@ module.exports = {
     ejecutarProcesoNotificacionProximaSalidaAlumno,
     ejecutarProcesoNotificacionExpiracionTiempoAlumno,
     ejecutarRegistroMensualidadAutomatica
-}
+};

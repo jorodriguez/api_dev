@@ -28,4 +28,4 @@ const getConfiguracion = (request, response) => {
 
 module.exports = {
     getConfiguracion    
-}
+};
