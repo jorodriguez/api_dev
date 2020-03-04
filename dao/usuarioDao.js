@@ -45,6 +45,7 @@ const getUsuarioPorSucursal = (idSucursal, idTipoUsario) => {
 		        INNER JOIN CAT_TIPO_USUARIO TIPO_USUARIO ON TIPO_USUARIO.ID = U.CAT_TIPO_USUARIO
         WHERE 	        
             SUC.ID = $1 AND U.CAT_TIPO_USUARIO=$2
+            AND U.ACTIVO = TRUE
 	        AND U.ELIMINADO = FALSE
         ORDER BY U.NOMBRE `, [idSucursal, idTipoUsario]);
 };
@@ -128,8 +129,8 @@ const desactivarUsuario = (idUsuario, usuarioData) => {
 
     const { motivo_baja, fecha_baja, genero } = usuarioData;
     let sql = `
-            UPTADE USUARIO SET 
-                    BAJA = TRUE,
+            UPDATE USUARIO SET 
+                    ACTIVO = FALSE,                    
                     MOTIVO_BAJA = $2,
                     FECHA_BAJA = $3,
                     FECHA_MODIFICO=getDate(''),

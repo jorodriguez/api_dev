@@ -269,7 +269,7 @@ GET('/reporte_gastos_mes_actual', reporte_gastos.getReporteGastoMensualActual);
 GET('/usuario/:id_sucursal', usuarioService.getUsuariosPorSucursal);
 POST('/usuario', usuarioService.crearUsuario);
 PUT('/usuario', usuarioService.modificarUsuario);
-DELETE('/usuario/:id_usuario', usuarioService.desactivarUsuario);
+PUT('/usuario/:id_usuario', usuarioService.desactivarUsuario);
 
 
 //Para movil
