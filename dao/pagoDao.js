@@ -53,7 +53,16 @@ const getPagosByCargoId = (idCargoBalanceAlumno) => {
         `
               SELECT forma_pago.id as id_forma_pago,
                     forma_pago.nombre as nombre_forma_pago,
-                    pago.identificador_factura ,r.*
+                    pago.identificador_factura ,
+                    r.id,                    
+                    r.fecha,
+                    to_char(r.fecha,'dd-mm-yyyy HH24:mm') as fecha_format,
+                    r.co_pago_balance_alumno,
+                    r.co_cargo_balance_alumno,
+                    r.pago,
+                    pago.nota,
+                    pago.co_forma_pago,
+                    r.folio_factura                    
                FROM co_pago_cargo_balance_alumno r inner join co_pago_balance_alumno pago on r.co_pago_balance_alumno = pago.id
                                                    inner join co_forma_pago forma_pago on pago.co_forma_pago = forma_pago.id
                WHERE r.co_cargo_balance_alumno = $1 and r.eliminado = false and pago.eliminado = false

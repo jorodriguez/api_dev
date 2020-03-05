@@ -101,6 +101,7 @@ const getCargosAlumno = (idAlumno) => {
         ` SELECT a.co_balance_alumno,
                b.id as id_cargo_balance_alumno,
                b.fecha,
+               to_char(b.fecha,'dd-mm-yyyy HH24:mm') as fecha_format,
                b.cantidad,
                cargo.nombre as nombre_cargo,
                b.texto_ayuda,

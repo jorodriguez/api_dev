@@ -15,3 +15,47 @@ update co_cargo_balance_alumno SET eliminado = true where id = 12420;
 update co_pago_balance_alumno SET pago = (pago-3679) where id = 243;
 
 --en caso se no estar pagados actualizar el balance del alumno
+
+
+ 
+/******************///eliminar el pago de una mensualidad
+
+
+-- buscar balance
+(select co_balance_alumno from co_alumno where id = 230) 
+
+-- buscar cargos
+select * from co_cargo_balance_alumno 
+where co_balance_alumno = (select co_balance_alumno from co_alumno where id = 230) 
+
+select * 
+from co_pago_Cargo_balance_alumno 
+where co_cargo_balance_alumno = 13923
+
+--eliminar pago
+update co_pago_Cargo_balance_alumno set eliminado = true where id=1036;
+
+--poner como pagado = false el cargo
+update co_cargo_balance_alumno 
+		set pagado = false ,
+			total = monto_original,
+			total_pagado = 0
+		where id = 13923;
+
+-- recalcular el balance total
+select * from co_cargo_balance_alumno 
+where co_balance_alumno = (select co_balance_alumno from co_alumno where id = 230) 
+
+update  co_balance_alumno 			
+			SET total_adeudo = (
+					select sum(total) from co_cargo_balance_alumno 
+					where co_balance_alumno =  (select co_balance_alumno from co_alumno where id = 230) 
+			),			
+				total_cargos =(
+				select sum(total) from co_cargo_balance_alumno 
+					where co_balance_alumno =  (select co_balance_alumno from co_alumno where id = 230) 
+				)
+			where id = (select co_balance_alumno from co_alumno where id = 230) 
+
+
+
