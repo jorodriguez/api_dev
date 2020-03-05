@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 
 const { pool } = require('./db/conexion');
 
-const usuario = require('./services/usuario');
+//const usuario = require('./services/usuario');
 const alumno = require('./services/alumno');
 const asistencia = require('./services/asistencia');
 const authController = require('./auth/AuthController');
@@ -132,14 +132,19 @@ const DELETE = (url, metodo) => {
 
 //usar los queries importados 
 app.post('/auth/login', authController.login);
-app.post('/auth/register', authController.createUser);
+//app.post('/auth/register', authController.createUser);
 
 //POST('/login', usuario.login);
-GET('/users/:id_sucursal', usuario.getUsers);
+/*GET('/users/:id_sucursal', usuario.getUsers);
 GET('/users/:id', usuario.getUserById);
 //POST('/users', usuario.createUser);
 PUT('/users/:id', usuario.updateUser);
 DELETE('/users/:id', usuario.deleteUser);
+*/
+
+//Cambio de sucursal
+GET('/sucursal_usuario/:id',authController.obtenerSucursalesUsuario);
+PUT('/sucursal_usuario',authController.cambiarSucursalUsuario);
 
 //alumno
 GET('/alumnos/:id_sucursal', alumno.getAlumnos);
