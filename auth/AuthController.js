@@ -85,7 +85,7 @@ const login = (request, response) => {
                 response.status(200).json(result);
             }).catch(error => {
                 console.error(error);
-                handle.callbackError(error, response);                
+                handle.callbackError(error, response);
             });
 
     } catch (e) {
@@ -99,7 +99,7 @@ const obtenerSucursalesUsuario = (request, response) => {
     try {
 
         //idUsuario
-        const {id} = request.params;
+        const { id } = request.params;
 
         authService
             .obtenerSucursalesUsuario(id)
@@ -108,7 +108,7 @@ const obtenerSucursalesUsuario = (request, response) => {
                 response.status(200).json(results);
             }).catch(error => {
                 console.error(error);
-                handle.callbackError(error, response);                
+                handle.callbackError(error, response);
             });
 
     } catch (e) {
@@ -123,16 +123,22 @@ const cambiarSucursalUsuario = (request, response) => {
     try {
 
         //idUsuario
-        const {id_usuario,id_sucursal} = request.body;
+        const { id_usuario, id_sucursal } = request.body;
+
+        var token = request.headers['x-access-token'];
 
         authService
-            .cambiarSucursalUsuario(id_usuario,id_sucursal)
+            .cambiarSucursalUsuario(id_usuario, id_sucursal, token)
             .then(results => {
                 console.log(" Cambio suc " + results);
-                response.status(200).json(results);
+                if (results != null) {
+
+                    response.status(200).json(results);
+
+                }
             }).catch(error => {
                 console.error(error);
-                handle.callbackError(error, response);                
+                handle.callbackError(error, response);
             });
 
     } catch (e) {
@@ -145,6 +151,6 @@ const cambiarSucursalUsuario = (request, response) => {
 
 
 module.exports = {
-    login,obtenerSucursalesUsuario,cambiarSucursalUsuario
+    login, obtenerSucursalesUsuario, cambiarSucursalUsuario
     // encriptar
 };

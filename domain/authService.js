@@ -59,9 +59,48 @@ const obtenerSucursalesUsuario = (id)=>{
     return authDao.obtenerSucursalesUsuario(id);
 };
 
-const cambiarSucursalUsuario = (idUsuario,idSucursal)=>{    
-    return authDao.cambiarSucursalUsuario(idUsuario,idSucursal);
+const cambiarSucursalUsuario = (idUsuario,idSucursal,token)=>{    
+    return new Promise((resolve, reject) => {
+        authDao
+        .cambiarSucursalUsuario(idUsuario,idSucursal)
+        .then(result=>{            
+            if (result != null) {
+
+                authDao
+                .refreshLogin(idUsuario)
+                .then(result=>{
+                    var usuario = result;
+
+                    console.log("===> " + JSON.stringify(usuario));                      
+                    /*
+                    var token = jwt.sign({ id: result.id }, config.secret, {
+                        // expires in 24 hours
+                        expiresIn: 86400
+                    });*/
+    
+                    resolve(new Login(true, token, usuario, "Login"));
+
+                });              
+                
+            } else {
+                reject(new Login(false, null, null, "Sucedió un error"));                    
+            }
+
+        }).catch(error=>{
+            reject(new Login(false, null, null, "Sucedió un error"));
+        });
+
+    });
+
+    //return authDao.cambiarSucursalUsuario(idUsuario,idSucursal);
 };
+
+
+const refreshLogin = (idUsuario)=>{    
+    return authDao.refreshLogin(idUsuario);
+};
+
+
 module.exports = {
-    login,obtenerSucursalesUsuario,cambiarSucursalUsuario
+    login,obtenerSucursalesUsuario,cambiarSucursalUsuario,refreshLogin
 };
