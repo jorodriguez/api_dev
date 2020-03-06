@@ -73,13 +73,14 @@ const getReporteContadoresSucursalesMesActual = (request, response) => {
     console.log("@getReporteContadoresSucursalesMesActual");
 
     try {
-
         //  validarToken(request,response);
         console.log("CARGOS.ID_CARGO_MENSUALIDAD " + CARGOS.ID_CARGO_MENSUALIDAD);
+        const {id_usuario} = request.params;
+
         let id_mensualidad = CARGOS.ID_CARGO_MENSUALIDAD;
         let query = getQueryPrincipal(null, true);
         console.log("QUER " + id_mensualidad + "     " + query);
-        pool.query(query, [id_mensualidad],
+        pool.query(query, [id_usuario,id_mensualidad],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -104,13 +105,13 @@ const getReporteContadoresMesesPorSucursal = (request, response) => {
 
         //validarToken(request,response);
 
-        let { id_sucursal } = request.params;
+        let { id_usuario,id_sucursal } = request.params;
 
         console.log("PARAMETRO id sucursal " + id_sucursal);
 
         pool.query(
             getQueryPrincipal(id_sucursal, false)
-            , [CARGOS.ID_CARGO_MENSUALIDAD],
+            , [id_usuario,CARGOS.ID_CARGO_MENSUALIDAD],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -136,7 +137,13 @@ function getQueryPrincipal(id_sucursal, isQueryInicial) {
     }
 
     const query = `
-    with meses AS (
+    with sucursal_usuario AS(
+        select suc.*		   
+            from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
+            where usr.usuario = $1
+                and usr.eliminado = false
+                and suc.eliminado = false	
+    ), meses AS (
         select to_char(generate_series,'YYYYMM')  as anio_mes,
                 to_char(generate_series,'MM')  as numero_mes
         from generate_series((select date_trunc('year', now())),(getDate('')+getHora(''))::timestamp,'1 month') 
@@ -154,8 +161,8 @@ function getQueryPrincipal(id_sucursal, isQueryInicial) {
              left join co_pago_cargo_balance_alumno rel on rel.co_cargo_balance_alumno = cargo.id
              left join co_pago_balance_alumno pago on rel.co_pago_balance_alumno = pago.id and pago.eliminado = false                 
              left join co_alumno al on al.co_balance_alumno = cargo.co_balance_alumno
-             left join co_sucursal suc on suc.id = al.co_sucursal
-        where cargo.cat_cargo = $1 `
+             left join sucursal_usuario suc on suc.id = al.co_sucursal
+        where cargo.cat_cargo = $2 `
         + complementoSucursal
         + complementoMes
         + ` and cargo.eliminado = false 

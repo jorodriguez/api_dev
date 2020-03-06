@@ -52,16 +52,16 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
 const getReporteBalanceAlumnosSucursal = (request, response) => {
     console.log("@getReportePrincipal");
     try {
-       // validarToken(request,response);        
+        // validarToken(request,response);        
 
         const id_sucursal = request.params.id_sucursal;
         const idTipoCargoFiltro = request.params.id_tipo_cargo;
-        
-        const filtrarPorCargo = (idTipoCargoFiltro > 0);
-        console.log("Tipo cargo "+idTipoCargoFiltro);
-        console.log("filtrar ?  "+filtrarPorCargo);
 
-        const parametros = filtrarPorCargo ? [id_sucursal,idTipoCargoFiltro] : [id_sucursal];
+        const filtrarPorCargo = (idTipoCargoFiltro > 0);
+        console.log("Tipo cargo " + idTipoCargoFiltro);
+        console.log("filtrar ?  " + filtrarPorCargo);
+
+        const parametros = filtrarPorCargo ? [id_sucursal, idTipoCargoFiltro] : [id_sucursal];
         pool.query(
             `
             WITH cargos AS (
@@ -122,7 +122,7 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
                                 and cargos.pagado = false 
                                 and cargos.eliminado=false
                         )	
-                         `:''}
+                         `: ''}
                        and a.eliminado = false
                 group by a.id,balance.id
                     ORDER BY balance.total_adeudo DESC
@@ -134,7 +134,7 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
-                console.log(" ==> "+results.rows);
+                console.log(" ==> " + results.rows);
                 response.status(200).json(results.rows);
             });
     } catch (e) {
@@ -143,15 +143,8 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
     }
 };
 
-
-const getReporteBalancePorSucursal = (request, response) => {
-    console.log("@getReporteBalancePorSucursal");
-    try {
-       // validarToken(request,response);        
-
-        pool.query(
-            `
-            with total_alumnos_count As( 
+/*
+with total_alumnos_count As( 
                 select co_sucursal,count(*) AS contador_alumnos
                     from co_alumno 
                     where eliminado = false
@@ -191,7 +184,62 @@ const getReporteBalancePorSucursal = (request, response) => {
               WHERE a.eliminado = false 
               GROUP by suc.id,suc.class_color,total_alumnos.contador_alumnos,cargos.json_array
               ORDER BY suc.nombre DESC 
-            `,
+*/
+const getReporteBalancePorSucursal = (request, response) => {
+    console.log("@getReporteBalancePorSucursal");
+    try {
+        // validarToken(request,response);        
+        const { id_usuario } = request.params;
+
+        pool.query(
+            `
+            with sucursal_usuario AS(
+                select suc.*		   
+                from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
+                where usr.usuario = $1
+                    and usr.eliminado = false
+                    and suc.eliminado = false
+                ),total_alumnos_count As( 
+                                select a.co_sucursal,count(a.*) AS contador_alumnos
+                                from co_alumno a inner join sucursal_usuario suc on a.co_sucursal = a.co_sucursal                    
+                                Where a.eliminado = false
+                                group by a.co_sucursal
+                         ),cargos_desglose AS (						
+                             with universo_cargos as (
+                                     select suc.id as id_sucursal,									
+                                             count(cargos.id) as cargos_pendientes_pago,
+                                             tipo_cargo.id as id_cargo,
+                                             tipo_cargo.nombre as tipo_cargo,
+                                             sum(cargos.total) as total_cargos_desglose,
+                                             sum(cargos.total_pagado) as total_cargos_pagados_desglose,
+                                             (sum(cargos.total) - sum(cargos.total_pagado)) as total_cargos_pendiente_desglose
+                                     from co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id
+                                                 inner join co_cargo_balance_alumno cargos on cargos.co_balance_alumno = balance.id	and a.eliminado = false	
+                                                             and cargos.pagado = false
+                                                             and cargos.eliminado = false
+                                                 inner join cat_cargo tipo_cargo on  cargos.cat_cargo = tipo_cargo.id
+                                                 inner join sucursal_usuario suc on a.co_sucursal = suc.id
+                                         group by suc.id,tipo_cargo.id
+                                         order by suc.id,tipo_cargo.id
+                                     ) select c.id_sucursal,
+                                             array_to_json(array_agg(row_to_json((c.*))))::text AS json_array
+                                         from universo_cargos c
+                                         group by c.id_sucursal						
+                         ) SELECT suc.id, suc.nombre,suc.class_color,
+                                sum(balance.total_adeudo) as total_adeuda,
+                                sum(balance.total_pagos) as total_pagos,
+                                sum(balance.total_cargos) as total_cargos,
+                                total_alumnos.contador_alumnos,
+                                COALESCE(cargos.json_array::json,'[]'::json) AS array_desglose_cargos 
+                          FROM co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id and a.eliminado = false
+                                    inner join co_grupo grupo on a.co_grupo = grupo.id
+                                    inner join sucursal_usuario suc on a.co_sucursal =suc.id
+                                    inner join total_alumnos_count total_alumnos on total_alumnos.co_sucursal = suc.id             
+                                    left join cargos_desglose cargos on cargos.id_sucursal = suc.id																
+                          WHERE a.eliminado = false 
+                          GROUP by suc.id,suc.nombre,suc.class_color,total_alumnos.contador_alumnos,cargos.json_array
+                          ORDER BY suc.nombre DESC 
+            `, [id_usuario],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -204,14 +252,8 @@ const getReporteBalancePorSucursal = (request, response) => {
     }
 };
 
-const getReporteCrecimientoBalancePorSucursal = (request, response) => {
-    console.log("@getReporteCrecimientoBalancePorSucursal");
-    try {
-        //validarToken(request,response);        
-
-        pool.query(
-            `
-             with universo AS(
+/*
+with universo AS(
                 select getDate('') As fecha
             ) select 
                 suc.id,
@@ -234,7 +276,47 @@ const getReporteCrecimientoBalancePorSucursal = (request, response) => {
                         ,suc.nombre
                         ,suc.class_color	
 			order by 
-					suc.nombre desc`,
+					suc.nombre desc
+*/
+
+const getReporteCrecimientoBalancePorSucursal = (request, response) => {
+    console.log("@getReporteCrecimientoBalancePorSucursal");
+    try {
+        //validarToken(request,response);        
+        const {id_usuario} = request.params;
+        pool.query(
+            `            
+        with sucursal_usuario AS(
+	        select suc.*		   
+	        from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
+	        where usr.usuario = $1
+		        and usr.eliminado = false
+		        and suc.eliminado = false	
+            ),universo AS(
+                select getDate('') As fecha
+            ) select 
+                suc.id,
+                suc.nombre,
+                suc.class_color,
+				to_char(getDate(''),'Mon-YYYY') as mes_anio,								
+				to_char(getDate(''),'YYYY') as numero_anio,
+				to_char(getDate(''),'MM') as numero_mes,				
+				count(alumno.*) as count_alumno,					
+			    coalesce(sum(alumno.costo_colegiatura),0) as suma_colegiaturas,
+				coalesce(sum(alumno.costo_inscripcion),0) as suma_inscripciones,
+				coalesce((sum(alumno.costo_colegiatura) + sum(alumno.costo_inscripcion)),0) as suma_total							
+			 from sucursal_usuario suc left join co_alumno alumno on alumno.co_sucursal = suc.id								            
+								    and to_char(getDate(''),'YYYYMM') = to_char(alumno.fecha_inscripcion,'YYYYMM')						 
+									and alumno.eliminado = false								   
+			group by suc.id,to_char(getDate(''),'Mon-YYYY'),
+						to_char(getDate(''),'MMYYYY'),
+						numero_anio,
+						numero_mes
+                        ,suc.nombre
+                        ,suc.class_color	
+			order by 
+					suc.nombre desc
+             `,[id_usuario],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -251,7 +333,7 @@ const getReporteCrecimientoBalancePorSucursal = (request, response) => {
 const getReporteCrecimientoBalanceAlumnosSucursal = (request, response) => {
     console.log("@getReporteCrecimientoBalanceAlumnosSucursal");
     try {
-       // validarToken(request,response);        
+        // validarToken(request,response);        
 
         const id_sucursal = request.params.id_sucursal;
 
@@ -291,14 +373,8 @@ const getReporteCrecimientoBalanceAlumnosSucursal = (request, response) => {
 };
 
 
-
-const getReporteCrecimientoGlobal = (request, response) => {
-    console.log("@getReporteCrecimientoGlobal");
-    try {
-    
-
-        pool.query(
-            "  with universo AS( " +
+/*
+"  with universo AS( " +
             "       select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as fecha" +
             "   ) select " +
             "           to_char(u.fecha,'Mon-YYYY') as mes_anio," +
@@ -315,7 +391,42 @@ const getReporteCrecimientoGlobal = (request, response) => {
             "   to_char(u.fecha,'MMYYYY')," +
             "           numero_anio," +
             "			numero_mes	" +
-            " order by numero_anio desc,numero_mes desc ",
+            " order by numero_anio desc,numero_mes desc "
+*/
+const getReporteCrecimientoGlobal = (request, response) => {
+    console.log("@getReporteCrecimientoGlobal");
+    try {
+        const {id_usuario} = request.params;
+
+        pool.query(
+            `
+            with sucursal_usuario AS(
+                select suc.*		   
+                    from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
+                    where usr.usuario = $1
+                        and usr.eliminado = false
+                        and suc.eliminado = false	
+                ), universo AS( 
+                       select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as fecha
+                   ) select 
+                           to_char(u.fecha,'Mon-YYYY') as mes_anio,
+                            to_char(u.fecha,'YYYY') as numero_anio,
+                           to_char(u.fecha,'MM') as numero_mes,
+                          count(alumno.*) as count_alumno,
+                           coalesce(sum(alumno.costo_colegiatura),0) as suma_colegiaturas,
+                           coalesce(sum(alumno.costo_inscripcion),0) as suma_inscripciones,
+                           coalesce((sum(alumno.costo_colegiatura) + sum(alumno.costo_inscripcion)),0) as suma_total
+                  from universo u left join co_alumno alumno 
+                                    inner join sucursal_usuario us on us.id = alumno.co_sucursal
+                           on to_char(u.fecha,'YYYYMM') = to_char(alumno.fecha_inscripcion,'YYYYMM')
+                           and alumno.eliminado = false						
+                    group by to_char(u.fecha,'Mon-YYYY'),
+                   to_char(u.fecha,'MMYYYY'),
+                           numero_anio,
+                            numero_mes	
+                 order by numero_anio desc,numero_mes desc 
+            `            ,
+            [id_usuario],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -399,7 +510,7 @@ const getReporteCrecimientoMensualSucursal = (request, response) => {
 const getReporteAlumnosMensualCrecimiento = (request, response) => {
     console.log("@getReporteAlumnosMensualCrecimiento");
     try {
-        
+
         //validarToken(request,response);        
 
         console.log(JSON.stringify(request.params));
@@ -567,12 +678,12 @@ const getReporteGastosIngresosSucursalPorMes = (request, response) => {
 const getAllAlumnosCargos = (request, response) => {
     console.log("@getAllAlumnosCargos");
     try {
-       
-       // validarToken(request,response);        
 
-        const {id_sucursal } = request.params;
+        // validarToken(request,response);        
 
-       pool.query(
+        const { id_sucursal } = request.params;
+
+        pool.query(
             `
             with universo_cargos as (
                 select
@@ -609,7 +720,7 @@ const getAllAlumnosCargos = (request, response) => {
                 group by al.id,grupo.id
                order by al.nombre
             `,
-            [id_sucursal,id_sucursal],
+            [id_sucursal, id_sucursal],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -631,7 +742,7 @@ module.exports = {
     getReporteCrecimientoGlobal,
     getReporteCrecimientoMensualSucursal,
     getReporteAlumnosMensualCrecimiento,
-    getReporteAlumnosNuevosIngresosGlobal    ,
+    getReporteAlumnosNuevosIngresosGlobal,
     getReporteGastosIngresosSucursalPorMes,
     getAllAlumnosCargos
 };

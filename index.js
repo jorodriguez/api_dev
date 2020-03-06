@@ -231,13 +231,13 @@ GET('/mensualidad/vence_semana_actual/:id_sucursal', recargoService.obtenerPagos
 GET('/formas_pagos', catagolos.getFormasPago);
 
 //Reporte
-GET('/balance_sucursal', reporteDeudas.getReporteBalancePorSucursal);
+GET('/balance_sucursal/:id_usuario', reporteDeudas.getReporteBalancePorSucursal);
 GET('/balance_alumnos_sucursal/:id_sucursal/:id_tipo_cargo', reporteDeudas.getReporteBalanceAlumnosSucursal);
 
-GET('/balance_crecimiento', reporteDeudas.getReporteCrecimientoBalancePorSucursal);
+GET('/balance_crecimiento/:id_usuario', reporteDeudas.getReporteCrecimientoBalancePorSucursal);
 GET('/balance_crecimiento_alumnos/:id_sucursal', reporteDeudas.getReporteCrecimientoBalanceAlumnosSucursal);
 
-GET('/balance_crecimiento_global', reporteDeudas.getReporteCrecimientoGlobal);
+GET('/balance_crecimiento_global/:id_usuario', reporteDeudas.getReporteCrecimientoGlobal);
 GET('/balance_crecimiento_mensual/:id_sucursal', reporteDeudas.getReporteCrecimientoMensualSucursal);
 GET('/alumnos_balance_crecimiento_mensual_sucursal/:id_sucursal/:mes_anio', reporteDeudas.getReporteAlumnosMensualCrecimiento);
 
@@ -298,8 +298,8 @@ app.put('/cliente/:id_familiar', actividad_reporte.updateDatosFamiliar);
 GET('/reset_password/:id_familiar', familiar.resetPasswordFamiliar);
 
 //reporte de mensualidades facturadas
-GET('/reporte_mensualidades', reporte_mensualidades.getReporteContadoresSucursalesMesActual);
-GET('/reporte_mensualidades/:id_sucursal', reporte_mensualidades.getReporteContadoresMesesPorSucursal);
+GET('/reporte_mensualidades_sucursales/:id_sucursal', reporte_mensualidades.getReporteContadoresSucursalesMesActual);
+GET('/reporte_mensualidades/:id_sucursal/:id_usuario', reporte_mensualidades.getReporteContadoresMesesPorSucursal);
 GET('/reporte_mensualidades/:id_sucursal/:mes', reporte_mensualidades.getReporteMensualidadesPorSucursalMes);
 
 //configuracion

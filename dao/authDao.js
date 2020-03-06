@@ -5,18 +5,25 @@ const  CONDICION_ID =  'u.id = $1';
 const getQueryBase = (condicion) => {
     return `
     SELECT u.id,
-          u.nombre,
-          u.correo,
-      u.password,
-      u.co_sucursal,
-      u.permiso_gerente,
-      su.nombre AS nombre_sucursal,
-      em.id AS id_empresa,
-      em.nombre as nombre_empresa,
-      (select count(r.*)
-          from si_usuario_sucursal_rol r							
-          where r.usuario = u.id and r.eliminado = false)	
-      AS sucursales
+            u.nombre,
+            u.correo,
+            u.password,
+            u.co_sucursal,
+            u.permiso_gerente,
+            su.nombre AS nombre_sucursal,
+            em.id AS id_empresa,
+            em.nombre as nombre_empresa,
+            (select count(r.*)
+                from si_usuario_sucursal_rol r							
+                where r.usuario = u.id and r.eliminado = false)	
+            AS contador_sucursales,
+            (
+				select  array_to_json(array_agg(distinct r.co_sucursal))
+                from si_usuario_sucursal_rol r
+                where r.usuario = u.id and r.eliminado = false
+				
+			)	
+            AS sucursales
     FROM usuario u inner join co_sucursal su on u.co_sucursal = su.id
       inner join co_empresa em on em.id = u.co_empresa    
     WHERE ${condicion}
