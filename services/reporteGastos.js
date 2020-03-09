@@ -69,6 +69,7 @@ const getReporteGastosSucursalesMensual = (request, response) => {
     }
 };
 
+/*
 const getReporteGastosSucursalesMensualActual = (request, response) => {
     console.log("@getReporteGastosSucursalesMensualActual");
     try {
@@ -87,6 +88,45 @@ const getReporteGastosSucursalesMensualActual = (request, response) => {
             group by suc.nombre,suc.id,suc.class_color
             order by  suc.nombre desc
             `,
+            (error, results) => {
+                if (error) {
+                    handle.callbackError(error, response);
+                    return;
+                }
+                response.status(200).json(results.rows);
+            });
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};*/
+
+
+const getReporteGastosSucursalesMensualActual = (request, response) => {
+    console.log("@getReporteGastosSucursalesMensualActual");
+    try {
+       // validarToken(request,response);
+
+       const {id_usuario} = request.params;
+
+        pool.query(
+            `
+            with sucursal_usuario AS(
+                select DISTINCT suc.*		   
+                from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
+                where usr.usuario = $1
+                    and usr.eliminado = false
+                    and suc.eliminado = false
+            ) select
+                suc.id as id_sucursal,
+                suc.nombre,
+                suc.class_color,
+               coalesce(sum(gasto.gasto),0) as suma
+            from sucursal_usuario suc left join co_gasto gasto on gasto.co_sucursal = suc.id
+                           and to_char(gasto.fecha,'YYYYMM') = to_char(getDate(''),'YYYYMM')
+                           and gasto.eliminado = false
+            group by suc.nombre,suc.id,suc.class_color
+            order by  suc.nombre desc
+            `,[id_usuario],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -210,13 +250,22 @@ const getReporteGastoMensualActual = (request, response) => {
     try {
         //validarToken(request,response);
 
+        const {id_usuario} = request.params;
+
         pool.query(
             `
-                select sum(gasto) as gasto_mes_actual
-                from co_gasto 
-                where  to_char(fecha,'Mon-YYYY') = to_char(getDate(''),'Mon-YYYY') 							
-                                    and  eliminado = false			
-            `,
+            with sucursal_usuario AS(
+                select DISTINCT suc.*		   
+                from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
+                where usr.usuario = $1
+                    and usr.eliminado = false
+                    and suc.eliminado = false
+            )
+		    select sum(g.gasto) as gasto_mes_actual
+                from co_gasto g inner join sucursal_usuario su on su.id = g.co_sucursal
+                where  to_char(g.fecha,'Mon-YYYY') = to_char(getDate(''),'Mon-YYYY') 							
+			and  g.eliminado = false		
+            `,[id_usuario],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);

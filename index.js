@@ -262,12 +262,12 @@ GET('/tipos_gasto', gastos.getCatalogoTipoGasto);
 
 //Reporte de gastos
 //GET('/reporte_gastos', reporte_gastos.getReporteGastosSucursalesMensual);
-GET('/reporte_gastos', reporte_gastos.getReporteGastosSucursalesMensualActual);
+GET('/reporte_gastos_sucursales/:id_usuario', reporte_gastos.getReporteGastosSucursalesMensualActual);
 //GET('/reporte_gastos/:mes_anio', reporte_gastos.getReporteGastosSucursalesMensual);
 GET('/reporte_gastos/:id_sucursal', reporte_gastos.getReporteGastosMensualesPorSucursalTrend);
 GET('/reporte_gastos/:id_sucursal/:mes_anio', reporte_gastos.getReporteDetalleGastosPorSucursal);
 GET('/reporte_gastos_global', reporte_gastos.getReporteGastosGlobal);
-GET('/reporte_gastos_mes_actual', reporte_gastos.getReporteGastoMensualActual);
+GET('/reporte_gastos_mes_actual/:id_usuario', reporte_gastos.getReporteGastoMensualActual);
 
 
 //catalogo de maestros

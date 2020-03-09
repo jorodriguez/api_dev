@@ -79,7 +79,7 @@ const getReporteContadoresSucursalesMesActual = (request, response) => {
 
         let id_mensualidad = CARGOS.ID_CARGO_MENSUALIDAD;
         let query = getQueryPrincipal(null, true);
-        console.log("QUER " + id_mensualidad + " id usuario    "+id_usuario+"  query " + query);
+        console.log("MENSUALIDAD  " + id_mensualidad + "  USUARIO   " +id_usuario+"  QUERY "+ query);
         pool.query(query, [id_usuario,id_mensualidad],
             (error, results) => {
                 if (error) {
@@ -94,8 +94,6 @@ const getReporteContadoresSucursalesMesActual = (request, response) => {
         console.log("Errro " + e);
         handle.callbackErrorNoControlado(e, response);
     }
-
-
 };
 
 //obtiene las sucursales
@@ -138,7 +136,7 @@ function getQueryPrincipal(id_sucursal, isQueryInicial) {
 
     const query = `
     with sucursal_usuario AS(
-        select suc.*		   
+        select DISTINCT suc.*		   
             from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
             where usr.usuario = $1
                 and usr.eliminado = false
