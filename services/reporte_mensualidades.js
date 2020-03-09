@@ -79,7 +79,7 @@ const getReporteContadoresSucursalesMesActual = (request, response) => {
 
         let id_mensualidad = CARGOS.ID_CARGO_MENSUALIDAD;
         let query = getQueryPrincipal(null, true);
-        console.log("QUER " + id_mensualidad + "     " + query);
+        console.log("MENSUALIDAD  " + id_mensualidad + "  USUARIO   " +id_usuario+"  QUERY "+ query);
         pool.query(query, [id_usuario,id_mensualidad],
             (error, results) => {
                 if (error) {
@@ -94,8 +94,6 @@ const getReporteContadoresSucursalesMesActual = (request, response) => {
         console.log("Errro " + e);
         handle.callbackErrorNoControlado(e, response);
     }
-
-
 };
 
 //obtiene las sucursales
@@ -138,7 +136,7 @@ function getQueryPrincipal(id_sucursal, isQueryInicial) {
 
     const query = `
     with sucursal_usuario AS(
-        select suc.*		   
+        select DISTINCT suc.*		   
             from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
             where usr.usuario = $1
                 and usr.eliminado = false
@@ -161,12 +159,12 @@ function getQueryPrincipal(id_sucursal, isQueryInicial) {
              left join co_pago_cargo_balance_alumno rel on rel.co_cargo_balance_alumno = cargo.id
              left join co_pago_balance_alumno pago on rel.co_pago_balance_alumno = pago.id and pago.eliminado = false                 
              left join co_alumno al on al.co_balance_alumno = cargo.co_balance_alumno
-             left join sucursal_usuario suc on suc.id = al.co_sucursal
+             inner join sucursal_usuario suc on suc.id = al.co_sucursal
         where cargo.cat_cargo = $2 `
         + complementoSucursal
         + complementoMes
         + ` and cargo.eliminado = false 
-         GROUP BY m.anio_mes,suc.id,m.numero_mes
+        GROUP BY m.anio_mes,suc.id,suc.nombre,suc.class_color,m.numero_mes
          ORDER BY m.numero_mes DESC`;
     //console.log(query);
     return query;

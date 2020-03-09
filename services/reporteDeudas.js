@@ -194,7 +194,7 @@ const getReporteBalancePorSucursal = (request, response) => {
         pool.query(
             `
             with sucursal_usuario AS(
-                select suc.*		   
+                select DISTINCT suc.*		   
                 from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
                 where usr.usuario = $1
                     and usr.eliminado = false
@@ -287,7 +287,7 @@ const getReporteCrecimientoBalancePorSucursal = (request, response) => {
         pool.query(
             `            
         with sucursal_usuario AS(
-	        select suc.*		   
+	        select DISTINCT suc.*		   
 	        from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
 	        where usr.usuario = $1
 		        and usr.eliminado = false
@@ -401,7 +401,7 @@ const getReporteCrecimientoGlobal = (request, response) => {
         pool.query(
             `
             with sucursal_usuario AS(
-                select suc.*		   
+                select DISTINCT suc.*		   
                     from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
                     where usr.usuario = $1
                         and usr.eliminado = false
@@ -674,7 +674,7 @@ const getReporteGastosIngresosSucursalPorMes = (request, response) => {
 };
 
 
-
+/*
 const getAllAlumnosCargos = (request, response) => {
     console.log("@getAllAlumnosCargos");
     try {
@@ -732,7 +732,7 @@ const getAllAlumnosCargos = (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
-
+*/
 
 module.exports = {
     getReporteBalanceAlumnosSucursal,
@@ -744,5 +744,5 @@ module.exports = {
     getReporteAlumnosMensualCrecimiento,
     getReporteAlumnosNuevosIngresosGlobal,
     getReporteGastosIngresosSucursalPorMes,
-    getAllAlumnosCargos
+  //  getAllAlumnosCargos
 };
