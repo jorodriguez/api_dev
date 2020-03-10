@@ -166,7 +166,7 @@ function getQueryPrincipal(id_sucursal, isQueryInicial) {
         + ` and cargo.eliminado = false 
         GROUP BY m.anio_mes,suc.id,suc.nombre,suc.class_color,m.numero_mes
          ORDER BY m.numero_mes DESC`;
-    //console.log(query);
+    console.log(query);
     return query;
 }
 

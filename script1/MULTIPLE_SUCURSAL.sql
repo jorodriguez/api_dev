@@ -146,3 +146,118 @@ values(12,2,1,1,1),(12,3,1,1,1);;
 
 
 alter table co_sucursal add column foto text;
+
+
+
+query
+
+
+ with sucursal_usuario AS(
+        select DISTINCT suc.*              
+            from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
+            where usr.usuario = 17
+                and usr.eliminado = false
+                and suc.eliminado = false
+    ), meses AS (
+        select to_char(generate_series,'YYYYMM')  as anio_mes,
+                to_char(generate_series,'MM')  as numero_mes
+        from generate_series(
+							(select date_trunc('year', now())),
+					    	(select max(fecha) from co_cargo_balance_alumno where date_trunc('year',fecha) = date_trunc('year',getDate('')))
+							,'1 month'
+				) 
+    )
+    SELECT 
+            suc.id as id_sucursal,
+            suc.nombre as sucursal,
+            anio_mes,
+            m.numero_mes::integer,
+            suc.class_color,              
+            count(cargo.*) filter (where cargo.pagado) as cargos_pagados,                          
+            count(cargo.*) filter (where cargo.pagado = false) as cargos_no_pagados,                              
+            count(cargo.*) as total_cargos                
+        from sucursal_usuario suc left join co_alumno al on al.co_sucursal = suc.id
+								left join co_cargo_balance_alumno cargo on cargo.co_balance_alumno = al.co_balance_alumno
+								left join meses m on  to_char(cargo.fecha,'YYYYMM') = m.anio_mes
+        where cargo.cat_cargo = 1  
+		--and  suc.id  = 1 
+		--and to_char(cargo.fecha,'YYYYMM') = to_char(getDate(''),'YYYYMM') 
+		and cargo.eliminado = false 
+        GROUP BY m.anio_mes,suc.id,suc.nombre,suc.class_color,m.numero_mes
+        ORDER BY m.numero_mes DESC
+		
+				
+		---estr
+	 with sucursal_usuario AS(
+        select DISTINCT suc.*              
+            from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
+            where usr.usuario = 17
+                and usr.eliminado = false
+                and suc.eliminado = false
+    )select suc.id as id_sucursal,
+			suc.nombre as sucursal,
+			suc.class_color,		
+			to_char(cargo.fecha,'MM') as numero_mes,
+			count(cargo.*) filter (where cargo.pagado) as cargos_pagados,			   
+            count(cargo.*) filter (where cargo.pagado = false) as cargos_no_pagados,			   			   
+            count(cargo.*) as total_cargos  
+	 from sucursal_usuario suc inner join co_alumno al on al.co_sucursal = suc.id	 
+	 							left join co_cargo_balance_alumno cargo on cargo.co_balance_alumno = al.co_balance_alumno
+								--and to_char(cargo.fecha,'YYYYMM') = '202008'--to_char(getDate(''),'YYYYMM') 
+	where cargo.cat_cargo = 1
+	group by suc.id,suc.nombre,suc.class_color, to_char(cargo.fecha,'MM')
+	
+	
+	
+				
+				
+				
+				
+	with sucursal_usuario AS(
+        select DISTINCT suc.*              
+            from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
+            where usr.usuario = 17
+                and usr.eliminado = false
+                and suc.eliminado = false
+    ),cargos AS (
+		select suc.id as id_sucursal,
+			suc.nombre as sucursal,
+			suc.class_color,		
+			to_char(cargo.fecha,'YYYYMM') as anio_mes,
+			count(cargo.*) filter (where cargo.pagado) as cargos_pagados,			   
+            count(cargo.*) filter (where cargo.pagado = false) as cargos_no_pagados,			   			   
+            count(cargo.*) as total_cargos  
+	 from sucursal_usuario suc inner join co_alumno al on al.co_sucursal = suc.id	 
+	 							left join co_cargo_balance_alumno cargo on cargo.co_balance_alumno = al.co_balance_alumno							
+	where cargo.cat_cargo = 1
+	group by suc.id,suc.nombre,suc.class_color, to_char(cargo.fecha,'YYYYMM')
+	order by to_char(cargo.fecha,'YYYYMM') desc
+	) select
+			to_char(generate_series,'YYYYMM')  as anio_mes,
+            to_char(generate_series,'MM')  as numero_mes,
+			(select nombre from si_meses where id = to_char(generate_series,'MM')::integer) nombre_mes,			
+			c.id_sucursal,
+			c.sucursal,
+			c.class_color,
+			c.cargos_pagados,
+			c.cargos_no_pagados,
+			c.total_cargos
+        from generate_series(
+							(select date_trunc('year', now())),
+					    	(select max(fecha) from co_cargo_balance_alumno where date_trunc('year',fecha) = date_trunc('year',getDate('')) and eliminado = false)
+							,'1 month'
+				) 	left join cargos c on c.anio_mes = to_char(generate_series,'YYYYMM')
+		where --to_char(generate_series,'YYYYMM') = '202003'
+				--c.id_sucursal =1
+		
+
+        (
+				select count(cargo.*) as pagados
+				from co_alumno al 
+					inner join co_cargo_balance_alumno cargo on cargo.co_balance_alumno = al.co_balance_alumno
+				where to_char(cargo.fecha,'YYYYMM') =''-- to_char(getDate(''),'YYYYMM') 
+						and cargo.cat_cargo = 1
+						and cargo.pagado = true 
+						and cargo.eliminado = false
+						and al.co_sucursal = suc.id																																			
+			)
