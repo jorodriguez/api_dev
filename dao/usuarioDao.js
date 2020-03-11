@@ -149,6 +149,17 @@ const buscarUsuarioId = (idUsuario) => {
     return genericDao.buscarPorId("USUARIO", idUsuario);
 };
 
+const getSucursalesUsuario = (idUsuario)=>{
+    return genericDao.findAll(
+        `
+        SELECT DISTINCT suc.*              
+        FROM si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
+        WHERE usr.usuario = $1
+            and usr.eliminado = false
+            and suc.eliminado = false`
+        ,[idUsuario]);
+};
+
 module.exports = {
     obtenerCorreosPorTema
     , insertarUsuario
@@ -159,5 +170,6 @@ module.exports = {
     , getUsuarioPorSucursal
     , validarCorreoUsuario
     , buscarCorreo
+    , getSucursalesUsuario 
 };
 

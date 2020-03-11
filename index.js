@@ -298,6 +298,9 @@ app.put('/cliente/:id_familiar', actividad_reporte.updateDatosFamiliar);
 GET('/reset_password/:id_familiar', familiar.resetPasswordFamiliar);
 
 //reporte de mensualidades facturadas
+GET('/sucursal_usuario/sucursales_asignadas/:id_usuario',usuarioService.getSucursalesUsuario);
+GET('/reporte_mensualidades/:id_sucursal/:anio', reporte_mensualidades.getMensualidadesAlumnosSucursal);
+
 GET('/reporte_mensualidades_mes_actual/:id_usuario', reporte_mensualidades.getReporteContadoresSucursalesMesActual);
 GET('/reporte_mensualidades/:id_sucursal/:id_usuario', reporte_mensualidades.getReporteContadoresMesesPorSucursal);
 GET('/reporte_mensualidades/:id_sucursal/:mes', reporte_mensualidades.getReporteMensualidadesPorSucursalMes);

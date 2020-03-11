@@ -130,12 +130,17 @@ function buscarPorId(idUsuario) {
     return usuarioDao.buscarUsuarioId(idUsuario);
 }
 
+function getSucursalesUsuario(idUsuario){
+    return usuarioDao.getSucursalesUsuario(idUsuario);
+}
+
 module.exports = {
     getUsuariosPorSucursal,
     crearUsuarioConCorreo, crearUsuario, modificarContrasena,
     modificarUsuario,
     desactivarUsuario,
     buscarPorId,
-    modificarUsuarioConCorreo
+    modificarUsuarioConCorreo,
+    getSucursalesUsuario
 
 };

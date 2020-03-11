@@ -166,6 +166,30 @@ const buscarUsuarioPorId = (request, response) => {
 };
 
 
+const getSucursalesUsuario = (request, response) => {
+
+	try {
+		const idUsuario = request.params.id_usuario;
+
+		usuarioService
+			.getSucursalesUsuario(idUsuario)
+			.then(results => {
+
+				response.status(200).json(results);
+
+			}).catch(error => {
+				console.error(error);
+				handle.callbackError(error, response);
+			});
+
+	} catch (e) {
+		console.error(e);
+		handle.callbackErrorNoControlado(e, response);
+	}
+};
+
+
+
 module.exports = {
-	crearUsuario, modificarUsuario, desactivarUsuario, getUsuariosPorSucursal, buscarUsuarioPorId
+	crearUsuario, modificarUsuario, desactivarUsuario, getUsuariosPorSucursal, buscarUsuarioPorId,getSucursalesUsuario
 };

@@ -2,6 +2,7 @@
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const { CARGOS } = require('../utils/Constantes');
+const reporteMensualidadesService = require('../domain/reporteMensualidadService');
 
 const getReporteMensualidadesPorSucursalMes = (request, response) => {
     console.log("@getReporteMensualidadesPorSucursalMes");
@@ -171,9 +172,38 @@ function getQueryPrincipal(id_sucursal, isQueryInicial) {
 }
 
 
+/***nueva version */
+
+/* obtener los alumnos por sucursal anio todas los meses con mensualidades*/ 
+
+
+const getMensualidadesAlumnosSucursal = (request, response) => {
+    console.log("@getMensualidadesAlumnosSucursal");
+    try {
+
+        //validarToken(request,response);
+
+        let { id_sucursal,anio } = request.params;
+
+        console.log("PARAMETRO id sucursal " + id_sucursal);
+
+        reporteMensualidadesService
+        .getMensualidadesAlumnosSucursal(id_sucursal,anio)
+        .then(results=>{
+            response.status(200).json(results);
+        }).catch(error=>{
+            handle.callbackErrorNoControlado(error, response);
+        });        
+        
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
 
 module.exports = {
     getReporteMensualidadesPorSucursalMes,
     getReporteContadoresSucursalesMesActual,
     getReporteContadoresMesesPorSucursal,
+    getMensualidadesAlumnosSucursal
 };

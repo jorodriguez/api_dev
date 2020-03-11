@@ -261,3 +261,34 @@ query
 						and cargo.eliminado = false
 						and al.co_sucursal = suc.id																																			
 			)
+
+
+
+
+            ---para excel
+         with meses AS(      
+        select m.id,
+				m.nombre,
+				m.abreviatura,
+				to_char(generate_series,'YYYY')  as anio,
+				to_char(generate_series,'YYYYMM')  as anio_mes,
+                to_char(generate_series,'MM')::integer  as numero_mes
+        from generate_series(
+							(select date_trunc('year', now())),
+					    	(select TO_CHAR(getDate(''), 'yyyy-12-31')::date)
+							,'1 month'
+				) inner join si_meses m on m.id = to_char(generate_series,'MM')::integer 
+    ) select			
+			cargo.id,
+			cargo.co_balance_alumno,
+			m.nombre,
+			m.anio,
+			cargo.total_pagado,
+			cargo.cargo,
+			cargo.total,
+			cargo.fecha,
+			cargo.texto_ayuda
+	from co_cargo_balance_alumno cargo left join meses m on m.anio_mes = to_char(cargo.fecha,'YYYYMM')					
+	where cargo.cat_cargo = 1 and cargo.eliminado = false 	
+			and  to_char(cargo.fecha,'YYYY') = '2020'
+	order by cargo.co_balance_alumno
