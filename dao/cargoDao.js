@@ -17,7 +17,7 @@ const registrarCargo = (cargoData) => {
         let sql = "";
 
         let respuesta = {
-            id_alumno:id_alumno,
+            id_alumno: id_alumno,
             id_cargo: -1,
             resultado: Boolean,
             mensaje: ""
@@ -65,7 +65,7 @@ const registrarCargo = (cargoData) => {
                 respuesta.error = error;
                 console.log("Error al intentar ejecutar el procedimiento de registro de cargo " + error);
                 reject(respuesta);
-            });      
+            });
 
     });
 
@@ -74,7 +74,7 @@ const registrarCargo = (cargoData) => {
 //fecha_limite_pago_mensualidad = (fecha_limite_pago_mensualidad + interval '1 month')
 
 
-const completarRegistroRecargoMensualidad = (idCargoMensualidad,idRecargo,genero) =>{
+const completarRegistroRecargoMensualidad = (idCargoMensualidad, idRecargo, genero) => {
 
     console.log(`=========================idCargoMensualidad ${idCargoMensualidad},idRecargo ${idRecargo}, genero ${genero}`);
 
@@ -84,7 +84,7 @@ const completarRegistroRecargoMensualidad = (idCargoMensualidad,idRecargo,genero
                                     fecha_modifico = (getDate('')+getHora(''))::timestamp,
                                     modifico = $3
                                 WHERE id = $1 RETURNING id;`
-                                ,[idCargoMensualidad,idRecargo,genero]);
+        , [idCargoMensualidad, idRecargo, genero]);
 };
 
 
@@ -125,12 +125,12 @@ const getCargosAlumno = (idAlumno) => {
 
 const getBalanceAlumno = (idAlumno) => {
     console.log("@getBalanceAlumno");
-    console.log("id_alumno ** " + idAlumno);    
+    console.log("id_alumno ** " + idAlumno);
     return genericDao.findOne(
         `SELECT al.nombre as nombre_alumno,al.apellidos as apellidos_alumno,to_char(al.fecha_limite_pago_mensualidad,'dd-Mon') as fecha_limite_pago_mensualidad, bal.* 
          FROM co_alumno al inner join  co_balance_alumno bal on al.co_balance_alumno = bal.id and bal.eliminado = false
          WHERE al.id = $1::int and al.eliminado = false `
-        ,[idAlumno]);
+        , [idAlumno]);
     /*
     response,
     (results) => {
@@ -216,6 +216,27 @@ const obtenerMesesAdeudaMensualidad = (idAlumno) => {
 };
 
 
+const obtenerFiltroAniosCargosSucursal = (idSucursal) => {
+    console.log("@obtenerFiltroAniosCargosSucursal");
+
+    console.log("ID sucursal " + idSucursal);
+    return genericDao
+        .findAll(
+            `
+            SELECT to_char(c.fecha,'YYYY')::integer as anio
+	        from co_cargo_balance_alumno c inner join co_alumno al on al.co_balance_alumno = al.co_balance_alumno
+	        where al.co_sucursal = $1
+		        and al.eliminado = false 
+		        and c.eliminado = false
+	        group by to_char(c.fecha,'YYYY')
+	        order by to_char(c.fecha,'YYYY')::integer desc
+	
+                        `,
+            [idSucursal]);
+
+};
+
+
 const QUERY_MESES_SIN_CARGO_MESUALIDAD = `
 with  serie_meses as (
     SELECT g::date as fecha_mes,
@@ -259,5 +280,6 @@ module.exports = {
     getBalanceAlumno,
     eliminarCargos,
     obtenerMesesAdeudaMensualidad,
-    completarRegistroRecargoMensualidad
+    completarRegistroRecargoMensualidad,
+    obtenerFiltroAniosCargosSucursal
 };

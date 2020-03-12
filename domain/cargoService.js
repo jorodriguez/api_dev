@@ -74,6 +74,12 @@ const obtenerMesesAdeudaMensualidad = (idAlumno) => {
     console.log("@obtenerMesesAdeudaMensualidad");
 
     return cargosDao.obtenerMesesAdeudaMensualidad(idAlumno);
+};
+
+const obtenerFiltroAniosCargosSucursal = (idSucursal) => {
+    console.log("@obtenerFiltroAniosCargosSucursal");
+
+    return cargosDao.obtenerFiltroAniosCargosSucursal(idSucursal);
 
 };
 
@@ -85,5 +91,6 @@ module.exports = {
     getBalanceAlumno,    
     eliminarCargos,
     obtenerMesesAdeudaMensualidad,
-    completarRegistroRecargoMensualidad
+    completarRegistroRecargoMensualidad,
+    obtenerFiltroAniosCargosSucursal
 };

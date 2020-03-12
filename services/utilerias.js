@@ -95,6 +95,7 @@ const getListaDiasTrabajadosRangoFecha = (request,response) =>{
 };
 
 
+
 module.exports = {
     getMesesActivos,
     findCorreoPadre,    
