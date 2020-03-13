@@ -65,10 +65,19 @@ const obtenerSucursalesUsuario = (id) => {
                 SELECT count(a.*) 
 			    from co_asistencia a inner join co_alumno alum on alum.id = a.co_alumno
 			    where a.fecha = getDate('')
-					and alum.co_sucursal = 1
+					and alum.co_sucursal = suc.id
 					and a.eliminado = false
 				and alum.eliminado = false
-		    ) AS contador_asistencia_alumnos, 
+            ) AS contador_asistencia_alumnos, 
+            (
+                SELECT count(a.*) 
+			    from co_asistencia a inner join co_alumno alum on alum.id = a.co_alumno
+			    where a.fecha = getDate('')
+					and alum.co_sucursal = suc.id			
+					and a.hora_salida is null
+					and a.eliminado = false
+				and alum.eliminado = false
+		    ) AS contador_alumnos_por_entregar, 
             array_to_json(
                 array_agg(row_to_json(rol.*))
         ) as roles
@@ -79,6 +88,7 @@ const obtenerSucursalesUsuario = (id) => {
             AND r.co_sucursal <> u.co_sucursal 
             AND u.acceso_sistema = true 
             AND u.activo = true
+            and r.eliminado = false
             AND u.eliminado = false
             and rol.eliminado = false
             group by suc.id,u.id`, [id]);

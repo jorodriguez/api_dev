@@ -120,11 +120,12 @@ const getReporteGastosSucursalesMensualActual = (request, response) => {
                 suc.id as id_sucursal,
                 suc.nombre,
                 suc.class_color,
+                suc.foto,
                coalesce(sum(gasto.gasto),0) as suma
             from sucursal_usuario suc left join co_gasto gasto on gasto.co_sucursal = suc.id
                            and to_char(gasto.fecha,'YYYYMM') = to_char(getDate(''),'YYYYMM')
                            and gasto.eliminado = false
-            group by suc.nombre,suc.id,suc.class_color
+            group by suc.nombre,suc.id,suc.class_color,suc.foto
             order by  suc.nombre desc
             `,[id_usuario],
             (error, results) => {
@@ -187,6 +188,7 @@ const getReporteDetalleGastosPorSucursal = (request, response) => {
             `
             SELECT
                 g.id,
+                to_char(g.fecha,'dd-MM-YYYY') as fecha_text,
                 g.fecha,
                 tipo.nombre as nombre_tipo_gasto,                     
                 f.nombre as nombre_forma_pago,
@@ -197,7 +199,7 @@ const getReporteDetalleGastosPorSucursal = (request, response) => {
             where g.co_sucursal = $1
                     and to_char(g.fecha,'YYYYMM') = $2
                     and g.eliminado = false				
-                order by  g.fecha asc        
+            order by  g.fecha desc        
             `, [id_sucursal, mes_anio],
             (error, results) => {
                 if (error) {
@@ -218,20 +220,33 @@ const getReporteGastosGlobal = (request, response) => {
     try {
         //validarToken(request,response);
 
+        const {id_usuario } = request.params;
+
         pool.query(
             `
-            with meses AS(
-                select to_char(generate_series,'Mon-YYYY') as mes from generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') 
+            with sucursal_usuario AS(
+                select DISTINCT suc.*		   
+                    from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
+                    where usr.usuario = $1
+                        and usr.eliminado = false
+                        and suc.eliminado = false	
+			), meses AS(
+                select to_char(s,'Mon-YYYY') as mes,to_char(s,'YYYY') as anio,meses.nombre as nombre_mes,meses.abreviatura as nombre_mes_abreviado
+				from generate_series((select min(fecha_inscripcion) 
+                                    from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') s
+                inner join si_meses meses on meses.id = to_char(s,'MM')::integer
 			) select			
-					m.mes as mes_anio,				
+                    m.nombre_mes as mes_anio,			
+                    m.nombre_mes_abreviado,
+                    m.anio,		
 					suc.nombre as nombre_sucursal,
 					coalesce(sum(gasto.gasto),0) as suma
               from meses m left join co_gasto gasto on m.mes = to_char(gasto.fecha,'Mon-YYYY') 							
 							and gasto.eliminado = false			                        														
-							inner join co_sucursal suc on suc.id = gasto.co_sucursal
-			group by m.mes,suc.nombre
-			order by m.mes,suc.nombre desc  			
-            `,
+							inner join sucursal_usuario suc on suc.id = gasto.co_sucursal
+                group by m.nombre_mes,m.mes,m.nombre_mes_abreviado,suc.nombre,m.anio
+                order by m.anio desc,m.mes desc,suc.nombre 			
+            `,[id_usuario],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -261,10 +276,12 @@ const getReporteGastoMensualActual = (request, response) => {
                     and usr.eliminado = false
                     and suc.eliminado = false
             )
-		    select sum(g.gasto) as gasto_mes_actual
+            select sum(g.gasto) as gasto_mes_actual,
+                    to_char(g.fecha,'Mon-YYYY') as mes
                 from co_gasto g inner join sucursal_usuario su on su.id = g.co_sucursal
                 where  to_char(g.fecha,'Mon-YYYY') = to_char(getDate(''),'Mon-YYYY') 							
-			and  g.eliminado = false		
+                and  g.eliminado = false		
+            group by to_char(g.fecha,'Mon-YYYY')
             `,[id_usuario],
             (error, results) => {
                 if (error) {

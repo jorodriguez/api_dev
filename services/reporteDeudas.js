@@ -201,7 +201,7 @@ const getReporteBalancePorSucursal = (request, response) => {
                     and suc.eliminado = false
                 ),total_alumnos_count As( 
                                 select a.co_sucursal,count(a.*) AS contador_alumnos
-                                from co_alumno a inner join sucursal_usuario suc on a.co_sucursal = a.co_sucursal                    
+                                from co_alumno a inner join sucursal_usuario suc on suc.id = a.co_sucursal                    
                                 Where a.eliminado = false
                                 group by a.co_sucursal
                          ),cargos_desglose AS (						
@@ -225,7 +225,7 @@ const getReporteBalancePorSucursal = (request, response) => {
                                              array_to_json(array_agg(row_to_json((c.*))))::text AS json_array
                                          from universo_cargos c
                                          group by c.id_sucursal						
-                         ) SELECT suc.id, suc.nombre,suc.class_color,
+                         ) SELECT suc.id, suc.nombre,suc.class_color,suc.foto,
                                 sum(balance.total_adeudo) as total_adeuda,
                                 sum(balance.total_pagos) as total_pagos,
                                 sum(balance.total_cargos) as total_cargos,
@@ -237,7 +237,7 @@ const getReporteBalancePorSucursal = (request, response) => {
                                     inner join total_alumnos_count total_alumnos on total_alumnos.co_sucursal = suc.id             
                                     left join cargos_desglose cargos on cargos.id_sucursal = suc.id																
                           WHERE a.eliminado = false 
-                          GROUP by suc.id,suc.nombre,suc.class_color,total_alumnos.contador_alumnos,cargos.json_array
+                          GROUP by suc.id,suc.nombre,suc.class_color,suc.foto,total_alumnos.contador_alumnos,cargos.json_array
                           ORDER BY suc.nombre DESC 
             `, [id_usuario],
             (error, results) => {
@@ -298,6 +298,7 @@ const getReporteCrecimientoBalancePorSucursal = (request, response) => {
                 suc.id,
                 suc.nombre,
                 suc.class_color,
+                suc.foto,
 				to_char(getDate(''),'Mon-YYYY') as mes_anio,								
 				to_char(getDate(''),'YYYY') as numero_anio,
 				to_char(getDate(''),'MM') as numero_mes,				
@@ -314,6 +315,7 @@ const getReporteCrecimientoBalancePorSucursal = (request, response) => {
 						numero_mes
                         ,suc.nombre
                         ,suc.class_color	
+                        ,suc.foto
 			order by 
 					suc.nombre desc
              `,[id_usuario],
@@ -530,6 +532,7 @@ const getReporteAlumnosMensualCrecimiento = (request, response) => {
                a.minutos_gracia,
                a.fecha_inscripcion::date,
                a.fecha_reinscripcion::date,
+               a.foto,
                suc.nombre as nombre_sucursal, 
                balance.id as id_balance,
                balance.total_adeudo,
@@ -562,10 +565,17 @@ const getReporteAlumnosNuevosIngresosGlobal = (request, response) => {
     try {
         //validarToken(request,response);        
 
-        const { anio, mes } = request.params;
+        const { anio, mes ,id_usuario } = request.params;
 
         pool.query(
-            `   
+            ` 
+        with sucursal_usuario AS(
+                select DISTINCT suc.*              
+                    from si_usuario_sucursal_rol usr inner join co_sucursal suc on usr.co_sucursal = suc.id
+                    where usr.usuario = $3
+                        and usr.eliminado = false
+                        and suc.eliminado = false
+        )  
         select a.id, 
             a.nombre,
             a.apellidos,
@@ -586,13 +596,13 @@ const getReporteAlumnosNuevosIngresosGlobal = (request, response) => {
             to_char(a.fecha_inscripcion,'MM') = to_char(getDate(''),'MM') as nuevo_ingreso
        From co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id
                        inner join co_grupo grupo on a.co_grupo = grupo.id
-                       inner join co_sucursal suc on a.co_sucursal =suc.id
+                       inner join sucursal_usuario suc on a.co_sucursal =suc.id
        WHERE  to_char(a.fecha_inscripcion,'YYYY') = $1
               AND to_char(a.fecha_inscripcion,'MM') = $2
               AND a.eliminado = false 			
        ORDER BY suc.nombre DESC
          `,
-            [anio, mes],
+            [anio, mes,id_usuario],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);

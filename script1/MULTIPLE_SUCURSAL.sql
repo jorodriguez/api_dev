@@ -154,3 +154,14 @@ alter table co_sucursal add column foto text;
 
 CREATE EXTENSION tablefunc;
 
+
+
+update co_sucursal set foto = 'https://i2.wp.com/magicintelligence.com/wp-content/uploads/2019/02/cropped-4560barita-magica.png';
+
+
+-- usuario de socio solo ve contry
+	insert into usuario(nombre,correo,co_sucursal,password,permiso_gerente,cat_tipo_usuario,hora_entrada,hora_salida,genero)
+	values('Peto','peto@magicintelligence.com',3,'$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',true,2,'08:00:00','20:00:00',1);
+insert into si_usuario_sucursal_rol(usuario,co_sucursal,si_rol,co_empresa,genero)
+			values((select id from usuario where correo = 'peto@magicintelligence.com'),3,1,1,1);	 
+		update usuario set co_empresa = 1,acceso_sistema = true where id = (select id from usuario where correo = 'peto@magicintelligence.com');

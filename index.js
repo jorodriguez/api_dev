@@ -246,7 +246,7 @@ GET('/meses_activos', utilerias.getMesesActivos);
 //GET('/buscar_correo_padre/:correo', utilerias.findCorreoPadre);
 
 //alumnos crecimiento mes
-GET('/alumnos_crecimiento_mes/:anio/:mes', reporteDeudas.getReporteAlumnosNuevosIngresosGlobal);
+GET('/alumnos_crecimiento_mes/:anio/:mes/:id_usuario', reporteDeudas.getReporteAlumnosNuevosIngresosGlobal);
 
 //Datos de facturacion
 POST('/datos_facturacion', datos_facturacion.guardarDatosFacturacionAlumno);
@@ -266,7 +266,7 @@ GET('/reporte_gastos_sucursales/:id_usuario', reporte_gastos.getReporteGastosSuc
 //GET('/reporte_gastos/:mes_anio', reporte_gastos.getReporteGastosSucursalesMensual);
 GET('/reporte_gastos/:id_sucursal', reporte_gastos.getReporteGastosMensualesPorSucursalTrend);
 GET('/reporte_gastos/:id_sucursal/:mes_anio', reporte_gastos.getReporteDetalleGastosPorSucursal);
-GET('/reporte_gastos_global', reporte_gastos.getReporteGastosGlobal);
+GET('/reporte_gastos_global/:id_usuario', reporte_gastos.getReporteGastosGlobal);
 GET('/reporte_gastos_mes_actual/:id_usuario', reporte_gastos.getReporteGastoMensualActual);
 
 
