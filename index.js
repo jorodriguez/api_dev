@@ -37,6 +37,7 @@ const { validarTokenCompleto } = require('./helpers/helperToken');
 const asistenciaUsuario = require('./services/asistencia_usuario');
 //const tiendaService = require('./services/tiendaService');
 const recargoService = require('./services/recargos');
+const catalogoRecursos = require('./services/catalogo_recursos');
 
 const port = process.env.PORT || 5000;
 
@@ -284,6 +285,10 @@ app.get('/actividades/:id_familiar', actividad_reporte.getActividadesRelacionado
 app.post('/auth_cliente/login', authClientesController.loginCliente);
 app.put('/auth_cliente/:id_familiar', authClientesController.cambioClaveFamiliar);
 app.get('/balance_familiar_alumno/:id_familiar', actividad_reporte.getBalanceFamiliarAlumnos);
+
+//catalogo de recursos
+app.get('/recurso_familiar/:id_familiar', catalogoRecursos.getAlumnosPorFamiliar);  
+app.get('/recurso_grupo/:id_grupo', catalogoRecursos.getRecursosPorGrupo);  
 
 app.post('/emocion', actividad_reporte.registrarToqueEmocion);
 
