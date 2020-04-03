@@ -40,10 +40,11 @@ const getRecursosPorGrupo = (request, response) => {
         }                
         
         const id_grupo = request.params.id_grupo;
+        const id_sucursal = request.params.id_sucursal;
         
-        console.log("id_grupo = "+id_grupo);
+        console.log("id_grupo = "+id_grupo+" === "+id_sucursal);
 
-        catalogoRecursosService.getRecursosPorGrupo(id_grupo)
+        catalogoRecursosService.getRecursosPorGrupo(id_grupo,id_sucursal)
         .then(results=>{
             response.status(200).json(results);
         }).catch(error=>{

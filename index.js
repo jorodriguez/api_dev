@@ -288,7 +288,7 @@ app.get('/balance_familiar_alumno/:id_familiar', actividad_reporte.getBalanceFam
 
 //catalogo de recursos
 app.get('/recurso_familiar/:id_familiar', catalogoRecursos.getAlumnosPorFamiliar);  
-app.get('/recurso_grupo/:id_grupo', catalogoRecursos.getRecursosPorGrupo);  
+app.get('/recurso_grupo/:id_grupo/:id_sucursal', catalogoRecursos.getRecursosPorGrupo);  
 
 app.post('/emocion', actividad_reporte.registrarToqueEmocion);
 

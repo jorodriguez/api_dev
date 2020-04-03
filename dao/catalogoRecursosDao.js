@@ -13,13 +13,13 @@ const QUERY_RECURSOS_POR_GRUPO =
             r.numero_orden,
             to_char(r.fecha,'dd-MM-YYY') as fecha
         from co_recurso_actividad_grupo r inner join co_grupo g on g.id = r.co_grupo
-        where g.id = $1 and r.eliminado = false and r.activo = true and g.eliminado = false
+        where g.id = $1 and r.co_sucursal = $2 and r.eliminado = false and r.activo = true and g.eliminado = false
         order by numero_orden;
     `;
 
-const getRecursosPorGrupo = (idGrupo) => {
-    console.log("@getRecursosPorGrupo ID grupo "+idGrupo);
-    return genericDao.findAll(QUERY_RECURSOS_POR_GRUPO, [idGrupo]);
+const getRecursosPorGrupo = (idGrupo,idSucursal) => {
+    console.log("@getRecursosPorGrupo ID grupo "+idGrupo+" sucursal "+idSucursal);
+    return genericDao.findAll(QUERY_RECURSOS_POR_GRUPO, [idGrupo,idSucursal]);
 };
 
 module.exports = {

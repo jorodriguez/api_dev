@@ -19,6 +19,19 @@ CREATE TABLE co_recurso_actividad_grupo
 	eliminado boolean NOT NULL DEFAULT false    
 );
 
+alter table co_recurso_actividad_grupo add column co_sucursal integer;
+
+ alter table co_recurso_actividad_grupo
+  add constraint co_grupo_sucursal_fk
+  foreign key (co_sucursal)
+  references co_sucursal(id);
+
+
+-- para la sucursal de monterrey
+insert into co_recurso_actividad_grupo(co_sucursal,numero_orden,co_grupo,fecha,url,titulo,descripcion,genero,fecha_activo)
+values(1,1,6,getDate(''),'https://drive.google.com/embeddedfolderview?id=0B9DcxTxDKBeVfktUdEZ0aE12djdkcW1MQjh5bmxNN0pmeXdrQ3EtdnVoOWNVRkhSMUk4emM#list','Prueba 1','Esto es una prueba',1,getDate(''));
+
+
 /*
 
 CREATE TABLE co_detalle_recurso_actividad_grupo

@@ -1,9 +1,9 @@
 const catalogoRecursosDao = require('../dao/catalogoRecursosDao');
 const familiarDao = require('../dao/familiarDao');
 
-function getRecursosPorGrupo(idGrupo) {
+function getRecursosPorGrupo(idGrupo,idSucursal) {
     console.log("@getRecursosPorGrupo");
-    return catalogoRecursosDao.getRecursosPorGrupo(idGrupo);
+    return catalogoRecursosDao.getRecursosPorGrupo(idGrupo,idSucursal);
 
 }
 
