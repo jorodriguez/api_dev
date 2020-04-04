@@ -23,7 +23,7 @@ module.exports = {
     configuracion: {
         'secret': 'supersecret',
         env: '"PRODUCTION"',
-        enviar_mensajes: true
+        enviar_mensajes: false
     },
     variables
 };

@@ -17,7 +17,7 @@ const dbParams = {
 
 //Nuevos parametros a la DB
 
-
+/*
 const dbParams = {
    user: 'abrrmwtzwwecjj',
     host: 'ec2-54-174-229-152.compute-1.amazonaws.com',
@@ -26,10 +26,10 @@ const dbParams = {
     port: 5432,
     ssl: { rejectUnauthorized: false }
 };
-
+*/
 
 //db desarrollo
-/*
+
 const dbParams = {
     user: (process.env.USER_DB || 'pffyesodvpvsrp'),
     host: (process.env.HOST_DB || 'ec2-174-129-242-183.compute-1.amazonaws.com'),
@@ -37,7 +37,7 @@ const dbParams = {
     password: (process.env.PASSWORD_DB ||'f4de35950e23261169a79f8ac3007630aaefc8ff887c147b9283a8f68b165019'),
     port: (process.env.PORT_DB ||5432),
     ssl: { rejectUnauthorized: false }
-};*/
+};
 
 
 //const dbParams = dbParamsDev;
