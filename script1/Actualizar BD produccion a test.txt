@@ -1,7 +1,7 @@
 
 1- correr el comando 
 
-heroku pg:copy HEROKU_POSTGRES_JADE HEROKU_POSTGRESQL_TEAL --app develop1
+
 
 2- despues correr el comando
 update co_familiar 
