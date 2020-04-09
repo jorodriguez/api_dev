@@ -8,12 +8,36 @@ const registrarPago = (pagoData) => {
     console.log("@registrarPago");
     console.log("=====>> " + JSON.stringify(pagoData));
 
-    return new Promise((resolve, reject) => {
-        const { id_alumno, pago, nota, ids_cargos, cargos_desglosados, cat_forma_pago, identificador_factura, genero } = pagoData;
+    /*ids_cargos text,
+	cargos_desglose text,
+	ids_cargos_descuento text,	
+	id_descuentos_desglose text,
+	id_alumno integer,
+	pago_param numeric,
+	nota text,
+	forma_pago_param integer,
+	identificador_factura_param text,
+	identificador_pago_param text,
+    id_genero integer
+    */
 
+    return new Promise((resolve, reject) => {
+        const { id_alumno, pago, nota, ids_cargos, cargos_desglosados,ids_cargos_descuento,id_descuentos_desglose, cat_forma_pago, identificador_factura,identificador_pago, genero } = pagoData;
+//`SELECT agregar_pago_alumno('${ids_cargos}','${cargos_desglosados}',${id_alumno},${pago},'${nota}',${cat_forma_pago},'${identificador_factura}',${genero});`)
         genericDao
             .executeProcedure(
-                `SELECT agregar_pago_alumno('${ids_cargos}','${cargos_desglosados}',${id_alumno},${pago},'${nota}',${cat_forma_pago},'${identificador_factura}',${genero});`)
+                `SELECT agregar_pago_alumno(
+                        '${ids_cargos}',
+                        '${cargos_desglosados}',
+                        '${ids_cargos_descuento}',
+                        '${id_descuentos_desglose}',                        
+                        ${id_alumno},
+                        ${pago},
+                        '${nota}',
+                        ${cat_forma_pago},
+                        '${identificador_factura}',
+                        '${identificador_pago}',
+                        ${genero});`)
             .then(results => {
                 if (results.rowCount > 0) {
                     var retorno = results.rows[0];
