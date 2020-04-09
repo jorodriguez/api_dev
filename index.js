@@ -39,6 +39,8 @@ const asistenciaUsuario = require('./services/asistencia_usuario');
 const recargoService = require('./services/recargos');
 const catalogoRecursos = require('./services/catalogo_recursos');
 
+const catalogoDescuento = require('./services/cat_descuento');
+
 const port = process.env.PORT || 5000;
 
 //es un middleware que serializa los cuerpos de las respuestas 
@@ -222,6 +224,9 @@ GET('/cargos', cargos.getCatalogoCargos);
 GET('/cargos/:id_alumno', cargos.getCargosAlumno);
 GET('/balance/:id_alumno', cargos.getBalanceAlumno);
 PUT('/cargos/:id_alumno', cargos.eliminarCargos);
+
+// descuentos - catalogo
+GET('/descuento/:id_empresa',catalogoDescuento.getDescuentos);
 
 //GET('/cargos/meses_adeuda/:id_alumno', pagos.obtenerMesesAdeudaMensualidad);
 app.get('/cargos/meses_adeuda/:id_alumno', cargos.obtenerMesesAdeudaMensualidad);

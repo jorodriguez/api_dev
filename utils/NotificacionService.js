@@ -150,17 +150,22 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
 			        cargo.nota as nota_cargo,
 			        cargo.cantidad,
 			        cargo.cargo,
-			        cargo.total,
+                    cargo.total,
+                    cargo.descuento,
+                    (des.id is not null) as descuento_aplicado,
+			        des.nombre as nombre_descuento,
                     cargo.total_pagado,
                     cat.es_facturable
 		        FROM co_pago_cargo_balance_alumno rel inner join co_cargo_balance_alumno cargo on rel.co_cargo_balance_alumno = cargo.id									
-												inner join cat_cargo cat on cat.id = cargo.cat_cargo												
+                                                inner join cat_cargo cat on cat.id = cargo.cat_cargo												
+                                                left join cat_descuento_cargo des on des.id = cargo .cat_descuento_cargo
  		        WHERE rel.co_pago_balance_alumno = $1 and cargo.eliminado = false
             ) select pago.id,
  		            pago.pago,
                     fpago.nombre as forma_pago,
                     fpago.permite_factura as permite_factura_forma_pago,
                     pago.identificador_factura,
+                    pago.identificador_pago,
 		            TO_CHAR(pago.fecha, 'dd-mm-yyyy') as fecha,
 		            grupo.nombre as nombre_grupo,
 		            al.nombre as nombre_alumno,
@@ -201,6 +206,7 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                     pago: row.pago,
                     forma_pago: row.forma_pago,
                     factura: row.identificador_factura,
+                    no_pago: row.identificador_pago,
                     numero_cargos: row.count_cargos,
                     cargos: row.cargos,
                     escribir_folio_factura: (row.identificador_factura != null && row.identificador_factura != '')

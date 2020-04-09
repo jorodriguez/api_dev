@@ -74,13 +74,17 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
                 cargos.cargo as precio_cargo,
                 cargos.total as total_adeudo,
                 cargos.nota as nota_cargo,
-                cargos.pagado as pagado,	
+                cargos.pagado as pagado,
+                cargos.descuento,	
+                (des.id is not null) as descuento_aplicado,
+                des.nombre as nombre_descuento,
                 cargos.total_pagado as total_pagado_cargo,
                 cargos.texto_ayuda, 
                 to_char(cargos.fecha,'YY') as anio
             from co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id
                                                  inner join co_cargo_balance_alumno cargos on cargos.co_balance_alumno = balance.id	
                                                  inner join cat_cargo tipo_cargo on  cargos.cat_cargo = tipo_cargo.id
+                                                 left join cat_descuento_cargo des on des.id = cargos.cat_descuento_cargo
             where co_sucursal = $1                 
                 and cargos.pagado = false
                 and balance.eliminado = false 

@@ -45,42 +45,80 @@
         <tr>
           <td>
     <![endif]-->
-
+<!--
             <table width="100%" border="0" cellspacing="2" cellpadding="2">
                 <tr>
                     <th style="border-bottom:1pt solid #57A8B6;" width="40%">Descripción</th>
-                    <!--<th>Adeuda</th>-->
+                
                     <th style="border-bottom:1pt solid #57A8B6;" width="30%">Cant.</th>
                     <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="30%" align="right">Precio</th>
                     <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="30%" align="right">Pagado</th>
-                    <!--<th>Nota</th>-->
+                
                 </tr>
-                <!-- {{#pagado}} PAGADO {{/pagado}}-->
-                {{#pago.cargos}}
-                <!-- IF -->
+                                {{#pago.cargos}}               
                 <tr style="text-align:center">
-                    <td style="border-bottom:1pt solid #57A8B6;">{{nombre_cargo}} {{texto_ayuda}}
-                        <!-- {{#es_facturable}}
-                            {{#pago.escribir_folio_factura}}
-                             <small style="color:blue;" > (Factura {{pago.factura}})</small>
-                             {{/pago.escribir_folio_factura}}
-                          {{/es_facturable}}-->
+                    <td style="border-bottom:1pt solid #57A8B6;">{{nombre_cargo}} {{texto_ayuda}}                       
                     </td>
                     <td style="border-bottom:1pt solid #57A8B6;">{{cantidad}}</td>
                     <td style="border-bottom:1pt solid #57A8B6;text-align:right" align="right">${{cargo}}</td>
-                    <td style="border-bottom:2pt solid #57A8B6;text-align:right" align="right">${{total_pagado}}</td>
-                    <!--<td>{{nota}}</td>-->
+                    <td style="border-bottom:2pt solid #57A8B6;text-align:right" align="right">${{total_pagado}}</td>                    
                 </tr>
                 {{/pago.cargos}}
                 <tr>
                     <td colspan="3" style="text-align:right">
-                        <strong>Total:</strong>
+                        <strong>Pago recibido:</strong>
                     </td>
                     <td style="border-bottom:2pt solid #57A8B6;text-align:right;background-color:#F7F7F7" align="right">
                         <h4><strong> ${{pago.pago}}</strong> </h4>
                     </td>
                 </tr>
             </table>
+            -->
+
+            <table width="100%" border="0" cellspacing="2" cellpadding="2">
+                <tr>
+                    <th style="border-bottom:1pt solid #57A8B6;" width="3%">Descripción</th>
+                    <!--<th>Adeuda</th>-->
+                    <th style="border-bottom:1pt solid #57A8B6;" width="10%">Cant.</th>
+                    <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="15%" align="right">Cargo</th>
+                    <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="15%" align="right">Desc.</th>
+                    <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="15%" align="right">Pagado</th>
+                    <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="15%" align="right">Adeuda</th>
+                    <!--<th>Nota</th>-->
+                </tr>
+                <!-- {{#pagado}} PAGADO {{/pagado}}-->
+                {{#pago.cargos}}
+                <!-- IF -->
+                <tr style="text-align:center">
+                    <td style="border-bottom:1pt solid #57A8B6;">{{nombre_cargo}} {{texto_ayuda}}                     
+                                {{#descuento_aplicado}} 
+                                    <small style="color:blue;"> ({{nombre_descuento}}) </small>                                     
+                                {{/descuento_aplicado}}
+
+                                {{#es_facturable}} 
+                                    {{#pago.escribir_folio_factura}}
+                                         <small style="color:blue;"> (Factura {{pago.factura}})</small> 
+                                    {{/pago.escribir_folio_factura}} 
+                                {{/es_facturable}}                        
+                    </td>
+                    <td style="border-bottom:1pt solid #57A8B6;">{{cantidad}}</td>
+                    <td style="border-bottom:1pt solid #57A8B6;text-align:right" align="right">${{cargo}}</td>
+                    <td style="border-bottom:1pt solid #57A8B6;text-align:right" align="right">${{descuento}}</td>
+                    <td style="border-bottom:2pt solid #57A8B6;text-align:right" align="right">${{total_pagado}}</td>
+                    <td style="border-bottom:2pt solid #57A8B6;text-align:right" align="right">${{total}}</td>
+                    <!--<td>{{nota}}</td>-->
+                </tr>
+                {{/pago.cargos}}
+                <tr>
+                    <td colspan="5" style="text-align:right">
+                        <strong>Pago recibido:</strong>
+
+                    </td>
+                    <td style="border-bottom:2pt solid #57A8B6;text-align:right;background-color:#F7F7F7" align="right">
+                        <h4><strong> ${{pago.pago}}</strong> </h4>
+                    </td>
+            </tr>
+          </table>
             <!--[if (gte mso 9)|(IE)]>
           </td>
         </tr>

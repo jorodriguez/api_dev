@@ -104,6 +104,7 @@ const getCargosAlumno = (idAlumno) => {
                to_char(b.fecha,'dd-mm-yyyy HH24:mm') as fecha_format,
                b.cantidad,
                cargo.nombre as nombre_cargo,
+               cargo.aplica_descuento,
                b.texto_ayuda,
                cat_cargo as id_cargo,
                cargo.es_facturable,
@@ -112,10 +113,15 @@ const getCargosAlumno = (idAlumno) => {
                b.total_pagado,
                b.nota,
                b.pagado,
+               (des.id is not null) as descuento_aplicado,
+	           des.id as id_descuento,
+               des.nombre as nombre_descuento,   
+               b.descuento, 
                false as checked ,
                0 as pago 
              FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
                                            inner join cat_cargo cargo on b.cat_cargo = cargo.id					
+                                           left join cat_descuento_cargo des on des.id = b.cat_descuento_cargo
              WHERE a.id = $1 and b.eliminado = false and a.eliminado = false
               ORDER by b.pagado, b.fecha desc
              LIMIT 20 `,

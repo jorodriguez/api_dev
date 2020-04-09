@@ -23,6 +23,8 @@ const registrarPago = (pagoData) => {
 
     return new Promise((resolve, reject) => {
         const { id_alumno, pago, nota, ids_cargos, cargos_desglosados,ids_cargos_descuento,id_descuentos_desglose, cat_forma_pago, identificador_factura,identificador_pago, genero } = pagoData;
+        console.log("identificador_pagoidentificador_pagoidentificador_pago "+identificador_pago);
+
 //`SELECT agregar_pago_alumno('${ids_cargos}','${cargos_desglosados}',${id_alumno},${pago},'${nota}',${cat_forma_pago},'${identificador_factura}',${genero});`)
         genericDao
             .executeProcedure(
@@ -78,9 +80,10 @@ const getPagosByCargoId = (idCargoBalanceAlumno) => {
               SELECT forma_pago.id as id_forma_pago,
                     forma_pago.nombre as nombre_forma_pago,
                     pago.identificador_factura ,
+                    pago.identificador_pago,
                     r.id,                    
                     r.fecha,
-                    to_char(r.fecha,'dd-mm-yyyy HH24:mm') as fecha_format,
+                    to_char(pago.fecha,'dd-mm-yyyy HH24:mm') as fecha_format,
                     r.co_pago_balance_alumno,
                     r.co_cargo_balance_alumno,
                     r.pago,

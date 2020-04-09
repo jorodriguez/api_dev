@@ -22,6 +22,7 @@ const getServicios = (request, response) => {
     getCatalogo(QUERY.SERVICIOS,response);
 };
 
+
 module.exports = {
     getCatalogo,
     getFormasPago,

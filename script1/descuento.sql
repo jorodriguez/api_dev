@@ -37,10 +37,13 @@ update cat_cargo set aplica_descuento = true where id = 1;
 alter table co_pago_balance_alumno add column identificador_pago text;
 
 
+alter table co_forma_pago add column escribir_numero_pago boolean default false;
+update co_forma_pago set escribir_numero_pago = true where id in (2,3,4);
+
 --- pruebas
 insert into cat_descuento_cargo(co_empresa,nombre,descuento,descuento_decimal,fecha_inicio,fecha_fin,activo,genero)
-values(1,'50%',50,(0.01 * 50),null,null,true,1),
-      (1,'10%',10,(0.01 * 10),getDate(''),getDate('') + 2,true,1);
+values(1,'-50% Desc.',50,(0.01 * 50),null,null,true,1),
+      (1,'-10% Desc.',10,(0.01 * 10),getDate(''),getDate('') + 2,true,1);
 
 
 --------------------
@@ -148,8 +151,9 @@ END;
 $BODY$;
 
 
-
-
+---------------------------
+-- agregar pago por alumno
+---------------------------
 CREATE OR REPLACE FUNCTION public.agregar_pago_alumno(
 	ids_cargos text,
 	cargos_desglose text,
@@ -233,9 +237,12 @@ BEGIN
 			raise notice 'aplicar descuentos a cargos ';
 
 			--aplicar descuentos 
-			FOR i IN 1 .. array_upper(ids_cargos_descuento_aplicar, 1)
-   			LOOP
-   			raise notice 'ejecutando aplicar descuento alumno=% , cargo = %, descuentod id =%,genero =%'
+			raise notice 'ids_cargos_descuento_aplicar %',ids_cargos_descuento_aplicar; 
+			
+			
+				FOR i IN 1 .. coalesce(array_upper(ids_cargos_descuento_aplicar, 1),1)
+				LOOP
+				raise notice 'ejecutando aplicar descuento alumno=% , cargo = %, descuentod id =%,genero =%'
 						,id_alumno,
 						ids_cargos_descuento_aplicar[i],
 						ids_descuentos_array[i],			
@@ -247,7 +254,8 @@ BEGIN
 						ids_descuentos_array[i],			
 						id_genero);
 						
-   			END LOOP;
+				END LOOP;
+   			
 
 			raise notice 'relacionar ';
 			
@@ -265,11 +273,17 @@ BEGIN
 					raise notice 'guardado..';			
 					
 					--actualizar total en cargo
-					UPDATE co_cargo_balance_alumno
+					/*UPDATE co_cargo_balance_alumno
 					SET TOTAL_PAGADO = (TOTAL_PAGADO + cargos_desglose_relacionar[i]),
 						TOTAL = (TOTAL - cargos_desglose_relacionar[i]),
 						pagado = ((TOTAL - cargos_desglose_relacionar[i]) = 0)
 						--PAGADO = ( (TOTAL - cargos_desglose_relacionar[i]) = 0 ) 						
+					WHERE id = ids_cargos_relacionar[i];		*/
+
+					UPDATE co_cargo_balance_alumno
+					SET TOTAL_PAGADO = (TOTAL_PAGADO + cargos_desglose_relacionar[i]),
+						TOTAL = (TOTAL - cargos_desglose_relacionar[i]),
+						pagado = ((TOTAL - cargos_desglose_relacionar[i]) = 0)						
 					WHERE id = ids_cargos_relacionar[i];		
 					raise notice 'total actualizado..';									
 					
@@ -299,8 +313,6 @@ BEGIN
 	return (select id_pago_balance_alumno);
 END;
 $BODY$;
-
-
 
 
 
