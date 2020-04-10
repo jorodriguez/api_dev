@@ -2,52 +2,6 @@
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const { CARGOS } = require('../utils/Constantes');
-/*
-const getReporteBalanceAlumnosSucursal = (request, response) => {
-    console.log("@getReportePrincipal");
-    try {
-       // validarToken(request,response);        
-
-        const id_sucursal = request.params.id_sucursal;
-
-        pool.query(
-            "  select a.id," +
-            "   a.foto," +
-            "   a.nombre," +
-            "   a.apellidos," +
-            "   a.hora_entrada," +
-            "   a.hora_salida," +
-            "   a.costo_colegiatura," +
-            "   a.costo_inscripcion," +
-            "   a.minutos_gracia," +
-            "   a.fecha_inscripcion::date," +
-            "   a.fecha_reinscripcion::date," +
-            "   suc.nombre as nombre_sucursal, " +
-            "   balance.id as id_balance," +
-            "   balance.total_adeudo," +
-            "   balance.total_pagos," +
-            "   balance.total_cargos," +
-            "   to_char(a.fecha_inscripcion,'YYYYMM') = to_char(getDate(''),'YYYYMM') AS nuevo_ingreso " +
-            " From co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id" +
-            "                 inner join co_grupo grupo on a.co_grupo = grupo.id" +
-            "                 inner join co_sucursal suc on a.co_sucursal =suc.id" +
-            " WHERE a.co_sucursal = $1 and a.eliminado = false " +
-            " ORDER BY balance.total_adeudo DESC ",
-            [id_sucursal],
-            (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).json(results.rows);
-            });
-    } catch (e) {
-        handle.callbackErrorNoControlado(e, response);
-    }
-};
-
-*/
-
 
 const getReporteBalanceAlumnosSucursal = (request, response) => {
     console.log("@getReportePrincipal");
@@ -147,48 +101,6 @@ const getReporteBalanceAlumnosSucursal = (request, response) => {
     }
 };
 
-/*
-with total_alumnos_count As( 
-                select co_sucursal,count(*) AS contador_alumnos
-                    from co_alumno 
-                    where eliminado = false
-                    group by co_sucursal
-             ),cargos_desglose AS (						
-                 with universo_cargos as (
-                         select suc.id as id_sucursal,									
-                                 count(cargos.id) as cargos_pendientes_pago,
-                                 tipo_cargo.id as id_cargo,
-                                 tipo_cargo.nombre as tipo_cargo,
-                                 sum(cargos.total) as total_cargos_desglose,
-                                 sum(cargos.total_pagado) as total_cargos_pagados_desglose,
-                                 (sum(cargos.total) - sum(cargos.total_pagado)) as total_cargos_pendiente_desglose
-                         from co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id
-                                     inner join co_cargo_balance_alumno cargos on cargos.co_balance_alumno = balance.id	and a.eliminado = false	
-                                                 and cargos.pagado = false
-                                                 and cargos.eliminado = false
-                                     inner join cat_cargo tipo_cargo on  cargos.cat_cargo = tipo_cargo.id
-                                     inner join co_sucursal suc on a.co_sucursal = suc.id
-                             group by suc.id,tipo_cargo.id
-                             order by suc.id,tipo_cargo.id
-                         ) select c.id_sucursal,
-                                 array_to_json(array_agg(row_to_json((c.*))))::text AS json_array
-                             from universo_cargos c
-                             group by c.id_sucursal						
-             ) SELECT suc.id, suc.nombre,suc.class_color,
-                    sum(balance.total_adeudo) as total_adeuda,
-                    sum(balance.total_pagos) as total_pagos,
-                    sum(balance.total_cargos) as total_cargos,
-                    total_alumnos.contador_alumnos,
-                    COALESCE(cargos.json_array::json,'[]'::json) AS array_desglose_cargos 
-              FROM co_alumno a inner join co_balance_alumno balance on a.co_balance_alumno = balance.id and a.eliminado = false
-                        inner join co_grupo grupo on a.co_grupo = grupo.id
-                        inner join co_sucursal suc on a.co_sucursal =suc.id
-                        inner join total_alumnos_count total_alumnos on total_alumnos.co_sucursal = suc.id             
-                        left join cargos_desglose cargos on cargos.id_sucursal = suc.id																
-              WHERE a.eliminado = false 
-              GROUP by suc.id,suc.class_color,total_alumnos.contador_alumnos,cargos.json_array
-              ORDER BY suc.nombre DESC 
-*/
 const getReporteBalancePorSucursal = (request, response) => {
     console.log("@getReporteBalancePorSucursal");
     try {

@@ -38,6 +38,7 @@ const asistenciaUsuario = require('./services/asistencia_usuario');
 //const tiendaService = require('./services/tiendaService');
 const recargoService = require('./services/recargos');
 const catalogoRecursos = require('./services/catalogo_recursos');
+const reporteContabilidad = require('./services/reporteContabilidad');
 
 const catalogoDescuento = require('./services/cat_descuento');
 
@@ -333,6 +334,10 @@ PUT('/cambio_sucursal/:id_alumno', alumnoSucursal.cambiarSucursalAlumno);
 
 //reporte ingresos vs cargos
 GET('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes', reporteDeudas.getReporteGastosIngresosSucursalPorMes);
+
+// Reporte de cobranza - para la contadora
+//GET('/reporte_cobranza/:id_usuario/:fecha_inicio/:fecha_fin',reporteContabilidad.getReporteCobranzaPorFechas) ;
+PUT('/reporte_cobranza',reporteContabilidad.getReporteCobranzaPorFechas) ;
 
 //Cargos, eliminacion y consulta
 //GET('/sucursal/:id_sucursal/cargos',reporteDeudas.getAllAlumnosCargos);
