@@ -83,6 +83,7 @@ const getMensualidadesAlumnosSucursal = function (idCargo, idSucursal, anio) {
 		select			
 			cargo.id as id_cargo,				
 			cargo.co_balance_alumno,
+			suc.nombre as sucursal,
 			a.id as id_alumno,
 			a.nombre as nombre_alumno,						
 			coalesce(a.apellidos,'''') as apellidos_alumno,
@@ -106,16 +107,17 @@ const getMensualidadesAlumnosSucursal = function (idCargo, idSucursal, anio) {
 			) as numero_pagos
 		from co_cargo_balance_alumno cargo inner join meses m on m.anio_mes = to_char(cargo.fecha,''YYYYMM'')
 									   inner join co_alumno a on a.co_balance_alumno = cargo.co_balance_alumno
+									   inner join co_sucursal suc on suc.id = a.co_sucursal
 									   left join cat_descuento_cargo des on des.id = cargo.cat_descuento_cargo
 		where  cargo.cat_cargo = ${idCargo}		
 			and a.co_sucursal = ${idSucursal}
 			and cargo.eliminado = false 	
 			and  to_char(cargo.fecha,''YYYY'')::integer = ${anio}
 		)
-		SELECT m.nombre_alumno::text||'' ''||m.apellidos_alumno,m.nombre_mes,row_to_json(m.*) from mensualidades m order by 1',
+		SELECT m.nombre_alumno::text||'' ''||m.apellidos_alumno,m.sucursal, m.nombre_mes,row_to_json(m.*) from mensualidades m order by 1',
 		'select nombre from si_meses'
 		)  as (
-		alumno text,  ENERO json,  FEBRERO json,  MARZO json,  ABRIL json,  MAYO json,  JUNIO json,  JULIO json,
+		alumno text,sucursal text,  ENERO json,  FEBRERO json,  MARZO json,  ABRIL json,  MAYO json,  JUNIO json,  JULIO json,
 				AGOSTO json,  SEPTIEMBRE json,  OCTUBRE json,  NOVIEMBRE json,  DICIMEBRE json
 		);
     `, []);
