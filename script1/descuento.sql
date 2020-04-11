@@ -43,7 +43,7 @@ update co_forma_pago set escribir_numero_pago = true where id in (2,3,4);
 --- pruebas
 insert into cat_descuento_cargo(co_empresa,nombre,descuento,descuento_decimal,fecha_inicio,fecha_fin,activo,genero)
 values(1,'-50% Desc.',50,(0.01 * 50),null,null,true,1),
-      (1,'-10% Desc.',10,(0.01 * 10),getDate(''),getDate('') + 2,true,1);
+      (1,'-15% Desc.',15,(0.01 * 15),getDate(''),getDate('') + 2,true,1);
 
 
 --------------------
