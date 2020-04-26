@@ -55,7 +55,11 @@ const loginCliente = (request, response) => {
 
                         var passwordIsValid = bcrypt.compareSync(password, usuario.password);
 
-                        if (!passwordIsValid) return response.status(401).send({ auth: false, token: null, usuario: null, mensaje: "Usuario no encontrado." });
+                        if (!passwordIsValid){
+                            guardarLog(usuario,"FALLIDO-CONTRASEÑA-INCORRECTA");
+                            return response.status(401).send({ auth: false, token: null, usuario: null, mensaje: "Usuario no encontrado." });
+                        }
+                         
                         console.log("====>> passwordIsValid " + passwordIsValid);
                         var token = jwt.sign({ id: results.id }, config.secret, {
                             expiresIn: (86400 * 7) // expires in 24 hours
@@ -63,8 +67,8 @@ const loginCliente = (request, response) => {
                         });
                         guardarLog(usuario,"LOGIN-OK");
                         response.status(200).send({ auth: true, token: token, usuario: usuario });
-                    } else {
-                        guardarLog(usuario,"FALLIDO-POR-CONTRASEÑA");
+                    } else {                        
+                        guardarLog(usuario,"FALLIDO-EXCEPCION");
                         response.status(400).send({ auth: false, token: null, usuario: null, mensaje: "Existe un detalle con su registro, se recomienda notificar este mensaje a la sucursal." });
                     }
 
