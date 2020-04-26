@@ -42,7 +42,7 @@ const loginCliente = (request, response) => {
                     handle.callbackError(error, response);
                     return;
                 }
-             
+
 
                 if (results.rowCount > 0) {
 
@@ -51,25 +51,25 @@ const loginCliente = (request, response) => {
                     if (usuario.password != null && usuario.password != undefined && usuario.password != '') {
 
                         console.log("usuario login movil " + JSON.stringify(usuario));
-                        console.log("pass "+password+" usuario en bd "+usuario.password);
+                        console.log("pass " + password + " usuario en bd " + usuario.password);
 
                         var passwordIsValid = bcrypt.compareSync(password, usuario.password);
 
                         if (!passwordIsValid) return response.status(401).send({ auth: false, token: null, usuario: null, mensaje: "Usuario no encontrado." });
-                        console.log("====>> passwordIsValid "+passwordIsValid);
+                        console.log("====>> passwordIsValid " + passwordIsValid);
                         var token = jwt.sign({ id: results.id }, config.secret, {
                             expiresIn: (86400 * 7) // expires in 24 hours
                             //expiresIn: 60 // expires in 24 hours
                         });
-
+                        guardarLog(usuario,"LOGIN-OK");
                         response.status(200).send({ auth: true, token: token, usuario: usuario });
-                    } else { 
-
-                        response.status(400).send({ auth: false, token: null, usuario: null,mensaje:"Existe un detalle con su registro, se recomienda notificar este mensaje a la sucursal." });    
+                    } else {
+                        guardarLog(usuario,"FALLIDO-POR-CONTRASEÑA");
+                        response.status(400).send({ auth: false, token: null, usuario: null, mensaje: "Existe un detalle con su registro, se recomienda notificar este mensaje a la sucursal." });
                     }
 
                 } else {
-
+                    guardarLog({id:null,nombre:null,correo:correo,telefono:null},"FALLIDO-NO-ENCUENTRA-CORREO");
                     response.status(400).send({ auth: false, token: null, usuario: null });
                 }
             });
@@ -81,7 +81,26 @@ const loginCliente = (request, response) => {
     }
 };
 
+function guardarLog(usuario,estatus) {
+    console.log("@guardarLog");
+    try {
+    
+        const logData = {id,nombre,correo,telefono} = usuario;
 
+        
+        pool.query(`select guardar_log($1,$2,$3,$4); `,
+            [logData.id,logData.nombre,JSON.stringify(logData),estatus],
+            (error, results) => {
+                if (error) {
+                    console.log("Error al escribir el log " + error);                    
+                    return;
+                }
+                console.log("Se guardo en el log");                
+            });
+    } catch (e) {
+        console.log("Error al escribir en la tabla de log");
+    }
+}
 
 
 const cambioClaveFamiliar = (request, response) => {
