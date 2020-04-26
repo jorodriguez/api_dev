@@ -1,18 +1,20 @@
 
+
 CREATE TABLE log
 (
 	id serial NOT NULL primary key,		
-	id_usuario integer references usuario(id),
+	co_familiar integer references co_familiar(id),
 	nombre text,					
-	fecha timestamp without time zone DEFAULT (getDate('')+getHora('')),
-	log text,	
-	estatus text
-	
+	correo text,
+	telefono text,
+	fecha timestamp without time zone DEFAULT (getDate('')+getHora('')),	
+	estatus text	
 );
 
 
 
-CREATE or replace FUNCTION guardar_log(IN id_usuario_param integer,nombre_param text,log_param text,estatus_param text) 
+
+CREATE or replace FUNCTION guardar_log(IN co_familiar_param integer,nombre_param text,correo_param text,telefono_param text,estatus_param text) 
 RETURNS SETOF integer
 LANGUAGE plpgsql 	
 AS
@@ -20,8 +22,9 @@ $$
 DECLARE 
 BEGIN  
 	raise notice 'log cargos '; 
-	insert into log(id_usuario,nombre,log,estatus)
-        values(id_usuario_param,nombre_param,log_param,estatus_param);			
+	insert into log(co_familiar,nombre,correo,telefono,estatus)
+        values(co_familiar_param,nombre_param,correo_param,telefono_param,estatus_param);			
 	RETURN;		
 END;
 $$ 
+

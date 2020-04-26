@@ -88,8 +88,8 @@ function guardarLog(usuario,estatus) {
         const logData = {id,nombre,correo,telefono} = usuario;
 
         
-        pool.query(`select guardar_log($1,$2,$3,$4); `,
-            [logData.id,logData.nombre,JSON.stringify(logData),estatus],
+        pool.query(`select guardar_log($1,$2,$3,$4,$5); `,
+            [logData.id,nombre,correo,telefono,estatus],
             (error, results) => {
                 if (error) {
                     console.log("Error al escribir el log " + error);                    
