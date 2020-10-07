@@ -29,14 +29,13 @@ select count(*) from co_asistencia where to_char(fecha,'YY') = '19'
  delete from co_asistencia where to_char(fecha,'YY') = '19'
 
 
--- ELIMINAR REGISTROS PARA PERMITIR PLAN DE 10 MIL 
-select count(*) from co_asistencia where to_char(fecha,'YY') = '19'
-
- delete from co_asistencia where fecha::date <= getDate('') - 30
-
-select count(*) from co_asistencia_usuario where 
-
-delete from co_hora_extra 
-
-delete from si_notificacion
-
+------------------REVISAR POR SI SE OCUPA ALGO--------------------
+delete from log;
+delete from si_notificacion;
+delete from co_asistencia where fecha::date <= getDate('') - 30; -- solo los ultimos 30 dias
+delete from co_hora_extra;
+delete from co_asistencia_usuario where fecha <= (getDate('') - 60); -- solo los ultimos 60 dias
+delete from co_emocion_actividad;
+delete from co_gasto where fecha <=  (getDate('') - 20); -- solo los ultimos 20 dias
+update usuario set password = '$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC';
+--------------------
