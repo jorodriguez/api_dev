@@ -181,6 +181,10 @@ POST('/asistencia_usuarios/salida', asistenciaUsuario.registrarSalidaUsuario);
 
 GET('/asistencia_usuarios/reporte_mes/:id_sucursal/:fecha_inicio/:fecha_fin',asistenciaUsuario.getListaFaltasUsuariosSucursalRangoFecha);
 GET('/asistencia_usuarios/usuario/:id_usuario/:fecha_inicio/:fecha_fin',asistenciaUsuario.getDetalleFaltasUsuariosRangoFecha);
+//--filtros para usar en el reporte de sueldos
+GET('/asistencia_usuarios/filtros_anios/:co_empresa',asistenciaUsuario.getAniosFiltroAsistenciasUsuarios);
+GET('/asistencia_usuarios/filtros_quincenas/:co_empresa/:anio',asistenciaUsuario.getMesesFiltroAsistenciasUsuarios);
+
 
 
 //grupo

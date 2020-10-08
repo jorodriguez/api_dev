@@ -113,13 +113,13 @@ const registrarEntradaUsuario = (request, response) => {
             [id, comentario_entrada, genero],
             response,
             (results) => {
-                console.log("Ejecucion del inser");             
+                console.log("Ejecucion del inser");
                 let respuesta = null;
 
                 if (results.rowCount > 0) {
                     respuesta = {
                         registrado: (results.rowCount > 0),
-                        hora_entrada: (results.rowCount > 0) ? results.rows[0].hora_entrada :null
+                        hora_entrada: (results.rowCount > 0) ? results.rows[0].hora_entrada : null
                     };
                 }
                 response.status(200).json(respuesta);
@@ -148,7 +148,7 @@ const registrarSalidaUsuario = (request, response) => {
             RETURNING hora_salida;        
         `, [id_asistencia, comentario_salida, genero]
             , response
-            , (results) => {                
+            , (results) => {
                 let respuesta = null;
 
                 if (results.rowCount > 0) {
@@ -233,6 +233,11 @@ const getListaFaltasUsuariosSucursalRangoFecha = (request, response) => {
             u.nombre as usuario,
             u.hora_entrada::text,
             u.hora_salida::text,
+            (u.hora_salida-u.hora_entrada)::text as horas_trabajar_en_horario,
+			(d.dias_laborables * (u.hora_salida-u.hora_entrada))::text as horas_trabajar_dias_laborales,
+			coalesce(sum(age(au.hora_salida,au.hora_entrada)),'00:00')::text as horas_trabajadas_dias_laborales,
+			coalesce(count(au.hora_entrada) filter (where au.hora_entrada is not null),0) as count_checo_entrada,
+			coalesce(count(au.hora_salida) filter (where au.hora_salida is not null),0) as count_checo_salida,
             ROUND(u.sueldo_mensual,2) as sueldo_base_mensual,			
 			ROUND(u.sueldo_quincenal,2) as sueldo_base_quincenal,
 		    ((d.dias_laborables - count(au.id)) * 100) / d.dias_laborables as porcentaje_falta,						
@@ -254,7 +259,7 @@ const getListaFaltasUsuariosSucursalRangoFecha = (request, response) => {
         where u.co_sucursal = $1 and u.cat_tipo_usuario = $2 and u.eliminado = false		  
             group by u.id,d.dias_laborables
             order by u.nombre
-     `, [id_sucursal, TIPO_USUARIO.MAESTRA, new Date(fecha_inicio), new Date(fecha_fin), (id_empresa || ID_EMPRESA_MAGIC)],            
+     `, [id_sucursal, TIPO_USUARIO.MAESTRA, new Date(fecha_inicio),new Date(fecha_fin), (id_empresa || ID_EMPRESA_MAGIC)],
             response
         );
 
@@ -297,8 +302,8 @@ const getDetalleFaltasUsuariosRangoFecha = (request, response) => {
 											and eliminado = false)	
 											dias_asuetos on dias_asuetos.fecha = g::date
 		WHERE to_char(g::date,'d')::int not in (1,7)
-     `, [id_usuario, new Date(fecha_inicio), new Date(fecha_fin), ID_EMPRESA_MAGIC],            
-        response);
+     `, [id_usuario, new Date(fecha_inicio), new Date(fecha_fin), ID_EMPRESA_MAGIC],
+            response);
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -306,11 +311,80 @@ const getDetalleFaltasUsuariosRangoFecha = (request, response) => {
 };
 
 
+const getAniosFiltroAsistenciasUsuarios = (request, response) => {
+    console.log("@getAniosFiltroAsistenciasUsuarios");
+
+    const { co_empresa } = request.params;
+    
+    console.log("co_empresa = "+co_empresa);
+
+    try {
+
+        getResultQuery(` 
+        select extract(year from generate_series) as numero_anio
+				   from generate_series(
+						(select min(fecha) from co_asistencia_usuario a inner join usuario u on u.id = a.usuario where u.co_empresa = $1 and  a.eliminado=false),
+						(getDate('')+getHora(''))::timestamp
+                        ,'1 year')
+        order by generate_series desc	
+     `, [co_empresa],  response);
+
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+const getMesesFiltroAsistenciasUsuarios = (request, response) => {
+    console.log("@getMesesFiltroAsistenciasUsuarios");
+
+    const { anio,co_empresa } = request.params;
+
+    console.log("anio = " + anio);
+    console.log("co_empresa = "+co_empresa);
+
+    try {
+
+        getResultQuery(` 
+        with universo AS(
+            select generate_series(
+                (
+                    select min(fecha) 
+                    from co_asistencia_usuario a inner join usuario u on u.id = a.usuario 
+                    where u.co_empresa = $2 
+                        and to_char(a.fecha,'yyyy')::int = $1::int and  a.eliminado=false
+                ),
+                (select ((date_trunc('month',getDate(''))) + interval '1 month') - interval '1 day')
+               ,'1 month'
+          ) as fecha
+         ) select 
+             (select date_trunc('month',u.fecha))::date as primer_dia_mes, 
+             (select (date_trunc('month',u.fecha)) + interval '14 day')::date  as quinceavo_dia_mes, 
+             (select ((date_trunc('month',u.fecha)) + interval '1 month') - interval '1 day')::date as ultimo_dia_mes, 
+             extract(day from (date_trunc('month',u.fecha))) as numero_primer_dia_mes, 
+             extract(day from ((date_trunc('month',u.fecha)) + interval '14 day'))  as numero_quinceavo_dia_mes, 
+             extract(day from (((date_trunc('month',u.fecha)) + interval '1 month') - interval '1 day')) as numero_ultimo_dia_mes, 
+              extract(month from u.fecha) as numero_mes,
+              extract(year from u.fecha) as numero_anio,
+              to_char(u.fecha,'MMYYYY') as mes_anio,
+              to_char(u.fecha,'Mon') as nombre_mes
+      from universo u 
+    order by u.fecha::date desc
+     `, [anio, co_empresa],
+            response);
+
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
 module.exports = {
     getListaUsuarioPorEntrar,
     getListaUsuarioPorSalir,
     registrarEntradaUsuario,
     registrarSalidaUsuario,
     getListaFaltasUsuariosSucursalRangoFecha,
-    getDetalleFaltasUsuariosRangoFecha
+    getDetalleFaltasUsuariosRangoFecha,
+    getAniosFiltroAsistenciasUsuarios,
+    getMesesFiltroAsistenciasUsuarios
+
 };

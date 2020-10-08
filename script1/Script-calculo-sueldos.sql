@@ -25,6 +25,11 @@ with dias_activos_trabajados AS(
             u.nombre as usuario,
             u.hora_entrada::text,
             u.hora_salida::text,
+			(u.hora_salida-u.hora_entrada)::time as horas_trabajar_por_dia,
+			(d.dias_laborables * (u.hora_salida-u.hora_entrada)) as horas_trabajar_dias_laborales,
+			sum(age(au.hora_salida,au.hora_entrada)) as horas_trabajadas_dias_laborales,
+			count(au.hora_entrada) filter (where au.hora_entrada is not null) as count_checo_entrada,
+			count(au.hora_salida) filter (where au.hora_salida is not null) as count_checo_salida,
 			ROUND(u.sueldo_mensual,2) as sueldo_base_mensual,			
 			ROUND(u.sueldo_quincenal,2) as sueldo_base_quincenal,
 		    ((d.dias_laborables - count(au.id)) * 100) / d.dias_laborables as porcentaje_falta,						
@@ -43,6 +48,7 @@ with dias_activos_trabajados AS(
             d.dias_laborables
         from dias_activos_trabajados d, usuario u left join co_asistencia_usuario au on au.usuario = u.id 
                                                 and au.fecha between '2020-09-01'::date  and '2020-09-15'::date
-        where u.co_sucursal = 2 and u.cat_tipo_usuario = 1 and u.eliminado = false		  
+        where u.co_sucursal = 1and u.cat_tipo_usuario = 1 and u.eliminado = false		  
             group by u.id,d.dias_laborables
             order by u.nombre
+			
