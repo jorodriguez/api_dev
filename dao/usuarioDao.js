@@ -40,6 +40,8 @@ const getUsuarioPorSucursal = (idSucursal, idTipoUsario) => {
             SUC.NOMBRE AS NOMBRE_SUCURSAL,            
             TIPO_USUARIO.NOMBRE AS TIPO_USUARIO,
             U.ACCESO_SISTEMA,
+            U.SUELDO_MENSUAL,
+            U.SUELDO_QUINCENAL,
             EXTRACT(WEEK FROM  u.fecha_genero) = EXTRACT(WEEK FROM  getDate('')) as nuevo_ingreso
         FROM USUARIO U INNER JOIN CO_SUCURSAL SUC ON SUC.ID = U.CO_SUCURSAL 
 		        INNER JOIN CAT_TIPO_USUARIO TIPO_USUARIO ON TIPO_USUARIO.ID = U.CAT_TIPO_USUARIO
@@ -54,7 +56,7 @@ const getUsuarioPorSucursal = (idSucursal, idTipoUsario) => {
 const insertarUsuario = async (usuarioData) => {
     console.log("@insertarUsuario");
 
-    const { nombre, correo,id_tipo_usuario, co_sucursal, hora_entrada, hora_salida, genero } = usuarioData;
+    const { nombre, correo,id_tipo_usuario, co_sucursal, hora_entrada, hora_salida,sueldo_mensual, genero } = usuarioData;
 
     console.log("HOIRA EN "+hora_entrada);
     console.log("HOIRA EN "+hora_salida);
@@ -64,11 +66,11 @@ const insertarUsuario = async (usuarioData) => {
     console.log("Password generado  " + password);
 
     let sql = `
-            INSERT INTO USUARIO(NOMBRE,CORREO,CO_SUCURSAL,CAT_TIPO_USUARIO,HORA_ENTRADA,HORA_SALIDA,PASSWORD,GENERO)
-            VALUES(TRIM(BOTH FROM $1),TRIM($2),$3,$4,$5,$6,$7,$8) RETURNING ID;
+            INSERT INTO USUARIO(NOMBRE,CORREO,CO_SUCURSAL,CAT_TIPO_USUARIO,HORA_ENTRADA,HORA_SALIDA,PASSWORD,SUELDO_MENSUAL,SUELDO_QUINCENAL,GENERO)
+            VALUES(TRIM(BOTH FROM $1),TRIM($2),$3,$4,$5,$6,$7,$8::numeric,($8::numeric/2)::numeric,$10) RETURNING ID;
             `;
     return genericDao
-        .execute(sql, [nombre, correo, co_sucursal,id_tipo_usuario, hora_entrada, hora_salida, password.encripted, genero]);
+        .execute(sql, [nombre, correo, co_sucursal,id_tipo_usuario, hora_entrada, hora_salida, password.encripted,sueldo_mensual,genero]);
 };
 
 
@@ -87,11 +89,10 @@ const buscarCorreo = (correo) => {
 const modificarUsuario = (usuarioData) => {
     console.log("@modificarUsuario");
     console.log("usuarioDATA "+JSON.stringify(usuarioData));
-    const { id,nombre, correo, hora_entrada, hora_salida, genero } = usuarioData;
+    const { id,nombre, correo, hora_entrada, hora_salida,sueldo_mensual, genero } = usuarioData;
 
     //TIPO_USUARIO.MAESTRA
     
-
     let sql = `
             UPDATE USUARIO SET 
                             NOMBRE = TRIM(BOTH FROM $2),
@@ -99,11 +100,13 @@ const modificarUsuario = (usuarioData) => {
                             HORA_ENTRADA = $4,
                             HORA_SALIDA=$5,
                             MODIFICO = $6,                            
+                            SUELDO_MENSUAL = $7::numeric,
+                            SUELDO_QUINCENAL = ($7::numeric/2)::numeric,
                             FECHA_MODIFICO = getDate('')
             WHERE id = $1
             returning id;
             `;
-    return genericDao.execute(sql, [id, nombre, correo, hora_entrada, hora_salida, genero]);
+    return genericDao.execute(sql, [id, nombre, correo, hora_entrada, hora_salida,genero,sueldo_mensual]);
 };
 
 const modificarContrasena = (idUsuario, usuarioData) => {

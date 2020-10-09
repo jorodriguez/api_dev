@@ -239,18 +239,19 @@ const getListaFaltasUsuariosSucursalRangoFecha = (request, response) => {
 			coalesce(count(au.hora_entrada) filter (where au.hora_entrada is not null),0) as count_checo_entrada,
 			coalesce(count(au.hora_salida) filter (where au.hora_salida is not null),0) as count_checo_salida,
             ROUND(u.sueldo_mensual,2) as sueldo_base_mensual,			
-			ROUND(u.sueldo_quincenal,2) as sueldo_base_quincenal,
+            ROUND(u.sueldo_quincenal,2) as sueldo_base_quincenal,
+            ROUND((u.sueldo_quincenal/15),2) as sueldo_base_diario,	
 		    ((d.dias_laborables - count(au.id)) * 100) / d.dias_laborables as porcentaje_falta,						
 			ROUND(
-					(
-						u.sueldo_quincenal - (u.sueldo_quincenal * ((d.dias_laborables::numeric - count(au.id)::numeric) / d.dias_laborables))
-					)
-				  ,2) as pago_sueldo_quincenal,
-			ROUND(
-					(
-						u.sueldo_mensual - u.sueldo_mensual * ((d.dias_laborables - count(au.id)) / d.dias_laborables)
-					)
-				,2) as pago_sueldo_mensual,			
+                (
+                    u.sueldo_quincenal - ((u.sueldo_quincenal/15) * (d.dias_laborables::numeric - count(au.id)::numeric))
+                )
+            ,2) as sueldo_quincenal_pago,		
+            ROUND(
+                (
+                    (u.sueldo_quincenal/15) * (d.dias_laborables::numeric - count(au.id)::numeric)
+                )
+            ,2) as descuento_faltas,		
 			count(au.id) as count_dias_asistencia,
             d.dias_laborables - count(au.id) as count_dias_faltas,
             d.dias_laborables

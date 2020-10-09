@@ -23,7 +23,42 @@ const getQueryBase = (condicion) => {
                 where r.usuario = u.id and r.eliminado = false
 				
 			)	
-            AS sucursales
+            AS sucursales,
+            (with universo as (		
+				select opc.*,
+						(array_to_json((
+								select array_agg(op.*) 
+								from si_rol_opcion s inner join si_opcion op on op.id = s.si_opcion 
+								where s.si_rol in (
+												select sur.si_rol 
+												from si_usuario_sucursal_rol sur
+												where sur.usuario = u.id
+													and sur.co_sucursal = u.co_sucursal
+													and sur.eliminado = false
+												)
+									and op.si_opcion = opc.id
+									and s.eliminado=false
+									and op.eliminado= false
+						)))
+						as opciones_hijo
+                from si_usuario_sucursal_rol r inner join si_rol rol on rol.id = r.si_rol
+												inner join si_rol_opcion ro on ro.si_rol = rol.id
+												inner join si_opcion opc on opc.id = ro.si_opcion
+                where r.usuario = u.id
+						and r.co_sucursal = u.co_sucursal
+						and opc.si_opcion is null
+						and r.eliminado = false
+				) select array_to_json(array_agg(c.*)) from universo c
+			) AS menu,
+            (
+				select array_to_json(array_agg(opc.*))
+                from si_usuario_sucursal_rol r inner join si_rol rol on rol.id = r.si_rol
+												inner join si_rol_opcion ro on ro.si_rol = rol.id
+												inner join si_opcion opc on opc.id = ro.si_opcion
+                where r.usuario = u.id
+						and r.co_sucursal = u.co_sucursal
+						and r.eliminado = false
+			) as opciones_acceso
     FROM usuario u inner join co_sucursal su on u.co_sucursal = su.id
       inner join co_empresa em on em.id = u.co_empresa    
     WHERE ${condicion}

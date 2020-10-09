@@ -283,6 +283,7 @@ GET('/reporte_gastos_mes_actual/:id_usuario', reporte_gastos.getReporteGastoMens
 
 //catalogo de maestros
 GET('/usuario/:id_sucursal', usuarioService.getUsuariosPorSucursal);
+GET('/usuario/buscar/:id_usuario', usuarioService.buscarUsuarioPorId);
 POST('/usuario', usuarioService.crearUsuario);
 PUT('/usuario', usuarioService.modificarUsuario);
 PUT('/usuario/:id_usuario', usuarioService.desactivarUsuario);

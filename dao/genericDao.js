@@ -123,13 +123,13 @@ function eliminarPorId(tabla,id,genero){
 
 
 function buscarPorId(tabla,id){
-
-    if(tabla != undefined && tabla != null){
+     console.log(`Tabla consulta ${tabla} ID= ${id}`);
+    if(tabla == undefined || tabla == null || tabla==''){
         console.log("el nombre de la tabla no esta definido ");        
         return null;
     }
-
-    return getQueryInstance(`SELECT * FROM  ${tabla} WHERE ID = $1`,[id]);
+    return findOne(`SELECT * FROM  ${tabla} WHERE ID = $1`,[id]);
+    //return getQueryInstance(`SELECT * FROM  ${tabla} WHERE ID = $1`,[id]);
 }
 
 module.exports = {findAll,findOne,eliminarPorId,execute,executeProcedure,executeProcedureWithParameters,buscarPorId};

@@ -6,7 +6,7 @@ const crearUsuario = (request, response) => {
 
 	try {
 
-		const usuarioData = { nombre,co_tipo_usuario, correo, id_sucursal, hora_entrada, hora_salida, genero } = request.body;
+		const usuarioData = { nombre,co_tipo_usuario, correo, id_sucursal, hora_entrada, hora_salida,sueldo_mensual, genero } = request.body;
 
 		var proceso = null;		
 
@@ -67,7 +67,7 @@ const modificarUsuario = (request, response) => {
 
 	try {
 
-		const usuarioData = { id, nombre, correo, hora_entrada, hora_salida, genero } = request.body;
+		const usuarioData = { id, nombre, correo, hora_entrada, hora_salida,sueldo_mensual, genero } = request.body;
 
 		var proceso = null;
 		if (usuarioData.correo != null && usuarioData.correo != undefined && usuarioData.correo != '') {
