@@ -43,6 +43,8 @@ const reporteContabilidad = require('./services/reporteContabilidad');
 const catalogoDescuento = require('./services/cat_descuento');
 
 const port = process.env.PORT || 5000;
+//version/branch
+const version = "v1.0.30/2010-calculo-sueldos";
 
 //es un middleware que serializa los cuerpos de las respuestas 
 //   para poder invocar response.param
@@ -352,11 +354,11 @@ app.get('/', (request, response) => {
 	console.log(process.env);
 	console.log("=====================");
 	console.log(JSON.stringify(pool));
-	response.json({ info: `MagicIntelligence API v1.0.30 (env:${process.env.ENV}) DESCUENTOS`})
+	response.json({ info: `MagicIntelligence ${version} (env:${process.env.ENV})`})
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} v1.0.30 - DESCUENTOS (env:${process.env.ENV})`);
+	console.log(`App corriendo en el puerto ${port} ${version} (env:${process.env.ENV})`);
 });
 
 //GET('/encriptar/:clave', authController.encriptar);

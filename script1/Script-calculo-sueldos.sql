@@ -1,14 +1,16 @@
 
+
+
 alter table usuario add column sueldo_mensual numeric;
 alter table usuario add column sueldo_quincenal numeric;
 update usuario set sueldo_mensual = 0;
 update usuario set sueldo_quincenal = 0;
 alter table usuario alter column sueldo_mensual set not null;
 alter table usuario alter column sueldo_quincenal set not null;
-
+select * from si_rol
 --nuevo rol
 insert into si_rol(si_modulo,nombre,genero)
-values(1,'Administra Sueldos',1);
+values(2,'Administra Sueldos',1);
 
 alter table si_opcion alter column si_opcion drop not null;
 insert into si_opcion(id,si_modulo,si_opcion,nombre,ruta,genero)
@@ -23,10 +25,14 @@ insert into si_opcion(id,si_modulo,si_opcion,nombre,ruta,genero)
 values(2,1,1,'Sueldos y Asistencias','AsistenciasUsuarioSucursal',1);
 
 insert into si_rol_opcion(si_rol,si_opcion,genero)
-values(2,2,1)
+values(2,2,1);
+
+
+insert into si_opcion(id,si_modulo,si_opcion,nombre,ruta,genero)
+values(3,1,1,'Catalogo Usuarios','CatalogoUsuario',1);
 
 insert into si_rol_opcion(si_rol,si_opcion,genero)
-values(3,3,1);
+values(2,3,1);
 
 update si_opcion set icono_menu = 'fas fa-user' where id = 1;
 update si_opcion set icono_menu = 'fas fa-calendar-check' where id = 2;

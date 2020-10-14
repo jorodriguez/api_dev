@@ -38,4 +38,15 @@ delete from co_asistencia_usuario where fecha <= (getDate('') - 60); -- solo los
 delete from co_emocion_actividad;
 delete from co_gasto where fecha <=  (getDate('') - 20); -- solo los ultimos 20 dias
 update usuario set password = '$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC';
+
+update usuario set password = '$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC';
+
+update co_familiar 
+SET token = (select token from co_familiar where id=54)	
+where token is not null and token <> 'joel.rod.roj@hotmail.com';
+
+update co_familiar 
+set correo = 'joel@magicintelligence.com' where correo not in ('sb.teres@gmail.com','joel.rod.roj@hotmail.com')
+
+
 --------------------

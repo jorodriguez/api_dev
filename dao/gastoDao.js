@@ -100,11 +100,17 @@ const getGastosPorSucursal = (idSucursal, anioMes) => {
     return genericDao.findAll(
         `
                 select 
-                    tipo.nombre as nombre_tipo_gasto, 
-                    fpago.nombre as nombre_tipo_pago,
-                    suc.nombre as nombre_sucursal,
-                    g.fecha::date as fecha,
-                    g.*
+                tipo.nombre as nombre_tipo_gasto, 
+                fpago.nombre as nombre_tipo_pago,
+                suc.nombre as nombre_sucursal,
+                g.fecha,
+                to_char(g.fecha,'dd-mm-yyyy') as fecha_text,
+                g.id,
+                g.cat_tipo_gasto,
+                g.co_forma_pago,
+                g.co_sucursal,
+                g.gasto,
+                g.observaciones
                 from co_gasto g inner join cat_tipo_gasto tipo on g.cat_tipo_gasto = tipo.id
                     inner join co_forma_pago fpago on g.co_forma_pago = fpago.id
                     inner join co_sucursal suc on g.co_sucursal = suc.id

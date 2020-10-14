@@ -67,7 +67,7 @@ const insertarUsuario = async (usuarioData) => {
 
     let sql = `
             INSERT INTO USUARIO(NOMBRE,CORREO,CO_SUCURSAL,CAT_TIPO_USUARIO,HORA_ENTRADA,HORA_SALIDA,PASSWORD,SUELDO_MENSUAL,SUELDO_QUINCENAL,GENERO)
-            VALUES(TRIM(BOTH FROM $1),TRIM($2),$3,$4,$5,$6,$7,$8::numeric,($8::numeric/2)::numeric,$10) RETURNING ID;
+            VALUES(TRIM(BOTH FROM $1),TRIM($2),$3,$4,$5,$6,$7,$8::numeric,($8::numeric/2)::numeric,$9) RETURNING ID;
             `;
     return genericDao
         .execute(sql, [nombre, correo, co_sucursal,id_tipo_usuario, hora_entrada, hora_salida, password.encripted,sueldo_mensual,genero]);
