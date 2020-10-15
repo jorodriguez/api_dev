@@ -322,12 +322,14 @@ const getAniosFiltroAsistenciasUsuarios = (request, response) => {
     try {
 
         getResultQuery(` 
-        select extract(year from generate_series) as numero_anio
-				   from generate_series(
-						(select min(fecha) from co_asistencia_usuario a inner join usuario u on u.id = a.usuario where u.co_empresa = $1 and  a.eliminado=false),
-						(getDate('')+getHora(''))::timestamp
-                        ,'1 year')
-        order by generate_series desc	
+        select generate_series as numero_anio
+        from generate_series(
+             (select extract(year from (min(fecha)))::int 
+             from co_asistencia_usuario a inner join usuario u on u.id = a.usuario 
+             where u.co_empresa = $1 and  a.eliminado=false),
+             (select extract(year from (getDate(''))))::int
+             )                        
+        order by generate_series desc		
      `, [co_empresa],  response);
 
     } catch (e) {
