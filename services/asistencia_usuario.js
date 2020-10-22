@@ -362,9 +362,11 @@ const getMesesFiltroAsistenciasUsuarios = (request, response) => {
          ) select 
              (select date_trunc('month',u.fecha))::date as primer_dia_mes, 
              (select (date_trunc('month',u.fecha)) + interval '14 day')::date  as quinceavo_dia_mes, 
+             (select (date_trunc('month',u.fecha)) + interval '15 day')::date  as dieciseisavo_dia_mes, 
              (select ((date_trunc('month',u.fecha)) + interval '1 month') - interval '1 day')::date as ultimo_dia_mes, 
              extract(day from (date_trunc('month',u.fecha))) as numero_primer_dia_mes, 
              extract(day from ((date_trunc('month',u.fecha)) + interval '14 day'))  as numero_quinceavo_dia_mes, 
+             extract(day from ((date_trunc('month',u.fecha)) + interval '15 day'))  as numero_dieciseisavo_dia_mes, 
              extract(day from (((date_trunc('month',u.fecha)) + interval '1 month') - interval '1 day')) as numero_ultimo_dia_mes, 
               extract(month from u.fecha) as numero_mes,
               extract(year from u.fecha) as numero_anio,
