@@ -44,7 +44,7 @@ const catalogoDescuento = require('./services/cat_descuento');
 
 const port = process.env.PORT || 5000;
 //version/branch
-const version = "v1.0.30/2010-calculo-sueldos";
+const version = "v1.0.30/2010-reporte-diario";
 
 //es un middleware que serializa los cuerpos de las respuestas 
 //   para poder invocar response.param
