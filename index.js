@@ -39,7 +39,7 @@ const asistenciaUsuario = require('./services/asistencia_usuario');
 const recargoService = require('./services/recargos');
 const catalogoRecursos = require('./services/catalogo_recursos');
 const reporteContabilidad = require('./services/reporteContabilidad');
-
+const correo_service = require('./utils/CorreoService');
 const catalogoDescuento = require('./services/cat_descuento');
 
 const port = process.env.PORT || 5000;
@@ -329,8 +329,12 @@ GET('/configuracion', conf.getConfiguracion);
 
 //Mensajes
 GET('/mensaje', mensajeria.sendMessage);
-
-//GET('/enviar_correo', correo_service.enviarCorreoTest);
+/*
+app.get('/enviar_correo', ()=>{
+	//enviar correo prueba
+	console.log("Enviando correo de prueba...");
+	correo_service.enviarCorreo('joel.rod.roj@hotmail.com','',"test",'<h1>TES</h1>');
+});*/
 
 //sucursales y cambios
 GET('/sucursal', sucursales.getSucursales);

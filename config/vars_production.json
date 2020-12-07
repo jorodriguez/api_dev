@@ -1,12 +1,12 @@
 {
     "env":"PRODUCTION",
     "configMail": {
-        "host": "mail.magicintelligence.com",
+        "host": "magicintelligence.com",
         "port": 465,
         "secureConnection": false,
         "auth": {
             "user": "info@magicintelligence.com",
-            "pass": "Clave.01"
+            "pass": "@7FohByr!0(6kD#1&wiy"
         },
         "tls": {
             "ciphers": "SSLv3"
