@@ -7,25 +7,9 @@ const genericDao = require('./genericDao');
 const registrarPago = (pagoData) => {
     console.log("@registrarPago");
     console.log("=====>> " + JSON.stringify(pagoData));
-
-    /*ids_cargos text,
-	cargos_desglose text,
-	ids_cargos_descuento text,	
-	id_descuentos_desglose text,
-	id_alumno integer,
-	pago_param numeric,
-	nota text,
-	forma_pago_param integer,
-	identificador_factura_param text,
-	identificador_pago_param text,
-    id_genero integer
-    */
-
     return new Promise((resolve, reject) => {
         const { id_alumno, pago, nota, ids_cargos, cargos_desglosados,ids_cargos_descuento,id_descuentos_desglose, cat_forma_pago, identificador_factura,identificador_pago, genero } = pagoData;
         console.log("identificador_pagoidentificador_pagoidentificador_pago "+identificador_pago);
-
-//`SELECT agregar_pago_alumno('${ids_cargos}','${cargos_desglosados}',${id_alumno},${pago},'${nota}',${cat_forma_pago},'${identificador_factura}',${genero});`)
         genericDao
             .executeProcedure(
                 `SELECT agregar_pago_alumno(
@@ -53,25 +37,41 @@ const registrarPago = (pagoData) => {
             }).catch(error => {
                 console.error("No se guardo el pago "+error);
                 reject(error);
-            });
-        /*
-              response,
-              (results) => {
-                  if (results.rowCount > 0) {
-                      let retorno = results.rows[0];
-                      console.log("Retorno el ID " + JSON.stringify(results.rows));
-                      notificacionService.notificarReciboPago(id_alumno, retorno.agregar_pago_alumno);
-                      //enviar datos de facturacion al canal de notificaciones
-                      //enviarDatosParaFactura(id_alumno,retorno.agregar_pago_alumno);
-                  }
-                  response.status(200).json(results.rowCount);
-              });*/
+            });      
     });
 
 };
 
 
 const getPagosByCargoId = (idCargoBalanceAlumno) => {
+    console.log("@getPagosByCargoId");
+
+    console.log("request.params.id_cargo_balance_alumno " + idCargoBalanceAlumno);
+    return genericDao.findAll(
+        `
+              SELECT forma_pago.id as id_forma_pago,
+                    forma_pago.nombre as nombre_forma_pago,
+                    pago.identificador_factura ,
+                    pago.identificador_pago,
+                    r.id,                    
+                    r.fecha,
+                    to_char(pago.fecha,'dd-mm-yyyy HH24:mm') as fecha_format,
+                    r.co_pago_balance_alumno,
+                    r.co_cargo_balance_alumno,
+                    r.pago,
+                    pago.id as id_pago,
+                    pago.nota,
+                    pago.co_forma_pago,
+                    r.folio_factura                    
+               FROM co_pago_cargo_balance_alumno r inner join co_pago_balance_alumno pago on r.co_pago_balance_alumno = pago.id
+                                                   inner join co_forma_pago forma_pago on pago.co_forma_pago = forma_pago.id
+               WHERE r.co_cargo_balance_alumno = $1 and r.eliminado = false and pago.eliminado = false
+               ORDER BY pago.fecha DESC`,
+        [idCargoBalanceAlumno]);
+};
+
+/*
+const getAlumnoByPagoId = (idPago) => {
     console.log("@getPagosByCargoId");
 
     console.log("request.params.id_cargo_balance_alumno " + idCargoBalanceAlumno);
@@ -95,8 +95,7 @@ const getPagosByCargoId = (idCargoBalanceAlumno) => {
                WHERE r.co_cargo_balance_alumno = $1 and r.eliminado = false and pago.eliminado = false
                ORDER BY pago.fecha DESC`,
         [idCargoBalanceAlumno]);
-};
-
+};*/
 
 
 

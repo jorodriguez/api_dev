@@ -26,9 +26,33 @@ const registrarPago = (request, response) => {
         pagoService
             .registrarPago(pagoData)
             .then(results => {
-                notificacionService.notificarReciboPago(id_alumno, results.agregar_pago_alumno);
+                notificacionService.notificarReciboPago(id_alumno, results.agregar_pago_alumno,false);
                 //notificacionService.notificarReciboPago(id_alumno, retorno.agregar_pago_alumno);
                 response.status(200).json(results);
+            }).catch(error => {
+                console.log("No se guardo el pago " + error);
+                handle.callbackError(error, response);
+            });
+
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+
+const reenviarComprobantePago = (request, response) => {
+    console.log("@reenviar comprobante de Pago");
+    try {
+        const pagoData =
+            {
+                id_alumno,
+                id_pago
+            } = request.body;
+
+        notificacionService
+            .notificarReciboPago(id_alumno, id_pago,true)
+            .then(result => {
+                response.status(200).json(result);
             }).catch(error => {
                 console.log("No se guardo el pago " + error);
                 handle.callbackError(error, response);
@@ -58,5 +82,6 @@ const getPagosByCargoId = (request, response) => {
 };
 module.exports = {
     registrarPago,
-    getPagosByCargoId
+    getPagosByCargoId,
+    reenviarComprobantePago
 };

@@ -44,7 +44,7 @@ const catalogoDescuento = require('./services/cat_descuento');
 
 const port = process.env.PORT || 5000;
 //version/branch
-const version = "v1.0.30/2010-reporte-diario";
+const version = "v1.0.31/20208-reenvio-correos";
 
 //es un middleware que serializa los cuerpos de las respuestas 
 //   para poder invocar response.param
@@ -225,6 +225,8 @@ GET('/valores_esperados/:id_formato', formato_complemento.getCatalogoValoresEspe
 POST('/pagos/registrar', pagos.registrarPago);
 POST('/pagos/:id_alumno', pagos.registrarPago);
 GET('/pagos/:id_cargo_balance_alumno', pagos.getPagosByCargoId);
+//Reenviar correo
+PUT('/pagos/reenviar_comprobante', pagos.reenviarComprobantePago);
 
 POST('/cargos/registrar', cargos.registrarCargo);
 GET('/cargos', cargos.getCatalogoCargos);

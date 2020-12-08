@@ -20,7 +20,7 @@ const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
             and rel.eliminado = false
     group by a.nombre,a.id `;
 
-const getCorreosTokensAlumno = (idAlumno) => {
+const  getCorreosTokensAlumno = (idAlumno) => {
     console.log("@getCorreosTokensAlumno");
     return genericDao.findOne(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [[idAlumno]]);
 };

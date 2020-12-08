@@ -36,7 +36,7 @@ const notificarCargo = (id_alumno, id_cargos) => {
             } else {
                 console.log("No se encontraron registros de padres para el alumno " + id_alumno);
             }
-        }).catch(error => console.error(error));  
+        }).catch(error => console.error(error));
 };
 
 function completarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, nombre_alumno, id_cargo, id_sucursal) {
@@ -119,26 +119,65 @@ function enviarMensajeMovil(tokens, titulo, cuerpo) {
 
 }
 
-const notificarReciboPago = (id_alumno, id_pago) => {
+const notificarReciboPago = (id_alumno, id_pago,es_reenvio) => {
     console.log("@@notificarReciboPago " + id_alumno + "    " + id_pago);
     //ir por alumno
-    alumnoService
-        .getCorreosTokenAlumno(id_alumno)
-        .then(results => {
-            let row = results;
-            console.log("===>>> "+JSON.stringify(results));
-            if (row != null) {
-                enviarReciboComplemento(row.correos, row.tokens, row.nombres_padres, id_pago);
-            } else {
-                console.log("XXXX No se encontraron registros de padres para el alumno " + id_alumno);
-            }
-        }).catch(error => {
-            console.log("error en el servicio para enviar notificaicones "+error);
-            console.error(error);           
-        });  
-};
+    return new Promise((resolve, reject) => {
+        try {
+            alumnoService
+                .getCorreosTokenAlumno(id_alumno)
+                .then(row => {
+                    if (row != null) {
+                        enviarReciboComplemento(row.correos, row.tokens, row.nombres_padres, id_pago,es_reenvio);
+                        resolve(`Se envio el correo a ${row.correos}.`);
+                    } else {
+                        console.log("XXXX No se encontraron registros de padres para el alumno " + id_alumno);
+                        reject("No se encontró registro de padres para el alumno.");
+                    }
+                }).catch(err=>{
+                    console.log("error "+err);
+                    reject("Existió un error al enviar el correo de comprobante de pago.");
+                });
+                    
+                
+        } catch (error) {
+            reject("Error el intentar enviar la notificación.")
+        }
 
-function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id_pago) {
+        /*
+                alumnoService
+                    .getCorreosTokenAlumno(id_alumno)
+                    .then(results => {
+                        let row = results;
+                        console.log("===>>> " + JSON.stringify(results));
+                        if (row != null) {
+                            enviarReciboComplemento(row.correos, row.tokens, row.nombres_padres, id_pago);
+                        } else {
+                            console.log("XXXX No se encontraron registros de padres para el alumno " + id_alumno);
+                        }
+                    }).catch(error => {
+                        console.log("error en el servicio para enviar notificaicones " + error);
+                        console.error(error);
+                    });*/
+    });
+};
+/*
+alumnoService
+            .getCorreosTokenAlumno(id_alumno)
+            .then(results => {
+                let row = results;
+                console.log("===>>> " + JSON.stringify(results));
+                if (row != null) {
+                    enviarReciboComplemento(row.correos, row.tokens, row.nombres_padres, id_pago);
+                } else {
+                    console.log("XXXX No se encontraron registros de padres para el alumno " + id_alumno);
+                }
+            }).catch(error => {
+                console.log("error en el servicio para enviar notificaicones " + error);
+                console.error(error);
+            });*/
+
+function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id_pago,es_reenvio) {
 
     pool.query(`        
             WITH relacion_cargos AS (
@@ -196,7 +235,7 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
             if (results.rowCount > 0) {
 
                 let row = results.rows[0];
-                let tituloCorreo = "Recibo de pago ✔";
+                let tituloCorreo = `Recibo de pago ${es_reenvio ? '(Reenvío)':''} ✔`;
                 let titulo_mensaje = "Pago realizado ✔";
                 let cuerpo_mensaje = `Hola, recibimos un pago correspondiente a ${row.count_cargos} cargo${row.count_cargos > 0 ? '' : 's'} del alumno ${row.nombre_alumno}, enviamos el recibo de pago a su correo.`;
                 console.log("Enviando correo a " + JSON.stringify(lista_correos));
@@ -335,6 +374,6 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
 
 module.exports = {
     notificarReciboPago,
-    enviarCorreoClaveFamiliar,    
-    notificarCargo   
+    enviarCorreoClaveFamiliar,
+    notificarCargo
 };

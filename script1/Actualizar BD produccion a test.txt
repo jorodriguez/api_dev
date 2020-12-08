@@ -48,5 +48,6 @@ where token is not null and token <> 'joel.rod.roj@hotmail.com';
 update co_familiar 
 set correo = 'joel@magicintelligence.com' where correo not in ('sb.teres@gmail.com','joel.rod.roj@hotmail.com')
 
+update co_correo_copia_notificacion set correo = 'velocirraptor79.1@gmail.com';
 
 --------------------
