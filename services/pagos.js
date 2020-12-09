@@ -55,7 +55,8 @@ const reenviarComprobantePago = (request, response) => {
                 response.status(200).json(result);
             }).catch(error => {
                 console.log("No se guardo el pago " + error);
-                handle.callbackError(error, response);
+                response.status(200).json(error);
+               // handle.callbackError(error, response);
             });
 
     } catch (e) {
