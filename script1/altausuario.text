@@ -14,3 +14,19 @@
 	values('Miss Liz','liz2@noreply.com',3,'$2a$08$XOjFNU1bEQ4YjNm0/jfvJO4CVbqYKy/DZV0B1QtWuwWFcnh2bmKOC',false,2,'08:00:00','12:00:00',1);
 
 	select * from usuario
+
+//para activar un usuario como coordinador 
+1. dar de alta en el sistema
+2. correr el comando
+
+update usuario
+set acceso_sistema = true,
+password = '$2a$08$TvOn607tqeAQ3gyyLST71Oo/j7Tr8XpkQWsLsCL0UWfn6lVajsQ4.',
+co_empresa = 1
+where id = 122	
+
+
+//activar roles para administrar usuario
+
+insert into si_usuario_sucursal_rol(usuario,co_sucursal,si_rol,co_empresa,genero)
+values(122,1,1,1,12),(122,1,3,1,12);
