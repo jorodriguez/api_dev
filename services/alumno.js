@@ -205,9 +205,11 @@ const updateAlumno = (request, response) => {
                 fecha_reinscripcion = $13,
                 co_grupo = $14, 
                 nombre_carino = $15, 
-                sexo = $16 ,
-                 modifico = $17, 
-                fecha_inscripcion = $18
+                mostrar_nombre_carino = $16,
+                color = $17,
+                sexo = $18,                
+                 modifico = $19, 
+                fecha_inscripcion = $20
                  WHERE id = $1`,
                 [
                     id,
@@ -215,7 +217,8 @@ const updateAlumno = (request, response) => {
                     alumno.nota, alumno.hora_entrada, alumno.hora_salida,
                     alumno.costo_inscripcion, alumno.costo_colegiatura, alumno.minutos_gracia,
                     alumno.foto, (alumno.fecha_reinscripcion == "" ? null : alumno.fecha_reinscripcion),
-                    alumno.co_grupo, alumno.nombre_carino,
+                    alumno.co_grupo, alumno.nombre_carino,(alumno.mostrar_nombre_carino || false),
+                    (alumno.color || null),
                     alumno.sexo, alumno.genero,
                     (alumno.fecha_inscripcion == "" ? null : alumno.fecha_inscripcion)
                     

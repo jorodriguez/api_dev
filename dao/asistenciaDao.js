@@ -13,11 +13,17 @@ const SQL_ALUMNOS_RECIBIDOS =
             asistencia.hora_entrada,
             asistencia.hora_salida,
             alumno.id as id_alumno,
-            alumno.nombre as nombre_alumno,
+            CASE WHEN alumno.mostrar_nombre_carino THEN            
+                alumno.nombre_carino          
+            ELSE alumno.nombre END
+            as nombre_alumno,
             alumno.apellidos as apellido_alumno,
             grupo.id as co_grupo,
             grupo.nombre as nombre_grupo,
-            grupo.color as color,
+            case when alumno.color is not null then 
+                alumno.color 
+                else grupo.color 
+            end as color,                                    
             true as visible,
             false as seleccionado,            
             (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp as calcular_tiempo_extra,
@@ -34,11 +40,19 @@ const SQL_ALUMNOS_RECIBIDOS_HORAS_EXTRAS =
         asistencia.id,
         asistencia.fecha,
         alumno.foto,
-        grupo.color as color,
+        case when alumno.color is not null then 
+                alumno.color 
+                else grupo.color 
+            end as color,                        
+        alumno.nombre_carino,            
+        alumno.mostrar_nombre_carino,
         asistencia.hora_entrada,    
         asistencia.hora_salida,
         alumno.id as id_alumno,
-        alumno.nombre as nombre_alumno,
+        CASE WHEN alumno.mostrar_nombre_carino THEN            
+                alumno.nombre_carino          
+            ELSE alumno.nombre END
+        as nombre_alumno,
         alumno.hora_salida as hora_salida_alumno,  
         false as seleccionado,   
         (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp as calcular_tiempo_extra,
@@ -57,6 +71,7 @@ const getAlumnosRecibidos = (idSucursal) => {
     return genericDao.findAll(SQL_ALUMNOS_RECIBIDOS, [idSucursal]);
 };
 
+/*
 const getAlumnosPorRecibir = (idSucursal) => {
     console.log("@getAlumnosPorRecibir");
 
@@ -66,6 +81,39 @@ const getAlumnosPorRecibir = (idSucursal) => {
                 grupo.color as color,
                 false as visible,
                 a.*
+        FROM co_alumno a INNER JOIN co_grupo grupo ON a.co_grupo = grupo.id		
+        WHERE a.id not in (
+                       SELECT asistencia.co_alumno
+                           FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno=alumno.id            
+                        WHERE asistencia.hora_salida is null and  asistencia.eliminado = false 
+        AND alumno.co_sucursal = $1
+        AND asistencia.eliminado=false
+        ) 
+        AND a.co_sucursal = $2
+        AND a.eliminado = false 
+        ORDER BY grupo.nombre ASC
+        `, [idSucursal, idSucursal]);
+};
+*/
+
+const getAlumnosPorRecibir = (idSucursal) => {
+    console.log("@getAlumnosPorRecibir");
+
+    return genericDao.findAll(
+        `SELECT 
+            grupo.nombre as nombre_grupo,
+            case when a.color is not null then 
+                a.color 
+            else grupo.color end as color,                                               
+            false as visible,
+            a.id,
+            a.co_sucursal,
+            a.co_grupo,
+            CASE WHEN a.mostrar_nombre_carino THEN            
+            a.nombre_carino          
+            ELSE a.nombre END
+            as nombre,
+            a.foto  
         FROM co_alumno a INNER JOIN co_grupo grupo ON a.co_grupo = grupo.id		
         WHERE a.id not in (
                        SELECT asistencia.co_alumno
