@@ -32,7 +32,7 @@ const dbParams = {
     database: (process.env.DATABASE_NAME || 'decta401vvp19u'),
     password: (process.env.PASSWORD_DB ||'65c27377175e6d57b498e1d383b0e173ece396c6278bec01ae391cb7f1970f72'),
     port: (process.env.PORT_DB ||5432),
-    ssl:true
+    ssl: { rejectUnauthorized: false }
    // ssl: { rejectUnauthorized: false }
 };
 
@@ -46,7 +46,7 @@ const pool = new Pool({
     database: dbParams.database,
     password: dbParams.password,
     port: dbParams.port,
-    ssl: true
+    ssl: { rejectUnauthorized: false }
 });
 
 
