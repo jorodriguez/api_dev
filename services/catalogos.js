@@ -6,11 +6,15 @@ const getFormasPago = (request, response) => {
     getCatalogo(QUERY.FORMA_PAGO,response);              
 };
 
-const getCatGenero = (request, response) => {
-    console.log("@getCatGenero");       
-    getCatalogo(QUERY.CAT_GENERO,response);
+const getCatGeneroFamiliar = (request, response) => {
+    console.log("@getCatGeneroFamiliar");       
+    getCatalogo(QUERY.CAT_GENERO_FAMILIAR,response);
 };
 
+const getCatGeneroAlumno = (request, response) => {
+    console.log("@getCatGeneroAlumno");       
+    getCatalogo(QUERY.CAT_GENERO_ALUMNO,response);
+};
 
 const getGrupos = (request, response) => {
     console.log("@getGrupos");
@@ -26,7 +30,8 @@ const getServicios = (request, response) => {
 module.exports = {
     getCatalogo,
     getFormasPago,
-    getCatGenero,    
+    getCatGeneroFamiliar,    
+    getCatGeneroAlumno,
     getGrupos,
     getServicios
 }

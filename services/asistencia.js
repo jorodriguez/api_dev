@@ -186,27 +186,6 @@ const getListaAsistenciaAlumnoPorSalirConHorasExtras = (request, response) => {
     }
 };
 
-/*
-const ejecutarProcedimientoCalculoHorasExtra = (ids_alumnos, id_genero) => {
-    console.log("@ejecutarProcedimeintoCalculoHorasExtra");
-
-    try {
-
-        console.log("IDS recibidos " + ids_alumnos);
-
-        pool.query("SELECT generar_horas_extras_alumno('" + ids_alumnos + "'," + id_genero + ");",
-            (error, results) => {
-                if (error) {
-                    console.log("Error al ejecutar el procedimiento calculo extra " + error);
-                    return;
-                }
-                console.log("Se ejecuto el procedimiento de horas extras " + JSON.stringify(results));
-            });
-    } catch (e) {
-        console.log("Error al ejecutar el procedimiento calculo extra " + e);
-    }
-};*/
-
 
 /* Lista de asistencias e inasistencias por alumno por mes  */
 const getListaMesAsistenciaPorSucursal = (request, response) => {

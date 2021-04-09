@@ -41,7 +41,7 @@ const generarBalanceAlumnos = () => {
 
 
 //Registrar horas extras
-
+/*
 const ejecutarProcesoHorasExtrasAuto = () => {
     console.log("==============================PROCESO DE HORAS EXTRAS===================================");
     console.log("@registrarHorasExtrasAuto");
@@ -82,7 +82,7 @@ const ejecutarProcesoHorasExtrasAuto = () => {
         }).catch((e) => {
             console.log("EXCEPCION AL EJECUTAR EL PROCESO AUTOMATICO DE GENERAR HORAS EXTRAS " + e);
         });    
-};
+};*/
 
 //FIXME: falta modificar el procedimiento para guardar las respuestas
 
@@ -369,7 +369,7 @@ const ejecutarRegistroMensualidadAutomatica = () => {
 
 module.exports = {
     //generarBalanceAlumnos
-    ejecutarProcesoHorasExtrasAuto,
+    //ejecutarProcesoHorasExtrasAuto,
     ejecutarProcesoNotificacionProximaSalidaAlumno,
     ejecutarProcesoNotificacionExpiracionTiempoAlumno,
     ejecutarRegistroMensualidadAutomatica

@@ -213,7 +213,8 @@ GET('/familiar/:id_parentesco/:apellidos_alumno/:id_sucursal', familiar.getFamil
 GET('/parentesco/:id_alumno', parentesco.getCatalogoParentescoAlumno);
 
 //genero
-GET('/genero', catagolos.getCatGenero);
+GET('/genero_familiar', catagolos.getCatGeneroFamiliar);
+GET('/genero_alumno', catagolos.getCatGeneroAlumno);
 
 //servicios
 GET('/servicios', catagolos.getServicios);

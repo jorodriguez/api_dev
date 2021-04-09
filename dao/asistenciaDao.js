@@ -128,25 +128,28 @@ const getAlumnosPorRecibir = (idSucursal) => {
         `, [idSucursal, idSucursal]);
 };
 
-
+//FIXME: usar un set para agregar los ids y no se repitan
 const registrarEntradaAlumnos = (params) => {
     console.log("@registrarEntrada");
 
     return new Promise((resolve, reject) => {
         console.log("params "+JSON.stringify(params));
         const { ids, genero } = params;
-        console.log("IDS "+JSON.stringify(ids));
+        console.log("IDS recibidos "+JSON.stringify(ids));
+        let idsRegistrar = new Set(ids);
         var idsAlumnos = '';
         var first = true;
-
-        ids.forEach(element => {
+        
+        idsRegistrar.forEach(element => {
             if (first) {
                 idsAlumnos += (element + "");
                 first = false;
             } else {
                 idsAlumnos += (',' + element);
             }
-        });
+        });        
+
+       console.log("IDS registrar "+idsAlumnos);
 
         console.log("Ids registrar entrada  " + idsAlumnos);
 
@@ -301,6 +304,7 @@ const procesoSalidaAlumnos = (idSalidas, arrayIdSalidasCalcularHoraExtras = [], 
     console.log(" === > asistencias " + idsAsistencias);
     console.log(" === > asistencias para generar horas extras " + idsAsistenciasCalculoHorasExtras);
     //return pool.query(`SELECT registrar_salida_alumno('${idsAsistencias}','${idsAsistenciasCalculoHorasExtras}',${genero});`);
+    //console.log("== ejcutando = "+`SELECT registrar_salida_alumno('${idsAsistencias}','${idsAsistenciasCalculoHorasExtras}',${genero});`);
     return genericDao.executeProcedure(`SELECT registrar_salida_alumno('${idsAsistencias}','${idsAsistenciasCalculoHorasExtras}',${genero});`);
 };
 
@@ -326,6 +330,8 @@ const getListaAsistenciaPorSucursalFecha = (idSucursal, fecha) => {
                     al.id                               as id_alumno,
                     al.nombre                           as nombre_alumno,
                     al.apellidos                        as apellido_alumno,
+                    al.mostrar_nombre_carino,
+                    al.nombre_carino,
                     grupo.id                            as id_grupo,
                     grupo.nombre                        as nombre_grupo,
                     grupo.color                         as color,
@@ -526,6 +532,8 @@ const getListaMesAsistenciaPorSucursal = (idSucursal) => {
             a.nombre,
             a.apellidos,
             a.foto,
+            a.mostrar_nombre_carino,
+            a.nombre_carino,
             grupo.id as id_grupo,
             grupo.nombre as nombre_grupo,
             grupo.color as color,
