@@ -14,7 +14,7 @@ dotenv.config();
 
 
 //db desarrollo
-/*
+
 const dbParams = {
     user: (process.env.USER_DB || 'pffyesodvpvsrp'),
     host: (process.env.HOST_DB || 'ec2-174-129-242-183.compute-1.amazonaws.com'),
@@ -24,8 +24,8 @@ const dbParams = {
     ssl:true
    // ssl: { rejectUnauthorized: false }
 };
-*/
 
+/*
 const dbParams = {
     user: (process.env.USER_DB || 'muvhcrlnhvhfhm'),
     host: (process.env.HOST_DB || 'ec2-34-233-0-64.compute-1.amazonaws.com'),
@@ -36,10 +36,10 @@ const dbParams = {
    // ssl: { rejectUnauthorized: false }
 };
 
-
+*/
 
 //const dbParams = dbParamsDev;
-/*
+
 const pool = new Pool({
     user: dbParams.user,
     host: dbParams.host,
@@ -48,13 +48,13 @@ const pool = new Pool({
     port: dbParams.port,
     ssl: { rejectUnauthorized: false }
 });
-*/
 
+/*
 const pool = new Pool({
     connectionString:process.env.URL_CONEXION || 'postgres://muvhcrlnhvhfhm:65c27377175e6d57b498e1d383b0e173ece396c6278bec01ae391cb7f1970f72@ec2-34-233-0-64.compute-1.amazonaws.com:5432/decta401vvp19u',
     ssl: { rejectUnauthorized: false }
 });
-
+*/
 /*
 const pool = new Pool({
     user:process.env.USER_DB,
