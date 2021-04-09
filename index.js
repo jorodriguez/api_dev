@@ -1,4 +1,3 @@
-const cors = require('cors');
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -59,15 +58,10 @@ app.use(
 app.use((req, res, next) => {	
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
-	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,x-access-token'); // If needed	
+	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Origin,Accept,Authorization,x-access-token'); // If needed	
 	res.setHeader('Access-Control-Allow-Credentials', true); // If needed
 	next();
 });
-app.use(cors());
-app.options('*', cors()); //put this before your route 
-
-
-
 /*
 app.use((err, req, res, next) => {
 	console.log("==========================================");
