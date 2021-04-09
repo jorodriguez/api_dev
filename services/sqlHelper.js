@@ -110,39 +110,7 @@ const getResultQuery = (query, params, response, handler) => {
 
         console.log("*****************************************************");
         getResults(query, params, handler || hadlerGenerico, handlerCatch);
-
-        
-        
-        
-           /*     if (query == undefined || query == '' || query == null) {
-                    console.log("No esta definido el query");
-                    return;
-                }
-             
-        
-                let tiene_parametros = tieneParametros(params);
-        
-                let hadlerGenerico = (results) => { console.log("Query Ejecutado correctamente.."); response.status(200).json(results.rows); };
-        
-                console.log(handler ? 'hanlder definido' : 'handler NO Definido');
-                console.log("====> Con parametros " + tiene_parametros);
-        
-                if (tiene_parametros) {
-                    pool.query(query, params)
-                        .then(handler || hadlerGenerico)
-                        .catch((error) => {
-                            handle.callbackError(error, response);
-                            return;
-                        });
-                } else {
-                    pool.query(query)
-                        .then(handler || hadlerGenerico)
-                        .catch((error) => {
-                            handle.callbackError(error, response);
-                            return;
-                        });
-                }
-        */
+      
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
