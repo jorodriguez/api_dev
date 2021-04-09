@@ -2,7 +2,6 @@ alter table co_alumno add column mostrar_nombre_carino boolean not null default 
 
 alter table co_alumno add column color text;
 
-
 alter table cat_genero add column foto text;
 alter table cat_genero add column tipo text;
 
@@ -14,8 +13,8 @@ values('Niño','ALUMNO','https://library.kissclipart.com/20180926/pe/kissclipart
 
 alter table co_alumno add column cat_genero integer references cat_genero(id);
 
-update co_alumno set cat_genero = 7 where sexo = 'Niño';
-update co_alumno set cat_genero = 8 where sexo = 'Niña';
+update co_alumno set cat_genero = 4 where sexo = 'Niño';
+update co_alumno set cat_genero = 5 where sexo = 'Niña';
 
 alter table co_alumno alter column cat_genero set not null;
 

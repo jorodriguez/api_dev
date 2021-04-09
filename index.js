@@ -44,7 +44,7 @@ const catalogoDescuento = require('./services/cat_descuento');
 
 const port = process.env.PORT || 5000;
 //version/branch
-const version = "v1.0.31/20208-reenvio-correos";
+const version = "v1.0.31/20210407-nombre-corto-alumno";
 
 //es un middleware que serializa los cuerpos de las respuestas 
 //   para poder invocar response.param
