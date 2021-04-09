@@ -360,8 +360,9 @@ PUT('/reporte_cobranza', reporteContabilidad.getReporteCobranzaPorFechas);
 app.get('/', (request, response) => {
 	console.log(process.env);
 	console.log("=====================");
-	//console.log(JSON.stringify(pool));
-	try {
+	console.log(JSON.stringify(pool));
+
+/*	try {
 		pool.query(`SELECT * from usuario where eliminado = false`,
 			[],
 			(error, results) => {
@@ -378,6 +379,8 @@ app.get('/', (request, response) => {
 		console.log("Error " + e);
 		response.json({ info: `MagicIntelligence ${version} (env:${process.env.ENV})` })
 	}
+*/
+	response.json({ info: `MagicIntelligence ${version} (env:${process.env.ENV})` });
 
 });
 
