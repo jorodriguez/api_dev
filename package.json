@@ -7,14 +7,15 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "local": "heroku local -e .env.local",
-    "lint":"eslint .",
-    "lint:fix" : "eslint --fix"
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@hapi/joi": "^15.0.3",
     "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
     "dotenv": "^8.0.0",
     "email-templates": "^6.0.0",
     "express": "^4.16.4",

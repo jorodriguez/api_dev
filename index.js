@@ -1,3 +1,4 @@
+const cors = require('cors');
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -62,6 +63,10 @@ app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Credentials', true); // If needed
 	next();
 });
+app.use(cors());
+app.options('*', cors()); //put this before your route 
+
+
 
 /*
 app.use((err, req, res, next) => {
@@ -312,6 +317,7 @@ app.post('/emocion', actividad_reporte.registrarToqueEmocion);
 app.post('/cliente/:id_familiar', actividad_reporte.updateTokenMensajeriaFamiliar);
 app.put('/cliente/:id_familiar', actividad_reporte.updateDatosFamiliar);
 
+//app.get('/logs',usua);
 
 //app.get('/productos/:pagina',tiendaService.getProductos);
 
