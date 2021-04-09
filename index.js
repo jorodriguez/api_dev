@@ -55,7 +55,7 @@ app.use(
 	})
 );
 
-app.use((req, res, next) => {	
+app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
 	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Origin,Accept,Authorization,x-access-token'); // If needed	
@@ -84,7 +84,7 @@ const POST = (url, metodo) => {
 		} else {
 			console.log(" PASA EL TOKEN ");
 			metodo(request, response);
-		}		
+		}
 	});
 };
 
@@ -99,7 +99,7 @@ const GET = (url, metodo) => {
 		} else {
 			console.log(" PASA EL TOKEN ");
 			metodo(request, response);
-		}		
+		}
 	});
 };
 
@@ -115,7 +115,7 @@ const PUT = (url, metodo) => {
 		} else {
 			console.log(" PASA EL TOKEN ");
 			metodo(request, response);
-		}		
+		}
 	});
 };
 
@@ -130,7 +130,7 @@ const DELETE = (url, metodo) => {
 		} else {
 			console.log(" PASA EL TOKEN ");
 			metodo(request, response);
-		}		
+		}
 	});
 };
 
@@ -148,8 +148,8 @@ DELETE('/users/:id', usuario.deleteUser);
 */
 
 //Cambio de sucursal
-GET('/sucursal_usuario/:id',authController.obtenerSucursalesUsuario);
-PUT('/sucursal_usuario',authController.cambiarSucursalUsuario);
+GET('/sucursal_usuario/:id', authController.obtenerSucursalesUsuario);
+PUT('/sucursal_usuario', authController.cambiarSucursalUsuario);
 
 //alumno
 GET('/alumnos/:id_sucursal', alumno.getAlumnos);
@@ -165,26 +165,26 @@ GET('/asistencia/alumnos_recibidos/:id_sucursal', asistencia.getAlumnosRecibidos
 GET('/asistencia/alumnos_por_recibidos/:id_sucursal', asistencia.getAlumnosPorRecibir);
 POST('/asistencia/entradaAlumnos', asistencia.registrarEntradaAlumnos);
 POST('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
-GET('/asistencia/salidaAlumnos/alumno_tiempo_extra/:lista_id_asistencias',asistencia.getListaAsistenciaAlumnoPorSalirConHorasExtras);
+GET('/asistencia/salidaAlumnos/alumno_tiempo_extra/:lista_id_asistencias', asistencia.getListaAsistenciaAlumnoPorSalirConHorasExtras);
 // Reporte de asistencias
-GET('/asistencia/reporte/:id_sucursal/:fecha',asistencia.getListaAsistenciaPorSucursalFecha);
-GET('/asistencia/reporte_por_alumno/:id_alumno',asistencia.getListaAsistenciaPorAlumno);
-GET('/asistencia/reporte_mes_alumno/:id_alumno',asistencia.getListaMesAsistenciaPorAlumno);
-GET('/asistencia/reporte_mes_sucursal/:id_sucursal',asistencia.getListaMesAsistenciaPorSucursal);
-GET('/asistencia/mensual/:id_alumno',asistencia.getListaAsistenciaMesPorAlumno);
+GET('/asistencia/reporte/:id_sucursal/:fecha', asistencia.getListaAsistenciaPorSucursalFecha);
+GET('/asistencia/reporte_por_alumno/:id_alumno', asistencia.getListaAsistenciaPorAlumno);
+GET('/asistencia/reporte_mes_alumno/:id_alumno', asistencia.getListaMesAsistenciaPorAlumno);
+GET('/asistencia/reporte_mes_sucursal/:id_sucursal', asistencia.getListaMesAsistenciaPorSucursal);
+GET('/asistencia/mensual/:id_alumno', asistencia.getListaAsistenciaMesPorAlumno);
 
 
 //Asistencia Usuarios
-GET('/asistencia_usuarios/por_entrar/:id_sucursal',asistenciaUsuario.getListaUsuarioPorEntrar);
-GET('/asistencia_usuarios/por_salir/:id_sucursal',asistenciaUsuario.getListaUsuarioPorSalir);
+GET('/asistencia_usuarios/por_entrar/:id_sucursal', asistenciaUsuario.getListaUsuarioPorEntrar);
+GET('/asistencia_usuarios/por_salir/:id_sucursal', asistenciaUsuario.getListaUsuarioPorSalir);
 POST('/asistencia_usuarios/entrada', asistenciaUsuario.registrarEntradaUsuario);
 POST('/asistencia_usuarios/salida', asistenciaUsuario.registrarSalidaUsuario);
 
-GET('/asistencia_usuarios/reporte_mes/:id_sucursal/:fecha_inicio/:fecha_fin',asistenciaUsuario.getListaFaltasUsuariosSucursalRangoFecha);
-GET('/asistencia_usuarios/usuario/:id_usuario/:fecha_inicio/:fecha_fin',asistenciaUsuario.getDetalleFaltasUsuariosRangoFecha);
+GET('/asistencia_usuarios/reporte_mes/:id_sucursal/:fecha_inicio/:fecha_fin', asistenciaUsuario.getListaFaltasUsuariosSucursalRangoFecha);
+GET('/asistencia_usuarios/usuario/:id_usuario/:fecha_inicio/:fecha_fin', asistenciaUsuario.getDetalleFaltasUsuariosRangoFecha);
 //--filtros para usar en el reporte de sueldos
-GET('/asistencia_usuarios/filtros_anios/:co_empresa',asistenciaUsuario.getAniosFiltroAsistenciasUsuarios);
-GET('/asistencia_usuarios/filtros_quincenas/:co_empresa/:anio',asistenciaUsuario.getMesesFiltroAsistenciasUsuarios);
+GET('/asistencia_usuarios/filtros_anios/:co_empresa', asistenciaUsuario.getAniosFiltroAsistenciasUsuarios);
+GET('/asistencia_usuarios/filtros_quincenas/:co_empresa/:anio', asistenciaUsuario.getMesesFiltroAsistenciasUsuarios);
 
 
 
@@ -235,7 +235,7 @@ GET('/balance/:id_alumno', cargos.getBalanceAlumno);
 PUT('/cargos/:id_alumno', cargos.eliminarCargos);
 
 // descuentos - catalogo
-GET('/descuento/:id_empresa',catalogoDescuento.getDescuentos);
+GET('/descuento/:id_empresa', catalogoDescuento.getDescuentos);
 
 //GET('/cargos/meses_adeuda/:id_alumno', pagos.obtenerMesesAdeudaMensualidad);
 app.get('/cargos/meses_adeuda/:id_alumno', cargos.obtenerMesesAdeudaMensualidad);
@@ -302,8 +302,8 @@ app.put('/auth_cliente/:id_familiar', authClientesController.cambioClaveFamiliar
 app.get('/balance_familiar_alumno/:id_familiar', actividad_reporte.getBalanceFamiliarAlumnos);
 
 //catalogo de recursos
-app.get('/recurso_familiar/:id_familiar', catalogoRecursos.getAlumnosPorFamiliar);  
-app.get('/recurso_grupo/:id_grupo/:id_sucursal', catalogoRecursos.getRecursosPorGrupo);  
+app.get('/recurso_familiar/:id_familiar', catalogoRecursos.getAlumnosPorFamiliar);
+app.get('/recurso_grupo/:id_grupo/:id_sucursal', catalogoRecursos.getRecursosPorGrupo);
 
 app.post('/emocion', actividad_reporte.registrarToqueEmocion);
 
@@ -319,7 +319,7 @@ app.put('/cliente/:id_familiar', actividad_reporte.updateDatosFamiliar);
 GET('/reset_password/:id_familiar', familiar.resetPasswordFamiliar);
 
 //reporte de mensualidades facturadas
-GET('/sucursal_usuario/sucursales_asignadas/:id_usuario',usuarioService.getSucursalesUsuario);
+GET('/sucursal_usuario/sucursales_asignadas/:id_usuario', usuarioService.getSucursalesUsuario);
 GET('/reporte_mensualidades/:id_sucursal/:anio', reporte_mensualidades.getMensualidadesAlumnosSucursal);
 GET('/cargos/filtro_anios/:id_sucursal', cargos.obtenerFiltroAniosCargosSucursal);
 
@@ -351,7 +351,7 @@ GET('/reporte_ingreso_menos_gasto_mensual/:id_sucursal/:mes', reporteDeudas.getR
 
 // Reporte de cobranza - para la contadora
 //GET('/reporte_cobranza/:id_usuario/:fecha_inicio/:fecha_fin',reporteContabilidad.getReporteCobranzaPorFechas) ;
-PUT('/reporte_cobranza',reporteContabilidad.getReporteCobranzaPorFechas) ;
+PUT('/reporte_cobranza', reporteContabilidad.getReporteCobranzaPorFechas);
 
 //Cargos, eliminacion y consulta
 //GET('/sucursal/:id_sucursal/cargos',reporteDeudas.getAllAlumnosCargos);
@@ -360,8 +360,25 @@ PUT('/reporte_cobranza',reporteContabilidad.getReporteCobranzaPorFechas) ;
 app.get('/', (request, response) => {
 	console.log(process.env);
 	console.log("=====================");
-	console.log(JSON.stringify(pool));
-	response.json({ info: `MagicIntelligence ${version} (env:${process.env.ENV})`})
+	//console.log(JSON.stringify(pool));
+	try {
+		pool.query(`SELECT * from usuario where eliminado = false`,
+			[],
+			(error, results) => {
+				if (error) {
+					console.log(error);
+					response.status(400).json("error "+error);	
+					return;
+				}
+				console.log(" ==> " + results.rows);
+				response.status(200).json(results.rows);
+			});
+
+	} catch (e) {
+		console.log("Error " + e);
+		response.json({ info: `MagicIntelligence ${version} (env:${process.env.ENV})` })
+	}
+
 });
 
 app.listen(port, () => {
@@ -386,10 +403,10 @@ schedule.scheduleJob('0 */10 12-24 * * 1-5', function () {
 	try {
 		if (configuracion.env != 'DEV') {
 
-			https.get('https://api-ambiente-produccion.herokuapp.com', (response) => {				
+			https.get('https://api-ambiente-produccion.herokuapp.com', (response) => {
 				// called when a data chunk is received.
 				response.on('data', (chunk) => {
-					console.log("Todo bien al accesar al API "+chunk);
+					console.log("Todo bien al accesar al API " + chunk);
 				});
 				response.on('end', () => {
 					console.log("fin de la llamada  a la API");
@@ -398,10 +415,10 @@ schedule.scheduleJob('0 */10 12-24 * * 1-5', function () {
 				console.log("Error al acceesar al API: " + error.message);
 			});
 
-			https.get('https://aplicacion-ambiente-produccion.herokuapp.com', (response) => {				
+			https.get('https://aplicacion-ambiente-produccion.herokuapp.com', (response) => {
 				// called when a data chunk is received.
 				response.on('data', (chunk) => {
-					console.log("Llamada a la APPLICATION OK "+chunk);
+					console.log("Llamada a la APPLICATION OK " + chunk);
 				});
 				response.on('end', () => {
 					console.log("Fin de llamada APPLICATION");
@@ -417,19 +434,19 @@ schedule.scheduleJob('0 */10 12-24 * * 1-5', function () {
 });
 
 //schedule.scheduleJob('0 */31 * * * 1-5', function () {
-	//schedule.scheduleJob('0 */31 * * * 1-5', function () {
-	//console.log('CALCULANDO CARGOS DE HORAS EXTRAS DE ALUMNOS ' + new Date());
-	//try {
-	//	//tareas_programadas.ejecutarProcesoHorasExtrasAuto(); desabilitado
-	//} catch (e) {
+//schedule.scheduleJob('0 */31 * * * 1-5', function () {
+//console.log('CALCULANDO CARGOS DE HORAS EXTRAS DE ALUMNOS ' + new Date());
+//try {
+//	//tareas_programadas.ejecutarProcesoHorasExtrasAuto(); desabilitado
+//} catch (e) {
 //		console.log("Error al ejecutar el proceso de calculo de horas extras " + e);
 //	}
 //});
 
 
 //schedule.scheduleJob('0 */33 * * * 1-5', function () {
-schedule.scheduleJob('0 */33 * * * 1-5', function () {	
-	console.log('PROCESO DE REVISION DE SALIDA DE ALUMNOS ' + new Date());	
+schedule.scheduleJob('0 */33 * * * 1-5', function () {
+	console.log('PROCESO DE REVISION DE SALIDA DE ALUMNOS ' + new Date());
 	try {
 		//tareas_programadas.ejecutarProcesoNotificacionProximaSalidaAlumno();
 	} catch (e) {
@@ -444,7 +461,7 @@ schedule.scheduleJob('0 */35 * * * 1-5', function () {
 	console.log('PROCESO DE REVISION DE EXPIRACION DE TIEMPO DE ALUMNOS ' + new Date());
 	//FIXME : para pruebas
 	try {
-//		tareas_programadas.ejecutarProcesoNotificacionExpiracionTiempoAlumno();
+		//		tareas_programadas.ejecutarProcesoNotificacionExpiracionTiempoAlumno();
 
 	} catch (e) {
 		console.log("Error al ejecutar el proceso de revision de expiración " + e);
@@ -461,26 +478,26 @@ schedule.scheduleJob('0 1 0 1 * *', function () {
 /********* Calcular Recargos de mensualidades *********/
 //schedule.scheduleJob('0 1 0 1 * *', function () {
 //schedule.scheduleJob('0 48 16 * * *', function () {
-schedule.scheduleJob({hour: 17, minute:47,second:20}, function () {
+schedule.scheduleJob({ hour: 17, minute: 47, second: 20 }, function () {
 	console.log('Agregar recargos de mensualidad ' + new Date());
-	try{
-			//recargoService.procesoRecargosMensualidad();
-	}catch(error){
-		console.error("[index] Error al ejecutar el proceso de recargos "+error);
+	try {
+		//recargoService.procesoRecargosMensualidad();
+	} catch (error) {
+		console.error("[index] Error al ejecutar el proceso de recargos " + error);
 	}
-	
+
 });
 /********* Calcular Recargos de mensualidades *********/
 
 ///Enviar reportes de recargos
-schedule.scheduleJob({hour: 9, minute:3,second:20}, function () {
+schedule.scheduleJob({ hour: 9, minute: 3, second: 20 }, function () {
 	console.log('Enviando reporte y recordatorios  de recargos de mensualidad ' + new Date());
-try{
+	try {
 		recargoService.ejecutarEnvioRecordatorioPagoMensualidadPadres();
 
-}catch(error){
-	console.error("[index] Error al ejecutar el proceso de recargos "+error);
-}
+	} catch (error) {
+		console.error("[index] Error al ejecutar el proceso de recargos " + error);
+	}
 
 });
 
@@ -489,13 +506,13 @@ var rule = new schedule.RecurrenceRule();
 rule.dayOfWeek = [0, new schedule.Range(1, 5)];
 rule.hour = 20;
 rule.minute = 0;*/
-schedule.scheduleJob({hour: 20, minute: 0}, function () {	
-		console.log('PROCESO DE SALIDA ALUMNOS ' + new Date());	
-		try {
-			asistencia.ejecutarProcesoSalidaAutomatica();
-		} catch (e) {
-			console.log("Error al ejecutar el proceso de revision de salida " + e);
-		}
+schedule.scheduleJob({ hour: 20, minute: 0 }, function () {
+	console.log('PROCESO DE SALIDA ALUMNOS ' + new Date());
+	try {
+		asistencia.ejecutarProcesoSalidaAutomatica();
+	} catch (e) {
+		console.log("Error al ejecutar el proceso de revision de salida " + e);
+	}
 });
-	
+
 
