@@ -21,6 +21,11 @@ alter table co_alumno alter column cat_genero set not null;
 
 update co_sucursal set foto = null;
 
+update co_alumno set foto ='https://library.kissclipart.com/20180926/pe/kissclipart-student-clipart-utrecht-university-student-vu-univ-01ccd8efac8776f3.jpg'
+where sexo = 'Niño';
+
+update co_alumno set foto ='https://cdn2.iconfinder.com/data/icons/circle-avatars-1/128/037_girl_avatar_profile_woman_child-512.png'
+where sexo = 'Niña';
 
 
 
