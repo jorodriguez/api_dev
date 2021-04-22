@@ -19,7 +19,9 @@ const getQueryBase = function (criterio,idSucursal) {
         SELECT 	
            a.co_sucursal,   
                a.fecha_limite_pago_mensualidad,
-               to_char(a.fecha_limite_pago_mensualidad,'dd/MM/YYYY')::text as fecha_limite_pago_mensualidad_formateada,
+               to_char(a.fecha_limite_pago_mensualidad,'dd/MM/YYYY')::text as fecha_limite_pago_mensualidad_formateada,               
+               a.nombre_carino,               
+               a.mostrar_nombre_carino,
                a.nombre as nombre_alumno,
                a.id as id_alumno,
                a.co_balance_alumno,

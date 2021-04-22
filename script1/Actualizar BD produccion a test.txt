@@ -51,3 +51,9 @@ set correo = 'joel@magicintelligence.com' where correo not in ('sb.teres@gmail.c
 update co_correo_copia_notificacion set correo = 'velocirraptor79.1@gmail.com';
 
 --------------------
+
+
+eliminar cargos
+delete from co_pago_balance_alumno where to_char(fecha,'YY') = '20'
+
+delete from co_pago_cargo_balance_alumno where to_char(fecha,'YY') = '20'

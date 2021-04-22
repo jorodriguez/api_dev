@@ -65,7 +65,7 @@ const createAlumno = (request, response) => {
                     nota,hora_entrada,hora_salida,
                     costo_inscripcion,costo_colegiatura,minutos_gracia,
                     foto,fecha_inscripcion,fecha_reinscripcion,                                      
-                    sexo,genero,
+                    cat_genero,genero,
                     fecha_limite_pago_mensualidad,
                     numero_dia_limite_pago) 
                  VALUES(
@@ -84,7 +84,7 @@ const createAlumno = (request, response) => {
                     p.nota, p.hora_entrada, p.hora_salida, //9
                     p.costo_inscripcion, p.costo_colegiatura, p.minutos_gracia, //12
                     p.foto, p.fecha_inscripcion,//14
-                    p.sexo, p.genero, //16
+                    p.cat_genero, p.genero, //16
                     p.fecha_limite_pago_mensualidad //17
                 ],
                 (error, results) => {
@@ -205,9 +205,11 @@ const updateAlumno = (request, response) => {
                 fecha_reinscripcion = $13,
                 co_grupo = $14, 
                 nombre_carino = $15, 
-                sexo = $16 ,
-                 modifico = $17, 
-                fecha_inscripcion = $18
+                mostrar_nombre_carino = $16,
+                color = $17,
+                cat_genero = $18,                
+                 modifico = $19, 
+                fecha_inscripcion = $20
                  WHERE id = $1`,
                 [
                     id,
@@ -215,8 +217,9 @@ const updateAlumno = (request, response) => {
                     alumno.nota, alumno.hora_entrada, alumno.hora_salida,
                     alumno.costo_inscripcion, alumno.costo_colegiatura, alumno.minutos_gracia,
                     alumno.foto, (alumno.fecha_reinscripcion == "" ? null : alumno.fecha_reinscripcion),
-                    alumno.co_grupo, alumno.nombre_carino,
-                    alumno.sexo, alumno.genero,
+                    alumno.co_grupo, alumno.nombre_carino,(alumno.mostrar_nombre_carino || false),
+                    (alumno.color || null),
+                    alumno.cat_genero, alumno.genero,
                     (alumno.fecha_inscripcion == "" ? null : alumno.fecha_inscripcion)
                     
                 ],
@@ -298,7 +301,7 @@ const getParams = (body) => {
 
     const parametros = {
         co_sucursal, co_grupo,
-        nombre, apellidos, nombre_carino, fecha_nacimiento, sexo,
+        nombre, apellidos, nombre_carino, fecha_nacimiento, cat_genero,
         alergias, nota, hora_entrada,
         hora_salida, costo_inscripcion, costo_colegiatura,
         minutos_gracia, foto, fecha_inscripcion,

@@ -55,7 +55,7 @@ const getPagosByCargoId = (idCargoBalanceAlumno) => {
                     pago.identificador_pago,
                     r.id,                    
                     r.fecha,
-                    to_char(pago.fecha,'dd-mm-yyyy HH24:mm') as fecha_format,
+                    to_char(pago.fecha,'dd-mm-yyyy HH24:MI') as fecha_format,
                     r.co_pago_balance_alumno,
                     r.co_cargo_balance_alumno,
                     r.pago,

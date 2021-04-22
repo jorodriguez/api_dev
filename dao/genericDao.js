@@ -33,27 +33,6 @@ function findOne(query,params){
             return;
         }    
 
-        /*findAll(query,params).then(results =>{
-
-            console.log(" RESULTADO > "+JSON.stringify(results));
-
-            resolve(results.rowCount > 0 ? results.rows[0]:null);
-        }).catch(err => {
-            console.log("EERROR"+err+" EN QUERY "+query +" PARAMS  "+JSON.stringify(params));            
-            reject(err);
-        });*/
-
-
-        /*pool.query(query,params) 
-        .then(results => {
-            console.log("resuls"+ JSON.stringify(results));
-            resolve(results.rowCount > 0 ? results.rows[0]:null);
-        }).catch(error => {
-            //reject(new ExceptionBD(error));
-            console.log("EERROR"+error);            
-            reject(error);
-        });*/
-        
         getQueryInstance(query,params)
             .then(results => {
                // console.log("resuls"+ JSON.stringify(results));

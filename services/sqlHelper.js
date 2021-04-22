@@ -4,7 +4,8 @@ const handle = require('../helpers/handlersErrors');
 
 const QUERY = {
     FORMA_PAGO: "SELECT * FROM CO_FORMA_PAGO WHERE ELIMINADO = FALSE",
-    CAT_GENERO: "SELECT * FROM CAT_GENERO WHERE ELIMINADO = FALSE",
+    CAT_GENERO_FAMILIAR: "SELECT * FROM CAT_GENERO WHERE ELIMINADO = FALSE AND TIPO = 'FAMILIAR'",
+    CAT_GENERO_ALUMNO: "SELECT * FROM CAT_GENERO WHERE ELIMINADO = FALSE AND TIPO = 'ALUMNO'",
     GRUPO: "SELECT * FROM CO_GRUPO WHERE ELIMINADO = false",
     SERVICIOS: "SELECT * FROM cat_servicio WHERE ELIMINADO = false order by nombre",
     CARGOS: "SELECT * FROM CAT_CARGO WHERE ELIMINADO = false order by nombre",
@@ -109,39 +110,7 @@ const getResultQuery = (query, params, response, handler) => {
 
         console.log("*****************************************************");
         getResults(query, params, handler || hadlerGenerico, handlerCatch);
-
-        
-        
-        
-           /*     if (query == undefined || query == '' || query == null) {
-                    console.log("No esta definido el query");
-                    return;
-                }
-             
-        
-                let tiene_parametros = tieneParametros(params);
-        
-                let hadlerGenerico = (results) => { console.log("Query Ejecutado correctamente.."); response.status(200).json(results.rows); };
-        
-                console.log(handler ? 'hanlder definido' : 'handler NO Definido');
-                console.log("====> Con parametros " + tiene_parametros);
-        
-                if (tiene_parametros) {
-                    pool.query(query, params)
-                        .then(handler || hadlerGenerico)
-                        .catch((error) => {
-                            handle.callbackError(error, response);
-                            return;
-                        });
-                } else {
-                    pool.query(query)
-                        .then(handler || hadlerGenerico)
-                        .catch((error) => {
-                            handle.callbackError(error, response);
-                            return;
-                        });
-                }
-        */
+      
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);

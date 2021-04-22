@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "local": "heroku local -e .env.local",
-    "lint":"eslint .",
-    "lint:fix" : "eslint --fix"
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix"
   },
   "author": "",
   "license": "ISC",
@@ -32,5 +32,8 @@
   "devDependencies": {
     "babel-eslint": "^10.1.0",
     "eslint": "^6.8.0"
+  },
+  "engines": {
+    "node": "12.x"
   }
 }
