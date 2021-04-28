@@ -52,8 +52,22 @@ const modificarFechaLimitePagoMensualidadAlumno = (idAlumno,fecha,genero) => {
 };
 
 
+const modificarFotoPerfil = async (idAlumno,foto,genero) => {
+    console.log("@modificarFotoPerfil");
+
+       return await genericDao.execute(` 
+                            UPDATE co_alumno 
+                             SET 
+                                foto = $2,                                                                
+                                fecha_modifico = (getDate('')+getHora(''))::timestamp,
+                                modifico = $3
+                             WHERE id = $1 RETURNING id;`
+        , [idAlumno,foto, genero]);        
+};
+
+
 module.exports = {
     getCorreosTokensAlumno,actualizarProximaFechaLimitePagoMensualidadAlumno,
-    modificarFechaLimitePagoMensualidadAlumno
+    modificarFechaLimitePagoMensualidadAlumno,modificarFotoPerfil
 
 }
