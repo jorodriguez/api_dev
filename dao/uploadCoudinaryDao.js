@@ -15,14 +15,14 @@ cloudinary.config({
 });
 
 
-const uploadCloud = (buffer,folder) => {
-    console.log("@uploadCloudDao bufer "+(buffer != null)+" folder "+folder);
+const uploadCloud = (buffer, folder) => {
+    console.log("@uploadCloudDao bufer " + (buffer != null) + " folder " + folder);
     return new Promise((resolve, reject) => {
         console.log("@promise");
         try {
 
             if (!buffer || buffer == null || !folder || folder == null) {
-                reject({upload:false, error: "Valores requeridos para subir (imagen o folder )." });
+                reject({ upload: false, error: "Valores requeridos para subir (imagen o folder )." });
                 return;
             }
 
@@ -31,10 +31,10 @@ const uploadCloud = (buffer,folder) => {
                 (error, result) => {
                     if (result) {
                         console.log("Upload OK Cloudinary " + result);
-                        resolve({ upload: true, ...result } );
+                        resolve({ upload: true, ...result });
                     } else {
                         console.log("Error " + result);
-                        reject({upload:false,...error});
+                        reject({ upload: false, ...error });
                     }
                 }
             );
@@ -44,10 +44,34 @@ const uploadCloud = (buffer,folder) => {
             console.log("ERROR " + e);
             reject({ upload: false, ...e });
         }
+    });
+};
 
+const destroyFoto = (public_id) => {
+    return new Promise((resolve, reject) => {
+        try {          
+            cloudinary.uploader.destroy(public_id, function (error, result) {
+                console.log(result, error);
+                console.log(""+result);
+                if(result.result == 'ok'){
+                    console.log("Imagen eliminada");
+                    resolve(true);
+                }else{
+                    console.log("error al eliminar la imagen "+error);
+                    reject(false);
+                }
+            });
+        } catch (e) {
+            console.log(e);
+            reject(false);
+        }
     });
 
 };
+
+
+
+
 /*
 const uploadCloud = (imagen) => {
     console.log("@uploadCloudDao");
@@ -95,4 +119,4 @@ const uploadCloud = (imagen) => {
 };
 */
 
-module.exports = { uploadCloud };
+module.exports = { uploadCloud,destroyFoto };
