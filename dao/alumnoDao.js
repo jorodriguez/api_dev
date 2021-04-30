@@ -20,27 +20,27 @@ const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
             and rel.eliminado = false
     group by a.nombre,a.id `;
 
-const  getCorreosTokensAlumno = (idAlumno) => {
+const getCorreosTokensAlumno = (idAlumno) => {
     console.log("@getCorreosTokensAlumno");
     return genericDao.findOne(QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO, [[idAlumno]]);
 };
 
-const actualizarProximaFechaLimitePagoMensualidadAlumno = (idAlumno,genero) => {
+const actualizarProximaFechaLimitePagoMensualidadAlumno = (idAlumno, genero) => {
     console.log("@actualizarProximaFechaLimitePagoMensualidadAlumno");
 
-       return genericDao.execute(` UPDATE co_alumno 
+    return genericDao.execute(` UPDATE co_alumno 
                              SET 
                                 fecha_limite_pago_mensualidad = (fecha_limite_pago_mensualidad + INTERVAL '1 month'),
                                 fecha_modifico = (getDate('')+getHora(''))::timestamp,
                                 modifico = $2
                              WHERE id = $1 RETURNING id;`
-        , [idAlumno, genero]);        
+        , [idAlumno, genero]);
 };
 
-const modificarFechaLimitePagoMensualidadAlumno = (idAlumno,fecha,genero) => {
+const modificarFechaLimitePagoMensualidadAlumno = (idAlumno, fecha, genero) => {
     console.log("@modificarFechaLimitePagoMensualidadAlumno");
 
-       return genericDao.execute(` 
+    return genericDao.execute(` 
                             UPDATE co_alumno 
                              SET 
                                 fecha_limite_pago_mensualidad = $2::date,                                
@@ -48,12 +48,46 @@ const modificarFechaLimitePagoMensualidadAlumno = (idAlumno,fecha,genero) => {
                                 fecha_modifico = (getDate('')+getHora(''))::timestamp,
                                 modifico = $3
                              WHERE id = $1 RETURNING id;`
-        , [idAlumno,new Date(fecha), genero]);        
+        , [idAlumno, new Date(fecha), genero]);
+};
+
+
+const modificarFotoPerfil = async (idAlumno, metadaFoto, genero) => {
+    console.log("@modificarFotoPerfil");
+
+    console.log("idAlumno " + idAlumno);
+    console.log("url " + metadaFoto.secure_url);
+    console.log("public_id " + metadaFoto.public_id);
+    console.log("genero " + genero);
+
+    let foto = "";
+    let public_id_foto = null;
+    if (!metadaFoto) {
+        foto = await genericDao.execute(`select foto from cat_genero where id = (select cat_genero from co_alumno where id = $1))`), [idAlumno];
+    } else {
+        foto = metadaFoto.secure_url;
+        public_id_foto = metadaFoto.public_id;
+    }
+
+       return await genericDao.execute(` 
+                            UPDATE co_alumno 
+                             SET 
+                                foto = $2,                                       
+                                public_id_foto = $3,
+                                fecha_modifico = (getDate('')+getHora(''))::timestamp,
+                                modifico = $4
+                             WHERE id = $1 RETURNING id;`
+        , [idAlumno, foto, public_id_foto, genero]);
+};
+
+const getAlumnoPorId = (idAlumno) => {
+    console.log("@destroyFoto");
+    return genericDao.findOne(`select * from co_alumno where id = $1;`, [idAlumno]);
 };
 
 
 module.exports = {
-    getCorreosTokensAlumno,actualizarProximaFechaLimitePagoMensualidadAlumno,
-    modificarFechaLimitePagoMensualidadAlumno
+    getCorreosTokensAlumno, actualizarProximaFechaLimitePagoMensualidadAlumno,
+    modificarFechaLimitePagoMensualidadAlumno, modificarFotoPerfil, getAlumnoPorId
 
 }

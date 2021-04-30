@@ -4,6 +4,9 @@ const bodyParser = require('body-parser');
 
 const { pool } = require('./db/conexion');
 
+const multer = require('multer');
+const fileUpload = multer();
+
 //const usuario = require('./services/usuario');
 const alumno = require('./services/alumno');
 const asistencia = require('./services/asistencia');
@@ -41,6 +44,8 @@ const catalogoRecursos = require('./services/catalogo_recursos');
 const reporteContabilidad = require('./services/reporteContabilidad');
 const correo_service = require('./utils/CorreoService');
 const catalogoDescuento = require('./services/cat_descuento');
+const uploadCloudinary = require('./services/uploadCloudinary');
+
 
 const port = process.env.PORT || 5000;
 //version/branch
@@ -355,6 +360,20 @@ PUT('/reporte_cobranza', reporteContabilidad.getReporteCobranzaPorFechas);
 
 //Cargos, eliminacion y consulta
 //GET('/sucursal/:id_sucursal/cargos',reporteDeudas.getAllAlumnosCargos);
+
+//Subir imagen
+app.post('/foto_perfil', fileUpload.single('image'), (req,res)=>{
+	let respuesta = validarTokenCompleto(req, res);
+
+	if (!respuesta.tokenValido) {
+		console.log(" ((((( Token invalido  )))))");
+		return response.status(respuesta.status).send(respuesta);
+	} else {
+		console.log(" PASA EL TOKEN ");
+		uploadCloudinary.uploadImagenPerfil(req,res);		
+	}
+});
+
 
 
 app.get('/', (request, response) => {

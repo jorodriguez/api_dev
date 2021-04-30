@@ -34,6 +34,10 @@ const MENSAJE_RECARGO_POR_MENSUALIDAD_VENCIDA = " (MENSUALIDAD VENCIDA).";
 
 const SIN_COPIA = '';
 
+
+//nombre del folder donde se guardan la foto de los alumnos
+const FOLDER_PERFILES_CLOUDNARY = "perfiles_alumnos";
+
 module.exports = {
     CARGOS,
     ESTATUS,
@@ -45,5 +49,6 @@ module.exports = {
     ID_EMPRESA_MAGIC,
     TEMA_NOTIFICACION,
     MENSAJE_RECARGO_POR_MENSUALIDAD_VENCIDA,
-    SIN_COPIA
+    SIN_COPIA,
+    FOLDER_PERFILES_CLOUDNARY
 };
