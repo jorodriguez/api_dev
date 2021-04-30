@@ -20,6 +20,7 @@
     "email-templates": "^6.0.0",
     "express": "^4.16.4",
     "firebase-admin": "^8.0.0",
+    "form-data": "^4.0.0",
     "generate-password": "^1.4.2",
     "jsonwebtoken": "^8.5.1",
     "multer": "^1.4.2",
@@ -31,7 +32,12 @@
     "pug": "^2.0.4",
     "request": "^2.88.2",
     "streamifier": "^0.1.1",
+<<<<<<< HEAD
     "vue-session": "^1.0.0"
+=======
+    "vue-session": "^1.0.0",
+    "cloudinary": ""
+>>>>>>> cb8cb768ad80247e89e14d097b5edfb0e9f644f5
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
