@@ -99,7 +99,7 @@ const uploadImagenPerfil = async (request, response) => {
         const data = { id_alumno, genero } = request.body;
         const image = request.file.buffer;
         let re = await uploadService.upload(id_alumno, genero, image);
-
+        console.log("Respondiento peticion");
         response.status(200).json(re);
     } catch (error) {
         console.log("Error al cargar la imagen " + JSON.stringify(error));
