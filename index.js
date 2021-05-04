@@ -49,7 +49,7 @@ const uploadCloudinary = require('./services/uploadCloudinary');
 
 const port = process.env.PORT || 5000;
 //version/branch
-const version = "v1.0.31/20210407-nombre-corto-alumno";
+const version = "v1.0.32/202104-imagen-perfil";
 
 //es un middleware que serializa los cuerpos de las respuestas 
 //   para poder invocar response.param
