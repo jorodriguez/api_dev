@@ -6,7 +6,7 @@ const API_CLOUD = 'http://localhost:5100/imagen';
 const guardarImagen = () => {
 
     return new Promise((resolve, reject) => {       
-        request.post(${API_CLOUD}´, {
+        request.post(`${API_CLOUD}`, {
             json: paramSend
         }, (error, res, body) => {
             if (error) {

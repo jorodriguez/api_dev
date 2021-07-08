@@ -80,8 +80,14 @@ const obtenerFiltroAniosCargosSucursal = (idSucursal) => {
     console.log("@obtenerFiltroAniosCargosSucursal");
 
     return cargosDao.obtenerFiltroAniosCargosSucursal(idSucursal);
-
 };
+
+const obtenerEstadoCuentaAlumno = (idAlumno) => {
+    console.log("@obtenerEstadoCuentaAlumno");
+
+    return cargosDao.obtenerEstadoCuenta(idAlumno);
+};
+
 
 
 module.exports = {   
@@ -92,5 +98,6 @@ module.exports = {
     eliminarCargos,
     obtenerMesesAdeudaMensualidad,
     completarRegistroRecargoMensualidad,
-    obtenerFiltroAniosCargosSucursal
+    obtenerFiltroAniosCargosSucursal,
+    obtenerEstadoCuentaAlumno
 };

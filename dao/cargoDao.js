@@ -6,6 +6,9 @@ const genericDao = require('./genericDao');
 const { ExceptionDatosFaltantes, ExceptionBD } = require('../exception/exeption');
 const { isEmptyOrNull } = require('../utils/Utils');
 
+const CARGO_IGUAL_A_MENSUALIDADES = ' = ';
+const CARGO_DIFERENTE_A_MENSUALIDADES = ' <> ';
+
 //registrar pagos
 const registrarCargo = (cargoData) => {
     console.log("@registrarCargo");
@@ -277,7 +280,80 @@ with  serie_meses as (
         from serie_meses s left join meses_pagados mp on mp.fecha_registrado = s.fecha_mes
 `;
 
+const obtenerEstadoCuenta = async (idAlumno) => {
+    console.log("@obtenerEstadoCuenta");
 
+    console.log("ID alumno " + idAlumno);
+
+    const alumno = await genericDao.findAll(`
+        SELECT al.nombre as nombre_alumno,
+			al.apellidos as apellidos_alumno,
+			to_char(al.fecha_limite_pago_mensualidad,'dd-Mon') as fecha_limite_pago_mensualidad,
+			al.fecha_inscripcion,
+			bal.total_adeudo,
+			grupo.nombre as grupo,
+			suc.nombre as sucursal,
+			suc.direccion as direccion_sucursal,
+			empresa.nombre as empresa
+         FROM co_alumno al inner join co_balance_alumno bal on al.co_balance_alumno = bal.id and bal.eliminado = false
+		 					inner join co_sucursal suc on suc.id = al.co_sucursal
+							inner join co_grupo grupo on  grupo.id = al.co_grupo							
+							inner join co_empresa empresa on empresa.id = suc.co_empresa
+         WHERE al.id = $1::int and al.eliminado = false`,
+        [idAlumno]);
+
+    const detalleMensualidadesPendientes = await obtenerDetalleEstadoCuenta(
+        idAlumno,
+        CARGO_IGUAL_A_MENSUALIDADES
+    );
+    const detalleOtrosCargosPendientes = await obtenerDetalleEstadoCuenta(
+        idAlumno,
+        CARGO_DIFERENTE_A_MENSUALIDADES
+    );
+
+    return {
+        alumno: alumno,
+        mensualidadesPendientes: detalleMensualidadesPendientes || [],
+        otrosCargosPendientes: detalleOtrosCargosPendientes || []
+    };
+
+
+};
+
+const obtenerDetalleEstadoCuenta = async (idAlumno, criterio) => {
+
+    return await genericDao.findAll(` SELECT a.co_balance_alumno,
+               b.id as id_cargo_balance_alumno,
+               b.fecha,
+               to_char(b.fecha,'dd-mm-yyyy HH24:MI') as fecha_format,
+               b.cantidad,
+               cargo.nombre as nombre_cargo,
+               cargo.aplica_descuento,
+               b.texto_ayuda,
+               cat_cargo as id_cargo,
+               cargo.es_facturable,
+               b.total as total,
+               b.cargo,
+               b.total_pagado,
+               b.nota,
+               b.pagado,
+               (des.id is not null) as descuento_aplicado,
+	           des.id as id_descuento,
+               des.nombre as nombre_descuento,   
+               b.descuento, 
+               false as checked ,
+               0 as pago 
+             FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
+                                           inner join cat_cargo cargo on b.cat_cargo = cargo.id					
+                                           left join cat_descuento_cargo des on des.id = b.cat_descuento_cargo
+             WHERE a.id = $1 
+                    and cat_cargo ${criterio} ${CARGOS.ID_CARGO_MENSUALIDAD}
+					and b.pagado = false
+			 		and b.eliminado = false
+					and a.eliminado = false
+              ORDER by b.pagado,cargo.nombre asc, b.fecha desc`,
+        [idAlumno]);
+};
 
 module.exports = {
     registrarCargo,
@@ -287,5 +363,6 @@ module.exports = {
     eliminarCargos,
     obtenerMesesAdeudaMensualidad,
     completarRegistroRecargoMensualidad,
-    obtenerFiltroAniosCargosSucursal
+    obtenerFiltroAniosCargosSucursal,
+    obtenerEstadoCuenta
 };

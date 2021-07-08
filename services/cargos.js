@@ -123,6 +123,21 @@ const obtenerFiltroAniosCargosSucursal = (request, response) => {
 };
 
 
+const obtenerEstadoCuentaAlumno = async (request, response) => {
+    console.log("@obtenerEstadoCuentaAlumno");    
+    try {
+
+        const { id_alumno } = request.params;
+
+        const estadoCuenta = await cargoService.obtenerEstadoCuentaAlumno(id_alumno);
+
+        response.status(200).json(estadoCuenta);       
+
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
 
 
 module.exports = {
@@ -132,6 +147,7 @@ module.exports = {
     getBalanceAlumno,    
     eliminarCargos,
     obtenerMesesAdeudaMensualidad,
-    obtenerFiltroAniosCargosSucursal
+    obtenerFiltroAniosCargosSucursal,
+    obtenerEstadoCuentaAlumno
     
 };

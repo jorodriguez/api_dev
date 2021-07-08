@@ -49,7 +49,7 @@ const uploadCloudinary = require('./services/uploadCloudinary');
 
 const port = process.env.PORT || 5000;
 //version/branch
-const version = "v1.0.32/202104-imagen-perfil";
+const version = "v1.0.33/202107-enviar-estado-cuenta";
 
 //es un middleware que serializa los cuerpos de las respuestas 
 //   para poder invocar response.param
@@ -261,6 +261,9 @@ GET('/balance_crecimiento_global/:id_usuario', reporteDeudas.getReporteCrecimien
 GET('/balance_crecimiento_mensual/:id_sucursal', reporteDeudas.getReporteCrecimientoMensualSucursal);
 GET('/alumnos_balance_crecimiento_mensual_sucursal/:id_sucursal/:mes_anio', reporteDeudas.getReporteAlumnosMensualCrecimiento);
 
+//-Estado de cuenta
+//GET('/estado_cuenta/:id_alumno',cargos.obtenerEstadoCuentaAlumno);
+app.get('/estado_cuenta/:id_alumno',cargos.obtenerEstadoCuentaAlumno);
 
 GET('/meses_activos', utilerias.getMesesActivos);
 //GET('/buscar_correo_padre/:correo', utilerias.findCorreoPadre);
