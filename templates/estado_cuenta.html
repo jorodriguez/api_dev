@@ -1,0 +1,115 @@
+<!-- Header reporte -->
+<table width="100%" class="bodycopy" style="vertical-align: middle;
+    text-align: center;" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+        <td>
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="vertical-align: middle;
+    text-align: left;">
+                <tr>
+                    <td>
+                        <span class="h1"><strong>{{alumno.empresa}}</strong> </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="h2">{{alumno.sucursal}}</h4>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <small>{{alumno.direccion_sucursal}}</small>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td width="20%">
+            <table width="100%" border="1" style="border-color:#95D582" cellspacing="0" cellpadding="0">
+                <tr style="background-color:#95D582; height:60px;color:#fff">
+                    <td>Estado de cuenta</td>
+                </tr>
+                <tr>
+                    <td>
+                        <h2 style='color:tomato'>${{alumno.total_adeudo}}</h2>                                               
+                    </td>
+                </tr>               
+            </table>
+        </td>
+    </tr>
+</table>
+<!-- fin - Header reporte -->
+<hr style="border:1px solid #95D582;" />
+
+<table width="100%" border="0" style="padding-top:10px" cellspacing="0" cellpadding="0">
+    <tr>
+        <td class="bodycopy">
+
+            <table width="90%" style="background-color:white">
+                <tr>
+                    <td style="width:10%"><strong>Alumno: </strong> </td>
+                    <td>{{alumno.nombre_alumno}} {{alumno.apellidos_alumno}}</td>
+                </tr>
+                <tr>
+                    <td style="width:10%"><strong>Grupo: </strong></td>
+                    <td>{{alumno.grupo}}</td>
+                </tr>
+
+            </table>
+
+
+            <!--[if (gte mso 9)|(IE)]>
+      <table width="600" align="center" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td>
+    <![endif]-->
+            <hr style="border:1px solid #95D582;" />
+            <table width="100%" border="0" cellspacing="2" cellpadding="2">
+                <tr>
+                    <th style="border-bottom:1pt solid #57A8B6;" width="15%">Fecha</th>
+                    <th style="border-bottom:1pt solid #57A8B6;text-align:left" width="35%">Descripción</th>
+                    <th style="border-bottom:1pt solid #57A8B6;text-align:center" width="10%" align="right">Cant.</th>
+                    <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="20%" align="right">Cargo</th>                    
+                    <th style="border-bottom:1pt solid #57A8B6;text-align:right" width="20%" align="right">Adeuda</th>
+                </tr>
+                <!-- Detalle -->
+                {{#cargos}}
+                <tr style="text-align:center">
+                    <td style="border-bottom:1pt solid #57A8B6;" width="15%">
+                        {{fecha_format}}
+                    </td>
+                    <td style="border-bottom:1pt solid #57A8B6;" width="35%">{{nombre_cargo}} {{texto_ayuda}}
+                       
+                        {{#mostrar_nota}}
+                        <p><small style="color:gray;"> {{nota}} </small></p>
+                        {{/mostrar_nota}}
+                        <!--
+                        {{#descuento_aplicado}}
+                        <small style="color:blue;"> ({{nombre_descuento}}) </small>
+                        {{/descuento_aplicado}}
+                        -->
+                    </td>
+                    <td style="border-bottom:1pt solid #57A8B6;text-align:center" width="10%" align="right">{{cantidad}}</td>
+                    <td style="border-bottom:1pt solid #57A8B6;text-align:right" width="20%" align="right">${{cargo}}</td>                    
+                    <td style="border-bottom:1pt solid #57A8B6;text-align:right" width="20%" align="right">${{total}}</td>
+
+                </tr>
+                {{/cargos}}
+                <!-- fin Detalle -->
+                <tr>
+                    <td colspan="4" style="text-align:right">
+                        <strong>Total:</strong>
+                    </td>
+                    <td style="border-bottom:2pt solid #57A8B6;text-align:right;background-color:#F7F7F7" align="right">
+                        <h4 style="color:tomato"><strong> ${{alumno.total_adeudo}}</strong> </h4>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="h1" align="center"> <strong><span style="color:#368DDA">Esperamos tu pronto pago</strong>
+            <p><small>En para no generar recargos...</small></p>
+
+        </td>
+    </tr>
+</table>

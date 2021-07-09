@@ -45,6 +45,7 @@ const reporteContabilidad = require('./services/reporteContabilidad');
 const correo_service = require('./utils/CorreoService');
 const catalogoDescuento = require('./services/cat_descuento');
 const uploadCloudinary = require('./services/uploadCloudinary');
+const { notificarCargo } = require('./utils/NotificacionService');
 
 
 const port = process.env.PORT || 5000;
@@ -264,6 +265,7 @@ GET('/alumnos_balance_crecimiento_mensual_sucursal/:id_sucursal/:mes_anio', repo
 //-Estado de cuenta
 //GET('/estado_cuenta/:id_alumno',cargos.obtenerEstadoCuentaAlumno);
 app.get('/estado_cuenta/:id_alumno',cargos.obtenerEstadoCuentaAlumno);
+app.get('/estado_cuenta/enviar/:id_alumno',cargos.enviarEstadoCuentaAlumno);
 
 GET('/meses_activos', utilerias.getMesesActivos);
 //GET('/buscar_correo_padre/:correo', utilerias.findCorreoPadre);
