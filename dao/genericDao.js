@@ -1,8 +1,7 @@
 
 const { getQueryInstance } = require('../services/sqlHelper');
-const { Exception, ExceptionBD } = require('../exception/exeption');
+const { ExceptionBD } = require('../exception/exeption');
 const { isEmptyOrNull } = require('../utils/Utils');
-const { pool } = require('../db/conexion');
 
  function findAll(query,params){
     console.log("@findAll");
@@ -21,7 +20,7 @@ const { pool } = require('../db/conexion');
                 reject(error);
             });
     });       
-};
+}
 
 function findOne(query,params){
     console.log("@findOne "+JSON.stringify(params));
@@ -43,7 +42,7 @@ function findOne(query,params){
                 reject(error);
             });
     });       
-};
+}
 
 function execute(query,params){
     console.log("@execute");
@@ -66,7 +65,7 @@ function execute(query,params){
                 reject(error);
             });
     });       
-};
+}
 
 function executeProcedureWithParameters(query,params){
     console.log("@executeProcedureWithParameters");
@@ -83,13 +82,13 @@ function executeProcedureWithParameters(query,params){
                 reject(error);
             });
     });       
-};
+}
 
 function executeProcedure(query){
     console.log("@executeProcedure");
     return executeProcedureWithParameters(query,[]);
          
-};
+}
 
 function eliminarPorId(tabla,id,genero){
     return execute(`UPDATE ${tabla} 
@@ -97,7 +96,7 @@ function eliminarPorId(tabla,id,genero){
                         MODIFICO = $2,
                         FECHA_MODIFICO = (getDate('')+getHora(''))::timestamp
                     WHERE ID = $1 RETURNING ID;
-                        `,[id,genero])
+                        `,[id,genero]);
 }
 
 

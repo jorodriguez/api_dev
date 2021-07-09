@@ -1,7 +1,7 @@
 
 const cargoService = require('../domain/cargoService');
 const handle = require('../helpers/handlersErrors');
-const { notificarCargo,enviarEstadoCuenta } = require('../utils/NotificacionService');
+const { enviarEstadoCuenta,obtenerPreviewEstadoCuentaAlumno } = require('../utils/NotificacionService');
 
 const registrarCargo = (request, response) => {
     console.log("@registrarCargo");
@@ -144,11 +144,28 @@ const enviarEstadoCuentaAlumno = async (request, response) => {
     console.log("@enviarEstadoCuentaAlumno");    
     try {
 
-        const { id_alumno } = request.params;
+        const { id_alumno } = request.body;
 
         await enviarEstadoCuenta(id_alumno);
 
         response.status(200).json({procesado:true});       
+
+    } catch (e) {
+        console.log(e);
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+const obtenerHtmlPreviewEstadoCuenta = async (request, response) => {
+    console.log("@obtenerHtmlPreviewEstadoCuenta");    
+    try {
+
+        const { id_alumno } = request.params;
+
+        const html = await cargoService.obtenerPreviewEstadoCuenta(id_alumno);
+
+        //response.status(200).json(html);               
+        response.status(200).send(html);
 
     } catch (e) {
         console.log(e);
@@ -167,6 +184,7 @@ module.exports = {
     obtenerMesesAdeudaMensualidad,
     obtenerFiltroAniosCargosSucursal,
     obtenerEstadoCuentaAlumno,
-    enviarEstadoCuentaAlumno
+    enviarEstadoCuentaAlumno,
+    obtenerHtmlPreviewEstadoCuenta
     
 };

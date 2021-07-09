@@ -333,7 +333,6 @@ const enviarEstadoCuenta = async (idAlumno) => {
     if (!estadoCuenta) {
         console.log("No hay estado de cuenta");
     } else {
-
         correoService.enviarCorreoConCopiaTemaNotificacion(
             `Estado de cuenta de ${estadoCuenta.alumno.nombre_alumno}`,
             estadoCuenta.padres.correos || '',
@@ -343,7 +342,22 @@ const enviarEstadoCuenta = async (idAlumno) => {
             TEMPLATES.TEMPLATE_ESTADO_CUENTA
         );
     }
-}
+};
+
+/*
+const obtenerHtmlPreviewEstadoCuenta = async (idAlumno) => {
+   
+    const estadoCuenta = await obtenerEstadoCuentaAlumno(idAlumno);
+
+    if (!estadoCuenta) {
+        console.log("No hay estado de cuenta");
+    } else {
+        correoService.getHtmlPreviewTemplate(TEMPLATES.TEMPLATE_ESTADO_CUENTA,estadoCuenta);
+    }
+};
+*/
+
+
 
 module.exports = {
     notificarReciboPago,

@@ -8,7 +8,6 @@ const { QUERY, getQueryInstance } = require('../services/sqlHelper');
 const { ID_EMPRESA_MAGIC } = require('./Constantes');
 const correoTemaService = require('../domain/temaNotificacionService');
 const {existeValorArray} = require('./Utils');
-const { templateLiteral } = require('babel-types');
 const transporter = nodemailer.createTransport(variables.configMail);
 
 
@@ -37,7 +36,7 @@ const enviarCorreoConCopiaTemaNotificacion = async (asunto, para, idSucursalTema
         let cc = await obtenerCorreosCopiaPorTema(idSucursalTemaCopia, idTemaNotificacion);
         enviarCorreo(para, cc, asunto, renderHtml);
     }catch(error){
-        console.log("Excepción en el envio de correo : " + e);
+        console.log("Excepción en el envio de correo : " + error);
     }
 
    /* loadTemplate(template, params)
@@ -54,7 +53,7 @@ const enviarCorreoConCopiaTemaNotificacion = async (asunto, para, idSucursalTema
         }).catch(e => {
             console.log("Excepción en el envio de correo : " + e);
         });*/
-}
+};
 
 
 function enviarCorreoParaTemaNotificacion(asunto, idSucursalTemaCopia, idTemaNotificacion, params, template) {
@@ -96,6 +95,10 @@ function enviarCorreoTemplate(para, cc, asunto, params, template) {
             console.log("Excepción en el envio de correo : " + e);
         });
 }
+
+const getHtmlPreviewTemplate = (templateName, params) =>{
+    return loadTemplate(templateName,params);
+};
 
 function loadTemplate(templateName, params) {
     var html = '';
@@ -184,6 +187,6 @@ module.exports = {
     enviarCorreoParaTemaNotificacion,
     enviarCorreo,
     enviarCorreoTemplate,
-    enviarCorreoFamiliaresAlumno
-
+    enviarCorreoFamiliaresAlumno,
+    getHtmlPreviewTemplate
 };

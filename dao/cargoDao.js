@@ -1,13 +1,8 @@
-
-
 const { CARGOS } = require('../utils/Constantes');
 const { QUERY } = require('../services/sqlHelper');
 const genericDao = require('./genericDao');
 const { ExceptionDatosFaltantes, ExceptionBD } = require('../exception/exeption');
 const { isEmptyOrNull } = require('../utils/Utils');
-
-const CARGO_IGUAL_A_MENSUALIDADES = ' = ';
-const CARGO_DIFERENTE_A_MENSUALIDADES = ' <> ';
 
 //registrar pagos
 const registrarCargo = (cargoData) => {
