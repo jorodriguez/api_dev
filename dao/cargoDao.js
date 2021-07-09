@@ -285,7 +285,7 @@ const obtenerEstadoCuenta = async (idAlumno) => {
 
     console.log("ID alumno " + idAlumno);
 
-    const alumno = await genericDao.findAll(`
+    const alumno = await genericDao.findOne(`
         SELECT al.nombre as nombre_alumno,
 			al.apellidos as apellidos_alumno,
 			to_char(al.fecha_limite_pago_mensualidad,'dd-Mon') as fecha_limite_pago_mensualidad,
@@ -293,8 +293,10 @@ const obtenerEstadoCuenta = async (idAlumno) => {
 			bal.total_adeudo,
 			grupo.nombre as grupo,
 			suc.nombre as sucursal,
+            suc.id as co_sucursal,
 			suc.direccion as direccion_sucursal,
-			empresa.nombre as empresa
+			empresa.nombre as empresa,
+            bal.total_adeudo > 0 as adeuda
          FROM co_alumno al inner join co_balance_alumno bal on al.co_balance_alumno = bal.id and bal.eliminado = false
 		 					inner join co_sucursal suc on suc.id = al.co_sucursal
 							inner join co_grupo grupo on  grupo.id = al.co_grupo							
@@ -303,29 +305,24 @@ const obtenerEstadoCuenta = async (idAlumno) => {
         [idAlumno]);
 
     const detalleMensualidadesPendientes = await obtenerDetalleEstadoCuenta(
-        idAlumno,
-        CARGO_IGUAL_A_MENSUALIDADES
-    );
-    const detalleOtrosCargosPendientes = await obtenerDetalleEstadoCuenta(
-        idAlumno,
-        CARGO_DIFERENTE_A_MENSUALIDADES
-    );
+        idAlumno        
+    );   
 
     return {
         alumno: alumno,
-        mensualidadesPendientes: detalleMensualidadesPendientes || [],
-        otrosCargosPendientes: detalleOtrosCargosPendientes || []
+        cargos: detalleMensualidadesPendientes || []        
     };
 
 
 };
 
-const obtenerDetalleEstadoCuenta = async (idAlumno, criterio) => {
+const obtenerDetalleEstadoCuenta = async (idAlumno) => {
 
     return await genericDao.findAll(` SELECT a.co_balance_alumno,
                b.id as id_cargo_balance_alumno,
                b.fecha,
-               to_char(b.fecha,'dd-mm-yyyy HH24:MI') as fecha_format,
+               to_char(b.fecha,'dd-mm-yyyy') as fecha_format,
+               to_char(b.fecha,'HH24:MI') as hora_format,
                b.cantidad,
                cargo.nombre as nombre_cargo,
                cargo.aplica_descuento,
@@ -341,13 +338,11 @@ const obtenerDetalleEstadoCuenta = async (idAlumno, criterio) => {
 	           des.id as id_descuento,
                des.nombre as nombre_descuento,   
                b.descuento, 
-               false as checked ,
-               0 as pago 
+               cargo.id <> ${CARGOS.ID_CARGO_MENSUALIDAD} as mostrar_nota
              FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
                                            inner join cat_cargo cargo on b.cat_cargo = cargo.id					
                                            left join cat_descuento_cargo des on des.id = b.cat_descuento_cargo
-             WHERE a.id = $1 
-                    and cat_cargo ${criterio} ${CARGOS.ID_CARGO_MENSUALIDAD}
+             WHERE a.id = $1                  
 					and b.pagado = false
 			 		and b.eliminado = false
 					and a.eliminado = false

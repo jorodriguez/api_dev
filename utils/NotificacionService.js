@@ -6,23 +6,7 @@ const { variables } = require('../config/ambiente');
 const correoService = require('./CorreoService');
 const { TEMPLATES } = require('./CorreoService');
 const alumnoService = require('../domain/alumnoService');
-
-/*
-const QUERY_CORREOS_TOKEN_FAMILIARES_ALUMNO =
-    `SELECT  	a.id,
-                a.nombre as nombre_alumno,		
-                a.co_sucursal, 
-                string_agg(split_part(fam.nombre,' ',1),' / ') AS nombres_padres,    
-                array_to_json(array_agg(to_json(fam.correo))) AS correos, 
-                array_to_json(array_agg(to_json(fam.token))) as tokens
-     FROM co_alumno_familiar rel inner join co_familiar fam on rel.co_familiar = fam.id
-                            inner join co_parentesco parentesco on parentesco.id = rel.co_parentesco
-                            inner join co_alumno a on a.id = rel.co_alumno
-    WHERE co_alumno = ANY($1::int[]) --and envio_recibos
-            and co_parentesco in (1,2) -- solo papa y mama
-            and fam.eliminado = false 
-            and rel.eliminado = false
-    group by a.nombre,a.id `;*/
+const { obtenerEstadoCuentaAlumno } = require('../domain/cargoService');
 
 const notificarCargo = (id_alumno, id_cargos) => {
     console.log("notificarCargo " + id_alumno + "    " + id_cargos);
@@ -119,7 +103,7 @@ function enviarMensajeMovil(tokens, titulo, cuerpo) {
 
 }
 
-const notificarReciboPago = (id_alumno, id_pago,es_reenvio) => {
+const notificarReciboPago = (id_alumno, id_pago, es_reenvio) => {
     console.log("@@notificarReciboPago " + id_alumno + "    " + id_pago);
     //ir por alumno
     return new Promise((resolve, reject) => {
@@ -128,56 +112,27 @@ const notificarReciboPago = (id_alumno, id_pago,es_reenvio) => {
                 .getCorreosTokenAlumno(id_alumno)
                 .then(row => {
                     if (row != null) {
-                        enviarReciboComplemento(row.correos, row.tokens, row.nombres_padres, id_pago,es_reenvio);
+                        enviarReciboComplemento(row.correos, row.tokens, row.nombres_padres, id_pago, es_reenvio);
                         resolve(`Se envio el correo a ${row.correos}.`);
                     } else {
                         console.log("XXXX No se encontraron registros de padres para el alumno " + id_alumno);
                         reject("No se encontró registro de padres para el alumno.");
                     }
-                }).catch(err=>{
-                    console.log("error "+err);
+                }).catch(err => {
+                    console.log("error " + err);
                     reject("Existió un error al enviar el correo de comprobante de pago.");
                 });
-                    
-                
+
+
         } catch (error) {
             reject("Error el intentar enviar la notificación.")
         }
 
-        /*
-                alumnoService
-                    .getCorreosTokenAlumno(id_alumno)
-                    .then(results => {
-                        let row = results;
-                        console.log("===>>> " + JSON.stringify(results));
-                        if (row != null) {
-                            enviarReciboComplemento(row.correos, row.tokens, row.nombres_padres, id_pago);
-                        } else {
-                            console.log("XXXX No se encontraron registros de padres para el alumno " + id_alumno);
-                        }
-                    }).catch(error => {
-                        console.log("error en el servicio para enviar notificaicones " + error);
-                        console.error(error);
-                    });*/
     });
 };
-/*
-alumnoService
-            .getCorreosTokenAlumno(id_alumno)
-            .then(results => {
-                let row = results;
-                console.log("===>>> " + JSON.stringify(results));
-                if (row != null) {
-                    enviarReciboComplemento(row.correos, row.tokens, row.nombres_padres, id_pago);
-                } else {
-                    console.log("XXXX No se encontraron registros de padres para el alumno " + id_alumno);
-                }
-            }).catch(error => {
-                console.log("error en el servicio para enviar notificaicones " + error);
-                console.error(error);
-            });*/
 
-function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id_pago,es_reenvio) {
+
+function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id_pago, es_reenvio) {
 
     pool.query(`        
             WITH relacion_cargos AS (
@@ -235,7 +190,7 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
             if (results.rowCount > 0) {
 
                 let row = results.rows[0];
-                let tituloCorreo = `Recibo de pago ${es_reenvio ? '(Reenvío)':''} ✔`;
+                let tituloCorreo = `Recibo de pago ${es_reenvio ? '(Reenvío)' : ''} ✔`;
                 let titulo_mensaje = "Pago realizado ✔";
                 let cuerpo_mensaje = `Hola, recibimos un pago correspondiente a ${row.count_cargos} cargo${row.count_cargos > 0 ? '' : 's'} del alumno ${row.nombre_alumno}, enviamos el recibo de pago a su correo.`;
                 console.log("Enviando correo a " + JSON.stringify(lista_correos));
@@ -371,9 +326,28 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
         });
 };
 
+const enviarEstadoCuenta = async (idAlumno) => {
+   
+    const estadoCuenta = await obtenerEstadoCuentaAlumno(idAlumno);
+
+    if (!estadoCuenta) {
+        console.log("No hay estado de cuenta");
+    } else {
+
+        correoService.enviarCorreoConCopiaTemaNotificacion(
+            `Estado de cuenta de ${estadoCuenta.alumno.nombre_alumno}`,
+            estadoCuenta.padres.correos || '',
+            estadoCuenta.alumno.co_sucursal,
+            TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_PAGOS,
+            estadoCuenta,
+            TEMPLATES.TEMPLATE_ESTADO_CUENTA
+        );
+    }
+}
 
 module.exports = {
     notificarReciboPago,
     enviarCorreoClaveFamiliar,
-    notificarCargo
+    notificarCargo,
+    enviarEstadoCuenta
 };

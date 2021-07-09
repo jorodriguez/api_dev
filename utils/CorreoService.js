@@ -8,6 +8,7 @@ const { QUERY, getQueryInstance } = require('../services/sqlHelper');
 const { ID_EMPRESA_MAGIC } = require('./Constantes');
 const correoTemaService = require('../domain/temaNotificacionService');
 const {existeValorArray} = require('./Utils');
+const { templateLiteral } = require('babel-types');
 const transporter = nodemailer.createTransport(variables.configMail);
 
 
@@ -17,7 +18,8 @@ const TEMPLATES = {
     TEMPLATE_AVISO_CARGO: "aviso_cargo.html",
     TEMPLATE_DATOS_FACTURACION: "datos_factura.html",
     TEMPLATE_RECORDATORIO_PAGO_MENSUALIDAD:"recordatorio_recargo_mensualidad.html",
-    TEMPLATE_REPORTE_PROX_RECARGOS : "reporte_prox_recargo_mensualidad.html"
+    TEMPLATE_REPORTE_PROX_RECARGOS : "reporte_prox_recargo_mensualidad.html",
+    TEMPLATE_ESTADO_CUENTA: "estado_cuenta.html"
 };
 
 
@@ -28,22 +30,22 @@ function enviarCorreoFamiliaresAlumno(asunto,para,cc,params,template){
 }
 
 
-function enviarCorreoConCopiaTemaNotificacion(asunto, para, idSucursalTemaCopia, idTemaNotificacion, params, template) {
+const enviarCorreoConCopiaTemaNotificacion = async (asunto, para, idSucursalTemaCopia, idTemaNotificacion, params, template) => {
     console.log("@enviarCorreoPorTemaNotificacion copia a la suc " + idSucursalTemaCopia + " tema " + idTemaNotificacion);
+    try{
+        let renderHtml = await loadTemplate(template, params);
+        let cc = await obtenerCorreosCopiaPorTema(idSucursalTemaCopia, idTemaNotificacion);
+        enviarCorreo(para, cc, asunto, renderHtml);
+    }catch(error){
+        console.log("Excepción en el envio de correo : " + e);
+    }
 
-    loadTemplate(template, params)
-        .then((renderHtml) => {
-            //obtener correos copia por sucursal y tema
+   /* loadTemplate(template, params)
+        .then((renderHtml) => {            
             obtenerCorreosCopiaPorTema(idSucursalTemaCopia, idTemaNotificacion)
                 .then(correos => {
                     console.log("Correos copia iniciando");
-
-                    let cc = correos;
-                    /*let cc = "";                    
-                    if (result != null && result.rowCount > 0) {
-                        cc = result.rows[0].correos_copia;                        
-                    }*/
-
+                    let cc = correos;                    
                     enviarCorreo(para, cc, asunto, renderHtml);
                 }).catch(e => {
                     console.log("Excepción al consultar correos copia: " + e);
@@ -51,7 +53,7 @@ function enviarCorreoConCopiaTemaNotificacion(asunto, para, idSucursalTemaCopia,
 
         }).catch(e => {
             console.log("Excepción en el envio de correo : " + e);
-        });
+        });*/
 }
 
 
@@ -116,17 +118,8 @@ function loadTemplate(templateName, params) {
                             html = mustache.to_html(htmlTemp, params);                            
                             resolve(html);
                         });
-                    } else {
-                        console.log("Resolver con templates Fisicos");
-                        //resolver con archivos
-                        /*fs.readFile(path.resolve(__dirname, "../templates/" + templateName), 'utf8', (err, data) => {                        
-                            params.nombre_empresa= row.nombre_empresa;                            
-                            let cuerpo = mustache.to_html(data, params);
-                            html.concat(row.encabezado);
-                            html.concat(cuerpo);                            
-                            html.concat(row.pie);
-                            resolve(html);
-                        });*/
+                    } else {                        console.log("Resolver con templates Fisicos");
+                        
                     }
                 }).catch((e) => {
                     //leer template de archivos
