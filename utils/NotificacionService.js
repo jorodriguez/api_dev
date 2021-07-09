@@ -141,7 +141,7 @@ const notificarReciboPago = (id_alumno, id_pago,es_reenvio) => {
                     
                 
         } catch (error) {
-            reject("Error el intentar enviar la notificación.")
+            reject("Error el intentar enviar la notificación.");
         }
 
         /*
