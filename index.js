@@ -263,7 +263,7 @@ GET('/alumnos_balance_crecimiento_mensual_sucursal/:id_sucursal/:mes_anio', repo
 //GET('/estado_cuenta/:id_alumno',cargos.obtenerEstadoCuentaAlumno);
 app.get('/estado_cuenta/:id_alumno',cargos.obtenerEstadoCuentaAlumno);
 app.get('/estado_cuenta/preview/:id_alumno',cargos.obtenerHtmlPreviewEstadoCuenta);
-app.post('/estado_cuenta/enviar/:id_alumno',cargos.enviarEstadoCuentaAlumno);
+app.post('/estado_cuenta/enviar',cargos.enviarEstadoCuentaAlumno);
 
 GET('/meses_activos', utilerias.getMesesActivos);
 //GET('/buscar_correo_padre/:correo', utilerias.findCorreoPadre);
