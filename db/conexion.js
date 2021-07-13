@@ -14,7 +14,19 @@ const dbParams = {
 };
 */
 
+//production
+/*
+const dbParams = {
+    user: 'rrqxxqgp',
+     host: 'batyr.db.elephantsql.com',
+     database: 'rrqxxqgp',
+     password: 'e8_STv62MOApjO8CGr7ApToTeOg9B8Il',
+     port: 5432,
+     ssl: { rejectUnauthorized: false }
+ };*/
+
 //db desarrollo
+
 const dbParams = {
     user: (process.env.USER_DB || 'pffyesodvpvsrp'),
     host: (process.env.HOST_DB || 'ec2-174-129-242-183.compute-1.amazonaws.com'),
