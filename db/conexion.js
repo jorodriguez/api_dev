@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 //Nuevos parametros a la DB
-/*
+
 const dbParams = {
    user: 'abrrmwtzwwecjj',
     host: 'ec2-54-174-229-152.compute-1.amazonaws.com',
@@ -12,7 +12,7 @@ const dbParams = {
     port: 5432,
     ssl: { rejectUnauthorized: false }
 };
-*/
+
 
 //production
 /*
@@ -26,7 +26,7 @@ const dbParams = {
  };*/
 
 //db desarrollo
-
+/*
 const dbParams = {
     user: (process.env.USER_DB || 'pffyesodvpvsrp'),
     host: (process.env.HOST_DB || 'ec2-174-129-242-183.compute-1.amazonaws.com'),
@@ -36,7 +36,17 @@ const dbParams = {
     ssl:true
    // ssl: { rejectUnauthorized: false }
 };
-
+*/
+/*
+const dbParams = {
+    user: (process.env.USER_DB || 'qslidqid'),
+    host: (process.env.HOST_DB || 'batyr.db.elephantsql.com'),
+    database: (process.env.DATABASE_NAME || 'qslidqid'),
+    password: (process.env.PASSWORD_DB ||'GAfzf-YvMAvnFZ3dlf0HIK6wFlVpl2PM'),
+    port: (process.env.PORT_DB ||5432),
+    ssl:true
+   // ssl: { rejectUnauthorized: false }
+};*/
 
 //const dbParams = dbParamsDev;
 
@@ -46,6 +56,9 @@ const pool = new Pool({
     database: dbParams.database,
     password: dbParams.password,
     port: dbParams.port,
+    /*max: 5,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,*/
     ssl: { rejectUnauthorized: false }
 });
 
