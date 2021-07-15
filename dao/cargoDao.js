@@ -291,7 +291,9 @@ const obtenerEstadoCuenta = async (idAlumno) => {
             suc.id as co_sucursal,
 			suc.direccion as direccion_sucursal,
 			empresa.nombre as empresa,
-            bal.total_adeudo > 0 as adeuda
+            bal.total_adeudo > 0 as adeuda,
+            to_char(getDate(''),'YYYY-MM-DD') as fecha,			
+			to_char(getHora(''),'HH24:MI') as hora
          FROM co_alumno al inner join co_balance_alumno bal on al.co_balance_alumno = bal.id and bal.eliminado = false
 		 					inner join co_sucursal suc on suc.id = al.co_sucursal
 							inner join co_grupo grupo on  grupo.id = al.co_grupo							
