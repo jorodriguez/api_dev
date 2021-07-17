@@ -8,9 +8,20 @@ const { TEMPLATES } = require('./CorreoService');
 const alumnoService = require('../domain/alumnoService');
 const { obtenerEstadoCuentaAlumno } = require('../domain/cargoService');
 
-const notificarCargo = (id_alumno, id_cargos) => {
+async function notificarCargo(id_alumno, id_cargos) {
     console.log("notificarCargo " + id_alumno + "    " + id_cargos);
     //ir por alumno
+    try {
+        const row = await alumnoService.getCorreosTokenAlumno(id_alumno);        
+        if (row != null) {
+            completarNotificacionCargo(row.correos, row.tokens, row.nombres_padres, row.nombre_alumno, id_cargos, row.co_sucursal);
+        } else {
+            console.log("No se encontraron registros de padres para el alumno " + id_alumno);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+    /*
     alumnoService
         .getCorreosTokenAlumno(id_alumno)
         .then(results => {
@@ -21,10 +32,11 @@ const notificarCargo = (id_alumno, id_cargos) => {
                 console.log("No se encontraron registros de padres para el alumno " + id_alumno);
             }
         }).catch(error => console.error(error));
-};
+        */
+}
 
 function completarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, nombre_alumno, id_cargo, id_sucursal) {
-    console.log("completar envio notificacion");
+    console.log("===== completar envio notificacion====");
     if (lista_correos == null || lista_correos == undefined || lista_correos.length == []) {
         console.log("No existen correos para notificar el cargo");
         return;
@@ -327,7 +339,7 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
 };
 
 const enviarEstadoCuenta = async (idAlumno) => {
-   
+
     const estadoCuenta = await obtenerEstadoCuentaAlumno(idAlumno);
 
     if (!estadoCuenta) {
@@ -344,24 +356,9 @@ const enviarEstadoCuenta = async (idAlumno) => {
     }
 };
 
-/*
-const obtenerHtmlPreviewEstadoCuenta = async (idAlumno) => {
-   
-    const estadoCuenta = await obtenerEstadoCuentaAlumno(idAlumno);
-
-    if (!estadoCuenta) {
-        console.log("No hay estado de cuenta");
-    } else {
-        correoService.getHtmlPreviewTemplate(TEMPLATES.TEMPLATE_ESTADO_CUENTA,estadoCuenta);
-    }
-};
-*/
-
-
-
 module.exports = {
     notificarReciboPago,
     enviarCorreoClaveFamiliar,
-    notificarCargo,
-    enviarEstadoCuenta
+    enviarEstadoCuenta,
+    notificarCargo
 };

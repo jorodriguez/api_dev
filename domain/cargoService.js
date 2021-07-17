@@ -2,26 +2,36 @@
 
 const cargosDao = require('../dao/cargoDao');
 const alumnoDao = require('../dao/alumnoDao');
-const notificacionService = require('../utils/NotificacionService');
+//const notificacionService = require('../utils/NotificacionService');
 const { getHtmlPreviewTemplate,TEMPLATES } = require('../utils/CorreoService');
 
 //registrar pagos
-const registrarCargo = (cargoData) => {
+const registrarCargo = async (cargoData) => {
     console.log("@registrarCargo");
-
-    return new Promise((resolve, reject) => {
+    try{
+     const respuesta = await cargosDao.registrarCargo(cargoData);
+     console.log("Enviar correo de cargo");  
+     console.log(JSON.stringify(respuesta));          
+     //notificacionService.notificarCargo(cargoData.id_alumno, respuesta.id_cargo);                                                       
+     return respuesta;
+    }catch(error){
+        console.log(" X X X X X "+error);
+        return error;
+    }
+    /*return new Promise((resolve, reject) => {
         cargosDao
             .registrarCargo(cargoData)
             .then(respuesta => {
-                console.log("Enviar correo de cargo");
-                notificacionService.notificarCargo(cargoData.id_alumno, respuesta.id_cargo);
+                console.log("Enviar correo de cargo");               
+                 notificacionService.notificarCargo(cargoData.id_alumno, respuesta.id_cargo);                                                     
+                 console.log("despues");               
                 //Aqui enviar el mensaje al movil
                 resolve(respuesta);
             }).catch(error => {
                 console.log("ERROR al guardar el cargo "+error);
                 reject(error);
             });
-    });  
+    });  */
 };
 
 const completarRegistroRecargoMensualidad = (idAlumno,idCargoMensualidad,idRecargo,genero)=>{    

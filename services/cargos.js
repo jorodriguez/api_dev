@@ -1,21 +1,27 @@
 
 const cargoService = require('../domain/cargoService');
 const handle = require('../helpers/handlersErrors');
-const { enviarEstadoCuenta,obtenerPreviewEstadoCuentaAlumno } = require('../utils/NotificacionService');
+const { enviarEstadoCuenta } = require('../utils/NotificacionService');
+const notificacionService = require('../utils/NotificacionService');
 
-const registrarCargo = (request, response) => {
+const registrarCargo = async (request, response) => {
     console.log("@registrarCargo");
     
     try {
         const params = { fecha_cargo, id_alumno, cat_cargo, cantidad, monto, nota, genero } = request.body;
         
-        cargoService
+        const respuesta = await cargoService.registrarCargo(params);
+        if(respuesta && respuesta.resultado){
+            notificacionService.notificarCargo(params.id_alumno,respuesta.id_cargo);
+        }        
+        response.status(200).json(respuesta);
+        /*cargoService
             .registrarCargo(params)
             .then(respuesta=>{
                 response.status(200).json(respuesta);
             }).catch(error=>{
                 handle.callbackError(error,response);
-            });
+            });*/
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
