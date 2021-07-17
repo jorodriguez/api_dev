@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 //Nuevos parametros a la DB
-/*
+
 const dbParams = {
    user: 'abrrmwtzwwecjj',
     host: 'ec2-54-174-229-152.compute-1.amazonaws.com',
@@ -12,7 +12,7 @@ const dbParams = {
     port: 5432,
     ssl: { rejectUnauthorized: false }
 };
-*/
+
 
 //production
 /*
@@ -37,17 +37,17 @@ const dbParams = {
    // ssl: { rejectUnauthorized: false }
 };*/
 
-
+/*
 const dbParams = {
-    user: (process.env.USER_DB || 'qslidqid'),
+    user: (process.env.USER_DB || 'swxmnyur'),
     host: (process.env.HOST_DB || 'batyr.db.elephantsql.com'),
-    database: (process.env.DATABASE_NAME || 'qslidqid'),
-    password: (process.env.PASSWORD_DB ||'GAfzf-YvMAvnFZ3dlf0HIK6wFlVpl2PM'),
+    database: (process.env.DATABASE_NAME || 'swxmnyur'),
+    password: (process.env.PASSWORD_DB ||'h65SV6jGV-vN8zyNHPbGt97LYNYnzxJN'),
     port: (process.env.PORT_DB ||5432),
     ssl:true
    // ssl: { rejectUnauthorized: false }
 };
-
+*/
 //const dbParams = dbParamsDev;
 
 const pool = new Pool({

@@ -1,7 +1,9 @@
 
 1- correr el comando 
 
-
+--timezone
+		 show timezone		 
+		 SET TIME ZONE 'Mexico/General';
 
 2- despues correr el comando
 update co_familiar 
