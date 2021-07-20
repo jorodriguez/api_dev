@@ -43,11 +43,12 @@ const catalogoRecursos = require('./services/catalogo_recursos');
 const reporteContabilidad = require('./services/reporteContabilidad');
 const catalogoDescuento = require('./services/cat_descuento');
 const uploadCloudinary = require('./services/uploadCloudinary');
+const reporteAsistenciaUsuario = require('./services/reporte_asistencia_usuario');
 
 
 const port = process.env.PORT || 5000;
 //version/branch
-const version = "v1.0.33/202107-enviar-estado-cuenta";
+const version = "v1.0.33/202107-reporte-asistencia";
 
 //es un middleware que serializa los cuerpos de las respuestas 
 //   para poder invocar response.param
@@ -188,6 +189,8 @@ GET('/asistencia_usuarios/usuario/:id_usuario/:fecha_inicio/:fecha_fin', asisten
 //--filtros para usar en el reporte de sueldos
 GET('/asistencia_usuarios/filtros_anios/:co_empresa', asistenciaUsuario.getAniosFiltroAsistenciasUsuarios);
 GET('/asistencia_usuarios/filtros_quincenas/:co_empresa/:anio', asistenciaUsuario.getMesesFiltroAsistenciasUsuarios);
+// reporte de asistencia de usuarios por rh
+GET('/asistencia_usuarios/reporte_rh/:id_sucursal/:fecha_inicio/:fecha_fin',reporteAsistenciaUsuario.getReporteAsistenciaUsuario);
 
 
 

@@ -63,7 +63,7 @@ const insertarUsuario = async (usuarioData) => {
     //TIPO_USUARIO.MAESTRA
     console.log(" hora entrada " + hora_entrada + " h salida " + hora_salida + " correo " + correo);
     let password = await generarRandomPassword();
-    console.log("Password generado  " + password);
+    console.log("Password generado  " + JSON.stringify(password));
 
     let sql = `
             INSERT INTO USUARIO(NOMBRE,CORREO,CO_SUCURSAL,CAT_TIPO_USUARIO,HORA_ENTRADA,HORA_SALIDA,PASSWORD,SUELDO_MENSUAL,SUELDO_QUINCENAL,GENERO)
