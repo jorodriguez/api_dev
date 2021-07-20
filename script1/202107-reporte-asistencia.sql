@@ -30,17 +30,53 @@ alter table usuario add column visible_reporte boolean default true;
 
 --query
 /*	
-			select u.nombre,
-						u.fecha_genero as fecha_registro,
-						(select min(fecha) from co_asistencia_usuario where usuario = u.id and eliminado = false) as primer_asistencia,						
-						(select max(fecha) from co_asistencia_usuario where usuario = u.id and eliminado = false) as ultima_asistencia,						
-						count(au.fecha) as asistencias,
-						u.activo,
-						u.fecha_baja,
-						u.motivo_baja,
-						u.eliminado as eliminado
-			from co_asistencia_usuario au inner join usuario u on u.id = au.usuario
-			where au.eliminado = false
-			group by u.id,u.nombre,u.fecha_genero,u.fecha_baja,u.motivo_baja,u.activo
-			order by u.eliminado, u.nombre,u.fecha_genero,u.fecha_baja
-			*/
+	
+
+with rango_dias as (
+		select g::date as dia FROM generate_series('2021-07-01'::date,'2021-07-31'::date, '1 day') g
+), 
+asistencia as (
+		select to_char(r.dia,'DD')::int as no_dia, r.dia,u.nombre, au.hora_entrada::text, au.hora_salida::text,au.comentario_entrada, au.comentario_salida,au.horario_entrada::text, au.horario_salida::text
+		from rango_dias r inner join co_asistencia_usuario au on au.fecha = r.dia or au.fecha is null
+				  inner join usuario u on u.id = au.usuario 
+		where u.visible_reporte 	 
+	 		and au.fecha between '2021-07-01' and '2021-07-31'
+	 		and u.co_sucursal = 1
+	 		and au.eliminado = false
+		order by au.fecha, u.nombre
+) select rango.dia,a.* from rango_dias rango left join asistencia a on rango.dia = a.dia
+*/
+
+-- agrupados por dia
+
+with rango_dias as (
+		select g::date as dia FROM generate_series('2021-07-01'::date,'2021-07-31'::date, '1 day') g
+), 
+asistencia as (
+	select to_char(r.dia,'DD')::int as no_dia,r.dia, array_to_json(array_agg(to_json(au.*))) 
+		from rango_dias r inner join co_asistencia_usuario au on au.fecha = r.dia or au.fecha is null
+				  inner join usuario u on u.id = au.usuario 
+		where u.visible_reporte 	 
+	 		and au.fecha between '2021-07-01' and '2021-07-31'
+	 		and u.co_sucursal = 1
+	 		and au.eliminado = false
+		group by r.dia
+		order by r.dia
+) select * from rango_dias rango left join asistencia a on rango.dia = a.dia
+
+
+---sin agrupacion
+
+with rango_dias as (
+		select g::date as dia FROM generate_series('2021-07-01'::date,'2021-07-31'::date, '1 day') g
+), 
+asistencia as (
+		select to_char(r.dia,'DD')::int as no_dia, r.dia,u.nombre, au.hora_entrada::text, au.hora_salida::text--,au.comentario_entrada, au.comentario_salida,au.horario_entrada::text, au.horario_salida::text
+		from rango_dias r inner join co_asistencia_usuario au on au.fecha = r.dia or au.fecha is null
+				  inner join usuario u on u.id = au.usuario 
+		where u.visible_reporte 	 
+	 		and au.fecha between '2021-07-01' and '2021-07-31'
+	 		and u.co_sucursal = 1
+	 		and au.eliminado = false
+		order by au.fecha, u.nombre
+) select * from rango_dias rango left join asistencia a on rango.dia = a.dia
