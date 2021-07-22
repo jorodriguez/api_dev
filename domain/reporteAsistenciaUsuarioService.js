@@ -7,4 +7,10 @@ const getAsistenciaUsuarios = (coSucursal,fechaInicio,fechaFin) => {
 
 };
 
-module.exports = { getAsistenciaUsuarios};
+const getUsuariosAsistencia = (coSucursal) => {
+    console.log("@getUsuariosAsistencia");
+    return reporteAsistenciaUsuarioDao.obtenerUsuariosAsistencias(coSucursal);
+};
+
+
+module.exports = { getAsistenciaUsuarios,getUsuariosAsistencia};

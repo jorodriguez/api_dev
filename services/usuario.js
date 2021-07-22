@@ -189,7 +189,21 @@ const getSucursalesUsuario = (request, response) => {
 };
 
 
+const desactivarUsuarioReporte = async (request, response) => {
+
+	try {
+		const {idUsuario, genero}  = request.params.body;
+
+		const resultado = await usuarioService.desactivarUsuarioReporte({idUsuario,genero});
+
+		response.status(200).json(resultado);
+	} catch (e) {
+		console.error(e);
+		handle.callbackErrorNoControlado(e, response);
+	}
+};
+
 
 module.exports = {
-	crearUsuario, modificarUsuario, desactivarUsuario, getUsuariosPorSucursal, buscarUsuarioPorId,getSucursalesUsuario
+	crearUsuario, modificarUsuario, desactivarUsuario, getUsuariosPorSucursal, buscarUsuarioPorId,getSucursalesUsuario,desactivarUsuarioReporte
 };

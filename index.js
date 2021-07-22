@@ -191,8 +191,8 @@ GET('/asistencia_usuarios/filtros_anios/:co_empresa', asistenciaUsuario.getAnios
 GET('/asistencia_usuarios/filtros_quincenas/:co_empresa/:anio', asistenciaUsuario.getMesesFiltroAsistenciasUsuarios);
 // reporte de asistencia de usuarios por rh
 GET('/asistencia_usuarios/reporte_rh/:id_sucursal/:fecha_inicio/:fecha_fin',reporteAsistenciaUsuario.getReporteAsistenciaUsuario);
-
-
+POST('/asistencia_usuarios',usuarioService.desactivarUsuarioReporte);
+GET('/usuarios_rh',reporteAsistenciaUsuario.getUsuariosAsistencias);
 
 //grupo
 GET('/grupos', catagolos.getGrupos);

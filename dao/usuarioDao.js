@@ -147,6 +147,23 @@ const desactivarUsuario = (idUsuario, usuarioData) => {
 
 };
 
+const desactivarUsuarioReporte = (usuarioData) => {
+
+    console.log("@desactivarUsuarioReporte");
+
+    const { idUsuario, genero } = usuarioData;
+    let sql = `
+            UPDATE USUARIO SET 
+                    VISIBLE_REPORTE=false,                                                            
+                    FECHA_MODIFICO=getDate(''),
+                    MODIFICO = $2
+            WHERE ID = $1     
+            RETURNING ID;               
+            `;
+    return genericDao.execute(sql, [idUsuario, genero]);
+
+};
+
 const buscarUsuarioId = (idUsuario) => {
     console.log("@findUsuarioId");
     return genericDao.buscarPorId("USUARIO", idUsuario);
@@ -176,5 +193,6 @@ module.exports = {
     , validarCorreoUsuario
     , buscarCorreo
     , getSucursalesUsuario 
+    , desactivarUsuarioReporte
 };
 

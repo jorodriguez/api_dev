@@ -16,6 +16,9 @@ const obtenerAsistenciaUsuario = (coSucursal, fechaInicio, fechaFin) => {
         to_char(au.hora_salida,'HH24:MI AM') as hora_salida,
         au.comentario_entrada,
         au.comentario_salida
+        u.eliminado,
+        u.motivo_baja,
+        u.fecha_baja::text
     from rango_dias r inner join co_asistencia_usuario au on au.fecha = r.dia
           inner join usuario u on u.id = au.usuario 
     where u.visible_reporte 	 
@@ -37,6 +40,32 @@ const obtenerAsistenciaUsuario = (coSucursal, fechaInicio, fechaFin) => {
 
 };
 
+
+const obtenerUsuariosAsistencias = (coSucursal) => {
+    
+    return genericDao.findAll(`    
+        select s.nombre as sucursal,
+            u.nombre,
+            u.correo,
+            u.eliminado,
+            u.permiso_gerente,
+            tipo.nombre as tipo,
+            u.hora_entrada,
+            u.hora_salida,
+            u.motivo_baja,
+            u.fecha_baja,
+            u.acceso_sistema,
+            round(u.sueldo_mensual,2) as sueldo_mensual,
+            round(u.sueldo_quincenal,2) as sueldo_quincenal,
+            u.visible_reporte
+        from usuario u inner join co_sucursal s on s.id = u.co_sucursal
+                        inner join cat_tipo_usuario tipo on tipo.id = u.cat_tipo_usuario
+        where u.co_sucursal = $1
+        order by u.eliminado, u.nombre 			 	
+`, [coSucursal]);
+
+};
 module.exports = {
-    obtenerAsistenciaUsuario
+    obtenerAsistenciaUsuario,
+    obtenerUsuariosAsistencias
 };

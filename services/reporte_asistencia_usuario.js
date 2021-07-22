@@ -21,7 +21,26 @@ const getReporteAsistenciaUsuario = async (request, response) => {
 };
 
 
+const getUsuariosAsistencias = async (request, response) => {
+    console.log("@getUsuarioAsistencias");
+    try {
+
+        const { id_sucursal } = request.params;
+       
+        const usuarios = await reporteAsistenciaUsuarioService.getUsuariosAsistencia(id_sucursal);
+
+        response.status(200).json(usuarios);
+
+    } catch (e) {
+        console.log(e);
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+
+
+
 
 module.exports = {
-  getReporteAsistenciaUsuario
+  getReporteAsistenciaUsuario,getUsuariosAsistencias
 };

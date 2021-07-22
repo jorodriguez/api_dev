@@ -134,6 +134,10 @@ function getSucursalesUsuario(idUsuario){
     return usuarioDao.getSucursalesUsuario(idUsuario);
 }
 
+const desactivarUsuarioReporte  =(usuarioData) =>{
+    return usuarioDao.desactivarUsuarioReporte(usuarioData);
+};
+
 module.exports = {
     getUsuariosPorSucursal,
     crearUsuarioConCorreo, crearUsuario, modificarContrasena,
@@ -141,6 +145,6 @@ module.exports = {
     desactivarUsuario,
     buscarPorId,
     modificarUsuarioConCorreo,
-    getSucursalesUsuario
-
+    getSucursalesUsuario,
+    desactivarUsuarioReporte
 };
