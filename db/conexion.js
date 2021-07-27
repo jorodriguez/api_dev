@@ -26,7 +26,7 @@ const dbParams = {
  };*/
 
 //db desarrollo
-/*
+
 const dbParams = {
     user: (process.env.USER_DB || 'pffyesodvpvsrp'),
     host: (process.env.HOST_DB || 'ec2-174-129-242-183.compute-1.amazonaws.com'),
@@ -36,8 +36,8 @@ const dbParams = {
     ssl:true
    // ssl: { rejectUnauthorized: false }
 };
-*/
 
+/*
 const dbParams = {
     user: (process.env.USER_DB || 'swxmnyur'),
     host: (process.env.HOST_DB || 'batyr.db.elephantsql.com'),
@@ -46,7 +46,7 @@ const dbParams = {
     port: (process.env.PORT_DB ||5432),
     ssl:true
    // ssl: { rejectUnauthorized: false }
-};
+};*/
 
 //const dbParams = dbParamsDev;
 

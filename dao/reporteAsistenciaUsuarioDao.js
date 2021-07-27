@@ -44,7 +44,9 @@ const obtenerAsistenciaUsuario = (coSucursal, fechaInicio, fechaFin) => {
 const obtenerUsuariosAsistencias = (coSucursal) => {
     
     return genericDao.findAll(`    
-        select s.nombre as sucursal,
+        select 
+            u.id,
+            s.nombre as sucursal,
             u.nombre,
             u.correo,
             u.eliminado,
