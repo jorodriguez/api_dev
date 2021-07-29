@@ -52,13 +52,14 @@ const obtenerUsuariosAsistencias = (coSucursal) => {
             u.eliminado,
             u.permiso_gerente,
             tipo.nombre as tipo,
-            u.hora_entrada,
-            u.hora_salida,
+            to_char(u.hora_entrada,'HH24:MI AM') as hora_entrada,
+            to_char(u.hora_salida,'HH24:MI AM') as hora_salida,            
             u.motivo_baja,
-            u.fecha_baja,
+            to_char(u.fecha_baja,'YYYY-MM-DD') as fecha_baja,
+            to_char(u.fecha_genero,'YYYY-MM-DD') as fecha_registro,
             u.acceso_sistema,
             round(u.sueldo_mensual,2) as sueldo_mensual,
-            round(u.sueldo_quincenal,2) as sueldo_quincenal,
+            round(u.sueldo_quincenal,2) as sueldo_quincenal,            
             u.visible_reporte
         from usuario u inner join co_sucursal s on s.id = u.co_sucursal
                         inner join cat_tipo_usuario tipo on tipo.id = u.cat_tipo_usuario
