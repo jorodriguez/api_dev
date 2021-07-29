@@ -192,9 +192,9 @@ const getSucursalesUsuario = (request, response) => {
 const desactivarUsuarioReporte = async (request, response) => {
 
 	try {
-		const {idUsuario, genero}  = request.params.body;
+		const {id_usuario,visible, genero}  = request.body;
 
-		const resultado = await usuarioService.desactivarUsuarioReporte({idUsuario,genero});
+		const resultado = await usuarioService.desactivarUsuarioReporte({id_usuario,visible,genero});
 
 		response.status(200).json(resultado);
 	} catch (e) {
