@@ -151,7 +151,7 @@ const desactivarUsuarioReporte = (usuarioData) => {
 
     console.log("@desactivarUsuarioReporte");
 
-    const { idUsuario, genero } = usuarioData;
+    const { id_usuario, genero } = usuarioData;
     let sql = `
             UPDATE USUARIO SET 
                     VISIBLE_REPORTE=false,                                                            
@@ -160,7 +160,7 @@ const desactivarUsuarioReporte = (usuarioData) => {
             WHERE ID = $1     
             RETURNING ID;               
             `;
-    return genericDao.execute(sql, [idUsuario, genero]);
+    return genericDao.execute(sql, [id_usuario, genero]);
 
 };
 
