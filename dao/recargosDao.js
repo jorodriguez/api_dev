@@ -6,7 +6,7 @@ const { isEmptyOrNull } = require('../utils/Utils');
 
 const CRITERIO = {
     AGREGAR_RECARGO: " (a.fecha_limite_pago_mensualidad + 1) <= getDate('') and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",
-    VENCEN_HOY: " a.fecha_limite_pago_mensualidad = getDate('') and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",
+    VENCEN_HOY: " a.fecha_limite_pago_mensualidad = getDate('') and to_char(b.fecha,'MMYYYY') = to_char(getDate(''),'MMYYYY')",
     VENCEN_MANANA: "  (a.fecha_limite_pago_mensualidad + 1) = getDate('') + 1 and to_char(b.fecha,'mmYYYY') = to_char(getDate(''),'mmYYYY')",
     VENCIDOS: " a.fecha_limite_pago_mensualidad < getDate('') " ,
     VENCEN_SEMANA_ACTUAL:" to_char(a.fecha_limite_pago_mensualidad,'IYYY-IW') = to_char(getDate(''),'IYYY-IW')"
@@ -51,7 +51,7 @@ const getQueryBase = function (criterio,idSucursal) {
         suc.nombre as nombre_sucursal,
         suc.direccion as direccion_sucursal,
         array_to_json(array_agg(to_json(u.*))) AS mensualidades_vencidas,
-        count(u.*) > 0 as existen_mensualidades_vencidas
+        count(u.*) > 0 as existen_mensualidades_vencidas        
     from cargos_universo u right join co_sucursal suc on suc.id = u.co_sucursal 
     where  ${(idSucursal != null) ? ` suc.id = ${idSucursal} AND ` :''} 
             suc.eliminado = false
@@ -70,7 +70,7 @@ function validarCriterio(criterio){
 //FIXME: incluir el id de la empresa
 //--Registrar un Cargo a cada alumno que tiene registrada su fecha.
 //Calcular recargos de mensualidades que vence hoy
-function getMensualidadesParaRecargoTodasSucursales(criterio) {
+ function getMensualidadesParaRecargoTodasSucursales(criterio) {
     console.log("@getMensualidadesParaRecargoTodasSucursales" );
     console.log("CRITERIO "+criterio);
     //CRITERIO.AGREGAR_RECARGO

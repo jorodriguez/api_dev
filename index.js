@@ -247,7 +247,12 @@ GET('/descuento/:id_empresa', catalogoDescuento.getDescuentos);
 app.get('/cargos/meses_adeuda/:id_alumno', cargos.obtenerMesesAdeudaMensualidad);
 
 //recargos proximos
-GET('/mensualidad/vence_semana_actual/:id_sucursal', recargoService.obtenerPagosVencenSemanaActual);
+//GET('/mensualidad/vence_semana_actual/:id_sucursal', recargoService.obtenerPagosVencenSemanaActual);
+app.get('/mensualidad/vence_semana_actual/:id_sucursal', recargoService.obtenerPagosVencenSemanaActual);
+//recargos de hoy 
+app.get('/mensualidad/vence_hoy', recargoService.obtenerMensualidadesRecargoHoy);
+
+app.get('/mensualidad/ejecutar', recargoService.ejecutarRecargosMensualidad);
 
 GET('/formas_pagos', catagolos.getFormasPago);
 
@@ -507,7 +512,7 @@ schedule.scheduleJob('0 1 0 1 * *', function () {
 /********* Calcular Recargos de mensualidades *********/
 //schedule.scheduleJob('0 1 0 1 * *', function () {
 //schedule.scheduleJob('0 48 16 * * *', function () {
-schedule.scheduleJob({ hour: 17, minute: 47, second: 20 }, function () {
+schedule.scheduleJob({ hour: 21, minute: 30, second: 0 }, function () {
 	console.log('Agregar recargos de mensualidad ' + new Date());
 	try {
 		//recargoService.procesoRecargosMensualidad();

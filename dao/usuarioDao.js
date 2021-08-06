@@ -19,7 +19,7 @@ function obtenerCorreosPorTema(co_sucursal, id_tema) {
                     WHERE co_sucursal = $1 and co_tema_notificacion = $2 and eliminado = false
                 ) 
                 AS correos_copia    
-`, [co_sucursal, id_tema])
+`, [co_sucursal, id_tema]);
 }
 
 const getUsuarioPorSucursal = (idSucursal, idTipoUsario) => {
@@ -150,18 +150,16 @@ const desactivarUsuario = (idUsuario, usuarioData) => {
 const desactivarUsuarioReporte = (usuarioData) => {
 
     console.log("@desactivarUsuarioReporte");
-
-    const { id_usuario, genero } = usuarioData;
+    const { id_usuario, visible,genero } = usuarioData;
     let sql = `
             UPDATE USUARIO SET 
-                    VISIBLE_REPORTE=false,                                                            
+                    VISIBLE_REPORTE=$2,
                     FECHA_MODIFICO=getDate(''),
-                    MODIFICO = $2
+                    MODIFICO = $3
             WHERE ID = $1     
             RETURNING ID;               
             `;
-    return genericDao.execute(sql, [id_usuario, genero]);
-
+    return genericDao.execute(sql, [id_usuario,visible, genero]);
 };
 
 const buscarUsuarioId = (idUsuario) => {

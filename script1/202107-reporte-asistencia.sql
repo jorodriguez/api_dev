@@ -28,6 +28,16 @@ alter table usuario add column visible_reporte boolean default true;
 		          (222,2,4,1,1),-- para apo
 				  (222,3,4,1,1)-- para contry
 
+
+
+
+
+--para actualizar la fecha de los recargos
+update co_alumno 
+set fecha_limite_pago_mensualidad = (to_char(current_date,'YYYY')||'-'||to_char(current_date,'MM')||'-'||to_char(fecha_limite_pago_mensualidad,'DD'))::date
+where eliminado = false;
+
+
 --query
 /*	
 	

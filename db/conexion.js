@@ -15,18 +15,18 @@ const dbParams = {
 
 
 //production
-/*
+
 const dbParams = {
-    user: 'rrqxxqgp',
-     host: 'batyr.db.elephantsql.com',
-     database: 'rrqxxqgp',
-     password: 'e8_STv62MOApjO8CGr7ApToTeOg9B8Il',
+    user: 'steifvljsbjelz',
+     host: 'ec2-52-72-125-94.compute-1.amazonaws.com',
+     database: 'ddouqvi1mtviob',
+     password: '5b1387564423855725fa5fa33c91696d5baf3f4362876a2dc329dcc80e46ebed',
      port: 5432,
      ssl: { rejectUnauthorized: false }
- };*/
+ };
 
 //db desarrollo
-
+/*
 const dbParams = {
     user: (process.env.USER_DB || 'pffyesodvpvsrp'),
     host: (process.env.HOST_DB || 'ec2-174-129-242-183.compute-1.amazonaws.com'),
@@ -35,7 +35,7 @@ const dbParams = {
     port: (process.env.PORT_DB ||5432),
     ssl:true
    // ssl: { rejectUnauthorized: false }
-};
+};*/
 
 /*
 const dbParams = {

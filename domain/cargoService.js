@@ -39,7 +39,8 @@ const completarRegistroRecargoMensualidad = (idAlumno,idCargoMensualidad,idRecar
             cargosDao
                 .completarRegistroRecargoMensualidad(
                         idCargoMensualidad,
-                        idRecargo,genero
+                        idRecargo,
+                        genero
                 ).then(id=>{
                     console.log("Registro de recargo relacionado a la mensualidad ");
                     //actualizar fecha pago proximo mes

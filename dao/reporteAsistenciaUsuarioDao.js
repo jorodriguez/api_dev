@@ -15,7 +15,7 @@ const obtenerAsistenciaUsuario = (coSucursal, fechaInicio, fechaFin) => {
         to_char(au.hora_entrada,'HH24:MI AM') as hora_entrada,
         to_char(au.hora_salida,'HH24:MI AM') as hora_salida,
         au.comentario_entrada,
-        au.comentario_salida
+        au.comentario_salida,
         u.eliminado,
         u.motivo_baja,
         u.fecha_baja::text

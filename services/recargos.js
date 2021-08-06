@@ -26,6 +26,7 @@ function ejecutarEnvioRecordatorioPagoMensualidadPadres() {
 }
 
 
+
 const obtenerPagosVencenSemanaActual = (request,response)=>{
     console.log("=======@obtenerPagosVencenSemanaActual sucursal ");
     try {
@@ -53,5 +54,31 @@ const obtenerPagosVencenSemanaActual = (request,response)=>{
 };
 
 
-module.exports = {procesoRecargosMensualidad,ejecutarEnvioRecordatorioPagoMensualidadPadres,obtenerPagosVencenSemanaActual};
+
+const obtenerMensualidadesRecargoHoy = async (request,response)=>{
+    console.log("@obtenerMensualidadesRecargoHoy");
+    try {     
+       const results = await recargoService.obtegerMensualidadesRecargo();
+       response.status(200).json(results);
+    } catch (e) {
+        console.log("Fallo la ejecucion del proceso que realiza recargos " + e);
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+
+const ejecutarRecargosMensualidad = async (request,response)=>{
+    console.log("@ejecutarRecargosMensualidad");
+    try {     
+        procesoRecargosMensualidad();
+       response.status(200).json(true);
+    } catch (e) {
+        console.log("Fallo la ejecucion del proceso que realiza recargos " + e);
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+module.exports = {procesoRecargosMensualidad,ejecutarEnvioRecordatorioPagoMensualidadPadres,obtenerPagosVencenSemanaActual,
+                  obtenerMensualidadesRecargoHoy,
+                  ejecutarRecargosMensualidad};
 
