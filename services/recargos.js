@@ -1,13 +1,18 @@
 const recargoService = require('../domain/recargosService');
 const handle = require('../helpers/handlersErrors');
+const correoService = require('../utils/CorreoService');
 
-function procesoRecargosMensualidad() {
+async function procesoRecargosMensualidad() {
     console.log("Inicinado ejecución del proceso para calcular recargos sucursal " );
     try {
-        recargoService.ejecutarProcesoRecargoMensualidad();
+         const retorno =  await recargoService.ejecutarProcesoRecargoMensualidad();         
+         correoService.enviarCorreo('joel@magicintelligence.com,joel.rod.roj@hotmail.com',"","Recargos Generados",`<h6>${JSON.stringify(retorno)}</h6`);
+         return retorno;
     } catch (e) {
         console.log("[recargos] Excepcion al ejecutar el proceso de recargos " + e);
         //enviar un correo al equipo de soporte     
+        correoService.enviarCorreo('joel@magicintelligence.com,joel.rod.roj@hotmail.com',"","Recargos Fail",`<h6>${e}</h6`);
+        return [];
    }
 
 }
@@ -70,8 +75,9 @@ const obtenerMensualidadesRecargoHoy = async (request,response)=>{
 const ejecutarRecargosMensualidad = async (request,response)=>{
     console.log("@ejecutarRecargosMensualidad");
     try {     
-        procesoRecargosMensualidad();
-       response.status(200).json(true);
+        //procesoRecargosMensualidad();
+        const retorno =  await procesoRecargosMensualidad();
+       response.status(200).json(retorno);
     } catch (e) {
         console.log("Fallo la ejecucion del proceso que realiza recargos " + e);
         handle.callbackErrorNoControlado(e, response);

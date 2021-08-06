@@ -8,6 +8,7 @@ const notificacionService = require('../utils/NotificacionService');
 
 async function ejecutarProcesoRecargoMensualidad() {
 
+    const retorno = [];
     const listaSucursales = await recargoDao.getMensualidadesParaRecargoTodasSucursales(CRITERIO.AGREGAR_RECARGO);
     if (existeValorArray(listaSucursales)){
         for (let index in listaSucursales) {
@@ -22,7 +23,7 @@ async function ejecutarProcesoRecargoMensualidad() {
 
                 if (existeValorArray(cargosAplicarRecargo)) {
                     for (let i in cargosAplicarRecargo) {
-
+                        
                         let cargoMensualidad = cargosAplicarRecargo[i];
                         //let cargoMensualidad = item;
 
@@ -35,7 +36,7 @@ async function ejecutarProcesoRecargoMensualidad() {
                                 cat_cargo: { id: CONSTANTES.CARGOS.ID_RECARGO_MENSUALIDAD },
                                 cantidad: 1,
                                 monto: 0,
-                                nota: `RECARGO AUTOMÁTICO (Mensualidad de ${cargoMensualidad.texto_ayuda}).`.toUpperCase(),
+                                nota: ` Mensualidad de ${cargoMensualidad.texto_ayuda}.`,
                                 genero: CONSTANTES.USUARIO_DEFAULT
                             };
                             console.log("REGISTRAR EL RECARGO ");
@@ -50,6 +51,12 @@ async function ejecutarProcesoRecargoMensualidad() {
                                                         CONSTANTES.USUARIO_DEFAULT
                                                         );                          
                             await notificacionService.notificarCargo(cargoMensualidad.id_alumno, cargoRegistrado.id_cargo);              
+                            
+                            retorno.push({id_sucursal:sucursal.id_sucursal,
+                                            nombre_sucursal:sucursal.nombre_sucursal,
+                                            direccion_sucursal:sucursal.direccion_sucursal,
+                                            cargoRegistrado});
+
                             console.log("Termina proceso de registro idcargo registrado "+id);
                         } else {
                             console.log("No existen mensualidades vencidas ");
@@ -63,6 +70,8 @@ async function ejecutarProcesoRecargoMensualidad() {
     }else{
         console.log(" XX no existen mensualidades para recargos XX ");
     }
+
+    return retorno;
 
 /*
     recargoDao.getMensualidadesParaRecargoTodasSucursales(CRITERIO.AGREGAR_RECARGO)

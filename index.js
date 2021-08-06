@@ -512,19 +512,23 @@ schedule.scheduleJob('0 1 0 1 * *', function () {
 /********* Calcular Recargos de mensualidades *********/
 //schedule.scheduleJob('0 1 0 1 * *', function () {
 //schedule.scheduleJob('0 48 16 * * *', function () {
-schedule.scheduleJob({ hour: 18 , minute: 10, second: 0 }, function () {
+schedule.scheduleJob({ hour: 8 , minute:0, second: 0 }, function () {
 	console.log('Agregar recargos de mensualidad ' + new Date());
 	try {
 		recargoService.procesoRecargosMensualidad();
 	} catch (error) {
 		console.error("[index] Error al ejecutar el proceso de recargos " + error);
-	}
 
+	}
+});
+
+schedule.scheduleJob({ hour: 19 , minute:0, second: 0 }, function () {
+	console.log("TESTING HOUR "+new Date());
 });
 /********* Calcular Recargos de mensualidades *********/
 
 ///Enviar reportes de recargos
-schedule.scheduleJob({ hour: 9, minute: 3, second: 20 }, function () {
+schedule.scheduleJob({ hour: 8, minute: 0, second: 0 }, function () {
 	console.log('Enviando reporte y recordatorios  de recargos de mensualidad ' + new Date());
 	try {
 		//recargoService.ejecutarEnvioRecordatorioPagoMensualidadPadres();
