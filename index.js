@@ -512,7 +512,7 @@ schedule.scheduleJob('0 1 0 1 * *', function () {
 /********* Calcular Recargos de mensualidades *********/
 //schedule.scheduleJob('0 1 0 1 * *', function () {
 //schedule.scheduleJob('0 48 16 * * *', function () {
-schedule.scheduleJob({ hour: 17 , minute:0, second: 0 }, function () {
+schedule.scheduleJob({ hour: 8 , minute:0, second: 0 }, function () {
 	console.log('Agregar recargos de mensualidad ' + new Date());
 	try {
 		recargoService.procesoRecargosMensualidad();
@@ -522,7 +522,7 @@ schedule.scheduleJob({ hour: 17 , minute:0, second: 0 }, function () {
 	}
 });
 
-schedule.scheduleJob({ hour: 18 , minute:40, second: 0 }, function () {
+schedule.scheduleJob({ hour: 8 , minute:0, second: 0 }, function () {
 	console.log("TESTING HOUR "+new Date());
 });
 /********* Calcular Recargos de mensualidades *********/
