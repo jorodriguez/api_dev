@@ -44,11 +44,12 @@ const reporteContabilidad = require('./services/reporteContabilidad');
 const catalogoDescuento = require('./services/cat_descuento');
 const uploadCloudinary = require('./services/uploadCloudinary');
 const reporteAsistenciaUsuario = require('./services/reporte_asistencia_usuario');
+const avisos = require('./services/avisos');
 
 
 const port = process.env.PORT || 5000;
 //version/branch
-const version = "v1.0.33/202107-reporte-asistencia";
+const version = "v1.0.33/202108-aviso";
 
 //es un middleware que serializa los cuerpos de las respuestas 
 //   para poder invocar response.param
@@ -309,6 +310,12 @@ POST('/usuario', usuarioService.crearUsuario);
 PUT('/usuario', usuarioService.modificarUsuario);
 PUT('/usuario/:id_usuario', usuarioService.desactivarUsuario);
 
+
+//AVISOS
+GET('/aviso/:id_usuario', avisos.getAvisosUsuario);
+POST('/aviso', avisos.registrarAviso);
+PUT('/aviso/:id', avisos.modificarAviso);
+DELETE('/aviso',avisos.eliminarAvisos);
 
 //Para movil
 //Login Clientes - Papás
