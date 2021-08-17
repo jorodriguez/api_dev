@@ -1,5 +1,3 @@
-const { CARGOS } = require('../utils/Constantes');
-const { QUERY } = require('../services/sqlHelper');
 const genericDao = require('./genericDao');
 const { ExceptionDatosFaltantes, ExceptionBD } = require('../exception/exeption');
 const { isEmptyOrNull } = require('../utils/Utils');
@@ -69,13 +67,13 @@ const obtenerAvisos = async (idUsuario) => {
     return await genericDao.findAll(`
                 SELECT a.id,
                 e.nombre as empresa, 
-                a.fecha,
+                to_char(a.fecha,'dd-MM-YYYY') as fecha,
                 a.para,
                 a.etiquetas,
                 a.titulo ,
                 a.aviso,		
                 a.nota_interna,
-                a.fecha_genero,
+                to_char(a.fecha_genero,'dd-MM-YYYY') as fecha_genero,
                 u.nombre as usuario_genero		
             FROM CO_AVISO a inner join co_empresa e on e.id = a.co_empresa
                             inner join usuario u on u.id = a.genero
