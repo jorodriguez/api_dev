@@ -4,18 +4,18 @@ dotenv.config();
 
 //Nuevos parametros a la DB
 // produccion
-/*const dbParams = {
-   user: 'abrrmwtzwwecjj',
-    host: 'ec2-54-174-229-152.compute-1.amazonaws.com',
-    database: 'd8q9p1up9bd7b7',
-    password: '5fd81b93106ce7208d5456059519a5f3d5c29870600bfc63d820f1616540f295',
+const dbParams = {
+   user: 'orvjgdhm',
+    host: 'chunee.db.elephantsql.com',
+    database: 'orvjgdhm',
+    password: 'pWTDM9e0GbSBYRVLU8JOussSx6OB3u-8',
     port: 5432,
     ssl: { rejectUnauthorized: false }
 };
-*/
+
 
 //dev
-
+/*
 const dbParams = {
     user: 'steifvljsbjelz',
      host: 'ec2-52-72-125-94.compute-1.amazonaws.com',
@@ -24,7 +24,7 @@ const dbParams = {
      port: 5432,
      ssl: { rejectUnauthorized: false }
  }
- ;
+ ;*/
 
 //db desarrollo
 /*
@@ -57,8 +57,8 @@ const pool = new Pool({
     database: dbParams.database,
     password: dbParams.password,
     port: dbParams.port,
-    /*max: 5,
-    idleTimeoutMillis: 30000,
+    max: 5,
+    /*idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000,*/
     ssl: { rejectUnauthorized: false }
 });
