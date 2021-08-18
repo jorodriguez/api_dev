@@ -7,7 +7,14 @@ const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
 
 //var https = require('https');
-
+/*
+nueva cuenta
+cloudinary.config({ 
+  cloud_name: 'dwttlkcmu', 
+  api_key: '821887327853153', 
+  api_secret: 'Azl0A2gKfrmfGRX0sPgy1WHNJ94' 
+});
+*/ 
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME || 'hjxjcdupm',
     api_key: process.env.CLOUD_API_KEY || '126569266916488',
