@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 
 const { pool } = require('./db/conexion');
+const configEnv = require('./config/configEnv');
 
 const multer = require('multer');
 const fileUpload = multer();
@@ -46,9 +47,9 @@ const uploadCloudinary = require('./services/uploadCloudinary');
 const reporteAsistenciaUsuario = require('./services/reporte_asistencia_usuario');
 
 
-const port = process.env.PORT || 5000;
+const port = configEnv.PORT;
 //version/branch
-const version = "v1.0.33/202107-reporte-asistencia";
+const version = "v1.0.33/202108-hotfix-parametros";
 
 //es un middleware que serializa los cuerpos de las respuestas 
 //   para poder invocar response.param
