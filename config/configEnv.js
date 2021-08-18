@@ -10,5 +10,5 @@ module.exports = {
     PASSWORD_DB:process.env.PASSWORD_DB ||'',
     PORT_DB : process.env.PORT_DB ||5432,
     CONFIG_EMAIL: process.env.CONFIG_EMAIL && JSON.parse(`${process.env.CONFIG_EMAIL}`),
-    ENVIAR_MENSAJES_MOVIL: process.env.ENVIAR_MENSAJES_MOVIL || false
+    MESSAGE_MOVIL_SERVICE_ACTIVE: process.env.MESSAGE_MOVIL_SERVICE_ACTIVE || false
 };

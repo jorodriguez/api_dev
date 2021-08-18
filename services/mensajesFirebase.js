@@ -37,7 +37,7 @@ const enviarMensaje = (titulo, cuerpo) => {
             }
         };
 
-        if (configEnv.ENVIAR_MENSAJES_MOVIL) {
+        if (configEnv.MESSAGE_MOVIL_SERVICE_ACTIVE) {
             firebase.messaging().sendToDevice(firebaseToken, payloadMensaje, options)
                 .then((response) => {
                     console.log(" result" + JSON.stringify(response));
@@ -98,7 +98,7 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
 
         var retorno = {};
 
-        if (configEnv.ENVIAR_MENSAJES_MOVIL) {
+        if (configEnv.MESSAGE_MOVIL_SERVICE_ACTIVE) {
             
            let new_tokens = quitarElementosVaciosArray(token);
 
@@ -119,9 +119,9 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
 };
 
 const sendMessage = (request, response) => {
-    console.log("@Enviando mensaje configEnv.ENVIAR_MENSAJES_MOVIL " + configEnv.ENVIAR_MENSAJES_MOVIL);
+    console.log("@Enviando mensaje configEnv.ENVIAR_MENSAJES_MOVIL " + configEnv.MESSAGE_MOVIL_SERVICE_ACTIVE);
     try {
-        if (configEnv.ENVIAR_MENSAJES_MOVIL) {
+        if (configEnv.MESSAGE_MOVIL_SERVICE_ACTIVE) {
             firebase.messaging().sendToDevice(firebaseToken, payload, options)
                 .then((response) => {
                     console.log(" result" + JSON.stringify(response));
