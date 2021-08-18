@@ -4,12 +4,12 @@ const mustache = require('mustache');
 var fs = require('fs');
 var path = require('path');
 const { variables } = require('../config/ambiente');
+//const configEnv = require('../config/configEnv');
 const { QUERY, getQueryInstance } = require('../services/sqlHelper');
 const { ID_EMPRESA_MAGIC } = require('./Constantes');
 const correoTemaService = require('../domain/temaNotificacionService');
 const {existeValorArray} = require('./Utils');
 const transporter = nodemailer.createTransport(variables.configMail);
-
 
 const TEMPLATES = {
     TEMPLATE_GENERICO: "generico.html",
@@ -153,6 +153,7 @@ function enviarCorreo(para, conCopia, asunto, renderHtml) {
     if (renderHtml != null) {     
 
         const mailData = {
+            //from: configEnv.CONFIG_EMAIL.mailOptions.from,
             from: variables.mailOptions.from,
             to: para,
             cc: conCopia,
@@ -165,7 +166,9 @@ function enviarCorreo(para, conCopia, asunto, renderHtml) {
         console.log("Correo para " + para);
         console.log("Correo cc " + JSON.stringify(conCopia));
         console.log("Asunto " + asunto);
-        console.log(`Ambiente ${variables.env}`);
+        console.log(`Ambiente ${variables.CONFIG_EMAIL}`);
+        
+        //const transporter = nodemailer.createTransport(variables.configMail);
 
         transporter.sendMail(mailData, function (error, info) {
             if (error) {
