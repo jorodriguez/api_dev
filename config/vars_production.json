@@ -1,5 +1,4 @@
-{
-    "env":"PRODUCTION",
+{    
     "configMail": {
         "host": "magicintelligence.com",
         "port": 465,

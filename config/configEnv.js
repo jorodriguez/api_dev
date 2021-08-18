@@ -9,4 +9,6 @@ module.exports = {
     DATABASE_NAME:process.env.DATABASE_NAME || '',
     PASSWORD_DB:process.env.PASSWORD_DB ||'',
     PORT_DB : process.env.PORT_DB ||5432,
+    CONFIG_EMAIL: process.env.CONFIG_EMAIL && JSON.parse(`${process.env.CONFIG_EMAIL}`),
+    ENVIAR_MENSAJES_MOVIL: process.env.ENVIAR_MENSAJES_MOVIL || false
 };

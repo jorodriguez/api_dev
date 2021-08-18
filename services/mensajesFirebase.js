@@ -2,7 +2,8 @@
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const firebase = require("firebase-admin");
-const { configuracion } = require('../config/ambiente');
+//const { configuracion } = require('../config/ambiente');
+const configEnv = require('../config/configEnv');
 const { quitarElementosVaciosArray } = require('../utils/Utils');
 
 const serviceAccount = require('./../config/google_service_messages.json');
@@ -36,7 +37,7 @@ const enviarMensaje = (titulo, cuerpo) => {
             }
         };
 
-        if (configuracion.enviar_mensajes) {
+        if (configEnv.ENVIAR_MENSAJES_MOVIL) {
             firebase.messaging().sendToDevice(firebaseToken, payloadMensaje, options)
                 .then((response) => {
                     console.log(" result" + JSON.stringify(response));
@@ -97,7 +98,7 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
 
         var retorno = {};
 
-        if (configuracion.enviar_mensajes) {
+        if (configEnv.ENVIAR_MENSAJES_MOVIL) {
             
            let new_tokens = quitarElementosVaciosArray(token);
 
@@ -118,9 +119,9 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
 };
 
 const sendMessage = (request, response) => {
-    console.log("@Enviando mensaje " + JSON.stringify(configuracion));
+    console.log("@Enviando mensaje configEnv.ENVIAR_MENSAJES_MOVIL " + configEnv.ENVIAR_MENSAJES_MOVIL);
     try {
-        if (configuracion.enviar_mensajes) {
+        if (configEnv.ENVIAR_MENSAJES_MOVIL) {
             firebase.messaging().sendToDevice(firebaseToken, payload, options)
                 .then((response) => {
                     console.log(" result" + JSON.stringify(response));
@@ -130,7 +131,7 @@ const sendMessage = (request, response) => {
                     handle.callbackError(e, response);
                 });
         } else {
-            console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG " + JSON.stringify(configuracion));
+            console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG ");
         }
     } catch (e) {
         console.log("error al enviar mensaje " + e);
