@@ -393,7 +393,7 @@ app.get('/', (request, response) => {
 	console.log(configEnv.ENV);
 	console.log("=====================");
 	console.log(JSON.stringify(pool));
-	response.json({ info: `MagicIntelligence ${version} (env:${configEnv.ENV})` });
+	response.json({ info: `MagicIntelligence ${version} (env:${configEnv})` });
 });
 
 app.listen(port, () => {
