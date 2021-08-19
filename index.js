@@ -391,9 +391,10 @@ app.post('/foto_perfil', fileUpload.single('image'), (req,res)=>{
 
 app.get('/', (request, response) => {
 	console.log(configEnv.ENV);
-	console.log("=====================");
+	console.log("=====================");	
 	console.log(JSON.stringify(pool));
-	console.log("EMAIL CONFIG"+JSON.stringify(configEnv.CONFIG_EMAIL));
+	console.log("ENV"+JSON.stringify(configEnv));
+	console.log("EMAIL CONFIG"+JSON.stringify(configEnv.EMAIL_CONFIG));
 	response.json({ info: `MagicIntelligence ${version} (env:${configEnv.ENV})` });
 });
 
