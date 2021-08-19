@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "prestart": "next build",
     "start": "node index.js",
     "local": "heroku local -e .env.local",
     "lint": "eslint .",
