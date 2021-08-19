@@ -1,8 +1,7 @@
 const dotenv = require('dotenv').config();
 
 module.exports = {
-    ENV: process.env.ENV || 'local_development',
-    HOST: process.env.HOST || '127.0.0.1',
+    ENV: process.env.ENV || 'local_development',    
     PORT: process.env.PORT || 5000,
     USER_DB: process.env.USER_DB || '',
     HOST_DB: process.env.HOST_DB || '',

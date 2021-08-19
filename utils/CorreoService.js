@@ -172,6 +172,7 @@ function enviarCorreo(para, conCopia, asunto, renderHtml) {
             console.log("Correo cc " + JSON.stringify(conCopia));
             console.log("Asunto " + asunto);
             console.log(`Ambiente ${configEnv.ENV}`);
+            console.log(`Ambiente ${configMail}`);
 
             const transporter = nodemailer.createTransport(configMail);
             //const transporter = nodemailer.createTransport(variables.configMail);
