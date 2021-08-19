@@ -156,7 +156,7 @@ function enviarCorreo(para, conCopia, asunto, renderHtml) {
         if (renderHtml != null) {
 
             const mailOptions = configEnv.EMAIL_CONFIG ? configEnv.EMAIL_CONFIG.mailOptions : {};
-            const configMail = mailOptions ? mailOptions.configMail : {};
+            const configMail = configEnv.EMAIL_CONFIG ? configEnv.EMAIL_CONFIG.configMail : {};
 
             const mailData = {
                 from: mailOptions.from || '',

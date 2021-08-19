@@ -2,7 +2,8 @@
 const { pool } = require('../db/conexion');
 const mensajeria = require('../services/mensajesFirebase');
 const { CARGOS, TEMA_NOTIFICACION } = require('../utils/Constantes');
-const { variables } = require('../config/ambiente');
+//const { variables } = require('../config/ambiente');
+const configEnv = require('../config/configEnv');
 const correoService = require('./CorreoService');
 const { TEMPLATES } = require('./CorreoService');
 const alumnoService = require('../domain/alumnoService');
@@ -235,7 +236,7 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                     pago: pago,
                     alumno: alumno,
                     sucursal: sucursal,
-                    mensaje_pie: variables.template_mail.mensaje_pie
+                    mensaje_pie: (configEnv.EMAIL_CONFIG && configEnv.EMAIL_CONFIG.template_mail) ? configEnv.EMAIL_CONFIG.template_mail.mensaje_pie : ""  //variables.template_mail.mensaje_pie
                 };
 
                 enviarCorreoReciboPago(
