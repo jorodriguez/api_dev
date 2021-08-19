@@ -22,7 +22,6 @@ const cargos = require('./services/cargos');
 const mensajeria = require('./services/mensajesFirebase');
 //const tareas_programadas = require('./services/tareas_programadas');
 const schedule = require('node-schedule');
-const { configuracion } = require('./config/ambiente');
 const reporteDeudas = require('./services/reporteDeudas');
 const reporte_mensualidades = require('./services/reporte_mensualidades');
 const utilerias = require('./services/utilerias');
