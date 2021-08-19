@@ -1,6 +1,6 @@
 const uploadService = require('../domain/uploadService');
-const handle = require('../helpers/handlersErrors');
-const CONSTANTES = require('../utils/Constantes');
+//const handle = require('../helpers/handlersErrors');
+//const CONSTANTES = require('../utils/Constantes');
 /*
 const req = require("request");
 const fs = require("fs");
