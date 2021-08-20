@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 
 const { pool } = require('./db/conexion');
+const configEnv = require('./config/configEnv');
 
 const multer = require('multer');
 const fileUpload = multer();
@@ -21,7 +22,6 @@ const cargos = require('./services/cargos');
 const mensajeria = require('./services/mensajesFirebase');
 //const tareas_programadas = require('./services/tareas_programadas');
 const schedule = require('node-schedule');
-const { configuracion } = require('./config/ambiente');
 const reporteDeudas = require('./services/reporteDeudas');
 const reporte_mensualidades = require('./services/reporte_mensualidades');
 const utilerias = require('./services/utilerias');
@@ -47,7 +47,7 @@ const reporteAsistenciaUsuario = require('./services/reporte_asistencia_usuario'
 const avisos = require('./services/avisos');
 
 
-const port = process.env.PORT || 5000;
+const port = configEnv.PORT;
 //version/branch
 const version = "v1.0.33/202108-aviso";
 
@@ -361,8 +361,8 @@ app.get('/enviar_correo', ()=>{
 	//enviar correo prueba
 	console.log("Enviando correo de prueba...");
 	correo_service.enviarCorreo('joel.rod.roj@hotmail.com','',"test",'<h1>TES</h1>');
-});*/
-
+});
+*/
 //sucursales y cambios
 GET('/sucursal', sucursales.getSucursales);
 PUT('/cambio_sucursal/:id_alumno', alumnoSucursal.cambiarSucursalAlumno);
@@ -396,34 +396,16 @@ app.post('/foto_perfil', fileUpload.single('image'), (req,res)=>{
 
 
 app.get('/', (request, response) => {
-	console.log(process.env);
-	console.log("=====================");
+	console.log(configEnv.ENV);
+	console.log("=====================");	
 	console.log(JSON.stringify(pool));
-
-/*	try {
-		pool.query(`SELECT * from usuario where eliminado = false`,
-			[],
-			(error, results) => {
-				if (error) {
-					console.log(error);
-					response.status(400).json("error "+error);	
-					return;
-				}
-				console.log(" ==> " + results.rows);
-				response.status(200).json(results.rows);
-			});
-
-	} catch (e) {
-		console.log("Error " + e);
-		response.json({ info: `MagicIntelligence ${version} (env:${process.env.ENV})` })
-	}
-*/
-	response.json({ info: `MagicIntelligence ${version} (env:${process.env.ENV})` });
-
+	console.log("ENV"+JSON.stringify(configEnv));
+	console.log("EMAIL CONFIG"+JSON.stringify(configEnv.EMAIL_CONFIG));
+	response.json({ info: `MagicIntelligence ${version} (env:${configEnv.ENV})` });
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} ${version} (env:${process.env.ENV})`);
+	console.log(`App corriendo en el puerto ${port} ${version} (env:${configEnv.ENV})`);
 });
 
 //GET('/encriptar/:clave', authController.encriptar);
@@ -431,59 +413,6 @@ app.listen(port, () => {
 
 //--- TAREAS PROGRAMADAS ------
 //https://www.npmjs.com/package/node-cron
-
-/*schedule.scheduleJob('1 * * * * *', function(){
-	console.log('Corriendo el proceso automatico (o__=)');
-});*/
-
-//--Calcular horas extras . proceso que corre cada 30 min
-
-schedule.scheduleJob('0 */10 12-24 * * 1-5', function () {
-	//schedule.scheduleJob('0 */2 * * * 1-5', function () {
-	console.log("========== MANTENIENDO VIVA LA APP ==================");
-	try {
-		if (configuracion.env != 'DEV') {
-
-			https.get('https://api-ambiente-produccion.herokuapp.com', (response) => {
-				// called when a data chunk is received.
-				response.on('data', (chunk) => {
-					console.log("Todo bien al accesar al API " + chunk);
-				});
-				response.on('end', () => {
-					console.log("fin de la llamada  a la API");
-				});
-			}).on("error", (error) => {
-				console.log("Error al acceesar al API: " + error.message);
-			});
-
-			https.get('https://aplicacion-ambiente-produccion.herokuapp.com', (response) => {
-				// called when a data chunk is received.
-				response.on('data', (chunk) => {
-					console.log("Llamada a la APPLICATION OK " + chunk);
-				});
-				response.on('end', () => {
-					console.log("Fin de llamada APPLICATION");
-				});
-			}).on("error", (error) => {
-				console.log("Error en llamada a la APPLICATION: " + error.message);
-			});
-		}
-
-	} catch (e) {
-		console.log("Excepcion al hacer ping" + e);
-	}
-});
-
-//schedule.scheduleJob('0 */31 * * * 1-5', function () {
-//schedule.scheduleJob('0 */31 * * * 1-5', function () {
-//console.log('CALCULANDO CARGOS DE HORAS EXTRAS DE ALUMNOS ' + new Date());
-//try {
-//	//tareas_programadas.ejecutarProcesoHorasExtrasAuto(); desabilitado
-//} catch (e) {
-//		console.log("Error al ejecutar el proceso de calculo de horas extras " + e);
-//	}
-//});
-
 
 //schedule.scheduleJob('0 */33 * * * 1-5', function () {
 schedule.scheduleJob('0 */33 * * * 1-5', function () {

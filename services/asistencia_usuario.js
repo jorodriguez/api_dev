@@ -14,6 +14,7 @@ const SQL_USUARIO_POR_SALIR =
 	    tipo.nombre as tipo_usuario,
 	    tipo.prefijo,
 	    u.id as id_usuario,
+        u.alias,
 	    u.nombre,
 	    u.correo,	
 	    suc.nombre as nombre_sucursal,	
@@ -41,6 +42,7 @@ const SQL_USUARIOS_POR_ENTRAR =
         tipo.nombre as tipo_usuario,
         tipo.prefijo,
         u.id,
+        u.alias,
         u.nombre,
         u.correo,
         u.password,
@@ -229,7 +231,7 @@ const getListaFaltasUsuariosSucursalRangoFecha = (request, response) => {
                                         and eliminado = false)
                   and to_char(g::date,'d')::int not in (1,7)
         ) select 
-            u.id,
+            u.id,            
             u.nombre as usuario,
             u.hora_entrada::text,
             u.hora_salida::text,
