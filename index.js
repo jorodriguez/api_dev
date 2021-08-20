@@ -35,7 +35,6 @@ const alumnoSucursal = require('./services/alumno_sucursal');
 const usuarioService = require('./services/usuario');
 const catagolos = require('./services/catalogos');
 const conf = require('./services/configuracion');
-const https = require("https");
 const { validarTokenCompleto } = require('./helpers/helperToken');
 const asistenciaUsuario = require('./services/asistencia_usuario');
 const recargoService = require('./services/recargos');
@@ -171,7 +170,7 @@ GET('/asistencia/alumnos_por_recibidos/:id_sucursal', asistencia.getAlumnosPorRe
 POST('/asistencia/entradaAlumnos', asistencia.registrarEntradaAlumnos);
 POST('/asistencia/salidaAlumnos', asistencia.registrarSalidaAlumnos);
 GET('/asistencia/salidaAlumnos/alumno_tiempo_extra/:lista_id_asistencias', asistencia.getListaAsistenciaAlumnoPorSalirConHorasExtras);
-// Reporte de asistencias
+// Reporte de asistencias||
 GET('/asistencia/reporte/:id_sucursal/:fecha', asistencia.getListaAsistenciaPorSucursalFecha);
 GET('/asistencia/reporte_por_alumno/:id_alumno', asistencia.getListaAsistenciaPorAlumno);
 GET('/asistencia/reporte_mes_alumno/:id_alumno', asistencia.getListaMesAsistenciaPorAlumno);
@@ -313,6 +312,7 @@ PUT('/usuario/:id_usuario', usuarioService.desactivarUsuario);
 
 //AVISOS
 GET('/aviso/:id_usuario', avisos.getAvisosUsuario);
+GET('/aviso/contactos/:idsSucursales', avisos.getContactos);
 POST('/aviso', avisos.registrarAviso);
 PUT('/aviso/:id', avisos.modificarAviso);
 DELETE('/aviso',avisos.eliminarAvisos);

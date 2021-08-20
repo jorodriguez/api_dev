@@ -39,6 +39,13 @@ const getAvisosUsuario = async(idUsuario) => {
     return await avisoDao.obtenerAvisos(idUsuario);
 };
 
+
+const getContactos = async(idsSucursales) => {
+    console.log("@getContactos");
+    return await avisoDao.obtenerContactos(idsSucursales);
+};
+
+
 const eliminarAvisos = async (avisosData) => {
     console.log("@eliminarAvisos");
     return await avisoDao.eliminarAvisos(avisosData);
@@ -56,6 +63,7 @@ module.exports = {
    modificarAviso,
    eliminarAvisos,
    enviarAviso,
-   getAvisosUsuario
+   getAvisosUsuario,
+   getContactos
 
 };

@@ -23,12 +23,28 @@ const registrarAviso = async (request, response) => {
 
 const getAvisosUsuario = async (request, response) =>{
     console.log("@getAvisosUsuarios");
-    try{
-    
-    const id = request.params.id_usuario;
-    return await avisoService.getAvisosUsuario(id);   
+    try{    
+     const id = request.params.id_usuario;
+     const avisos = await avisoService.getAvisosUsuario(id);   
+     response.status(200).json(avisos);
     }catch(e){
         console.log("Error "+e);
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+const getContactos = async (request, response) =>{
+    console.log("@getContactos");
+    try{    
+     const { idsSucursales = [] } = request.params;
+
+     console.log("SUCURSALES "+idsSucursales);
+    
+     const contactos = await avisoService.getContactos(JSON.parse(idsSucursales));
+     response.status(200).json(contactos);
+    }catch(e){
+        console.log("Error "+e);
+        handle.callbackErrorNoControlado(e, response);
     }
 };
 
@@ -80,5 +96,6 @@ module.exports = {
    registrarAviso,
    modificarAviso,
    getAvisosUsuario,
-   eliminarAvisos
+   eliminarAvisos,
+   getContactos
 };

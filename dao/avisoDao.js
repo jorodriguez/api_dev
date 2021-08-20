@@ -85,11 +85,67 @@ const obtenerAvisos = async (idUsuario) => {
 
 };
 
+const obtenerContactos = async (idsSucursales) => {
+    console.log("@obtenerContactos");
+
+   /* var ids = '';
+    var first = true;
+
+    idsSucursales.forEach(element => {
+        if (first) {
+            ids += (element + "");
+            first = false;
+        } else {
+            ids += (',' + element);
+        }
+    });
+    console.log("UDS "+ids);*/
+
+    return await genericDao.findAll(`               
+select af.id as id_alumno_familiar,
+fam.correo,
+fam.nombre as nombre_familiar,
+p.nombre as parentesco,
+a.nombre_carino,
+a.nombre as nombre_alumno,
+a.apellidos as apellidos_alumno,
+a.costo_inscripcion,
+a.costo_colegiatura,
+a.foto,
+to_char(a.fecha_nacimiento,'dd-MM-YYYY') as fecha_nacimiento,
+to_char(a.hora_entrada,'hh:MM') as hora_entrada,
+to_char(a.hora_salida,'hh:MM') as hora_salida,	   
+balance.total_adeudo,
+grupo.id as id_grupo,
+grupo.nombre as nombre_grupo,
+suc.id as id_sucursal,
+suc.nombre as sucursal,
+genero.id as id_genero, 
+genero.nombre as genero	   
+from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
+                     inner join co_alumno a on a.id = af.co_alumno
+                     inner join co_sucursal suc on suc.id = a.co_sucursal
+                     inner join co_grupo grupo on grupo.id = a.co_grupo
+                     inner join cat_genero genero on genero.id = a.cat_genero
+                     inner join co_balance_alumno balance on balance.id = a.co_balance_alumno
+                     inner join co_parentesco p on p.id = af.co_parentesco
+where suc.id = ANY($1::int[])
+and af.eliminado = false
+and a.eliminado = false
+and fam.eliminado = false	  
+order by a.id,a.nombre	  
+
+            `,
+        [idsSucursales]);
+
+};
+
 
 module.exports = {
         obtenerAvisos,
         registrarAviso,
         enviarAviso,
         eliminarAvisos,
-        modificarAviso
+        modificarAviso,
+        obtenerContactos
 };
