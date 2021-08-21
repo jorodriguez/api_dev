@@ -121,7 +121,8 @@ grupo.nombre as nombre_grupo,
 suc.id as id_sucursal,
 suc.nombre as sucursal,
 genero.id as id_genero, 
-genero.nombre as genero	   
+genero.nombre as genero,
+false as seleccionado
 from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
                      inner join co_alumno a on a.id = af.co_alumno
                      inner join co_sucursal suc on suc.id = a.co_sucursal
