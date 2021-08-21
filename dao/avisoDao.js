@@ -14,11 +14,11 @@ const enviarAviso = async (avisoData) => {
 
 const registrarAviso = async (avisoData) => {
     console.log("@registrarAviso");
-    const { fecha, para, titulo, aviso, etiqueta, nota_interna, genero } = avisoData;
+    const { fecha, para, titulo, aviso,id_empresa, etiqueta, nota_interna, genero } = avisoData;
     return await genericDao.execute(`
                         INSERT INTO CO_AVISO(FECHA,CO_EMPRESA,PARA,TITULO,AVISO,ETIQUETAS,NOTA_INTERNA,GENERO)
-                        VALUES(current_date,$1,$2,$3,$4,$5,$6) returning ID;
-                        `, [para, titulo, aviso, etiqueta, nota_interna, genero]);
+                        VALUES(current_date,$1,$2,$3,$4,$5,$6,$7) returning ID;
+                        `, [id_empresa,para, titulo, aviso, etiqueta || '', nota_interna, genero]);
 };
 
 const modificarAviso = async (avisoData) => {
@@ -118,8 +118,10 @@ to_char(a.hora_salida,'hh:MM') as hora_salida,
 balance.total_adeudo,
 grupo.id as id_grupo,
 grupo.nombre as nombre_grupo,
+grupo.color as color_grupo,
 suc.id as id_sucursal,
 suc.nombre as sucursal,
+suc.class_color as color_sucursal,
 genero.id as id_genero, 
 genero.nombre as genero,
 false as seleccionado
@@ -134,7 +136,7 @@ where suc.id = ANY($1::int[])
 and af.eliminado = false
 and a.eliminado = false
 and fam.eliminado = false	  
-order by a.id,a.nombre	  
+order by suc.id,fam.nombre,grupo.nombre
 
             `,
         [idsSucursales]);
