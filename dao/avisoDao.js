@@ -124,7 +124,8 @@ suc.nombre as sucursal,
 suc.class_color as color_sucursal,
 genero.id as id_genero, 
 genero.nombre as genero,
-false as seleccionado
+false as seleccionado,
+true as visible
 from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
                      inner join co_alumno a on a.id = af.co_alumno
                      inner join co_sucursal suc on suc.id = a.co_sucursal
