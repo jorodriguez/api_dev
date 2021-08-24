@@ -3,16 +3,14 @@ const nodemailer = require('nodemailer');
 const mustache = require('mustache');
 var fs = require('fs');
 var path = require('path');
-//const { variables } = require('../config/ambiente');
 const configEnv = require('../config/configEnv');
 const { QUERY, getQueryInstance } = require('../services/sqlHelper');
 const { ID_EMPRESA_MAGIC } = require('./Constantes');
 const correoTemaService = require('../domain/temaNotificacionService');
 const { existeValorArray } = require('./Utils');
-//const transporter = nodemailer.createTransport(variables.configMail);
-//const transporter = nodemailer.createTransport(configEnv.CONFIG_EMAIL.configMail);
 
 const TEMPLATES = {
+    TEMPLATE_AVISO: "aviso.html",
     TEMPLATE_GENERICO: "generico.html",
     TEMPLATE_RECIBO_PAGO: "recibo_pago.html",
     TEMPLATE_AVISO_CARGO: "aviso_cargo.html",
@@ -84,18 +82,37 @@ function enviarCorreoParaTemaNotificacion(asunto, idSucursalTemaCopia, idTemaNot
 }
 
 
-function enviarCorreoTemplate(para, cc, asunto, params, template) {
+function enviarCorreoTemplate(para, cc, asunto, params, template,handler) {
     console.log("@enviarCorreoTemplate");
 
     loadTemplate(template, params)
         .then((renderHtml) => {
 
-            enviarCorreo(para, cc, asunto, renderHtml);
+            enviarCorreo(para, cc, asunto, renderHtml,handler);
 
         }).catch(e => {
             console.log("Excepción en el envio de correo : " + e);
         });
 }
+
+const enviarCorreoTemplateAsync = async (para, cc, asunto, params, template) => {
+    console.log("@enviarCorreoTemplateAsync");
+
+   const renderHtml = await loadTemplate(template,params);
+
+   return new Promise((resolve,reject)=>{
+      enviarCorreo(para, cc, asunto, renderHtml,(error,info)=>{
+            if(error){
+                    reject({enviado:false,mensaje:error});
+            }else{
+                    resolve({enviado:true,mensaje:info});
+            }
+      });    
+    });
+
+
+
+};
 
 const getHtmlPreviewTemplate = (templateName, params) => {
     return loadTemplate(templateName, params);
@@ -118,7 +135,7 @@ function loadTemplate(templateName, params) {
                             params.nombre_empresa = row.nombre_empresa;
                             let htmlTemp = '';
                             htmlTemp = htmlTemp.concat(row.encabezado, (data || ''), row.pie);
-                            console.log("html final");
+                            //console.log("html final");
                             html = mustache.to_html(htmlTemp, params);
                             resolve(html);
                         });
@@ -141,7 +158,8 @@ function obtenerCorreosCopiaPorTema(co_sucursal, id_tema) {
     return correoTemaService.obtenerCorreosPorTema(co_sucursal, id_tema);
 }
 
-function enviarCorreo(para, conCopia, asunto, renderHtml) {
+//Esta configuracion se cambiara, se usara el API dedicado
+function enviarCorreo(para, conCopia, asunto, renderHtml,handler) {
     console.log("Para " + para);
     console.log("CCC " + conCopia);
     try {
@@ -178,14 +196,16 @@ function enviarCorreo(para, conCopia, asunto, renderHtml) {
             const transporter = nodemailer.createTransport(configMail);
             //const transporter = nodemailer.createTransport(variables.configMail);
 
-            transporter.sendMail(mailData, function (error, info) {
+            const handlerMail =  handler ? handler : (error, info) => {
                 if (error) {
                     console.log("Error al enviar correo : " + error);
                 } else {
                     console.log('CORREO ENVIADO ======>>>: ' + info.response);
                 }
-            });
+            };
 
+            transporter.sendMail(mailData, handlerMail);
+            
             transporter.close();
         } else {
             console.log("No se envio el correo, no existe HTML");
@@ -195,6 +215,83 @@ function enviarCorreo(para, conCopia, asunto, renderHtml) {
     }
 }
 
+/*
+const enviarCorreoAsync = async (para, conCopia, asunto, renderHtml) =>{
+    console.log("Para " + para);
+    console.log("CCC " + conCopia);
+    try {
+        
+           recipientesCorrectos(para,conCopia,renderHtml);
+
+           const config = getMailConfig();
+        
+           const mailData = getMailData(para,conCopia,asunto,renderHtml);          
+
+           const transporter = nodemailer.createTransport(config);            
+          
+           const respuestaEnvio = await transporter.sendMail(mailData);
+            
+           transporter.close();        
+
+           return respuestaEnvio;
+    } catch (e) {
+        console.log("ERROR AL ENVIAR EL CORREO " + e);
+    }
+};
+
+const recipientesCorrectos = (para,cc,html)=>{
+
+    if (para == undefined || para == '' || para == null) {
+        console.log("############ NO EXISTEN CORREOS EN NINGUN CONTENEDOR (para,cc)######");
+        throw 'NO EXISTEN CORREOS EN EN NINGUN CONTENEDOR';        
+    }
+
+    if (cc == undefined || cc == '' || cc == null) {
+        cc = "";
+    }
+    
+    if (html == null) {
+         throw 'NO EXISTEN EL HTML';        
+    }    
+
+    return true;
+};
+
+const getMailData =(para,cc,asunto,html)=>{
+    
+    const mailOptions = configEnv.EMAIL_CONFIG ? configEnv.EMAIL_CONFIG.mailOptions : {};    
+    cc = cc ? cc : "";      
+    
+    const mailData = {
+        from: mailOptions.from || '',    
+        to: para,
+        cc: cc,
+        subject: asunto,
+        html: html
+    }; 
+
+    console.log(`Sender FROM ${mailOptions.from || 'NOT-FROM'}`);
+    console.log("Correo para " + para);
+    console.log("Correo cc " + JSON.stringify(cc));    
+        
+    return mailData;
+};
+
+const getMailConfig = ()=>{
+    
+    try{
+        const congigMail =  configEnv.EMAIL_CONFIG ? configEnv.EMAIL_CONFIG.configMail : {};
+    
+        console.log(`Ambiente ${configEnv.ENV}`);    
+        console.log(`EMAIL_CONFIG ${JSON.stringify(congigMail)}`);
+
+        return configMail;
+    }catch(e){
+        console.log("Error al leer la configuracion del email");
+        return {};
+    }
+};*/
+
 module.exports = {
     TEMPLATES,
     enviarCorreoConCopiaTemaNotificacion,
@@ -202,5 +299,6 @@ module.exports = {
     enviarCorreo,
     enviarCorreoTemplate,
     enviarCorreoFamiliaresAlumno,
-    getHtmlPreviewTemplate
+    getHtmlPreviewTemplate,
+    enviarCorreoTemplateAsync
 };

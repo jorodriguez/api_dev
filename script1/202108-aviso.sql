@@ -20,6 +20,7 @@ CREATE TABLE co_aviso
 
 alter table co_aviso add column enviado boolean default false;
 alter table co_aviso add column fecha_envio timestamp;
+alter table co_aviso add column informacion_envio text;
 
 
 

@@ -10,10 +10,7 @@ const registrarAviso = async (request, response) => {
     try {
         const params = { fecha, para,id_empresa, titulo, aviso, etiqueta, nota_interna, genero} = request.body;
         
-        const respuesta = await avisoService.registrarAviso(params);
-        if(respuesta && respuesta.resultado){
-            notificacionService.env
-        } 
+        const respuesta = await avisoService.registrarAviso(params);         
         response.status(200).json(respuesta);        
     } catch (e) {
         console.log("error al registrar el aviso "+e);
@@ -28,6 +25,18 @@ const getAvisosUsuario = async (request, response) =>{
      const id = request.params.id_usuario;
      const avisos = await avisoService.getAvisosUsuario(id);   
      response.status(200).json(avisos);
+    }catch(e){
+        console.log("Error "+e);
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+const getAvisoId = async (request, response) =>{
+    console.log("@getAvisoId");
+    try{    
+     const id = request.params.id_aviso;
+     const aviso = await avisoService.getAvisoId(id);   
+     response.status(200).json(aviso);
     }catch(e){
         console.log("Error "+e);
         handle.callbackErrorNoControlado(e, response);
@@ -67,12 +76,13 @@ const modificarAviso = async (request, response) => {
     try {
         const avisoData = { para,titulo,aviso,etiqueta,nota_interna, genero } = request.body;
         const id = request.params.id;
-        const modificacion = await avisoService.modificarAviso({id,...avisoData})
+        const modificacion = await avisoService.modificarAviso({id,...avisoData});
         response.status(200).json(!!modificacion);
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
 };
+
 /*
 const obtenerHtmlPreviewEstadoCuenta = async (request, response) => {
     console.log("@obtenerHtmlPreviewEstadoCuenta");    

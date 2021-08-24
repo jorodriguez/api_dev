@@ -77,6 +77,8 @@ BEGIN
 		) LOOP 
 			raise notice '% -> % registros',_loop.tabla,_loop.total_tuplas;								
 		END LOOP; 	
+
+		update usuario set correo = 'joel.rod.roj@hotmail.com' where correo = 'tere@magicintelligence.com';
 		
 	
 	    SELECT sum(n_live_tup) FROM pg_stat_user_tables INTO countTotalTuplas;
