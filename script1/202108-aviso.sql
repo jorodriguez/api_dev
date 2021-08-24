@@ -18,6 +18,9 @@ CREATE TABLE co_aviso
 	eliminado boolean NOT NULL DEFAULT false    
 );
 
+alter table co_aviso add column enviado boolean default false;
+alter table co_aviso add column fecha_envio timestamp;
+
 
 
            insert into si_rol(si_modulo,nombre,genero)

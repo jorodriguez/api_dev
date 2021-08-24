@@ -21,19 +21,7 @@ async function notificarCargo(id_alumno, id_cargos) {
         }
     } catch (error) {
         console.error(error);
-    }
-    /*
-    alumnoService
-        .getCorreosTokenAlumno(id_alumno)
-        .then(results => {
-            let row = results;
-            if (row != null) {
-                completarNotificacionCargo(row.correos, row.tokens, row.nombres_padres, row.nombre_alumno, id_cargos, row.co_sucursal);
-            } else {
-                console.log("No se encontraron registros de padres para el alumno " + id_alumno);
-            }
-        }).catch(error => console.error(error));
-        */
+    }   
 }
 
 function completarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, nombre_alumno, id_cargo, id_sucursal) {
@@ -356,6 +344,24 @@ const enviarEstadoCuenta = async (idAlumno) => {
         );
     }
 };
+
+const enviarAviso = async (idAviso) => {
+    
+    //buscar el correo de los usuarios y obtener el correo y token
+   if (!estadoCuenta) {
+        console.log("No hay estado de cuenta");
+    } else {
+        correoService.enviarCorreoTemplate(
+            `Estado de cuenta de ${estadoCuenta.alumno.nombre_alumno}`,
+            estadoCuenta.padres.correos || '',
+            estadoCuenta.alumno.co_sucursal,
+            TEMA_NOTIFICACION.ID_TEMA_NOTIFICACION_PAGOS,
+            estadoCuenta,
+            TEMPLATES.TEMPLATE_ESTADO_CUENTA
+        );
+    }
+};
+
 
 module.exports = {
     notificarReciboPago,

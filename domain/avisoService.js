@@ -1,10 +1,10 @@
 const avisoDao = require('../dao/avisoDao');
-//const { getHtmlPreviewTemplate,TEMPLATES } = require('../utils/CorreoService');
+const { getHtmlPreviewTemplate,TEMPLATES,enviarCorreoTemplate } = require('../utils/CorreoService');
 
 const registrarAviso = async (avisoData) => {
     console.log("@registrarAviso");
     try{
-            return await avisoDao.registrarAviso(avisoData);          
+          return await avisoDao.registrarAviso(avisoData);          
     }catch(error){
         console.log(" X X X X X "+error);
         return error;
@@ -26,7 +26,11 @@ const modificarAviso = async (avisoData) => {
 const enviarAviso = async (avisoData) => {
     console.log("@enviarAviso");
     try{
-            return await avisoDao.enviarAviso(avisoData);
+            const {para,titulo,aviso,etiqueta,nota_interna, genero } = avisoData;
+
+           // enviarCorreoTemplate(para,'',titulo,)
+
+            await avisoDao.registrarEnvio(avisoData);
     }catch(error){
         console.log(" X X X X X "+error);
         return error;
@@ -56,6 +60,8 @@ const obtenerPreviewAviso = async (idAlumno)=>{
     const params = await obtenerEstadoCuentaAlumno(idAlumno);
     return await getHtmlPreviewTemplate(TEMPLATES.TEMPLATE_ESTADO_CUENTA,params);
 };*/
+
+
 
 
 module.exports = {   

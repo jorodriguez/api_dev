@@ -2,7 +2,7 @@
 const avisoService = require('../domain/avisoService');
 const handle = require('../helpers/handlersErrors');
 //const { enviarEstadoCuenta } = require('../utils/NotificacionService');
-//const notificacionService = require('../utils/NotificacionService');
+const notificacionService = require('../utils/NotificacionService');
 
 const registrarAviso = async (request, response) => {
     console.log("@registrarAviso");
@@ -11,11 +11,12 @@ const registrarAviso = async (request, response) => {
         const params = { fecha, para,id_empresa, titulo, aviso, etiqueta, nota_interna, genero} = request.body;
         
         const respuesta = await avisoService.registrarAviso(params);
-        /*if(respuesta && respuesta.resultado){
-            notificacionService.notificarCargo(params.id_alumno,respuesta.id_cargo);
-        } */       
+        if(respuesta && respuesta.resultado){
+            notificacionService.env
+        } 
         response.status(200).json(respuesta);        
     } catch (e) {
+        console.log("error al registrar el aviso "+e);
         handle.callbackErrorNoControlado(e, response);
     }
 };

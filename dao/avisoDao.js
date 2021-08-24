@@ -18,7 +18,27 @@ const registrarAviso = async (avisoData) => {
     return await genericDao.execute(`
                         INSERT INTO CO_AVISO(FECHA,CO_EMPRESA,PARA,TITULO,AVISO,ETIQUETAS,NOTA_INTERNA,GENERO)
                         VALUES(current_date,$1,$2,$3,$4,$5,$6,$7) returning ID;
-                        `, [id_empresa,para, titulo, aviso, etiqueta || '', nota_interna, genero]);
+                        `, [id_empresa,JSON.stringify(para), titulo,aviso, etiqueta || '', nota_interna, genero]);
+};
+
+
+const registrarEnvio = async (avisoData) => {
+    console.log("@registrarEnvio");
+    const  {fecha, para, titulo, aviso,id_empresa, etiqueta, nota_interna, genero } = avisoData;    
+    return await genericDao.execute(`
+                 UPDATE CO_AVISO
+                     SET PARA = $2,
+                         TITULO = $3,
+                         AVISO = $4,
+                         ETIQUETAS = $5,
+                         NOTA_INTERNA = $6,
+                        FECHA_MODIFICO = CURRENT_TIMESTAMP,
+                        MODIFICO = $7,
+                        ENVIADO = true,
+                        FECHA_ENVIO = CURRENT_TIMESTAMP
+                     WHERE ID = $1
+                        RETURNING ID;
+                `, [id,para, titulo,JSON.stringify(aviso), etiqueta, nota_interna, genero]);    
 };
 
 const modificarAviso = async (avisoData) => {
@@ -35,7 +55,7 @@ const modificarAviso = async (avisoData) => {
                         MODIFICO = $7
                 WHERE ID = $1
                 RETURNING ID;
-                `, [id,para, titulo, aviso, etiqueta, nota_interna, genero]);    
+                `, [id,JSON.stringify(para), titulo,aviso, etiqueta, nota_interna, genero]);    
 };
 const eliminarAvisos = async (avisoData) => {
     console.log("@eliminarAvisos");
@@ -87,23 +107,12 @@ const obtenerAvisos = async (idUsuario) => {
 
 const obtenerContactos = async (idsSucursales) => {
     console.log("@obtenerContactos");
-
-   /* var ids = '';
-    var first = true;
-
-    idsSucursales.forEach(element => {
-        if (first) {
-            ids += (element + "");
-            first = false;
-        } else {
-            ids += (',' + element);
-        }
-    });
-    console.log("UDS "+ids);*/
+  
 
     return await genericDao.findAll(`               
 select af.id as id_alumno_familiar,
 fam.correo,
+fam.token,
 fam.nombre as nombre_familiar,
 p.nombre as parentesco,
 a.nombre_carino,
@@ -151,5 +160,6 @@ module.exports = {
         enviarAviso,
         eliminarAvisos,
         modificarAviso,
-        obtenerContactos
+        obtenerContactos,
+        registrarEnvio
 };
