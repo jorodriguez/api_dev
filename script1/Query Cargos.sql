@@ -13,19 +13,18 @@ from co_alumno
 where id in (313,222,372,297) order by fecha_genero desc
 
 
- SELECT a.nombre||' '||a.apellidos,
- 			to_char(b.fecha,'dd-mm-yyyy HH24:MI') as fecha_format,            
-               cargo.nombre||' '||b.texto_ayuda as nombre_cargo,                                                            
+  SELECT a.nombre||' '||a.apellidos as alumno,
+ 			   to_char(b.fecha,'dd-mm-yyyy HH24:MI') as fecha_format,            
+               cargo.nombre||' '||b.texto_ayuda||'-'||to_char(b.fecha,'yyyy') as nombre_cargo,                                                            
                b.cargo,
-               --b.total_pagado,
-               b.nota,
-               b.pagado,               
-               b.descuento               
+               case when b.pagado then 'SI' else 'NO' end as pagado,               
+			   b.total_pagado as cantidad_pagada,
+               b.nota,               
+               b.descuento,
+			   b.eliminado			
              FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
                                            inner join cat_cargo cargo on b.cat_cargo = cargo.id					
                                            left join cat_descuento_cargo des on des.id = b.cat_descuento_cargo
-             WHERE a.id = 222
+             WHERE a.id = 251
 					and b.eliminado = false 
               ORDER by b.pagado, b.fecha desc
-             --LIMIT 20
-
