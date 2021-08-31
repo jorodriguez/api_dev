@@ -80,6 +80,7 @@ BEGIN
 
 		update usuario set correo = 'joel.rod.roj@hotmail.com' where correo = 'tere@magicintelligence.com';
 		
+		update usuario set correo = 'test_'||correo where correo is not null and eliminado = false;
 	
 	    SELECT sum(n_live_tup) FROM pg_stat_user_tables INTO countTotalTuplas;
 		raise notice '===== Total de tuplas restantes  %  /n=======',countTotalTuplas;

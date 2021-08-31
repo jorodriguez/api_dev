@@ -18,20 +18,21 @@ const registrarAviso = async (avisoData) => {
     nota_interna,
     genero,
   } = avisoData;
+  console.log(JSON.stringify(avisoData));
 
   return await genericDao.execute(
     `
                         INSERT INTO CO_AVISO(FECHA,CO_EMPRESA,PARA,TITULO,AVISO,ETIQUETAS,NOTA_INTERNA,GENERO)
                         VALUES(current_date,$1,$2,$3,$4,$5,$6,$7) returning ID;
-                        `,
+                   `,
     [
       id_empresa,
       JSON.stringify(para),
       titulo,
       aviso,
-      etiqueta || "",
+      JSON.stringify(etiqueta) || "",
       nota_interna,
-      genero,
+      genero
     ]
   );
 };
@@ -71,7 +72,7 @@ const modificarAviso = async (avisoData) => {
                 WHERE ID = $1
                 RETURNING ID;
                 `,
-    [id, JSON.stringify(para), titulo, aviso, etiqueta, nota_interna, genero]
+    [id, JSON.stringify(para), titulo, aviso, JSON.stringify(etiqueta), nota_interna, genero]
   );
 };
 
@@ -197,8 +198,6 @@ order by suc.id,fam.nombre,grupo.nombre
     [idsSucursales]
   );
 };
-
-
 
 const obtenerContactosIds = async (idsFamiliares) => {
   console.log("@obtenerContactosIds");
