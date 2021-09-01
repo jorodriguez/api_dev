@@ -71,9 +71,9 @@ const enviarAviso = async (idAviso) => {
     }
 };
 
-const obtenerPreviewAviso = async (idAviso)=>{   
-    const aviso = await avisoDao.obtenerAvisoId(idAviso);  
-    return await correoService.getHtmlPreviewTemplate(TEMPLATES.TEMPLATE_AVISO,{aviso:aviso.aviso});
+const obtenerPreviewAviso = async (avisoHtml)=>{   
+    //const aviso = await avisoDao.obtenerAvisoId(idAviso);  
+    return await correoService.getHtmlPreviewTemplate(TEMPLATES.TEMPLATE_AVISO,{aviso:avisoHtml});
 };
 
 module.exports = {

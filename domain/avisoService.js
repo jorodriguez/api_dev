@@ -1,6 +1,6 @@
 const avisoDao = require('../dao/avisoDao');
 //const { getHtmlPreviewTemplate,TEMPLATES } = require('../utils/CorreoService');
-const { enviarAviso } = require('../utils/NotificacionAvisoService');
+const { enviarAviso,obtenerPreviewAviso } = require('../utils/NotificacionAvisoService');
 
 const registrarAviso = async (avisoData) => {
     console.log("@registrarAviso");
@@ -19,9 +19,13 @@ const registrarAviso = async (avisoData) => {
 };
 
 
-const obtenerPreviewAviso = async (avisoData) => {
-
-
+const obtenerPreview = async (htmlPreview) => {
+    try{
+      return await obtenerPreviewAviso(htmlPreview);
+    }catch(error){
+        console.log(" X X X X X "+error);
+        return error;
+   }  
 };
 
 const modificarAviso = async (avisoData) => {
@@ -83,6 +87,7 @@ module.exports = {
    getAvisosUsuario,
    getContactos,
    getAvisoId,
-   getContactosIds
+   getContactosIds,
+   obtenerPreview
 
 };

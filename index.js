@@ -313,6 +313,7 @@ PUT('/usuario/:id_usuario', usuarioService.desactivarUsuario);
 //AVISOS
 GET('/aviso/:id_usuario', avisos.getAvisosUsuario);
 GET('/aviso/contactos/:idsSucursales', avisos.getContactos);
+GET('/aviso_preview/:htmlAviso',avisos.obtenerHtmlPreviewAviso);
 POST('/aviso', avisos.registrarAviso);
 PUT('/aviso/:id', avisos.modificarAviso);
 DELETE('/aviso',avisos.eliminarAvisos);

@@ -83,14 +83,14 @@ const modificarAviso = async (request, response) => {
     }
 };
 
-/*
-const obtenerHtmlPreviewEstadoCuenta = async (request, response) => {
-    console.log("@obtenerHtmlPreviewEstadoCuenta");    
+
+const obtenerHtmlPreviewAviso = async (request, response) => {
+    console.log("@obtenerHtmlPreviewAviso");    
     try {
 
-        const { id_alumno } = request.params;
+        const { htmlAviso } = request.params;
 
-        const html = await cargoService.obtenerPreviewEstadoCuenta(id_alumno);
+        const html = await avisoService.obtenerPreview(htmlAviso);
 
         //response.status(200).json(html);               
         response.status(200).send(html);
@@ -100,7 +100,7 @@ const obtenerHtmlPreviewEstadoCuenta = async (request, response) => {
         handle.callbackErrorNoControlado(e, response);
     }
 };
-*/
+
 
 
 module.exports = {
@@ -108,5 +108,6 @@ module.exports = {
    modificarAviso,
    getAvisosUsuario,
    eliminarAvisos,
-   getContactos
+   getContactos,
+   obtenerHtmlPreviewAviso
 };
