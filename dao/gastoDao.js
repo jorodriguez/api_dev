@@ -126,11 +126,11 @@ const getSumaMesGastosPorSucursal = (idSucursal) => {
     console.log("@getSumaMesGastosPorSucursal");
    
         console.log("request.params.co_sucursal" + idSucursal);
-
+//select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as mes
         return genericDao.findAll(
             `
-        with meses AS(
-            select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as mes
+        with meses AS(            
+            select generate_series((select min(fecha_inscripcion) from co_alumno),current_date + interval '1 month','1 month') as mes
         ) select
                 to_char(m.mes,'Mon-YYYY') as mes_anio,
                 to_char(m.mes,'YYYYMM') as anio_mes,
