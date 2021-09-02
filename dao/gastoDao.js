@@ -130,7 +130,8 @@ const getSumaMesGastosPorSucursal = (idSucursal) => {
         return genericDao.findAll(
             `
         with meses AS(
-            select generate_series((select min(fecha_inscripcion) from co_alumno),(getDate('')+getHora(''))::timestamp,'1 month') as mes
+            select generate_series((select min(fecha_inscripcion) from co_alumno),
+								 (date_trunc('month',current_date) + '1 month - 1 day')::date,'1 month') as mes
         ) select
                 to_char(m.mes,'Mon-YYYY') as mes_anio,
                 to_char(m.mes,'YYYYMM') as anio_mes,
