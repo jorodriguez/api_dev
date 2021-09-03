@@ -86,9 +86,7 @@ CREATE TABLE co_aviso_publicacion
 	co_empresa integer not null references co_empresa(id),	---siempre va un valor aqui
 	co_sucursal integer references co_sucursal(id),	
 	co_grupo integer references co_grupo(id),	
-	co_familiar integer references co_familiar(id),	
-	leido boolean default false,
-	mensaje_movil_entregado boolean default false,
+	co_familiar integer references co_familiar(id),			
 	fecha_genero timestamp without time zone DEFAULT current_timestamp,
 	fecha_modifico timestamp without time zone,
 	genero integer NOT NULL,
