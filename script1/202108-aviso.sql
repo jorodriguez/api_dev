@@ -60,3 +60,38 @@ alter table co_aviso add column informacion_envio text;
 
 
 				  update si_opcion set ruta = 'Avisos' where id = 5
+
+--- publicacion del aviso
+
+---TIPO: TODO,SUCURSAL,GRUPO,CONTACTO
+CREATE TABLE co_tipo_publicacion
+(
+	id serial NOT NULL primary key,	
+	nombre text not null,
+	fecha_genero timestamp without time zone DEFAULT current_timestamp,
+	fecha_modifico timestamp without time zone,
+	genero integer NOT NULL,
+	modifico integer,	
+	eliminado boolean NOT NULL DEFAULT false   
+);
+insert into co_tipo_publicacion(id,nombre,genero)
+values(1,'EMPRESA',1),(2,'SUCURSAL',1),(3,'GRUPO',1),(4,'CONTACTO',1);
+	
+
+CREATE TABLE co_aviso_publicacion
+(
+	id serial NOT NULL primary key,	
+	co_aviso integer NOT NULL  references co_aviso(id),	
+	co_tipo_publicacion integer not null references co_tipo_publicacion(id),		
+	co_empresa integer not null references co_empresa(id),	---siempre va un valor aqui
+	co_sucursal integer references co_sucursal(id),	
+	co_grupo integer references co_grupo(id),	
+	co_familiar integer references co_familiar(id),	
+	leido boolean default false,
+	mensaje_movil_entregado boolean default false,
+	fecha_genero timestamp without time zone DEFAULT current_timestamp,
+	fecha_modifico timestamp without time zone,
+	genero integer NOT NULL,
+	modifico integer,	
+	eliminado boolean NOT NULL DEFAULT false    
+);
