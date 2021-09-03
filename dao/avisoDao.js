@@ -10,7 +10,7 @@ const { TIPO_PUBLICACION } = require("../utils/Constantes");
 const registrarAviso = async (avisoData) => {
   console.log("@registrarAviso");  
   const { listaPara } =  avisoData;
-  
+  try{
   const contadorPara = listaPara && listaPara.length;
 
   if(contadorPara > 0){
@@ -26,10 +26,14 @@ const registrarAviso = async (avisoData) => {
         const idPublicacion = await insertarAvisoPublicacion(idAviso,publicacion);       
         
       }  
-  }   
+  }     
 
   return idAviso;
 
+  }catch(e){  
+    console.log("Error al insertar el aviso "+e);
+    throw new ExceptionBD("Error");
+  }
 };
 
 
@@ -304,8 +308,7 @@ order by suc.id,fam.nombre,grupo.nombre
 
 module.exports = {
   obtenerAvisos,
-  insertarCoAviso,
-  insertarAvisoPublicacion,
+  registrarAviso,  
   eliminarAvisos,
   modificarAviso,
   obtenerContactos,
