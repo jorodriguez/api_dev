@@ -78,6 +78,7 @@ function executeProcedureWithParameters(query,params){
             .then(results => {
                 resolve(results);
             }).catch(error => {
+                console.log(`ERROR executeProcedureWithParameters(${query},${JSON.stringify(params)}) `);
                 //reject(new ExceptionBD(error));
                 reject(error);
             });
@@ -109,5 +110,7 @@ function buscarPorId(tabla,id){
     return findOne(`SELECT * FROM  ${tabla} WHERE ID = $1`,[id]);
     //return getQueryInstance(`SELECT * FROM  ${tabla} WHERE ID = $1`,[id]);
 }
+
+
 
 module.exports = {findAll,findOne,eliminarPorId,execute,executeProcedure,executeProcedureWithParameters,buscarPorId};

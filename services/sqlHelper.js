@@ -176,7 +176,7 @@ function getQueryInstance(query,params){
 
 module.exports = {
     getQueryInstance,
-    QUERY,
+    QUERY,    
     getCatalogo,
     getResultQuery,    
     getResults,
