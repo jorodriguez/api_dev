@@ -4,10 +4,41 @@ const {
   ExceptionBD,
 } = require("../exception/exeption");
 const { isEmptyOrNull } = require("../utils/Utils");
+const { TIPO_PUBLICACION } = require("../utils/Constantes");
 
 
 const registrarAviso = async (avisoData) => {
   console.log("@registrarAviso");  
+  const { listaPara } =  avisoData;
+  try{
+  const contadorPara = listaPara && listaPara.length;
+
+  if(contadorPara > 0){
+
+    const idAviso = await insertarCoAviso(avisoData);   
+   
+    //const existePublicacionEmpresa = listaPara.filter(e=>e.id_tipo_publicacion == TIPO_PUBLICACION.EMPRESA);   
+
+    for(let i =0;i< contadorPara;i++){
+        
+        const publicacion = listaPara[i];
+
+        const idPublicacion = await insertarAvisoPublicacion(idAviso,publicacion);       
+        
+      }  
+  }     
+
+  return idAviso;
+
+  }catch(e){  
+    console.log("Error al insertar el aviso "+e);
+    throw new ExceptionBD("Error");
+  }
+};
+
+
+
+const insertarCoAviso = async (avisoData)=>{
   const {
     fecha,
     para,
@@ -36,6 +67,38 @@ const registrarAviso = async (avisoData) => {
     ]
   );
 };
+
+const insertarAvisoPublicacion = async (id_aviso,publicacionData) =>{
+  console.log("@insertarAvisoPublicacion");
+  const {        
+    id_tipo_publicacion,    
+    id_empresa,     
+    id_sucursal,
+    id_grupo,
+    id_familiar,
+    genero,
+  } = publicacionData;
+  console.log(JSON.stringify(publicacionData));
+
+  return await genericDao.execute(
+    `INSERT INTO CO_AVISO_PUBLICACION(CO_AVISO, CO_TIPO_PUBLICACION,CO_EMPRESA,CO_SUCURSAL,CO_GRUPO,CO_FAMILIAR,GENERO)
+        VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING ID;`,
+    [
+      id_aviso,
+      id_tipo_publicacion,
+      id_empresa,
+      id_sucursal,
+      id_grupo,
+      id_familiar,
+      genero
+    ]
+  );
+
+
+};
+
+
+
 
 const registrarEnvio = async (id,infoEnvio,genero) => {
   console.log("@registrarEnvio");
@@ -245,7 +308,7 @@ order by suc.id,fam.nombre,grupo.nombre
 
 module.exports = {
   obtenerAvisos,
-  registrarAviso,
+  registrarAviso,  
   eliminarAvisos,
   modificarAviso,
   obtenerContactos,

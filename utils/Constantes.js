@@ -38,6 +38,9 @@ const SIN_COPIA = '';
 //nombre del folder donde se guardan la foto de los alumnos
 const FOLDER_PERFILES_CLOUDNARY = "perfiles_alumnos";
 
+const TIPO_PUBLICACION = { EMPRESA:1,SUCURSAL:2,GRUPO:3,CONTACTO:4 };
+
+
 module.exports = {
     CARGOS,
     ESTATUS,
@@ -50,5 +53,6 @@ module.exports = {
     TEMA_NOTIFICACION,
     MENSAJE_RECARGO_POR_MENSUALIDAD_VENCIDA,
     SIN_COPIA,
-    FOLDER_PERFILES_CLOUDNARY
+    FOLDER_PERFILES_CLOUDNARY,
+    TIPO_PUBLICACION
 };

@@ -4,14 +4,19 @@ const { enviarAviso,obtenerPreviewAviso } = require('../utils/NotificacionAvisoS
 
 const registrarAviso = async (avisoData) => {
     console.log("@registrarAviso");
-    try{           
-          let idGenerado = await avisoDao.registrarAviso(avisoData);
+    try{  
+        
+          const { listaPara } =  avisoData;
+         
+          let idCoAviso = await avisoDao.registrarAviso(avisoData);            
+               
+          //publicacion
           let infoEnvio = null;
           if(avisoData.enviar){
-               infoEnvio = await enviarAviso(idGenerado);
-               await avisoDao.registrarEnvio(idGenerado,infoEnvio,avisoData.genero);
+               infoEnvio = await enviarAviso(idCoAviso);
+               await avisoDao.registrarEnvio(idCoAviso,infoEnvio,avisoData.genero);
           }
-          return {id:idGenerado,informacionEnvio:infoEnvio};
+          return {id:idCoAviso,informacionEnvio:infoEnvio};
     }catch(error){
         console.log(" registrarAviso ERROR : "+ JSON.stringify(error));
         return error;
