@@ -73,7 +73,7 @@ const modificarGasto = (gastoData) => {
                 reject(new ExceptionBD(error));
             });
     });
-}
+};
 
 
 const eliminarGasto = (idGasto, genero) => {

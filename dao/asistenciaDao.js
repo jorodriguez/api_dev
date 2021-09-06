@@ -5,6 +5,7 @@ const {  existeValorArray } = require('../utils/Utils');
 const genericDao = require('./genericDao');
 
 
+
 //FIXME : agregar el parametro de fecha
 const SQL_ALUMNOS_RECIBIDOS =
     `SELECT asistencia.id,
@@ -129,8 +130,8 @@ const getAlumnosPorRecibir = (idSucursal) => {
 };
 
 //FIXME: usar un set para agregar los ids y no se repitan
-const registrarEntradaAlumnos = (params) => {
-    console.log("@registrarEntrada");
+/*const registrarEntradaAlumnos = (params) => {
+    console.log("@asisetnciaDao.registrarEntrada "+new Date());
 
     return new Promise((resolve, reject) => {
         console.log("params "+JSON.stringify(params));
@@ -163,13 +164,87 @@ const registrarEntradaAlumnos = (params) => {
                     enviarMensajeEntradaSalida(listaIdsAsistencias, ENTRADA);
                     resolve(listaIdsAsistencias);
                 } else {
+                    console.log("ERROR AL EJECUTAR EL  PROCEDIMIENTO : "+JSON.stringify(results));
                     reject(new ExceptionBD(MENSAJE_ALGO_FALLO));
                 }
             })
             .catch(error => {
+                console.log("ERROR al registrar entrada : "+error);
                 reject(new ExceptionBD(error));
             });
     });
+};*/
+
+//version corregida - prueba
+const registrarEntradaAlumnos = async (params) => {
+    console.log("@asisetnciaDao.registrarEntrada "+new Date());
+    try{
+       
+        const { ids, genero } = params;
+        console.log("IDS recibidos "+JSON.stringify(ids));
+        let idsRegistrar = new Set(ids);
+        let idsAlumnos = '';
+        let first = true;        
+        
+        idsRegistrar.forEach(element => {
+            if (first) {
+                idsAlumnos += (element + "");
+                first = false;
+            } else {
+                idsAlumnos += (',' + element);
+            }            
+        });   
+        console.log("IDS registrar "+idsRegistrar);
+
+        const results = await genericDao
+            .executeProcedure(`SELECT registrar_entrada_alumno('${idsAlumnos}',${genero});`);
+         
+         console.log(`RESULTADO DEL PROCEDIMIENTO ${JSON.stringify(results)}`);
+         let listaIdsAsistencias = [];
+         if(results && results.rowCount > 0){
+            console.log("Resultado del procedimiento " + JSON.stringify(results.rows));
+            listaIdsAsistencias = results.rows.map(e => e.registrar_entrada_alumno);
+            enviarMensajeEntradaSalida(listaIdsAsistencias, ENTRADA);
+         }   
+         console.log("Lista devolver "+JSON.stringify(listaIdsAsistencias));
+         return listaIdsAsistencias;
+
+       /*let arrayAlumnos = Array.from(idsRegistrar);
+
+       console.log("IDS registrar "+arrayAlumnos);
+       /*size = arrayAlumnos && arrayAlumnos.length;
+        console.log("SIZE "+size);
+            let listaIdsAsistencias = [];
+       //buscar alumno 
+       for(let i = 0;i < size;i++){
+           const idAlumno = arrayAlumnos[i];
+           const existe = await genericDao.findOne(`select id
+           from co_asistencia a 
+           where a.co_alumno = $1
+                   and hora_salida is null
+                   and a.eliminado = false `,[idAlumno]);
+            
+            console.log("EXISTE  "+existe);
+
+            if(existe){
+                console.log("YA SE ENCUENTRA REGISTRADO ID_ALUMNO = "+idAlumno);
+            }else{
+                console.log("REGISTRAR ENTRADA   "+idAlumno);
+               const id = await genericDao.execute(`
+                         INSERT INTO CO_ASISTENCIA(fecha,co_alumno,hora_entrada,horario_entrada,usuario,genero)
+				        values(CURRENT_DATE,$1,current_timestamp,(select (current_date+hora_entrada) from co_alumno where id = $1)::timestamp,$2,$2)
+				        RETURNING id; `,[idAlumno,genero]);
+                listaIdsAsistencias.push(id);
+            }
+       }       
+       enviarMensajeEntradaSalida(listaIdsAsistencias, ENTRADA);*/
+
+        
+    }catch(error){
+        console.log("ERROR");
+        return new ExceptionBD(MENSAJE_ALGO_FALLO);
+    }
+   
 };
 
 function enviarMensajeEntradaSalida(ids_asistencias, operacion) {

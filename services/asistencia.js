@@ -42,20 +42,24 @@ const getAlumnosPorRecibir = (request, response) => {
 };
 
 
-const registrarEntradaAlumnos = (request, response) => {
+const registrarEntradaAlumnos = async (request, response) => {
     console.log("@registrarEntrada");
     try {
 
         const params = { ids, genero } = request.body;
 
-        asistenciaService
+        let results = await asistenciaService.registrarEntradaAlumnos(params);
+        
+        response.status(200).json(results);
+
+        /*asistenciaService
             .registrarEntradaAlumnos(params)
             .then(results => {
                 response.status(200).json(results);
             })
             .catch(error => {
                 handle.callbackError(error, response);
-            });
+            });*/
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
