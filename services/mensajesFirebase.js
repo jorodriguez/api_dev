@@ -118,6 +118,38 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
     }
 };
 
+const enviarMensajeTokenAsync = async (token, titulo, cuerpo) => {
+    let retorno = {enviado:false,mensaje:""};
+
+    try {
+        console.log("Enviando mensaje " + titulo + " " + cuerpo);
+        const payloadMensaje = {
+            notification: {
+                title: titulo,
+                body: cuerpo,
+                sound: "default"
+            }            
+        };
+
+        if (configEnv.MESSAGE_MOVIL_SERVICE_ACTIVE) {
+            
+           let new_tokens = quitarElementosVaciosArray(token);
+
+            const info = await firebase.messaging().sendToDevice(new_tokens, payloadMensaje, options);
+            retorno = {enviado:true,info:info};
+        } else {
+            console.log("Caso contrario no enviar mensajes");           
+            console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG ");
+            retorno = {enviado:false,mensaje:"No esta activo el servicio de mensajeria"};  
+        }
+        return retorno;
+
+    } catch (e) {
+        console.log("Erorr al enviar mensaje " + e);
+        return {enviado:false,mensaje:e};
+    }
+};
+
 const sendMessage = (request, response) => {
     console.log("@Enviando mensaje configEnv.ENVIAR_MENSAJES_MOVIL " + configEnv.MESSAGE_MOVIL_SERVICE_ACTIVE);
     try {
@@ -188,6 +220,7 @@ module.exports = {
     sendMessage,
     enviarMensajeToken,
     enviarMensajePorTema,
-    enviarMensajeActividad
+    enviarMensajeActividad,
+    enviarMensajeTokenAsync
 
 };

@@ -6,20 +6,20 @@ const registrarAviso = async (avisoData) => {
     console.log("@registrarAviso");
     try{  
         
-          const { listaPara } =  avisoData;
+         // const { listaPara } =  avisoData;
          
           let idCoAviso = await avisoDao.registrarAviso(avisoData);            
                
-          //publicacion
-          let infoEnvio = null;
-          if(avisoData.enviar){
-               infoEnvio = await enviarAviso(idCoAviso);
-               await avisoDao.registrarEnvio(idCoAviso,infoEnvio,avisoData.genero);
+          let infoEnvio = {};
+          //publicacion a los usuarios por correo y          
+          if(avisoData.enviar && idCoAviso){
+               infoEnvio = await enviarAviso(idCoAviso);               
+               await avisoDao.registrarEnvio(idCoAviso,infoEnvio,avisoData.genero);               
           }
-          return {id:idCoAviso,informacionEnvio:infoEnvio};
+          return {realizado:false,id:idCoAviso,informacionEnvio:infoEnvio,error:false};
     }catch(error){
         console.log(" registrarAviso ERROR : "+ JSON.stringify(error));
-        return error;
+        return {realizado:false,error:error};
    }   
 };
 

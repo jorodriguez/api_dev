@@ -18,12 +18,12 @@ const registrarAviso = async (avisoData) => {
     const idAviso = await insertarCoAviso(avisoData);   
    
     //const existePublicacionEmpresa = listaPara.filter(e=>e.id_tipo_publicacion == TIPO_PUBLICACION.EMPRESA);   
-
+   ///insertar la publicacion
     for(let i =0;i< contadorPara;i++){
         
         const publicacion = listaPara[i];
 
-        const idPublicacion = await insertarAvisoPublicacion(idAviso,publicacion);       
+        const idPublicacion = await insertarAvisoPublicacion(idAviso,publicacion);                      
         
       }  
   }     

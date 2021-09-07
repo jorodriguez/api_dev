@@ -31,7 +31,7 @@ const enviarAviso = async (idAviso) => {
         const usuarioGenero = await usuarioDao.buscarUsuarioId(aviso.genero);
         
         let correos = '';
-        let tokens = [];
+        const tokens = new Set();
         let firstCorreo = true;
         
         if(lista){
@@ -43,31 +43,42 @@ const enviarAviso = async (idAviso) => {
                     correos+=','+element.correo;
                 }
                 
-                if(element.token != null){
-                    tokens.push(element.token);
+                if(element.token){
+                    tokens.add(element.token);
                 }
             });
         }
 
         console.log("=== Envio de aviso ===");
 
-        const responseEnvio = await correoService.enviarCorreoTemplateAsync(
+        const respuesta = {enviadoCorreo:false, enviadoMovil:false,infoEnvioCorreo:null,infoEnvioMovil:null};
+
+        const responseEnvioCorreo = await correoService.enviarCorreoTemplateAsync(
                 `${correos}`,
                 `${usuarioGenero.correo}`,                  
                 `${aviso.titulo}`,
                 {aviso:aviso.aviso},
                 TEMPLATES.TEMPLATE_AVISO                
-                );      
-    
-        console.log("RESPUES DE ENVIO "+JSON.stringify(responseEnvio));
+                );     
 
-        if(responseEnvio.enviado){            
+        respuesta.enviadoCorreo = responseEnvioCorreo.enviado;
+        respuesta.infoEnvioCorreo = responseEnvioCorreo;
+    
+        console.log("RESPUESTA DE ENVIO DE CORREO "+JSON.stringify(responseEnvioCorreo));
+
+        if(tokens.size > 0){            
             //avisoDao.registrarEnvio();
             console.log("==== Envio de mensajeria=====");
-            mensajeria.enviarMensajeToken(tokens,"Aviso ", `${aviso.titulo}`);
-        }
+            const arrayTokens =  Array.from(tokens);
+            const infoEnvioMovil =  await mensajeria.enviarMensajeTokenAsync(arrayTokens,"Aviso ", `${aviso.titulo}`);
+            respuesta.enviadoMovil = infoEnvioMovil.enviado;
+            respuesta.infoEnvioMovil = infoEnvioMovil;
 
-        return responseEnvio;
+       }else{
+            console.log("==== No existen tokens en la lista =====");
+       }
+
+        return respuesta;
     }
 };
 
