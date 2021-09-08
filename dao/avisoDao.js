@@ -12,10 +12,12 @@ const registrarAviso = async (avisoData) => {
   const { listaPara } =  avisoData;
   try{
   const contadorPara = listaPara && listaPara.length;
-
+  
+  let idAviso = null;
+  let publicaciones = [];
   if(contadorPara > 0){
 
-    const idAviso = await insertarCoAviso(avisoData);   
+     idAviso = await insertarCoAviso(avisoData);   
    
     //const existePublicacionEmpresa = listaPara.filter(e=>e.id_tipo_publicacion == TIPO_PUBLICACION.EMPRESA);   
    ///insertar la publicacion
@@ -24,6 +26,7 @@ const registrarAviso = async (avisoData) => {
         const publicacion = listaPara[i];
 
         const idPublicacion = await insertarAvisoPublicacion(idAviso,publicacion);                      
+        publicaciones.push({coAvisoPublicacion:idPublicacion, ...publicaciones});
         
       }  
   }     
