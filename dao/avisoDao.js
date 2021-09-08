@@ -37,7 +37,6 @@ const registrarAviso = async (avisoData) => {
 };
 
 
-
 const insertarCoAviso = async (avisoData)=>{
   const {
     fecha,

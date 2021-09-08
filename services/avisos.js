@@ -10,6 +10,11 @@ const registrarAviso = async (request, response) => {
     try {
         const params = { fecha, para,id_empresa, titulo, aviso, etiqueta, nota_interna, genero} = request.body;
         
+        console.log(para);
+        console.log(aviso);
+        console.log(etiqueta);
+        console.log(genero);
+
         const respuesta = await avisoService.registrarAviso(params);         
         response.status(200).json(respuesta);        
     } catch (e) {
