@@ -328,8 +328,11 @@ with avisos AS (
      and em.eliminado = false 
 ) select 
     distinct       
-       fam.correo,
-       fam.token       
+        fam.nombre,
+        suc.nombre as sucursal,
+        grupo.nombre as grupo,
+        fam.correo,
+        fam.token
   from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
                 inner join co_alumno al on al.id = af.co_alumno
                 inner join co_grupo grupo on grupo.id = al.co_grupo
