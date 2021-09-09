@@ -8,23 +8,23 @@ const { TIPO_PUBLICACION } = require("../utils/Constantes");
 
 
 const registrarAviso = async (avisoData) => {
-  console.log("@registrarAviso");  
-  const { listaPara } =  avisoData;
+  console.log("@dao.registrarAviso");  
+  const { para } =  avisoData;
   try{
-  const contadorPara = listaPara && listaPara.length;
+  const contadorPara = para && para.length;
   
   let idAviso = null;
   let publicaciones = [];
   if(contadorPara > 0){
 
      idAviso = await insertarCoAviso(avisoData);   
-   
+   console.log("==AVISO GENERADO "+idAviso);
     //const existePublicacionEmpresa = listaPara.filter(e=>e.id_tipo_publicacion == TIPO_PUBLICACION.EMPRESA);   
    ///insertar la publicacion
-    for(let i =0;i< contadorPara;i++){
-        
-        const publicacion = listaPara[i];
-
+   console.log("iniciando insercion de publicacion");
+    for(let i =0;i< contadorPara;i++){        
+        const publicacion = para[i];
+        console.log("insert publicacion "+publicacion);
         const idPublicacion = await insertarAvisoPublicacion(idAviso,publicacion);                      
         publicaciones.push({coAvisoPublicacion:idPublicacion, ...publicaciones});
         
@@ -73,13 +73,14 @@ const insertarCoAviso = async (avisoData)=>{
 const insertarAvisoPublicacion = async (id_aviso,publicacionData) =>{
   console.log("@insertarAvisoPublicacion");
   const {        
-    id_tipo_publicacion,    
+    tipo,    
     id_empresa,     
     id_sucursal,
     id_grupo,
     id_familiar,
     genero,
   } = publicacionData;
+  
   console.log(JSON.stringify(publicacionData));
 
   return await genericDao.execute(
@@ -87,19 +88,17 @@ const insertarAvisoPublicacion = async (id_aviso,publicacionData) =>{
         VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING ID;`,
     [
       id_aviso,
-      id_tipo_publicacion,
+      tipo,
       id_empresa,
-      id_sucursal,
-      id_grupo,
-      id_familiar,
+      id_sucursal == -1 ? null : id_sucursal,
+      id_grupo == -1 ? null : id_grupo,
+      id_familiar == -1 ? null : id_familiar,
       genero
     ]
   );
 
 
 };
-
-
 
 
 const registrarEnvio = async (id,infoEnvio,genero) => {
@@ -209,11 +208,11 @@ const obtenerAvisoId = async (idAviso) => {
                   a.titulo,
                   a.aviso,		
                   a.nota_interna,
+                  a.co_empresa,
                   a.genero            
               FROM CO_AVISO a inner join co_empresa e on e.id = a.co_empresa                             
               where a.id = $1
-                      and a.eliminado = false
-             order by a.fecha_genero
+                      and a.eliminado = false             
               `,
       [idAviso]
     );
@@ -307,6 +306,52 @@ order by suc.id,fam.nombre,grupo.nombre
   );
 };
 
+const obtenerCorreosPorAviso = async (idAviso,idEmpresa)=>{
+  console.log("@obtenerCorreosPorAviso");
+  return await genericDao.findAll(
+             `     
+             
+with avisos AS (
+  select ap.id,
+      tipo.id as id_tipo,
+      em.id as id_empresa	,			   	
+      suc.id as id_sucursal,
+      grupo.id as id_grupo,
+      fam.id as id_familiar    
+  from co_aviso_publicacion ap inner join co_tipo_publicacion tipo on tipo.id = ap.co_tipo_publicacion
+                  left join co_empresa em on em.id = ap.co_empresa
+                  left join co_sucursal suc on suc.id = ap.co_sucursal
+                  left join co_grupo grupo on grupo.id = ap.co_grupo
+                  left join co_familiar fam on fam.id = ap.co_familiar
+  where ap.co_aviso = $1 
+     and ap.eliminado = false
+     and em.eliminado = false 
+) select 
+    distinct       
+       fam.correo,
+       fam.token       
+  from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
+                inner join co_alumno al on al.id = af.co_alumno
+                inner join co_grupo grupo on grupo.id = al.co_grupo
+                inner join co_sucursal suc on suc.id = al.co_sucursal
+                inner join co_empresa em on em.id = suc.co_empresa													
+                inner join avisos a 
+                  on a.id_empresa = em.id
+                    or a.id_sucursal = suc.id
+                    or a.id_grupo = grupo.id
+                    or a.id_familiar = fam.id
+  where em.id = $2	
+      and af.co_parentesco in (1,2) --Papa y mama 
+      and af.eliminado = false
+      and fam.eliminado = false
+      and grupo.eliminado = false
+      and suc.eliminado =false   
+            `,
+    [idAviso,idEmpresa]
+  );
+
+}
+
 
 module.exports = {
   obtenerAvisos,
@@ -317,4 +362,5 @@ module.exports = {
   obtenerContactosIds,
   registrarEnvio,
   obtenerAvisoId,
+  obtenerCorreosPorAviso
 };

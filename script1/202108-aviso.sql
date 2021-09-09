@@ -100,26 +100,32 @@ CREATE TABLE co_aviso_publicacion
 
 with avisos AS (
 			select ap.id,
-					em.id as id_empresa,				   	
+					tipo.id as id_tipo,
+					em.id as id_empresa	,			   	
 					suc.id as id_sucursal,
 					grupo.id as id_grupo,
 					fam.id as id_familiar
+				--	ap.*
 			from co_aviso_publicacion ap inner join co_tipo_publicacion tipo on tipo.id = ap.co_tipo_publicacion
 											left join co_empresa em on em.id = ap.co_empresa
 											left join co_sucursal suc on suc.id = ap.co_sucursal
 											left join co_grupo grupo on grupo.id = ap.co_grupo
 											left join co_familiar fam on fam.id = ap.co_familiar
-			where ap.id = 88 
+			where ap.co_aviso = 92 
 				 and ap.eliminado = false
 				 and em.eliminado = false
 			--	 and suc.elimiando = false
-				 and grupo.eliminado = false
-				 and fam.eliminado = false
-		) select fam.id,fam.correo,fam.token,
-				   fam.id as id_familiar,
-				   grupo.id as id_grupo,
-				   suc.id as id_sucursal,
-				   em.id as id_empresa
+				 --and grupo.eliminado = false
+				-- and fam.eliminado = false
+		) select --fam.id				
+		distinct
+				   --af.co_parentesco,
+				   fam.correo,
+				   fam.token
+				   --fam.id as id_familiar,
+				   --grupo.id as id_grupo,
+				   --suc.id as id_sucursal,
+				   --em.id as id_empresa
 			from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
 										inner join co_alumno al on al.id = af.co_alumno
 										inner join co_grupo grupo on grupo.id = al.co_grupo
@@ -131,6 +137,7 @@ with avisos AS (
 												or a.id_grupo = grupo.id
 												or a.id_familiar = fam.id
 			where em.id = 1	
+					and af.co_parentesco in (1,2)
 					and af.eliminado = false
 					and fam.eliminado = false
 					and grupo.eliminado = false

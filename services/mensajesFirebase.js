@@ -118,7 +118,7 @@ const enviarMensajeToken = (token, titulo, cuerpo) => {
     }
 };
 
-const enviarMensajeTokenAsync = async (token, titulo, cuerpo) => {
+const enviarMensajeTokenAsync = async (tokenArray = [], titulo, cuerpo) => {
     let retorno = {enviado:false,mensaje:""};
 
     try {
@@ -131,15 +131,18 @@ const enviarMensajeTokenAsync = async (token, titulo, cuerpo) => {
             }            
         };
 
-        if (configEnv.MESSAGE_MOVIL_SERVICE_ACTIVE) {
-            
-           let new_tokens = quitarElementosVaciosArray(token);
+        console.log("====REVISANDO SERVICIO ACTIVO = "+configEnv.MESSAGE_MOVIL_SERVICE_ACTIVE);
+        if (configEnv.MESSAGE_MOVIL_SERVICE_ACTIVE == 'true') {
+            console.log(" * * * * iniciando envio de mensajes ** * * ");
 
+           let unique = new Set(tokenArray);
+           let new_tokens = Array.from(unique); // quitarElementosVaciosArray(tokenArray);
+            console.log(`${new_tokens}`);
             const info = await firebase.messaging().sendToDevice(new_tokens, payloadMensaje, options);
             retorno = {enviado:true,info:info};
         } else {
             console.log("Caso contrario no enviar mensajes");           
-            console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG ");
+            console.log("NO SE ENVIO EL MENSAJE FIREBASE CONFIG ESTA CONFIGURADO PARA NO ENVIAR");
             retorno = {enviado:false,mensaje:"No esta activo el servicio de mensajeria"};  
         }
         return retorno;

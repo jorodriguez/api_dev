@@ -9,13 +9,9 @@ const registrarAviso = async (request, response) => {
     
     try {
         const params = { fecha, para,id_empresa, titulo, aviso, etiqueta, nota_interna, genero} = request.body;
-        
-        console.log(para);
-        console.log(aviso);
-        console.log(etiqueta);
-        console.log(genero);
-
-        const respuesta = await avisoService.registrarAviso(params);         
+        const respuesta = await avisoService.registrarAviso(params);                
+        console.log("- - - - -Termino el proceso - - -");
+        console.log("Respuesta "+JSON.stringify(respuesta));
         response.status(200).json(respuesta);        
     } catch (e) {
         console.log("error al registrar el aviso "+e);

@@ -17,41 +17,31 @@ const enviarAviso = async (idAviso) => {
         console.log("No se encontro el aviso");
         throw "No se encontro el id del aviso";
     } else {
-        const idsFamiliar = [];
+        let listaCorreos = [];
+        let listaTokens = [];
 
         console.log("AVISO "+JSON.stringify(aviso));
-        const listaPara = JSON.parse(aviso.para) || [];
-        console.log("listaPara "+listaPara);
+        const listaContactos = await avisoDao.obtenerCorreosPorAviso(aviso.id,aviso.co_empresa); //JSON.parse(aviso.para) || [];
+        console.log("listaContactos "+listaContactos);
         
-        listaPara.forEach(element => {
-            idsFamiliar.push(element.id_familiar);
-        });
-        
-        const lista = await avisoDao.obtenerContactosIds(idsFamiliar);
+         listaCorreos = listaContactos.map(element => element.correo);
+         listaTokens = listaContactos.map(element => element.token);
+
+         const correos =  listaCorreos.toString();         
+        console.log("Lista de correos "+listaCorreos.toString());
+        console.log("Lista de tokens "+listaTokens.toString());
         const usuarioGenero = await usuarioDao.buscarUsuarioId(aviso.genero);
         
-        let correos = '';
-        const tokens = new Set();
-        let firstCorreo = true;
-        
-        if(lista){
-            lista.forEach(element => {
-                if(firstCorreo){
-                    correos+=element.correo;
-                    firstCorreo = false;
-                }else{
-                    correos+=','+element.correo;
-                }
-                
-                if(element.token){
-                    tokens.add(element.token);
-                }
-            });
-        }
-
         console.log("=== Envio de aviso ===");
 
-        const respuesta = {enviadoCorreo:false, enviadoMovil:false,infoEnvioCorreo:null,infoEnvioMovil:null};
+        const respuesta = {enviadoCorreo:false,     
+                            enviadoMovil:false,
+                            infoEnvioCorreo:null,
+                            infoEnvioMovil:null,
+                            destinatarios: listaContactos ? listaContactos : [],
+                            destinatariosMovil: listaTokens ? listaTokens.length:0,
+                            destinatariosCorreos: listaCorreos ? listaCorreos.length:0
+                        };
 
         const responseEnvioCorreo = await correoService.enviarCorreoTemplateAsync(
                 `${correos}`,
@@ -66,16 +56,16 @@ const enviarAviso = async (idAviso) => {
     
         console.log("RESPUESTA DE ENVIO DE CORREO "+JSON.stringify(responseEnvioCorreo));
 
-        if(tokens.size > 0){            
-            //avisoDao.registrarEnvio();
+        if(listaTokens){                        
             console.log("==== Envio de mensajeria=====");
-            const arrayTokens =  Array.from(tokens);
-            const infoEnvioMovil =  await mensajeria.enviarMensajeTokenAsync(arrayTokens,"Aviso ", `${aviso.titulo}`);
+            console.log("Tokens "+listaTokens.toString());
+            //const arrayTokens =  Array.from(tokens);
+            const infoEnvioMovil =  await mensajeria.enviarMensajeTokenAsync(listaTokens,"Aviso ", `${aviso.titulo}`);
             respuesta.enviadoMovil = infoEnvioMovil.enviado;
             respuesta.infoEnvioMovil = infoEnvioMovil;
-
        }else{
             console.log("==== No existen tokens en la lista =====");
+            
        }
 
         return respuesta;
