@@ -142,3 +142,179 @@ with avisos AS (
 					and fam.eliminado = false
 					and grupo.eliminado = false
 					and suc.eliminado =false
+
+---querys para los tags
+-- tags para las sucursales
+select suc.id, 
+				'@'||suc.nombre as nombre,				
+				suc.co_empresa as id_empresa,
+				suc.id as id_sucursal, 
+				suc.nombre as nombre_mostrar,
+				(count(*)||' contactos') as descripcion,
+				-1 as id_grupo,
+				2 as tipo,
+				count(*) as contador_contactos
+  from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
+                inner join co_alumno al on al.id = af.co_alumno                
+                inner join co_sucursal suc on suc.id = al.co_sucursal				
+  where 
+  	  suc.id in 
+	  	(select distinct co_sucursal from si_usuario_sucursal_rol r where usuario = 14 and co_empresa = 1 and r.eliminado = false )	
+  	  and af.co_parentesco in (1,2) --Papa y mama 	   	     
+      and af.eliminado = false
+      and fam.eliminado = false      
+      and suc.eliminado =false  
+group by suc.id
+
+
+
+
+--tags de grupos y sucursales
+select grupo.id, 
+				'@'||grupo.nombre||' - '||suc.nombre as nombre,							
+				suc.co_empresa as id_empresa,
+				suc.id as id_sucursal, 
+				grupo.nombre as nombre_mostrar,
+				(count(grupo.*)||' contactos') as descripcion,
+				grupo.id as id_grupo,
+				3 as tipo,
+				count(grupo.*) as contador_contactos
+  from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
+                inner join co_alumno al on al.id = af.co_alumno                
+                inner join co_sucursal suc on suc.id = al.co_sucursal				
+				inner join co_grupo grupo on grupo.id = al.co_grupo
+  where 
+  	  suc.id in 
+	  	(select distinct co_sucursal from si_usuario_sucursal_rol r where usuario = 14 and co_empresa = 1 and r.eliminado = false )	
+  	  and af.co_parentesco in (1,2) --Papa y mama 	   	     
+      and af.eliminado = false
+      and fam.eliminado = false      
+      and suc.eliminado =false  
+group by grupo.id,suc.id
+order by suc.nombre,grupo.nombre
+
+
+
+--tags de contactos por sucursal asignada
+select fam.id, 
+				fam.nombre as nombre,				
+				suc.co_empresa as id_empresa,
+				suc.id as id_sucursal, 
+				fam.nombre as nombre_mostrar,
+				(pare.nombre|| ' de '||string_agg(al.nombre,',')) as descripcion,
+				grupo.id as id_grupo,
+				4 as tipo,
+				 count(al.*) as contador_contactos
+  from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
+                inner join co_alumno al on al.id = af.co_alumno                
+                inner join co_sucursal suc on suc.id = al.co_sucursal				
+				inner join co_grupo grupo on grupo.id = al.co_grupo
+				inner join co_parentesco pare on pare.id = af.co_parentesco
+  where 
+  	  suc.id in 
+	  	(select distinct co_sucursal from si_usuario_sucursal_rol r where usuario = 14 and co_empresa = 1 and r.eliminado = false )	
+  	  and pare.id in (1,2) --Papa y mama 	   	     
+      and af.eliminado = false
+      and fam.eliminado = false      
+      and suc.eliminado =false  
+group by fam.id,suc.id,grupo.id,pare.id
+order by fam.nombre
+
+--- completo
+
+
+--select  array_to_json(array_agg(distinct r.co_sucursal))
+	  
+
+
+
+with sucursales_usuario as (
+ 		select distinct co_sucursal 
+		from si_usuario_sucursal_rol r 
+		where usuario = 14 and co_empresa = 1 and r.eliminado = false 
+), universo as (
+	select suc.id, 
+				'@'||suc.nombre as nombre,				
+				suc.co_empresa as id_empresa,
+				suc.id as id_sucursal, 
+				suc.nombre as nombre_mostrar,
+				(count(fam.*)||' contactos') as descripcion,
+				-1 as id_grupo,
+				2 as tipo,
+				count(fam.*) as contador_contactos,
+				(
+					select array_to_json(
+                array_agg(row_to_json(fam.*))
+				)) as contactos
+  from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
+                inner join co_alumno al on al.id = af.co_alumno                
+                inner join co_sucursal suc on suc.id = al.co_sucursal				
+				inner join sucursales_usuario su on su.co_sucursal = suc.id
+  where
+  	   af.co_parentesco in (1,2) --Papa y mama 	   	     
+	  and al.eliminado = false
+      and af.eliminado = false
+      and fam.eliminado = false      
+      and suc.eliminado =false  
+group by suc.id
+union
+select grupo.id, 
+				'@'||grupo.nombre||' - '||suc.nombre as nombre,				
+				suc.co_empresa as id_empresa,
+				suc.id as id_sucursal, 
+				grupo.nombre as nombre_mostrar,
+				(count(fam.*)||' contactos') as descripcion,
+				grupo.id as id_grupo,
+				2 as tipo,
+				count(fam.*) as contador_contactos,
+				(
+					select array_to_json(
+                array_agg(row_to_json(fam.*))
+				)) as contactos
+  from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
+                inner join co_alumno al on al.id = af.co_alumno                
+                inner join co_sucursal suc on suc.id = al.co_sucursal				
+				inner join co_grupo grupo on grupo.id = al.co_grupo
+				inner join sucursales_usuario su on su.co_sucursal = suc.id
+  where   	  
+  	   af.co_parentesco in (1,2) --Papa y mama 	   	     
+	  and al.eliminado = false
+      and af.eliminado = false
+      and fam.eliminado = false      
+      and suc.eliminado =false  
+group by grupo.id,suc.id
+union
+select fam.id, 
+				fam.nombre as nombre,				
+				suc.co_empresa as id_empresa,
+				suc.id as id_sucursal, 
+				fam.nombre as nombre_mostrar,
+				(pare.nombre|| ' de '||string_agg(al.nombre,',')) as descripcion,
+				grupo.id as id_grupo,
+				4 as tipo,
+				 count(fam.*) as contador_contactos,
+				(
+					select array_to_json(
+                array_agg(row_to_json(fam.*))
+				)) as contactos			
+  from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
+                inner join co_alumno al on al.id = af.co_alumno                
+                inner join co_sucursal suc on suc.id = al.co_sucursal				
+				inner join co_grupo grupo on grupo.id = al.co_grupo
+				inner join co_parentesco pare on pare.id = af.co_parentesco
+				inner join sucursales_usuario su on su.co_sucursal = suc.id
+  where   	  
+  	   pare.id in (1,2) --Papa y mama 	   	     
+	  and al.eliminado = false
+      and af.eliminado = false
+      and fam.eliminado = false      
+      and suc.eliminado =false  
+group by fam.id,suc.id,grupo.id,pare.id
+) select u.* 
+	from universo u 
+	order by u.tipo, u.id_sucursal,u.nombre
+	
+	
+	
+	
+	

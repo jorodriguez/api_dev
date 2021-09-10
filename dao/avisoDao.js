@@ -450,6 +450,8 @@ const obtenerCorreosPorAviso = async (aviso)=>{
 
 };
 
+const obtenerTagsContactos
+
 
 module.exports = {
   obtenerAvisos,
