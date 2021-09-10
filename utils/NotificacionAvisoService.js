@@ -19,7 +19,7 @@ const enviarAviso = async (idAviso) => {
     } else {
         
         console.log("AVISO "+JSON.stringify(aviso));
-        const listaContactos = await avisoDao.obtenerCorreosPorAviso(aviso.id,aviso.co_empresa); //JSON.parse(aviso.para) || [];
+        const listaContactos = await avisoDao.obtenerCorreosPorAviso(aviso); //JSON.parse(aviso.para) || [];
         console.log("listaContactos "+listaContactos);
         
         const listaCorreoTemp = listaContactos.filter(e => e.correo != null).map(element => element.correo);
