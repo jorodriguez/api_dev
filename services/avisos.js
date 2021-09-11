@@ -59,6 +59,21 @@ const getContactos = async (request, response) =>{
     }
 };
 
+const getTagsContactos = async (request, response) =>{
+    console.log("@getTagsContactos");
+    try{    
+     const { idUsuario = [] } = request.params;
+
+     console.log("usuario "+idUsuario);
+    
+     const contactos = await avisoService.getTagsContactos(idUsuario);
+     response.status(200).json(contactos);
+    }catch(e){
+        console.log("Error "+e);
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
 
 const eliminarAvisos = async (request, response) => {
     console.log("@eliminarAvisos");
@@ -110,5 +125,6 @@ module.exports = {
    getAvisosUsuario,
    eliminarAvisos,
    getContactos,
-   obtenerHtmlPreviewAviso
+   obtenerHtmlPreviewAviso,
+   getTagsContactos
 };

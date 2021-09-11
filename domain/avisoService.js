@@ -71,10 +71,14 @@ const getContactos = async(idsSucursales) => {
     return await avisoDao.obtenerContactos(idsSucursales);
 };
 
-
 const getContactosIds = async(idsFamiliar) => {
     console.log("@getContactosIds");
     return await avisoDao.obtenerContactosIds(idsFamiliar);
+};
+
+const getTagsContactos = async(idUsuario) => {
+    console.log("@getTagsContactos");
+    return await avisoDao.obtenerTagsContactos(idUsuario);
 };
 
 const eliminarAvisos = async (avisosData) => {
@@ -91,6 +95,7 @@ module.exports = {
    getContactos,
    getAvisoId,
    getContactosIds,
-   obtenerPreview
+   obtenerPreview,
+   getTagsContactos
 
 };

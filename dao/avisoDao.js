@@ -450,7 +450,90 @@ const obtenerCorreosPorAviso = async (aviso)=>{
 
 };
 
-const obtenerTagsContactos
+const QUERY_TAGS_CONTACTOS = `
+
+with sucursales_usuario as (
+    select distinct co_sucursal 
+    from si_usuario_sucursal_rol r 
+    where usuario = $1 and r.eliminado = false 
+), universo as (
+select suc.id, 
+     '@'||suc.nombre as nombre,				
+     suc.co_empresa as id_empresa,
+     suc.id as id_sucursal, 
+     suc.nombre as nombre_mostrar,
+     (count(fam.*)||' contactos') as descripcion,
+     -1 as id_grupo,
+     2 as tipo,
+     count(fam.*) as contador_contactos
+     ,(array_to_json(array_agg(row_to_json(fam.*))))::text as contactos
+from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
+             inner join co_alumno al on al.id = af.co_alumno                
+             inner join co_sucursal suc on suc.id = al.co_sucursal				
+     inner join sucursales_usuario su on su.co_sucursal = suc.id
+where
+    af.co_parentesco in (1,2) --Papa y mama 	   	     
+ and al.eliminado = false
+   and af.eliminado = false
+   and fam.eliminado = false      
+   and suc.eliminado =false  
+group by suc.id	
+union 
+select grupo.id, 
+     '@'||grupo.nombre||' - '||suc.nombre as nombre,				
+     suc.co_empresa as id_empresa,
+     suc.id as id_sucursal, 
+     grupo.nombre ||' '||suc.nombre nombre_mostrar,
+     (count(fam.*)||' contactos') as descripcion,
+     grupo.id as id_grupo,
+     2 as tipo,
+     count(fam.*) as contador_contactos
+     ,(array_to_json(array_agg(row_to_json(fam.*))))::text as contactos
+from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
+             inner join co_alumno al on al.id = af.co_alumno                
+             inner join co_sucursal suc on suc.id = al.co_sucursal				
+     inner join co_grupo grupo on grupo.id = al.co_grupo
+     inner join sucursales_usuario su on su.co_sucursal = suc.id
+where   	  
+    af.co_parentesco in (1,2) --Papa y mama 	   	     
+ and al.eliminado = false
+   and af.eliminado = false
+   and fam.eliminado = false      
+   and suc.eliminado =false  
+group by grupo.id,suc.id
+union
+select fam.id, 
+     fam.nombre as nombre,				
+     suc.co_empresa as id_empresa,
+     suc.id as id_sucursal, 
+     fam.nombre as nombre_mostrar,
+     (pare.nombre|| ' de '||string_agg(al.nombre,',')) as descripcion,
+     grupo.id as id_grupo,
+     4 as tipo,
+      count(fam.*) as contador_contactos
+     ,(array_to_json(array_agg(row_to_json(fam.*))))::text as contactos			
+from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
+             inner join co_alumno al on al.id = af.co_alumno                
+             inner join co_sucursal suc on suc.id = al.co_sucursal				
+     inner join co_grupo grupo on grupo.id = al.co_grupo
+     inner join co_parentesco pare on pare.id = af.co_parentesco
+     inner join sucursales_usuario su on su.co_sucursal = suc.id
+where   	  
+    pare.id in (1,2) --Papa y mama 	   	     
+ and al.eliminado = false
+   and af.eliminado = false
+   and fam.eliminado = false      
+   and suc.eliminado =false  
+group by fam.id,suc.id,grupo.id,pare.id
+) select  u.* 
+from universo u 
+order by u.tipo, u.id_sucursal,u.nombre
+`;
+
+const obtenerTagsContactos = async (idUsuario)=>{
+  console.log("@obtenerTagsContactos");         
+  return await genericDao.findAll(QUERY_TAGS_CONTACTOS, [idUsuario]);
+};
 
 
 module.exports = {
@@ -462,5 +545,6 @@ module.exports = {
   obtenerContactosIds,
   registrarEnvio,
   obtenerAvisoId,
-  obtenerCorreosPorAviso
+  obtenerCorreosPorAviso,
+  obtenerTagsContactos
 };
