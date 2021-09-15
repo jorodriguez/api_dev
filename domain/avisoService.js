@@ -4,8 +4,7 @@ const { enviarAviso,obtenerPreviewAviso } = require('../utils/NotificacionAvisoS
 
 const registrarAviso = async (avisoData) => {
     console.log("@service.registrarAviso");
-    try{  
-                         
+    try{                           
           let idCoAviso = await avisoDao.registrarAviso(avisoData);            
                
           let infoEnvio = {};

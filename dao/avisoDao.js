@@ -25,7 +25,7 @@ const registrarAviso = async (avisoData) => {
     for(let i =0;i< contadorPara;i++){        
         const publicacion = para[i];
         console.log("insert publicacion "+publicacion);
-        const idPublicacion = await insertarAvisoPublicacion(idAviso,publicacion);                      
+        const idPublicacion = await insertarAvisoPublicacion(idAviso,publicacion,avisoData.genero);                      
         publicaciones.push({coAvisoPublicacion:idPublicacion, ...publicaciones});
         
       }  
@@ -70,15 +70,14 @@ const insertarCoAviso = async (avisoData)=>{
   );
 };
 
-const insertarAvisoPublicacion = async (id_aviso,publicacionData) =>{
+const insertarAvisoPublicacion = async (id_aviso,publicacionData,genero) =>{
   console.log("@insertarAvisoPublicacion");
   const {        
     tipo,    
     id_empresa,     
     id_sucursal,
     id_grupo,
-    id_familiar,
-    genero,
+    id_familiar    
   } = publicacionData;
   
   console.log(JSON.stringify(publicacionData));
@@ -309,41 +308,30 @@ order by suc.id,fam.nombre,grupo.nombre
 const QUERY_CORREOS_AVISO_POR_EMPRESA = `
 
 with avisos AS (
-  select ap.id,
-      tipo.id as id_tipo,
-      em.id as id_empresa	,			   	
-      suc.id as id_sucursal,
-      grupo.id as id_grupo,
-      fam.id as id_familiar    
-  from co_aviso_publicacion ap inner join co_tipo_publicacion tipo on tipo.id = ap.co_tipo_publicacion
-                  left join co_empresa em on em.id = ap.co_empresa
-                  left join co_sucursal suc on suc.id = ap.co_sucursal
-                  left join co_grupo grupo on grupo.id = ap.co_grupo
-                  left join co_familiar fam on fam.id = ap.co_familiar
-  where ap.co_aviso = $1
-     and ap.eliminado = false
-     and em.eliminado = false 
-) 
-select 
-    distinct       
-        fam.nombre,
-        suc.nombre as sucursal,
-        grupo.nombre as grupo,
-        fam.correo,
-        fam.token,
-		'sucursal' as tipo
-  from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
-                inner join co_alumno al on al.id = af.co_alumno
-                inner join co_grupo grupo on grupo.id = al.co_grupo
-                inner join co_sucursal suc on suc.id = al.co_sucursal
-                inner join co_empresa em on em.id = suc.co_empresa													                          
-				        inner join avisos a on a.id_empresa = em.id
-  where 
-  	  af.co_parentesco in (1,2) --Papa y mama 	   	     
-      and af.eliminado = false
-      and fam.eliminado = false
-      and grupo.eliminado = false
-      and suc.eliminado =false  
+  select distinct co_sucursal 
+     from si_usuario_sucursal_rol r 
+     where usuario = $1 and r.eliminado = false 
+ ) 
+ select            
+         fam.nombre,
+         suc.nombre as sucursal,
+         grupo.nombre as grupo,
+         fam.correo,
+         fam.token,
+     'sucursal' as tipo
+   from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
+                 inner join co_alumno al on al.id = af.co_alumno
+                 inner join co_grupo grupo on grupo.id = al.co_grupo
+                 inner join co_sucursal suc on suc.id = al.co_sucursal
+                 inner join co_empresa em on em.id = suc.co_empresa													                          
+                 inner join avisos a on a.co_sucursal = suc.id
+   where 
+       af.co_parentesco in (1,2) --Papa y mama 	   	     
+       and af.eliminado = false
+       and fam.eliminado = false
+       and grupo.eliminado = false
+       and suc.eliminado =false  
+     and al.eliminado = false
 `;
 
 const QUERY_CORREOS_AVISO_POR_CRITERIO = `
@@ -444,9 +432,11 @@ const obtenerCorreosPorAviso = async (aviso)=>{
   
   const existePublicacionTodaEmpresa = await genericDao.findOne(QUERY_EXISTE_PUBLICACION_EMPRESA,[aviso.id]);
   console.log("existePublicacionTodaEmpresa "+JSON.stringify(existePublicacionTodaEmpresa));
+
   let query = existePublicacionTodaEmpresa.exists ? QUERY_CORREOS_AVISO_POR_EMPRESA : QUERY_CORREOS_AVISO_POR_CRITERIO;
+  let params = existePublicacionTodaEmpresa.exists ? [aviso.genero]:[aviso.id];
   
-  return await genericDao.findAll(query, [aviso.id]);
+  return await genericDao.findAll(query, params);
 
 };
 
@@ -486,7 +476,7 @@ select grupo.id,
      grupo.nombre ||' '||suc.nombre nombre_mostrar,
      (count(fam.*)||' contactos') as descripcion,
      grupo.id as id_grupo,
-     2 as tipo,
+     3 as tipo,
      count(fam.*) as contador_contactos
      ,(array_to_json(array_agg(row_to_json(fam.*))))::text as contactos
 from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
@@ -527,7 +517,7 @@ where
 group by fam.id,suc.id,grupo.id,pare.id
 ) select  u.* 
 from universo u 
-order by u.tipo, u.id_sucursal,u.nombre
+order by u.tipo, u.nombre
 `;
 
 const obtenerTagsContactos = async (idUsuario)=>{
