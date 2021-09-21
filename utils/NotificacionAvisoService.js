@@ -31,7 +31,7 @@ const enviarAviso = async (idAviso) => {
         const correos = Array.from(listaCorreos).toString();         
         const tokens = Array.from(listaTokens);         
         console.log("Lista de correos "+correos);
-        console.log("Lista de tokens "+tokens.toString());
+        //console.log("Lista de tokens "+tokens.toString());
         const usuarioGenero = await usuarioDao.buscarUsuarioId(aviso.genero);
         
         console.log("=== Envio de aviso ===");

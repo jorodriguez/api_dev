@@ -352,6 +352,7 @@ with avisos AS (
      and ap.eliminado = false
      and em.eliminado = false 
 ) 
+
 select 
     distinct       
         fam.nombre,
@@ -365,9 +366,11 @@ select
                 inner join co_grupo grupo on grupo.id = al.co_grupo
                 inner join co_sucursal suc on suc.id = al.co_sucursal
                 inner join co_empresa em on em.id = suc.co_empresa													                          
-				inner join avisos a on a.id_sucursal = suc.id
+				inner join avisos a on a.id_sucursal = suc.id																				
   where 
   	  af.co_parentesco in (1,2) --Papa y mama 	   	     
+	  and a.id_tipo = 2	  
+	  and al.eliminado = false
       and af.eliminado = false
       and fam.eliminado = false
       and grupo.eliminado = false
@@ -386,9 +389,12 @@ select
                 inner join co_grupo grupo on grupo.id = al.co_grupo
                 inner join co_sucursal suc on suc.id = al.co_sucursal
                 inner join co_empresa em on em.id = suc.co_empresa
-				inner join avisos a on a.id_sucursal = suc.id and a.id_grupo = grupo.id				
+				inner join avisos a on a.id_sucursal = suc.id 										
   where 
   	  af.co_parentesco in (1,2) --Papa y mama 	   	 
+	  and a.id_grupo = grupo.id				
+	  and al.eliminado = false
+	  and a.id_tipo = 3
       and af.eliminado = false
       and fam.eliminado = false
       and grupo.eliminado = false
@@ -407,14 +413,17 @@ select distinct
                 inner join co_sucursal suc on suc.id = al.co_sucursal
                 inner join co_empresa em on em.id = suc.co_empresa													                          
 				inner join avisos a on a.id_sucursal = suc.id 
-										and a.id_grupo = grupo.id	
-										and a.id_familiar = fam.id
+										
   where 
   	  af.co_parentesco in (1,2) --Papa y mama 	   	 
+	  and a.id_grupo = grupo.id	
+	  and al.eliminado = false
+	  and a.id_familiar = fam.id
+	  and a.id_tipo = 4
       and af.eliminado = false
       and fam.eliminado = false
       and grupo.eliminado = false
-      and suc.eliminado =false  
+      and suc.eliminado =false 
 `;
 
 const QUERY_EXISTE_PUBLICACION_EMPRESA = `
