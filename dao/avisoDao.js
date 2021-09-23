@@ -456,73 +456,76 @@ with sucursales_usuario as (
     from si_usuario_sucursal_rol r 
     where usuario = $1 and r.eliminado = false 
 ), universo as (
-select suc.id, 
-     '@'||suc.nombre as nombre,				
-     suc.co_empresa as id_empresa,
-     suc.id as id_sucursal, 
-     suc.nombre as nombre_mostrar,
-     (count(fam.*)||' contactos') as descripcion,
-     -1 as id_grupo,
-     2 as tipo,
-     count(fam.*) as contador_contactos
-     ,(array_to_json(array_agg(row_to_json(fam.*))))::text as contactos
+  select suc.id, 
+  '@'||suc.nombre as nombre,				
+  suc.co_empresa as id_empresa,
+  suc.id as id_sucursal, 
+  suc.nombre as nombre_mostrar,
+  (count(fam.*)||' contactos') as descripcion,
+  -1 as id_grupo,
+-1 as id_familiar,
+  2 as tipo,
+  count(fam.*) as contador_contactos
+  ,(array_to_json(array_agg(row_to_json(fam.*))))::text as contactos
 from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
-             inner join co_alumno al on al.id = af.co_alumno                
-             inner join co_sucursal suc on suc.id = al.co_sucursal				
-     inner join sucursales_usuario su on su.co_sucursal = suc.id
+          inner join co_alumno al on al.id = af.co_alumno                
+          inner join co_sucursal suc on suc.id = al.co_sucursal				
+  inner join sucursales_usuario su on su.co_sucursal = suc.id
 where
-    af.co_parentesco in (1,2) --Papa y mama 	   	     
- and al.eliminado = false
-   and af.eliminado = false
-   and fam.eliminado = false      
-   and suc.eliminado =false  
+ af.co_parentesco in (1,2) --Papa y mama 	   	     
+and al.eliminado = false
+and af.eliminado = false
+and fam.eliminado = false      
+and suc.eliminado =false  
 group by suc.id	
 union 
 select grupo.id, 
-     '@'||grupo.nombre||' - '||suc.nombre as nombre,				
-     suc.co_empresa as id_empresa,
-     suc.id as id_sucursal, 
-     grupo.nombre ||' '||suc.nombre nombre_mostrar,
-     (count(fam.*)||' contactos') as descripcion,
-     grupo.id as id_grupo,
-     3 as tipo,
-     count(fam.*) as contador_contactos
-     ,(array_to_json(array_agg(row_to_json(fam.*))))::text as contactos
+  '@'||grupo.nombre||' - '||suc.nombre as nombre,				
+  suc.co_empresa as id_empresa,
+  suc.id as id_sucursal, 
+  grupo.nombre ||' '||suc.nombre nombre_mostrar,
+  (count(fam.*)||' contactos') as descripcion,
+  grupo.id as id_grupo,
+-1 as id_familiar,
+  3 as tipo,
+  count(fam.*) as contador_contactos
+  ,(array_to_json(array_agg(row_to_json(fam.*))))::text as contactos
 from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
-             inner join co_alumno al on al.id = af.co_alumno                
-             inner join co_sucursal suc on suc.id = al.co_sucursal				
-     inner join co_grupo grupo on grupo.id = al.co_grupo
-     inner join sucursales_usuario su on su.co_sucursal = suc.id
+          inner join co_alumno al on al.id = af.co_alumno                
+          inner join co_sucursal suc on suc.id = al.co_sucursal				
+  inner join co_grupo grupo on grupo.id = al.co_grupo
+  inner join sucursales_usuario su on su.co_sucursal = suc.id
 where   	  
-    af.co_parentesco in (1,2) --Papa y mama 	   	     
- and al.eliminado = false
-   and af.eliminado = false
-   and fam.eliminado = false      
-   and suc.eliminado =false  
+ af.co_parentesco in (1,2) --Papa y mama 	   	     
+and al.eliminado = false
+and af.eliminado = false
+and fam.eliminado = false      
+and suc.eliminado =false  
 group by grupo.id,suc.id
 union
 select fam.id, 
-     fam.nombre as nombre,				
-     suc.co_empresa as id_empresa,
-     suc.id as id_sucursal, 
-     fam.nombre as nombre_mostrar,
-     (pare.nombre|| ' de '||string_agg(al.nombre,',')) as descripcion,
-     grupo.id as id_grupo,
-     4 as tipo,
-      count(fam.*) as contador_contactos
-     ,(array_to_json(array_agg(row_to_json(fam.*))))::text as contactos			
+  fam.nombre as nombre,				
+  suc.co_empresa as id_empresa,
+  suc.id as id_sucursal, 
+  fam.nombre as nombre_mostrar,
+  (pare.nombre|| ' de '||string_agg(al.nombre,',')) as descripcion,
+  grupo.id as id_grupo,
+fam.id as id_familiar,
+  4 as tipo,
+   count(fam.*) as contador_contactos
+  ,(array_to_json(array_agg(row_to_json(fam.*))))::text as contactos			
 from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
-             inner join co_alumno al on al.id = af.co_alumno                
-             inner join co_sucursal suc on suc.id = al.co_sucursal				
-     inner join co_grupo grupo on grupo.id = al.co_grupo
-     inner join co_parentesco pare on pare.id = af.co_parentesco
-     inner join sucursales_usuario su on su.co_sucursal = suc.id
+          inner join co_alumno al on al.id = af.co_alumno                
+          inner join co_sucursal suc on suc.id = al.co_sucursal				
+  inner join co_grupo grupo on grupo.id = al.co_grupo
+  inner join co_parentesco pare on pare.id = af.co_parentesco
+  inner join sucursales_usuario su on su.co_sucursal = suc.id
 where   	  
-    pare.id in (1,2) --Papa y mama 	   	     
+ pare.id in (1,2) --Papa y mama 	   	     
  and al.eliminado = false
-   and af.eliminado = false
-   and fam.eliminado = false      
-   and suc.eliminado =false  
+and af.eliminado = false
+and fam.eliminado = false      
+and suc.eliminado =false  
 group by fam.id,suc.id,grupo.id,pare.id
 ) select  u.* 
 from universo u 
@@ -534,6 +537,146 @@ const obtenerTagsContactos = async (idUsuario)=>{
   return await genericDao.findAll(QUERY_TAGS_CONTACTOS, [idUsuario]);
 };
 
+const QUERY_AVISO_FAMILIAR = `
+with familiar AS (  
+  select  
+      fam.id,
+          fam.nombre,	    
+          suc.id as id_sucursal,
+          grupo.id as id_grupo,
+      em.id as id_empresa,
+      al.nombre as hijo
+    from co_alumno_familiar af inner join co_familiar fam on fam.id = af.co_familiar
+                  inner join co_alumno al on al.id = af.co_alumno
+                  inner join co_grupo grupo on grupo.id = al.co_grupo
+                  inner join co_sucursal suc on suc.id = al.co_sucursal
+                  inner join co_empresa em on em.id = suc.co_empresa													                          		
+   where 
+      fam.id = $1
+        and af.co_parentesco in (1,2) --Papa y mama 	   	 	  
+      and al.eliminado = false	 
+        and af.eliminado = false
+        and fam.eliminado = false
+        and grupo.eliminado = false
+        and suc.eliminado =false 
+  )--publicaciones para toda la empresa
+  select 
+	  aviso.fecha,	 
+	  to_char(aviso.fecha,'DD-MM-YYYY') as fecha_format,
+	   aviso.fecha_envio,
+	  to_char(aviso.fecha_envio,'dd-mm-yyyy HH24:MI') as fecha_envio_format,
+	  aviso.titulo,
+	  ap.id as id_aviso_publicacion,
+      tipo.id as id_tipo,
+      em.id as id_empresa,			   	
+      -1 as id_sucursal,
+      -1 as id_grupo,
+      f.id as id_familiar,
+	  tipo.nombre as tipo
+  from co_aviso aviso 
+  				  inner join co_aviso_publicacion ap on ap.co_aviso = aviso.id
+				  inner join co_tipo_publicacion tipo on tipo.id = ap.co_tipo_publicacion				  
+                  inner join co_empresa em on em.id = ap.co_empresa	
+				  inner join familiar f on f.id_empresa = em.id                 
+  where 
+  	 tipo.id = 1 	 
+	 and ap.eliminado = false
+     and em.eliminado = false
+union --POR SUCURSAL
+select 
+	  aviso.fecha,
+	  to_char(aviso.fecha,'DD-MM-YYYY') as fecha_format,
+	  aviso.fecha_envio,
+	  to_char(aviso.fecha_envio,'dd-mm-yyyy HH24:MI') as fecha_envio_format,
+	  aviso.titulo,
+	  ap.id as id_aviso_publicacion,
+      tipo.id as id_tipo,
+      em.id as id_empresa,			   	
+      suc.id as id_sucursal,
+      -1 as id_grupo,
+      f.id as id_familiar,
+	  tipo.nombre as tipo
+  from co_aviso aviso 
+  				  inner join co_aviso_publicacion ap on ap.co_aviso = aviso.id
+				  inner join co_tipo_publicacion tipo on tipo.id = ap.co_tipo_publicacion				  
+                  inner join co_empresa em on em.id = ap.co_empresa					  
+                  inner join co_sucursal suc on suc.id = ap.co_sucursal
+				  inner join familiar f on f.id_empresa = em.id
+				  							and f.id_sucursal = suc.id
+                  
+  where 
+  	 tipo.id = 2 
+	 and ap.eliminado = false
+     and em.eliminado = false
+	 and suc.eliminado = false
+union --POR GRUPO
+select 
+	 aviso.fecha,
+	  to_char(aviso.fecha,'DD-MM-YYYY') as fecha_format,
+	   aviso.fecha_envio,
+	  to_char(aviso.fecha_envio,'dd-mm-yyyy HH24:MI') as fecha_envio_format,
+	  aviso.titulo,
+	  ap.id as id_aviso_publicacion,
+      tipo.id as id_tipo,
+      em.id as id_empresa,			   	
+      suc.id as id_sucursal,
+      grupo.id as id_grupo,
+      f.id as id_familiar,
+	  tipo.nombre as tipo
+  from co_aviso aviso 
+  				  inner join co_aviso_publicacion ap on ap.co_aviso = aviso.id
+				  inner join co_tipo_publicacion tipo on tipo.id = ap.co_tipo_publicacion				  
+                  inner join co_empresa em on em.id = ap.co_empresa					  
+                  inner join co_sucursal suc on suc.id = ap.co_sucursal
+				  inner join co_grupo grupo on grupo.id = ap.co_grupo
+				  inner join familiar f on f.id_empresa = em.id
+				  							and f.id_sucursal = suc.id
+											and f.id_grupo = grupo.id
+                
+  where 
+  	 tipo.id = 3 
+	 and ap.eliminado = false
+     and em.eliminado = false
+	 and suc.eliminado = false
+	 and grupo.eliminado = false
+union --POR CONTACTO
+select 
+	 aviso.fecha,
+	  to_char(aviso.fecha,'DD-MM-YYYY') as fecha_format,
+	   aviso.fecha_envio,
+	  to_char(aviso.fecha_envio,'dd-mm-yyyy HH24:MI') as fecha_envio_format,
+	  aviso.titulo,
+	  ap.id as id_aviso_publicacion,
+      tipo.id as id_tipo,
+      em.id as id_empresa,			   	
+      suc.id as id_sucursal,
+      grupo.id as id_grupo,
+      f.id as id_familiar,
+	  tipo.nombre as tipo
+  from co_aviso aviso 
+  				  inner join co_aviso_publicacion ap on ap.co_aviso = aviso.id
+				  inner join co_tipo_publicacion tipo on tipo.id = ap.co_tipo_publicacion				  
+                  inner join co_empresa em on em.id = ap.co_empresa					  
+                  inner join co_sucursal suc on suc.id = ap.co_sucursal
+				  inner join co_grupo grupo on grupo.id = ap.co_grupo
+				  inner join co_familiar fam on fam.id = ap.co_familiar
+				  inner join familiar f on f.id_empresa = em.id
+				  							and f.id_sucursal = suc.id
+											and f.id_grupo = grupo.id 
+											and f.id = fam.id
+  where 
+  	 tipo.id = 4 
+	 and ap.eliminado = false
+     and em.eliminado = false
+	 and suc.eliminado = false
+	 and grupo.eliminado = false	 
+	 and fam.eliminado = false
+	 
+`;
+
+const obtenerAvisosPorFamiliar = async (idFamiliar)=>{  
+  return await genericDao.findAll(QUERY_AVISO_FAMILIAR, [idFamiliar]);
+};
 
 module.exports = {
   obtenerAvisos,
@@ -545,5 +688,6 @@ module.exports = {
   registrarEnvio,
   obtenerAvisoId,
   obtenerCorreosPorAviso,
-  obtenerTagsContactos
+  obtenerTagsContactos,
+  obtenerAvisosPorFamiliar
 };

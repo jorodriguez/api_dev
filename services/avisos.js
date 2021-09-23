@@ -2,6 +2,7 @@
 const avisoService = require('../domain/avisoService');
 const handle = require('../helpers/handlersErrors');
 //const { enviarEstadoCuenta } = require('../utils/NotificacionService');
+const {validarToken} = require('../helpers/helperTokenMovil');
 const notificacionService = require('../utils/NotificacionService');
 
 const registrarAviso = async (request, response) => {
@@ -74,6 +75,27 @@ const getTagsContactos = async (request, response) =>{
     }
 };
 
+const getAvisosPorFamiliar = async (request, response) =>{
+    console.log("@getAvisosPorFamiliar");
+    try{    
+/*
+    let respuesta = validarToken(request,response);
+
+     if (!respuesta.tokenValido) {
+          return response.status(respuesta.statusNumber).send(respuesta);
+     }
+     */
+     const { id_familiar } = request.params;     
+     console.log("idFamiliar "+id_familiar);
+    
+     const avisos = await avisoService.getAvisosPorFamiliar(id_familiar);
+     response.status(200).json(avisos);
+    }catch(e){
+        console.log("Error al obtener avisos por familair"+e);
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
 
 const eliminarAvisos = async (request, response) => {
     console.log("@eliminarAvisos");
@@ -126,5 +148,6 @@ module.exports = {
    eliminarAvisos,
    getContactos,
    obtenerHtmlPreviewAviso,
-   getTagsContactos
+   getTagsContactos,
+   getAvisosPorFamiliar
 };

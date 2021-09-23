@@ -85,6 +85,11 @@ const eliminarAvisos = async (avisosData) => {
     return await avisoDao.eliminarAvisos(avisosData);
 };
 
+const getAvisosPorFamiliar = async(idUsuario) => {
+    console.log("@getAvisosPorFamiliar");
+    return await avisoDao.obtenerAvisosPorFamiliar(idUsuario);
+};
+
 
 module.exports = {   
    registrarAviso,
@@ -95,6 +100,6 @@ module.exports = {
    getAvisoId,
    getContactosIds,
    obtenerPreview,
-   getTagsContactos
-
+   getTagsContactos,
+   getAvisosPorFamiliar
 };

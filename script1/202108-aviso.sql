@@ -341,7 +341,7 @@ select
       and fam.eliminado = false
       and grupo.eliminado = false
       and suc.eliminado =false 
-)
+)--publicaciones para toda la empresa
 select 
 	 aviso.*,
 	  ap.id as id_aviso_publicacion,
@@ -349,7 +349,8 @@ select
       em.id as id_empresa,			   	
       -1 as id_sucursal,
       -1 as id_grupo,
-      f.id as id_familiar    
+      f.id as id_familiar,
+	  tipo.nombre as tipo   
   from co_aviso aviso 
   				  inner join co_aviso_publicacion ap on ap.co_aviso = aviso.id
 				  inner join co_tipo_publicacion tipo on tipo.id = ap.co_tipo_publicacion				  
@@ -361,4 +362,83 @@ select
   where 
   	 tipo.id = 1 	 
 	 and ap.eliminado = false
-     and em.eliminado = false 
+     and em.eliminado = false
+union --POR SUCURSAL
+select 
+	 aviso.*,
+	  ap.id as id_aviso_publicacion,
+      tipo.id as id_tipo,
+      em.id as id_empresa,			   	
+      suc.id as id_sucursal,
+      -1 as id_grupo,
+      f.id as id_familiar,
+	  tipo.nombre as tipo
+  from co_aviso aviso 
+  				  inner join co_aviso_publicacion ap on ap.co_aviso = aviso.id
+				  inner join co_tipo_publicacion tipo on tipo.id = ap.co_tipo_publicacion				  
+                  inner join co_empresa em on em.id = ap.co_empresa					  
+                  inner join co_sucursal suc on suc.id = ap.co_sucursal
+				  inner join familiar f on f.id_empresa = em.id
+				  							and f.id_sucursal = suc.id
+                  /*left join co_grupo grupo on grupo.id = ap.co_grupo
+                  left join co_familiar fam on fam.id = ap.co_familiar				  */
+  where 
+  	 tipo.id = 2 
+	 and ap.eliminado = false
+     and em.eliminado = false
+	 and suc.eliminado = false
+union --POR GRUPO
+select 
+	 aviso.*,
+	  ap.id as id_aviso_publicacion,
+      tipo.id as id_tipo,
+      em.id as id_empresa,			   	
+      suc.id as id_sucursal,
+      grupo.id as id_grupo,
+      f.id as id_familiar,
+	  tipo.nombre as tipo
+  from co_aviso aviso 
+  				  inner join co_aviso_publicacion ap on ap.co_aviso = aviso.id
+				  inner join co_tipo_publicacion tipo on tipo.id = ap.co_tipo_publicacion				  
+                  inner join co_empresa em on em.id = ap.co_empresa					  
+                  inner join co_sucursal suc on suc.id = ap.co_sucursal
+				  inner join co_grupo grupo on grupo.id = ap.co_grupo
+				  inner join familiar f on f.id_empresa = em.id
+				  							and f.id_sucursal = suc.id
+											and f.id_grupo = grupo.id
+                  /*
+                  left join co_familiar fam on fam.id = ap.co_familiar				  */
+  where 
+  	 tipo.id = 3 
+	 and ap.eliminado = false
+     and em.eliminado = false
+	 and suc.eliminado = false
+	 and grupo.eliminado = false
+union --POR CONTACTO
+select 
+	 aviso.*,
+	  ap.id as id_aviso_publicacion,
+      tipo.id as id_tipo,
+      em.id as id_empresa,			   	
+      suc.id as id_sucursal,
+      grupo.id as id_grupo,
+      f.id as id_familiar,
+	  tipo.nombre as tipo
+  from co_aviso aviso 
+  				  inner join co_aviso_publicacion ap on ap.co_aviso = aviso.id
+				  inner join co_tipo_publicacion tipo on tipo.id = ap.co_tipo_publicacion				  
+                  inner join co_empresa em on em.id = ap.co_empresa					  
+                  inner join co_sucursal suc on suc.id = ap.co_sucursal
+				  inner join co_grupo grupo on grupo.id = ap.co_grupo
+				  inner join co_familiar fam on fam.id = ap.co_familiar
+				  inner join familiar f on f.id_empresa = em.id
+				  							and f.id_sucursal = suc.id
+											and f.id_grupo = grupo.id 
+											and f.id = fam.id
+  where 
+  	 tipo.id = 4 
+	 and ap.eliminado = false
+     and em.eliminado = false
+	 and suc.eliminado = false
+	 and grupo.eliminado = false	 
+	 and fam.eliminado = false
