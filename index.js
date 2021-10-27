@@ -20,7 +20,7 @@ const formato_complemento = require('./services/formato_complemento');
 const pagos = require('./services/pagos');
 const cargos = require('./services/cargos');
 const mensajeria = require('./services/mensajesFirebase');
-//const tareas_programadas = require('./services/tareas_programadas');
+const tareasProgramadas = require('./services/tareas_programadas');
 const schedule = require('node-schedule');
 const reporteDeudas = require('./services/reporteDeudas');
 const reporte_mensualidades = require('./services/reporte_mensualidades');
@@ -449,7 +449,7 @@ schedule.scheduleJob('0 */35 * * * 1-5', function () {
 // Sec,Min,Hor,D,M,Y
 schedule.scheduleJob('0 1 0 1 * *', function () {
 	console.log('Agregar cargo de mensualidad ' + new Date());
-	//tareas.generarBalanceAlumnos();
+	tareasProgramadas.ejecutarRegistroMensualidadAutomatica();
 });
 
 /********* Calcular Recargos de mensualidades *********/
@@ -464,6 +464,9 @@ schedule.scheduleJob({ hour: 8 , minute:0, second: 0 }, function () {
 
 	}
 });
+
+
+
 
 schedule.scheduleJob({ hour: 8 , minute:0, second: 0 }, function () {
 	console.log("TESTING HOUR "+new Date());
