@@ -12,7 +12,7 @@ where id in (313,222,372,297) order by fecha_genero desc
 from co_alumno 
 where id in (313,222,372,297) order by fecha_genero desc
 
-
+-- es el que se envia a tere como expediente 
   SELECT a.nombre||' '||a.apellidos as alumno,
  			   to_char(b.fecha,'dd-mm-yyyy HH24:MI') as fecha_format,            
                cargo.nombre||' '||b.texto_ayuda||'-'||to_char(b.fecha,'yyyy') as nombre_cargo,                                                            
