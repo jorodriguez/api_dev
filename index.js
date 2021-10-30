@@ -447,7 +447,26 @@ schedule.scheduleJob('0 */35 * * * 1-5', function () {
 
 
 // Sec,Min,Hor,D,M,Y
+// correr a las 00:01 am cada 1 de cada mes
 schedule.scheduleJob('0 1 0 1 * *', function () {
+	console.log('Agregar cargo de mensualidad automatico' + new Date());
+	tareasProgramadas.ejecutarRegistroMensualidadAutomatica();
+});
+
+// correr a las 7 am cada 1 de cada mes
+schedule.scheduleJob('0 0 7 1 * *', function () {
+	console.log('Agregar cargo de mensualidad ' + new Date());
+	tareasProgramadas.ejecutarRegistroMensualidadAutomatica();
+});
+
+//correr a las 7:30 am cada 1 de cada mes
+schedule.scheduleJob('0 30 7 1 * *', function () {
+	console.log('Agregar cargo de mensualidad ' + new Date());
+	tareasProgramadas.ejecutarRegistroMensualidadAutomatica();
+});
+
+//correr a las 8:01 am cada 1 de cada mes
+schedule.scheduleJob('0 1 8 1 * *', function () {
 	console.log('Agregar cargo de mensualidad ' + new Date());
 	tareasProgramadas.ejecutarRegistroMensualidadAutomatica();
 });
