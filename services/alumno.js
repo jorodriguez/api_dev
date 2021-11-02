@@ -18,12 +18,12 @@ const getAlumnos = (request, response) => {
        
         //validarToken(request,response);
 
-        console.log("paso token getAlumnos");
-
         const id_sucursal = parseInt(request.params.id_sucursal);
+        let eliminado = request.params.eliminado;
 
-        console.log("Consultando alumnos de la suc " + id_sucursal);
+        console.log("Consultando alumnos de la suc " + id_sucursal+" eliminado "+eliminado);
 
+         eliminado = eliminado ? eliminado  : false;
         pool.query(
             "SELECT a.*," +
             "  balance.total_adeudo > 0 As adeuda," +
@@ -33,8 +33,8 @@ const getAlumnos = (request, response) => {
             " FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id" +
             "                     inner join co_sucursal s on a.co_sucursal = s.id" +
             "                       left join co_balance_alumno balance on balance.id = a.co_balance_alumno " +
-            "  WHERE a.co_sucursal = $1 AND a.eliminado=false ORDER BY a.nombre ASC",
-            [id_sucursal],
+            "  WHERE a.co_sucursal = $1 AND a.eliminado=$2 ORDER BY a.nombre ASC",
+            [id_sucursal,eliminado],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -317,12 +317,12 @@ const getAlumnoById = (request, response) => {
     console.log(" @getAlumnoById");
     try {
 
-        validarToken(request,response);
+        //validarToken(request,response);
 
         const id = parseInt(request.params.id);
 
         console.log(" Alumno por id = " + id);
-
+//WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC
         pool.query(
             `
             SELECT a.*,
@@ -334,7 +334,7 @@ const getAlumnoById = (request, response) => {
                      inner join co_sucursal s on a.co_sucursal = s.id
                        left join co_formato_inscripcion f on a.co_formato_inscripcion = f.id
                        left join co_datos_facturacion datos_facturacion on a.co_datos_facturacion = datos_facturacion.id
-            WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC
+            WHERE a.id = $1  ORDER BY a.nombre ASC
         `,[id],
             (error, results) => {
                 if (error) {
@@ -344,7 +344,7 @@ const getAlumnoById = (request, response) => {
                 }
                 if (results.rowCount > 0) {
 
-                    var alumno = results.rows[0];
+                    let alumno = results.rows[0];
 
                     //                    console.log(" Alumno encontrado " + JSON.stringify(alumno));
 

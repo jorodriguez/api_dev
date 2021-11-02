@@ -160,6 +160,7 @@ PUT('/sucursal_usuario', authController.cambiarSucursalUsuario);
 
 //alumno
 GET('/alumnos/:id_sucursal', alumno.getAlumnos);
+GET('/alumnos/:id_sucursal/eliminados/:eliminado?', alumno.getAlumnos);
 GET('/alumnos/id/:id', alumno.getAlumnoById);
 POST('/alumnos', alumno.createAlumno);
 PUT('/alumnos/:id', alumno.updateAlumno);
