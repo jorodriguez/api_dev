@@ -55,6 +55,28 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
+(async function() {
+    console.log("====== TESTING DB =========");
+    try{
+    pool.connect((err, client, release) => {
+    if (err) {
+        console.log("ERRROR  "+err);
+        return;
+    }
+    console.log(" === OK ===");
+    client.query('SELECT NOW()', (err, result) => {
+      release();
+      if (err) {
+        return console.error('Error executing query', err.stack);
+      }
+      console.log(result.rows);
+    });
+  });
+}catch(e){
+    console.log(e);
+}
+})();
+
 module.exports = {
     pool
 };

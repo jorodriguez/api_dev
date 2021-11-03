@@ -23,7 +23,8 @@ const getAlumnos = (request, response) => {
 
         console.log("Consultando alumnos de la suc " + id_sucursal+" eliminado "+eliminado);
 
-         eliminado = eliminado ? eliminado  : false;
+        eliminado = eliminado ? eliminado  : false;
+        
         pool.query(
             "SELECT a.*," +
             "  balance.total_adeudo > 0 As adeuda," +
