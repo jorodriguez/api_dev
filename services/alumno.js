@@ -27,7 +27,8 @@ const getAlumnos = (request, response) => {
         
         pool.query(
             "SELECT a.*," +
-            "  balance.total_adeudo > 0 As adeuda," +
+            " to_char(a.fecha_baja,'dd-mm-yyyy HH:mm') as fecha_baja_format," +
+            " balance.total_adeudo > 0 As adeuda," +
             " g.nombre as nombre_grupo," +
             " g.color as color," +
             " s.nombre as nombre_sucursal" +
@@ -261,24 +262,49 @@ const updateAlumno = (request, response) => {
 
 
 // DELETE—/alumnos/:id | deleteAlumno()
-const deleteAlumno = (request, response) => {
-    console.log("@deleteAlumnos");
+const bajaAlumno = async (request, response) => {
+    console.log("@bajaAlumno");
     try {
-        //validarToken(request,response);
+        
+        const id = parseInt(request.params.id);
 
-        const id = parseInt(request.params.id)
-        pool.query('UPDATE CO_ALUMNO SET eliminado = true WHERE id = $1', [id], (error, results) => {
+        const { fechaBaja,observaciones, genero }  = request.body;
+
+        const result = await alumnoService.bajaAlumno(id,fechaBaja,observaciones,genero);
+
+        response.status(200).json(result);
+
+        /*pool.query('UPDATE CO_ALUMNO SET eliminado = true,fecha_baja=current_timestamp WHERE id = $1', [id], (error, results) => {
             if (error) {
 
                 handle.callbackError(error, response);
                 return;
-            }
+            }s
             response.status(200).send(`User deleted with ID: ${id}`);
-        });
+        });*/
+    } catch (e) {
+        console.log(e);
+        handle.callbackErrorNoControlado(e, response);
+    }
+};
+
+const activarAlumnoEliminado = async (request, response) => {
+    console.log("@reactivarAlumno");
+    try {
+        
+        const id = parseInt(request.params.id);
+
+        const { genero }  = request.body;
+
+        const result = await alumnoService.activarAlumnoEliminado(id,genero);
+        
+        response.status(200).json(result);
+
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
 };
+
 
 /*
 const schemaValidacionAlumno = Joi.object().keys({
@@ -367,7 +393,8 @@ module.exports = {
     getAlumnos,
     createAlumno,
     updateAlumno,
-    deleteAlumno,
+    bajaAlumno,
     getAlumnoById,
-    modificarFechaLimitePagoMensualidad
+    modificarFechaLimitePagoMensualidad,
+    activarAlumnoEliminado
 };

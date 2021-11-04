@@ -9,4 +9,10 @@ function modificarFechaLimitePagoMensualidad(idAlumno,fecha,genero){
     return alumnoDao.modificarFechaLimitePagoMensualidadAlumno(idAlumno,fecha,genero);
 }
 
-module.exports = { getCorreosTokenAlumno,modificarFechaLimitePagoMensualidad }
+
+
+module.exports = { getCorreosTokenAlumno,
+                    modificarFechaLimitePagoMensualidad,
+                    bajaAlumno:alumnoDao.bajaAlumno,
+                    activarAlumnoEliminado:alumnoDao.activarAlumnoEliminado
+                 };

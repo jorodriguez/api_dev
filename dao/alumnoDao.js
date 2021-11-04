@@ -86,8 +86,39 @@ const getAlumnoPorId = (idAlumno) => {
 };
 
 
+const activarAlumnoEliminado = (idAlumno,  genero) => {
+    console.log("@activarAlumnoEliminado");
+
+    return genericDao.execute(` 
+                            UPDATE co_alumno 
+                             SET                                                     
+                                fecha_modifico = current_timestamp,
+                                fecha_reactivacion = current_timestamp,
+                                eliminado = false,
+                                modifico = $2
+                             WHERE id = $1 RETURNING id;`
+        , [idAlumno, genero]);
+};
+
+
+const bajaAlumno = (idAlumno,fechaBaja,observaciones,genero) =>{    
+    
+    return genericDao.execute(` 
+                            UPDATE co_alumno 
+                             SET 
+                                fecha_baja =$2::date,                                                                
+                                observaciones_baja=$3,
+                                fecha_modifico = current_timestamp,                                
+                                modifico = $4,
+                                eliminado = true
+                             WHERE id = $1 RETURNING id;`
+        , [idAlumno, new Date(fechaBaja),observaciones, genero]);
+}
+
+
 module.exports = {
     getCorreosTokensAlumno, actualizarProximaFechaLimitePagoMensualidadAlumno,
-    modificarFechaLimitePagoMensualidadAlumno, modificarFotoPerfil, getAlumnoPorId
+    modificarFechaLimitePagoMensualidadAlumno, modificarFotoPerfil, getAlumnoPorId,
+    bajaAlumno,activarAlumnoEliminado
 
 }

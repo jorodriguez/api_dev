@@ -48,7 +48,7 @@ const avisos = require('./services/avisos');
 
 const port = configEnv.PORT;
 //version/branch
-const version = "v1.0.33/202108-aviso";
+const version = "v1.0.33/202110-hotfix-reactivar-alumno";
 
 //es un middleware que serializa los cuerpos de las respuestas 
 //   para poder invocar response.param
@@ -165,7 +165,8 @@ GET('/alumnos/id/:id', alumno.getAlumnoById);
 POST('/alumnos', alumno.createAlumno);
 PUT('/alumnos/:id', alumno.updateAlumno);
 PUT('/alumnos/fecha_limite_pago/:id', alumno.modificarFechaLimitePagoMensualidad);
-DELETE('/alumnos/:id', alumno.deleteAlumno);
+PUT('/alumnos/baja/:id', alumno.bajaAlumno);
+PUT('/alumnos/activar/:id', alumno.activarAlumnoEliminado);
 
 
 //asistencia
