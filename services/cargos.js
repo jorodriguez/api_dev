@@ -39,16 +39,17 @@ const getCatalogoCargos = (request, response) => {
 };
 
 
-const getCargosAlumno = (request, response) => {
+const getCargosAlumno = async (request, response) => {
     console.log("@getCargosAlumno");
     try {
         
         const id_alumno = request.params.id_alumno;
-
-        cargoService.getCargosAlumno(id_alumno)
-        .then(results => response.status(200).json(results))
-        .catch(error => handle.callbackError(error,response));
-
+        const limite = request.params.limite;
+        
+        const results = await cargoService.getCargosAlumno(id_alumno,limite);
+        
+        response.status(200).json(results);
+        
     } catch (e) {
         console.log("ERROR "+e);
         handle.callbackErrorNoControlado(e, response);

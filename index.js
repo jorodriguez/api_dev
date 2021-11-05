@@ -241,7 +241,7 @@ PUT('/pagos/reenviar_comprobante', pagos.reenviarComprobantePago);
 
 POST('/cargos/registrar', cargos.registrarCargo);
 GET('/cargos', cargos.getCatalogoCargos);
-GET('/cargos/:id_alumno', cargos.getCargosAlumno);
+GET('/cargos/:id_alumno/:limite', cargos.getCargosAlumno);
 GET('/balance/:id_alumno', cargos.getBalanceAlumno);
 PUT('/cargos/:id_alumno', cargos.eliminarCargos);
 

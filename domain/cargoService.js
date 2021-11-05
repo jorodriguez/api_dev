@@ -64,10 +64,10 @@ const getCatalogoCargos = () => {
 };
 
 
-const getCargosAlumno = (idAlumno) => {
+const getCargosAlumno = (idAlumno,limite) => {
     console.log("@getCargosAlumno");
 
-    return cargosDao.getCargosAlumno(idAlumno);
+    return cargosDao.getCargosAlumno(idAlumno,limite);
 };
 
 const getBalanceAlumno = (idAlumno) => {

@@ -345,7 +345,7 @@ const enviarEstadoCuenta = async (idAlumno) => {
     }
 };
 
-const enviarAviso = async (idAviso) => {
+/*const enviarAviso = async (idAviso) => {
     
     //buscar el correo de los usuarios y obtener el correo y token
    if (!estadoCuenta) {
@@ -360,7 +360,7 @@ const enviarAviso = async (idAviso) => {
             TEMPLATES.TEMPLATE_ESTADO_CUENTA
         );
     }
-};
+};*/
 
 
 module.exports = {

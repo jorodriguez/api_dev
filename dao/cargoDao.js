@@ -91,9 +91,15 @@ const getCatalogoCargos = () => {
     return genericDao.findAll(QUERY.CARGOS, []);
 };
 
-const getCargosAlumno = (idAlumno) => {
+const getCargosAlumno = (idAlumno,limite) => {
     console.log("@getCargosAlumno");
+
+    //pagina = (pagina-1);
     console.log("request.params.id_alumno " + idAlumno);
+    console.log("limite " + limite);
+    //console.log("pagin " + pagina);
+    
+//    let offset = (limite * pagina);
 
     return genericDao.findAll(
         ` SELECT a.co_balance_alumno,
@@ -115,16 +121,16 @@ const getCargosAlumno = (idAlumno) => {
 	           des.id as id_descuento,
                des.nombre as nombre_descuento,   
                b.descuento, 
-               false as checked ,
+               false as checked,
                0 as pago 
              FROM co_cargo_balance_alumno b inner join co_alumno a on b.co_balance_alumno = a.co_balance_alumno 
                                            inner join cat_cargo cargo on b.cat_cargo = cargo.id					
                                            left join cat_descuento_cargo des on des.id = b.cat_descuento_cargo
              WHERE a.id = $1 and b.eliminado = false and a.eliminado = false
-              ORDER by b.pagado, b.fecha desc
-             LIMIT 20 `,
+             ORDER by b.pagado, b.fecha desc
+             LIMIT ${limite}`,
         [idAlumno]);
-
+//LIMIT ${limite} OFFSET ${offset}
 };
 
 const getBalanceAlumno = (idAlumno) => {
