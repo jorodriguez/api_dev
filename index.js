@@ -249,7 +249,7 @@ PUT('/cargos/:id_alumno', cargos.eliminarCargos);
 GET('/descuento/:id_empresa', catalogoDescuento.getDescuentos);
 
 //GET('/cargos/meses_adeuda/:id_alumno', pagos.obtenerMesesAdeudaMensualidad);
-app.get('/cargos/meses_adeuda/:id_alumno', cargos.obtenerMesesAdeudaMensualidad);
+app.get('/cargos_meses_adeuda/:id_alumno', cargos.obtenerMesesAdeudaMensualidad);
 
 //recargos proximos
 //GET('/mensualidad/vence_semana_actual/:id_sucursal', recargoService.obtenerPagosVencenSemanaActual);
