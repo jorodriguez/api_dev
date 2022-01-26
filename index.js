@@ -48,7 +48,7 @@ const avisos = require('./services/avisos');
 
 const port = configEnv.PORT;
 //version/branch
-const version = "v1.0.33/202110-hotfix-reactivar-alumno";
+const version = "v1.0.33/2022-hotfix";
 
 //es un middleware que serializa los cuerpos de las respuestas 
 //   para poder invocar response.param
