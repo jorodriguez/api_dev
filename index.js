@@ -48,7 +48,8 @@ const avisos = require('./services/avisos');
 
 const port = configEnv.PORT;
 //version/branch
-const version = "v1.0.33/2022-hotfix";
+const version = "v1.0.33/2204-quitar-notificacion-familiar";
+//Se corrigio el formato de recibo de pago
 
 //es un middleware que serializa los cuerpos de las respuestas 
 //   para poder invocar response.param
@@ -249,7 +250,7 @@ PUT('/cargos/:id_alumno', cargos.eliminarCargos);
 GET('/descuento/:id_empresa', catalogoDescuento.getDescuentos);
 
 //GET('/cargos/meses_adeuda/:id_alumno', pagos.obtenerMesesAdeudaMensualidad);
-app.get('/cargosmeses_adeuda/:id_alumno', cargos.obtenerMesesAdeudaMensualidad);
+app.get('/cargos_meses_adeuda/:id_alumno', cargos.obtenerMesesAdeudaMensualidad);
 
 //recargos proximos
 //GET('/mensualidad/vence_semana_actual/:id_sucursal', recargoService.obtenerPagosVencenSemanaActual);
