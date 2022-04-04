@@ -47,7 +47,8 @@ const crearFamiliar = (request, response) => {
 
                             relacionarAlumnoFamilia(id_alumno, id_familiar, p.co_parentesco, p.genero).then((id) => {
                                 //enviar correo
-                                enviarClaveFamiliar(id_familiar,p.id_sucursal);
+                                //MODIFICACION REALIZADA EL 04-ABRIL-2022 A PETICION DE HÉCTOR
+                                //enviarClaveFamiliar(id_familiar,p.id_sucursal);
                                 response.status(200).json({ mensaje: "Familiar agregado.", estatus: true });
                             }).catch((e) => {
                                 console.log("Excepcion al crear familia " + e);
@@ -81,8 +82,8 @@ const resetPasswordFamiliar = (request, response) => {
        // var id_sucursal = request.params.id_sucursal;
 
        // console.log("id_suc "+id_sucursal );
-
-        enviarClaveFamiliar(id_familiar);
+        //MODIFICACION REALIZADA EL 04-ABRIL-2022 A PETICION DE HÉCTOR
+       // enviarClaveFamiliar(id_familiar);
 
         response.status(200).json(id_familiar);
 
