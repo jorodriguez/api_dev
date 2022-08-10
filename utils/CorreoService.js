@@ -8,6 +8,8 @@ const { QUERY, getQueryInstance } = require('../services/sqlHelper');
 const { ID_EMPRESA_MAGIC } = require('./Constantes');
 const correoTemaService = require('../domain/temaNotificacionService');
 const { existeValorArray } = require('./Utils');
+const magicEmail = require('magic-email');
+
 
 const TEMPLATES = {
     TEMPLATE_AVISO: "aviso.html",
@@ -172,6 +174,53 @@ function enviarCorreo(para, conCopia, asunto, renderHtml,handler) {
         }
 
         if (renderHtml != null) {
+            if(configEnv-formaEnvio == 'magic-email'){
+               
+              
+
+            }else{
+                sendEmailNative(para, conCopia, asunto, renderHtml,handler);
+            }
+            
+        } else {
+            console.log("No se envio el correo, no existe HTML");
+        }
+    } catch (e) {
+        console.log("ERROR AL ENVIAR EL CORREO " + e);
+    }
+}
+
+
+const sendMagicEmail = (data = {para, conCopia, asunto, renderHtml,handler})=>{
+
+    const {para, conCopia, asunto, renderHtml,handler} = data;
+
+    const strategyParams = {
+        strategyName: 'NodeMailer',
+        smtp: {
+            host: HOST,
+            port: PORT,
+            user: USER,
+            password: PASSWORD
+        }
+    }
+
+    const emailParams = {
+        to: para,
+        cc: conCopia,
+        bcc: '',
+        subject: asunto,
+        html: renderHtml
+    }
+
+    
+    magicEmail.sendEmail(strategyParams, emailParams);
+
+
+}
+
+
+const sendEmailNative = (para, conCopia, asunto, renderHtml,handler)=>{
 
             const mailOptions = configEnv.EMAIL_CONFIG ? configEnv.EMAIL_CONFIG.mailOptions : {};
             const configMail = configEnv.EMAIL_CONFIG ? configEnv.EMAIL_CONFIG.configMail : {};
@@ -207,13 +256,9 @@ function enviarCorreo(para, conCopia, asunto, renderHtml,handler) {
             transporter.sendMail(mailData, handlerMail);
             
             transporter.close();
-        } else {
-            console.log("No se envio el correo, no existe HTML");
-        }
-    } catch (e) {
-        console.log("ERROR AL ENVIAR EL CORREO " + e);
-    }
+
 }
+
 
 /*
 const enviarCorreoAsync = async (para, conCopia, asunto, renderHtml) =>{
