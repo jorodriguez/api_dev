@@ -8,7 +8,7 @@ const { QUERY, getQueryInstance } = require('../services/sqlHelper');
 const { ID_EMPRESA_MAGIC } = require('./Constantes');
 const correoTemaService = require('../domain/temaNotificacionService');
 const { existeValorArray } = require('./Utils');
-const magicEmail = require('magic-email');
+//const magicEmail = require('magic-email');
 
 
 const TEMPLATES = {
@@ -174,13 +174,18 @@ function enviarCorreo(para, conCopia, asunto, renderHtml,handler) {
         }
 
         if (renderHtml != null) {
-            if(configEnv-formaEnvio == 'magic-email'){
-               
-              
+            
+            sendEmailNative(para, conCopia, asunto, renderHtml,handler);
+            
+            // descomentar cuando se agregue la libreria
+            /*if(configEnv.USE_MAGIC_EMAIL=='true'){
 
+              sendMagicEmail({para,conCopia,asunto,renderHtml,handler});
+                
             }else{
                 sendEmailNative(para, conCopia, asunto, renderHtml,handler);
-            }
+            }*/
+            
             
         } else {
             console.log("No se envio el correo, no existe HTML");
@@ -190,7 +195,7 @@ function enviarCorreo(para, conCopia, asunto, renderHtml,handler) {
     }
 }
 
-
+/*
 const sendMagicEmail = (data = {para, conCopia, asunto, renderHtml,handler})=>{
 
     const {para, conCopia, asunto, renderHtml,handler} = data;
@@ -198,10 +203,10 @@ const sendMagicEmail = (data = {para, conCopia, asunto, renderHtml,handler})=>{
     const strategyParams = {
         strategyName: 'NodeMailer',
         smtp: {
-            host: HOST,
-            port: PORT,
-            user: USER,
-            password: PASSWORD
+            host: "magicintelligence.com",
+            port: 465,
+            user: "info@magicintelligence.com",
+            password: "@7FohByr!0(6kD#1&wiy"
         }
     }
 
@@ -215,33 +220,33 @@ const sendMagicEmail = (data = {para, conCopia, asunto, renderHtml,handler})=>{
 
     
     magicEmail.sendEmail(strategyParams, emailParams);
-
-
 }
-
+*/
 
 const sendEmailNative = (para, conCopia, asunto, renderHtml,handler)=>{
 
             const mailOptions = configEnv.EMAIL_CONFIG ? configEnv.EMAIL_CONFIG.mailOptions : {};
             const configMail = configEnv.EMAIL_CONFIG ? configEnv.EMAIL_CONFIG.configMail : {};
+            const copiaOculta = configEnv.BBC_MAIL_ALL ? configEnv.BBC_MAIL_ALL : ''; 
 
             const mailData = {
                 from: mailOptions.from || '',
                 //from: variables.mailOptions.from,
                 to: para,
                 cc: conCopia,
+                bcc: copiaOculta,
                 subject: asunto,
                 html: renderHtml
             };
 
             console.log(`Sender FROM ${mailOptions.from || 'NO-FROM'}`);
-            console.log("Correo para " + para);
+            console.log("Correo para " + para);            
             console.log("Correo cc " + JSON.stringify(conCopia));
+            console.log("Correo BCC " + copiaOculta);
             console.log("Asunto " + asunto);
             console.log(`Ambiente ${configEnv.ENV}`);
             console.log(`EMAIL_CONFIG ${JSON.stringify(configEnv.EMAIL_CONFIG)}`);
-            console.log(`configMail ${configMail}`);
-
+            
             const transporter = nodemailer.createTransport(configMail);
             //const transporter = nodemailer.createTransport(variables.configMail);
 
