@@ -48,7 +48,7 @@ const avisos = require('./services/avisos');
 
 const port = configEnv.PORT;
 //version/branch
-const version = "2205-columna-adeuda-alumno";
+const version = "2208-fix-correo-magic actualizado 10 agosto";
 //Se corrigio el formato de recibo de pago
 
 //es un middleware que serializa los cuerpos de las respuestas 
