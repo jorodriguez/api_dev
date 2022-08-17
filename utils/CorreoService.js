@@ -8,7 +8,7 @@ const { QUERY, getQueryInstance } = require('../services/sqlHelper');
 const { ID_EMPRESA_MAGIC } = require('./Constantes');
 const correoTemaService = require('../domain/temaNotificacionService');
 const { existeValorArray } = require('./Utils');
-//const magicEmail = require('magic-email');
+const magicEmail = require('magic-email');
 
 
 const TEMPLATES = {
@@ -175,16 +175,16 @@ function enviarCorreo(para, conCopia, asunto, renderHtml,handler) {
 
         if (renderHtml != null) {
             
-            sendEmailNative(para, conCopia, asunto, renderHtml,handler);
+            //sendEmailNative(para, conCopia, asunto, renderHtml,handler);
             
             // descomentar cuando se agregue la libreria
-            /*if(configEnv.USE_MAGIC_EMAIL=='true'){
+            if(configEnv.USE_MAGIC_EMAIL=='true'){
 
               sendMagicEmail({para,conCopia,asunto,renderHtml,handler});
                 
             }else{
                 sendEmailNative(para, conCopia, asunto, renderHtml,handler);
-            }*/
+            }
             
             
         } else {
@@ -195,33 +195,45 @@ function enviarCorreo(para, conCopia, asunto, renderHtml,handler) {
     }
 }
 
-/*
+
 const sendMagicEmail = (data = {para, conCopia, asunto, renderHtml,handler})=>{
 
     const {para, conCopia, asunto, renderHtml,handler} = data;
 
+    const copiaOculta = configEnv.BBC_MAIL_ALL ? configEnv.BBC_MAIL_ALL : ''; 
+    const hostMagicMail = configEnv.HOST_MAGIC_EMAIL ? configEnv.HOST_MAGIC_EMAIL:'';
+    const portMagicMail = configEnv.PORT_MAGIC_EMAIL ? configEnv.PORT_MAGIC_EMAIL:'';
+    const userMagicMail = configEnv.USER_MAGIC_EMAIL ? configEnv.USER_MAGIC_EMAIL:'';
+    const passMagicMail = configEnv.PASSWORD_MAGIC_EMAIL ? configEnv.PASSWORD_MAGIC_EMAIL : '';
+    /*host: `magicintelligence.com`,
+    port: 465,
+    user: `app@magicintelligence.com`,
+    password: `TicFWX9bb(`*/
+    
     const strategyParams = {
         strategyName: 'NodeMailer',
         smtp: {
-            host: "magicintelligence.com",
-            port: 465,
-            user: "info@magicintelligence.com",
-            password: "@7FohByr!0(6kD#1&wiy"
+            host: hostMagicMail,
+            port: portMagicMail,
+            user: userMagicMail,
+            password: passMagicMail
         }
     }
 
     const emailParams = {
         to: para,
         cc: conCopia,
-        bcc: '',
+        bcc: copiaOculta,
         subject: asunto,
-        html: renderHtml
+        html: `${renderHtml}`
     }
+
+    console.log(`${JSON.stringify(emailParams)}`);
 
     
     magicEmail.sendEmail(strategyParams, emailParams);
 }
-*/
+
 
 const sendEmailNative = (para, conCopia, asunto, renderHtml,handler)=>{
 
