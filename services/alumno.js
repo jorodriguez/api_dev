@@ -1,4 +1,3 @@
-
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 const { validarToken } = require('../helpers/helperToken');
@@ -7,7 +6,7 @@ const { isEmptyOrNull } = require('../utils/Utils');
 
 const alumnoService = require('../domain/alumnoService');
 const inscripcion = require('./inscripcion');
-const {ExceptionDatosFaltantes} = require('../exception/exeption');
+const { ExceptionDatosFaltantes } = require('../exception/exeption');
 const formato_complemento = require('./formato_complemento');
 const balance_alumno = require('./balance_alumno');
 
@@ -15,16 +14,16 @@ const balance_alumno = require('./balance_alumno');
 const getAlumnos = (request, response) => {
     console.log("@getAlumnos");
     try {
-       
+
         //validarToken(request,response);
 
         const id_sucursal = parseInt(request.params.id_sucursal);
         let eliminado = request.params.eliminado;
 
-        console.log("Consultando alumnos de la suc " + id_sucursal+" eliminado "+eliminado);
+        console.log("Consultando alumnos de la suc " + id_sucursal + " eliminado " + eliminado);
 
-        eliminado = eliminado ? eliminado  : false;
-        
+        eliminado = eliminado ? eliminado : false;
+
         pool.query(
             ` SELECT a.*,
              to_char(a.fecha_baja,'dd-mm-yyyy HH:mm') as fecha_baja_format,
@@ -37,12 +36,12 @@ const getAlumnos = (request, response) => {
              balance.total_adeudo,
              g.nombre as nombre_grupo,
              g.color as color,
-             s.nombre as nombre_sucursal
+             s.nombre as nombre_sucursal,
+             a.tiempo_hora
              FROM co_alumno a inner join co_grupo g on a.co_grupo = g.id
                                  inner join co_sucursal s on a.co_sucursal = s.id
                                    left join co_balance_alumno balance on balance.id = a.co_balance_alumno 
-              WHERE a.co_sucursal = $1 AND a.eliminado=$2 ORDER BY a.nombre ASC`,
-            [id_sucursal,eliminado],
+              WHERE a.co_sucursal = $1 AND a.eliminado=$2 ORDER BY a.nombre ASC`, [id_sucursal, eliminado],
             (error, results) => {
                 if (error) {
                     handle.callbackError(error, response);
@@ -75,7 +74,8 @@ const createAlumno = (request, response) => {
                     foto,fecha_inscripcion,fecha_reinscripcion,                                      
                     cat_genero,genero,
                     fecha_limite_pago_mensualidad,
-                    numero_dia_limite_pago) 
+                    numero_dia_limite_pago,
+                    tiempo_hora) 
                  VALUES(
                     $1,$2,$3,
                     $4,$5,$6,
@@ -84,21 +84,20 @@ const createAlumno = (request, response) => {
                     $13,$14,($14::date + interval '1 year')
                     ,$15,$16
                     ,$17
-                    ,to_char($17::date,'dd')::integer             
-                ) RETURNING id;`
-                , [
+                    ,to_char($17::date,'dd')::integer
+                    ,$18
+                ) RETURNING id;`, [
                     p.co_sucursal, p.co_grupo, p.nombre, //3
-                    p.apellidos, p.fecha_nacimiento,p.alergias,//6 
+                    p.apellidos, p.fecha_nacimiento, p.alergias, //6 
                     p.nota, p.hora_entrada, p.hora_salida, //9
                     p.costo_inscripcion, p.costo_colegiatura, p.minutos_gracia, //12
-                    p.foto, p.fecha_inscripcion,//14
+                    p.foto, p.fecha_inscripcion, //14
                     p.cat_genero, p.genero, //16
-                    p.fecha_limite_pago_mensualidad //17
+                    p.fecha_limite_pago_mensualidad, //17
+                    p.tiempo_horas //18
                 ],
                 (error, results) => {
                     if (error) {
-                        //handle.callbackError(error, response);
-                        //return;
                         reject(error);
                     }
                     if (results && results.rowCount > 0) {
@@ -141,37 +140,37 @@ const createAlumno = (request, response) => {
     }
 };
 
-const modificarFechaLimitePagoMensualidad = (request,response)=>{
-        console.log("modificarFechaLimitePagoMensualidad");
-        try{
+const modificarFechaLimitePagoMensualidad = (request, response) => {
+    console.log("modificarFechaLimitePagoMensualidad");
+    try {
 
-            const { fecha,genero }  = request.body;
-            const idAlumno  = request.params.id_alumno;
+        const { fecha, genero } = request.body;
+        const idAlumno = request.params.id_alumno;
 
-            if(isEmptyOrNull(idAlumno) || isEmptyOrNull(fecha) || isEmptyOrNull(genero)){
-                console.log("Faltan datos");
-                
-                response.status(200).json(new ExceptionDatosFaltantes("Datos faltantes"));
+        if (isEmptyOrNull(idAlumno) || isEmptyOrNull(fecha) || isEmptyOrNull(genero)) {
+            console.log("Faltan datos");
 
-                return;
-            }
+            response.status(200).json(new ExceptionDatosFaltantes("Datos faltantes"));
 
-
-            alumnoService
-                .modificarFechaLimitePagoMensualidad(idAlumno,fecha,genero)
-                .then(result =>{
-                    
-                    response.status(200).json(result);
-
-                }).catch(error=>{
-                    console.error(error);
-                    handle.callbackError(error, response);
-                });
-
-        }catch(error){
-            console.log("Error "+error);
-            handle.callbackError(error, response);
+            return;
         }
+
+
+        alumnoService
+            .modificarFechaLimitePagoMensualidad(idAlumno, fecha, genero)
+            .then(result => {
+
+                response.status(200).json(result);
+
+            }).catch(error => {
+                console.error(error);
+                handle.callbackError(error, response);
+            });
+
+    } catch (error) {
+        console.log("Error " + error);
+        handle.callbackError(error, response);
+    }
 };
 
 
@@ -180,7 +179,7 @@ const updateAlumno = (request, response) => {
     console.log("@updateAlumnos");
     try {
 
-       // validarToken(request,response);
+        // validarToken(request,response);
 
         const id = parseInt(request.params.id);
 
@@ -218,18 +217,17 @@ const updateAlumno = (request, response) => {
                 cat_genero = $18,                
                  modifico = $19, 
                 fecha_inscripcion = $20
-                 WHERE id = $1`,
-                [
+                 WHERE id = $1`, [
                     id,
                     alumno.nombre, alumno.apellidos, (alumno.fecha_nacimiento == "" ? null : alumno.fecha_nacimiento), alumno.alergias,
                     alumno.nota, alumno.hora_entrada, alumno.hora_salida,
                     alumno.costo_inscripcion, alumno.costo_colegiatura, alumno.minutos_gracia,
                     alumno.foto, (alumno.fecha_reinscripcion == "" ? null : alumno.fecha_reinscripcion),
-                    alumno.co_grupo, alumno.nombre_carino,(alumno.mostrar_nombre_carino || false),
+                    alumno.co_grupo, alumno.nombre_carino, (alumno.mostrar_nombre_carino || false),
                     (alumno.color || null),
                     alumno.cat_genero, alumno.genero,
                     (alumno.fecha_inscripcion == "" ? null : alumno.fecha_inscripcion)
-                    
+
                 ],
                 (error, results) => {
                     if (error) {
@@ -268,15 +266,15 @@ const updateAlumno = (request, response) => {
 
 
 // DELETE—/alumnos/:id | deleteAlumno()
-const bajaAlumno = async (request, response) => {
+const bajaAlumno = async(request, response) => {
     console.log("@bajaAlumno");
     try {
-        
+
         const id = parseInt(request.params.id);
 
-        const { fechaBaja,observaciones, genero }  = request.body;
+        const { fechaBaja, observaciones, genero } = request.body;
 
-        const result = await alumnoService.bajaAlumno(id,fechaBaja,observaciones,genero);
+        const result = await alumnoService.bajaAlumno(id, fechaBaja, observaciones, genero);
 
         response.status(200).json(result);
 
@@ -294,16 +292,16 @@ const bajaAlumno = async (request, response) => {
     }
 };
 
-const activarAlumnoEliminado = async (request, response) => {
+const activarAlumnoEliminado = async(request, response) => {
     console.log("@reactivarAlumno");
     try {
-        
+
         const id = parseInt(request.params.id);
 
-        const { genero }  = request.body;
+        const { genero } = request.body;
 
-        const result = await alumnoService.activarAlumnoEliminado(id,genero);
-        
+        const result = await alumnoService.activarAlumnoEliminado(id, genero);
+
         response.status(200).json(result);
 
     } catch (e) {
@@ -333,12 +331,25 @@ const schemaValidacionAlumno = Joi.object().keys({
 const getParams = (body) => {
 
     const parametros = {
-        co_sucursal, co_grupo,
-        nombre, apellidos, nombre_carino, fecha_nacimiento, cat_genero,
-        alergias, nota, hora_entrada,
-        hora_salida, costo_inscripcion, costo_colegiatura,
-        minutos_gracia, foto, fecha_inscripcion,
-        genero,fecha_limite_pago_mensualidad
+        co_sucursal,
+        co_grupo,
+        nombre,
+        apellidos,
+        nombre_carino,
+        fecha_nacimiento,
+        cat_genero,
+        alergias,
+        nota,
+        hora_entrada,
+        hora_salida,
+        costo_inscripcion,
+        costo_colegiatura,
+        minutos_gracia,
+        foto,
+        fecha_inscripcion,
+        genero,
+        fecha_limite_pago_mensualidad,
+        tiempo_horas
     } = body;
 
     return parametros;
@@ -355,7 +366,7 @@ const getAlumnoById = (request, response) => {
         const id = parseInt(request.params.id);
 
         console.log(" Alumno por id = " + id);
-//WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC
+        //WHERE a.id = $1 AND a.eliminado=false ORDER BY a.nombre ASC
         pool.query(
             `
             SELECT a.*,
@@ -368,7 +379,7 @@ const getAlumnoById = (request, response) => {
                        left join co_formato_inscripcion f on a.co_formato_inscripcion = f.id
                        left join co_datos_facturacion datos_facturacion on a.co_datos_facturacion = datos_facturacion.id
             WHERE a.id = $1  ORDER BY a.nombre ASC
-        `,[id],
+        `, [id],
             (error, results) => {
                 if (error) {
                     console.log("Error en getAlumnoid " + error);

@@ -45,6 +45,10 @@ const uploadCloudinary = require('./services/uploadCloudinary');
 const reporteAsistenciaUsuario = require('./services/reporte_asistencia_usuario');
 const avisos = require('./services/avisos');
 
+const sucursalService = require('./services/sucursal');
+
+
+
 
 const port = configEnv.PORT;
 //version/branch
@@ -55,20 +59,20 @@ const version = "2208-fix-correo-magic actualizado 10 agosto";
 //   para poder invocar response.param
 app.use(bodyParser.json());
 app.use(
-	bodyParser.urlencoded({
-		extended: true,
-	})
+    bodyParser.urlencoded({
+        extended: true,
+    })
 );
 
-app.use(express.json({limit: '50mb'}));
-app.use(express.urlencoded({limit: '50mb'}));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb' }));
 
 app.use((req, res, next) => {
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
-	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Origin,Accept,Authorization,x-access-token'); // If needed	
-	res.setHeader('Access-Control-Allow-Credentials', true); // If needed
-	next();
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Origin,Accept,Authorization,x-access-token'); // If needed	
+    res.setHeader('Access-Control-Allow-Credentials', true); // If needed
+    next();
 });
 /*
 app.use((err, req, res, next) => {
@@ -82,64 +86,64 @@ app.use((err, req, res, next) => {
 */
 
 const POST = (url, metodo) => {
-	console.log("Registrando post");
-	app.post(url, (request, response) => {
-		let respuesta = validarTokenCompleto(request, response);
+    console.log("Registrando post");
+    app.post(url, (request, response) => {
+        let respuesta = validarTokenCompleto(request, response);
 
-		if (!respuesta.tokenValido) {
-			console.log(" ((((( Token invalido  )))))");
-			return response.status(respuesta.status).send(respuesta);
-		} else {
-			console.log(" PASA EL TOKEN ");
-			metodo(request, response);
-		}
-	});
+        if (!respuesta.tokenValido) {
+            console.log(" ((((( Token invalido  )))))");
+            return response.status(respuesta.status).send(respuesta);
+        } else {
+            console.log(" PASA EL TOKEN ");
+            metodo(request, response);
+        }
+    });
 };
 
 const GET = (url, metodo) => {
-	console.log("registrando get");
-	app.get(url, (request, response) => {
-		let respuesta = validarTokenCompleto(request, response);
+    console.log("registrando get");
+    app.get(url, (request, response) => {
+        let respuesta = validarTokenCompleto(request, response);
 
-		if (!respuesta.tokenValido) {
-			console.log(" ((((( Token invalido  )))))");
-			return response.status(respuesta.status).send(respuesta);
-		} else {
-			console.log(" PASA EL TOKEN ");
-			metodo(request, response);
-		}
-	});
+        if (!respuesta.tokenValido) {
+            console.log(" ((((( Token invalido  )))))");
+            return response.status(respuesta.status).send(respuesta);
+        } else {
+            console.log(" PASA EL TOKEN ");
+            metodo(request, response);
+        }
+    });
 };
 
 
 const PUT = (url, metodo) => {
-	console.log("registrando put");
-	app.put(url, (request, response) => {
-		let respuesta = validarTokenCompleto(request, response);
+    console.log("registrando put");
+    app.put(url, (request, response) => {
+        let respuesta = validarTokenCompleto(request, response);
 
-		if (!respuesta.tokenValido) {
-			console.log(" ((((( Token invalido  )))))");
-			return response.status(respuesta.status).send(respuesta);
-		} else {
-			console.log(" PASA EL TOKEN ");
-			metodo(request, response);
-		}
-	});
+        if (!respuesta.tokenValido) {
+            console.log(" ((((( Token invalido  )))))");
+            return response.status(respuesta.status).send(respuesta);
+        } else {
+            console.log(" PASA EL TOKEN ");
+            metodo(request, response);
+        }
+    });
 };
 
 const DELETE = (url, metodo) => {
-	console.log("registrando DELETE");
-	app.delete(url, (request, response) => {
-		let respuesta = validarTokenCompleto(request, response);
+    console.log("registrando DELETE");
+    app.delete(url, (request, response) => {
+        let respuesta = validarTokenCompleto(request, response);
 
-		if (!respuesta.tokenValido) {
-			console.log(" ((((( Token invalido  )))))");
-			return response.status(respuesta.status).send(respuesta);
-		} else {
-			console.log(" PASA EL TOKEN ");
-			metodo(request, response);
-		}
-	});
+        if (!respuesta.tokenValido) {
+            console.log(" ((((( Token invalido  )))))");
+            return response.status(respuesta.status).send(respuesta);
+        } else {
+            console.log(" PASA EL TOKEN ");
+            metodo(request, response);
+        }
+    });
 };
 
 
@@ -154,6 +158,9 @@ GET('/users/:id', usuario.getUserById);
 PUT('/users/:id', usuario.updateUser);
 DELETE('/users/:id', usuario.deleteUser);
 */
+
+//Sucursal
+GET('/sucursal/:id', sucursalService.getInfoSucursal);
 
 //Cambio de sucursal
 GET('/sucursal_usuario/:id', authController.obtenerSucursalesUsuario);
@@ -196,9 +203,9 @@ GET('/asistencia_usuarios/usuario/:id_usuario/:fecha_inicio/:fecha_fin', asisten
 GET('/asistencia_usuarios/filtros_anios/:co_empresa', asistenciaUsuario.getAniosFiltroAsistenciasUsuarios);
 GET('/asistencia_usuarios/filtros_quincenas/:co_empresa/:anio', asistenciaUsuario.getMesesFiltroAsistenciasUsuarios);
 // reporte de asistencia de usuarios por rh
-GET('/asistencia_usuarios/reporte_rh/:id_sucursal/:fecha_inicio/:fecha_fin',reporteAsistenciaUsuario.getReporteAsistenciaUsuario);
-POST('/usuarios_rh',usuarioService.desactivarUsuarioReporte);
-GET('/usuarios_rh/:id_sucursal',reporteAsistenciaUsuario.getUsuariosAsistencias);
+GET('/asistencia_usuarios/reporte_rh/:id_sucursal/:fecha_inicio/:fecha_fin', reporteAsistenciaUsuario.getReporteAsistenciaUsuario);
+POST('/usuarios_rh', usuarioService.desactivarUsuarioReporte);
+GET('/usuarios_rh/:id_sucursal', reporteAsistenciaUsuario.getUsuariosAsistencias);
 
 //grupo
 GET('/grupos', catagolos.getGrupos);
@@ -276,9 +283,9 @@ GET('/alumnos_balance_crecimiento_mensual_sucursal/:id_sucursal/:mes_anio', repo
 //-Estado de cuenta
 //GET('/estado_cuenta/:id_alumno',cargos.obtenerEstadoCuentaAlumno);
 
-GET('/estado_cuenta/:id_alumno',cargos.obtenerEstadoCuentaAlumno);
-GET('/estado_cuenta/preview/:id_alumno',cargos.obtenerHtmlPreviewEstadoCuenta);
-POST('/estado_cuenta/enviar',cargos.enviarEstadoCuentaAlumno);
+GET('/estado_cuenta/:id_alumno', cargos.obtenerEstadoCuentaAlumno);
+GET('/estado_cuenta/preview/:id_alumno', cargos.obtenerHtmlPreviewEstadoCuenta);
+POST('/estado_cuenta/enviar', cargos.enviarEstadoCuentaAlumno);
 
 GET('/meses_activos', utilerias.getMesesActivos);
 //GET('/buscar_correo_padre/:correo', utilerias.findCorreoPadre);
@@ -320,12 +327,12 @@ PUT('/usuario/:id_usuario', usuarioService.desactivarUsuario);
 GET('/aviso/:id_usuario', avisos.getAvisosUsuario);
 //GET('/aviso/contactos/:idsSucursales', avisos.getContactos);
 GET('/aviso/tags/:idUsuario', avisos.getTagsContactos);
-GET('/aviso_preview/:htmlAviso',avisos.obtenerHtmlPreviewAviso);
+GET('/aviso_preview/:htmlAviso', avisos.obtenerHtmlPreviewAviso);
 POST('/aviso', avisos.registrarAviso);
 PUT('/aviso/:id', avisos.modificarAviso);
-DELETE('/aviso',avisos.eliminarAvisos);
+DELETE('/aviso', avisos.eliminarAvisos);
 //Avisos para ver el la APP
-app.get('/aviso_familiar/:id_familiar',avisos.getAvisosPorFamiliar);
+app.get('/aviso_familiar/:id_familiar', avisos.getAvisosPorFamiliar);
 
 //Para movil
 //Login Clientes - Papás
@@ -391,31 +398,31 @@ PUT('/reporte_cobranza', reporteContabilidad.getReporteCobranzaPorFechas);
 //GET('/sucursal/:id_sucursal/cargos',reporteDeudas.getAllAlumnosCargos);
 
 //Subir imagen
-app.post('/foto_perfil', fileUpload.single('image'), (req,res)=>{
-	let respuesta = validarTokenCompleto(req, res);
+app.post('/foto_perfil', fileUpload.single('image'), (req, res) => {
+    let respuesta = validarTokenCompleto(req, res);
 
-	if (!respuesta.tokenValido) {
-		console.log(" ((((( Token invalido  )))))");
-		return req.status(respuesta.status).send(respuesta);
-	} else {
-		console.log(" PASA EL TOKEN ");
-		uploadCloudinary.uploadImagenPerfil(req,res);		
-	}
+    if (!respuesta.tokenValido) {
+        console.log(" ((((( Token invalido  )))))");
+        return req.status(respuesta.status).send(respuesta);
+    } else {
+        console.log(" PASA EL TOKEN ");
+        uploadCloudinary.uploadImagenPerfil(req, res);
+    }
 });
 
 
 
 app.get('/', (request, response) => {
-	console.log(configEnv.ENV);
-	console.log("=====================");	
-	console.log(JSON.stringify(pool));
-	console.log("ENV"+JSON.stringify(configEnv));
-	console.log("EMAIL CONFIG"+JSON.stringify(configEnv.EMAIL_CONFIG));
-	response.json({ info: `MagicIntelligence ${version} (env:${configEnv.ENV})` });
+    console.log(configEnv.ENV);
+    console.log("=====================");
+    console.log(JSON.stringify(pool));
+    console.log("ENV" + JSON.stringify(configEnv));
+    console.log("EMAIL CONFIG" + JSON.stringify(configEnv.EMAIL_CONFIG));
+    response.json({ info: `MagicIntelligence ${version} (env:${configEnv.ENV})` });
 });
 
 app.listen(port, () => {
-	console.log(`App corriendo en el puerto ${port} ${version} (env:${configEnv.ENV})`);
+    console.log(`App corriendo en el puerto ${port} ${version} (env:${configEnv.ENV})`);
 });
 
 //GET('/encriptar/:clave', authController.encriptar);
@@ -425,85 +432,85 @@ app.listen(port, () => {
 //https://www.npmjs.com/package/node-cron
 
 //schedule.scheduleJob('0 */33 * * * 1-5', function () {
-schedule.scheduleJob('0 */33 * * * 1-5', function () {
-	console.log('PROCESO DE REVISION DE SALIDA DE ALUMNOS ' + new Date());
-	try {
-		//tareas_programadas.ejecutarProcesoNotificacionProximaSalidaAlumno();
-	} catch (e) {
-		console.log("Error al ejecutar el proceso de revision de salida " + e);
-	}
+schedule.scheduleJob('0 */33 * * * 1-5', function() {
+    console.log('PROCESO DE REVISION DE SALIDA DE ALUMNOS ' + new Date());
+    try {
+        //tareas_programadas.ejecutarProcesoNotificacionProximaSalidaAlumno();
+    } catch (e) {
+        console.log("Error al ejecutar el proceso de revision de salida " + e);
+    }
 });
 
 
 
-schedule.scheduleJob('0 */35 * * * 1-5', function () {
-	//schedule.scheduleJob('0 */2 * * * 1-5', function () {	
-	console.log('PROCESO DE REVISION DE EXPIRACION DE TIEMPO DE ALUMNOS ' + new Date());
-	//FIXME : para pruebas
-	try {
-		//		tareas_programadas.ejecutarProcesoNotificacionExpiracionTiempoAlumno();
+schedule.scheduleJob('0 */35 * * * 1-5', function() {
+    //schedule.scheduleJob('0 */2 * * * 1-5', function () {	
+    console.log('PROCESO DE REVISION DE EXPIRACION DE TIEMPO DE ALUMNOS ' + new Date());
+    //FIXME : para pruebas
+    try {
+        //		tareas_programadas.ejecutarProcesoNotificacionExpiracionTiempoAlumno();
 
-	} catch (e) {
-		console.log("Error al ejecutar el proceso de revision de expiración " + e);
-	}
+    } catch (e) {
+        console.log("Error al ejecutar el proceso de revision de expiración " + e);
+    }
 });
 
 
 // Sec,Min,Hor,D,M,Y
 // correr a las 00:01 am cada 1 de cada mes
-schedule.scheduleJob('0 1 0 1 * *', function () {
-	console.log('Agregar cargo de mensualidad automatico' + new Date());
-	tareasProgramadas.ejecutarRegistroMensualidadAutomatica();
+schedule.scheduleJob('0 1 0 1 * *', function() {
+    console.log('Agregar cargo de mensualidad automatico' + new Date());
+    tareasProgramadas.ejecutarRegistroMensualidadAutomatica();
 });
 
 // correr a las 7 am cada 1 de cada mes
-schedule.scheduleJob('0 0 7 1 * *', function () {
-	console.log('Agregar cargo de mensualidad ' + new Date());
-	tareasProgramadas.ejecutarRegistroMensualidadAutomatica();
+schedule.scheduleJob('0 0 7 1 * *', function() {
+    console.log('Agregar cargo de mensualidad ' + new Date());
+    tareasProgramadas.ejecutarRegistroMensualidadAutomatica();
 });
 
 //correr a las 7:30 am cada 1 de cada mes
-schedule.scheduleJob('0 30 7 1 * *', function () {
-	console.log('Agregar cargo de mensualidad ' + new Date());
-	tareasProgramadas.ejecutarRegistroMensualidadAutomatica();
+schedule.scheduleJob('0 30 7 1 * *', function() {
+    console.log('Agregar cargo de mensualidad ' + new Date());
+    tareasProgramadas.ejecutarRegistroMensualidadAutomatica();
 });
 
 //correr a las 8:01 am cada 1 de cada mes
-schedule.scheduleJob('0 1 8 1 * *', function () {
-	console.log('Agregar cargo de mensualidad ' + new Date());
-	tareasProgramadas.ejecutarRegistroMensualidadAutomatica();
+schedule.scheduleJob('0 1 8 1 * *', function() {
+    console.log('Agregar cargo de mensualidad ' + new Date());
+    tareasProgramadas.ejecutarRegistroMensualidadAutomatica();
 });
 
 /********* Calcular Recargos de mensualidades *********/
 //schedule.scheduleJob('0 1 0 1 * *', function () {
 //schedule.scheduleJob('0 48 16 * * *', function () {
-schedule.scheduleJob({ hour: 8 , minute:0, second: 0 }, function () {
-	console.log('Agregar recargos de mensualidad ' + new Date());
-	try {
-		recargoService.procesoRecargosMensualidad();
-	} catch (error) {
-		console.error("[index] Error al ejecutar el proceso de recargos " + error);
+schedule.scheduleJob({ hour: 8, minute: 0, second: 0 }, function() {
+    console.log('Agregar recargos de mensualidad ' + new Date());
+    try {
+        recargoService.procesoRecargosMensualidad();
+    } catch (error) {
+        console.error("[index] Error al ejecutar el proceso de recargos " + error);
 
-	}
+    }
 });
 
 
 
 
-schedule.scheduleJob({ hour: 8 , minute:0, second: 0 }, function () {
-	console.log("TESTING HOUR "+new Date());
+schedule.scheduleJob({ hour: 8, minute: 0, second: 0 }, function() {
+    console.log("TESTING HOUR " + new Date());
 });
 /********* Calcular Recargos de mensualidades *********/
 
 ///Enviar reportes de recargos
-schedule.scheduleJob({ hour: 8, minute: 0, second: 0 }, function () {
-	console.log('Enviando reporte y recordatorios  de recargos de mensualidad ' + new Date());
-	try {
-		//recargoService.ejecutarEnvioRecordatorioPagoMensualidadPadres();
+schedule.scheduleJob({ hour: 8, minute: 0, second: 0 }, function() {
+    console.log('Enviando reporte y recordatorios  de recargos de mensualidad ' + new Date());
+    try {
+        //recargoService.ejecutarEnvioRecordatorioPagoMensualidadPadres();
 
-	} catch (error) {
-		console.error("[index] Error al ejecutar el proceso de recargos " + error);
-	}
+    } catch (error) {
+        console.error("[index] Error al ejecutar el proceso de recargos " + error);
+    }
 
 });
 
@@ -512,13 +519,11 @@ var rule = new schedule.RecurrenceRule();
 rule.dayOfWeek = [0, new schedule.Range(1, 5)];
 rule.hour = 20;
 rule.minute = 0;*/
-schedule.scheduleJob({ hour: 20, minute: 0 }, function () {
-	console.log('PROCESO DE SALIDA ALUMNOS ' + new Date());
-	try {
-		asistencia.ejecutarProcesoSalidaAutomatica();
-	} catch (e) {
-		console.log("Error al ejecutar el proceso de revision de salida " + e);
-	}
+schedule.scheduleJob({ hour: 20, minute: 0 }, function() {
+    console.log('PROCESO DE SALIDA ALUMNOS ' + new Date());
+    try {
+        asistencia.ejecutarProcesoSalidaAutomatica();
+    } catch (e) {
+        console.log("Error al ejecutar el proceso de revision de salida " + e);
+    }
 });
-
-

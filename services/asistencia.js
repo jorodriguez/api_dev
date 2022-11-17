@@ -1,4 +1,3 @@
-
 const handle = require('../helpers/handlersErrors');
 const asistenciaService = require('../dao/asistenciaDao');
 
@@ -15,7 +14,7 @@ const getAlumnosRecibidos = (request, response) => {
                 //console.log("Alumnos "+JSON.stringify(results));
                 response.status(200).json(results);
             }).catch(error => {
-                console.log("exepcion al obtener la lisa de alumno "+error);
+                console.log("exepcion al obtener la lisa de alumno " + error);
                 handle.callbackError(error, response);
             });
     } catch (e) {
@@ -35,21 +34,21 @@ const getAlumnosPorRecibir = (request, response) => {
             })
             .catch(error => {
                 handle.callbackError(error, response);
-            });       
+            });
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
 };
 
 
-const registrarEntradaAlumnos = async (request, response) => {
+const registrarEntradaAlumnos = async(request, response) => {
     console.log("@registrarEntrada");
     try {
 
         const params = { ids, genero } = request.body;
 
         let results = await asistenciaService.registrarEntradaAlumnos(params);
-        
+
         response.status(200).json(results);
 
         /*asistenciaService
@@ -73,7 +72,7 @@ const registrarSalidaAlumnos = (request, response) => {
 
     try {
         console.log(" = " + JSON.stringify(request.body));
-        const params = { listaSalida =[], listaCalcularHorasExtras =[], genero } = request.body;
+        const params = { listaSalida = [], listaCalcularHorasExtras = [], genero } = request.body;
         asistenciaService
             .registrarSalidaAlumnos(params)
             .then(results => {
@@ -141,13 +140,13 @@ const getListaMesAsistenciaPorAlumno = (request, response) => {
         const { id_alumno } = request.params;
 
         console.log("id_alumno = " + id_alumno);
-        
+
         asistenciaService
             .getListaMesAsistenciaPorAlumno(id_alumno)
-            .then(results=>{
+            .then(results => {
                 console.log("resultado lista de asistencia");
                 response.status(200).json(results);
-            }).catch(error=>{
+            }).catch(error => {
                 handle.callbackError(error, response);
             });
     } catch (e) {
@@ -162,7 +161,7 @@ const ejecutarProcesoSalidaAutomatica = () => {
         asistenciaService
             .ejecutarProcesoSalidaAutomatica();
 
-      
+
     } catch (e) {
         console.log("@excepcion " + e);
     }
@@ -178,11 +177,11 @@ const getListaAsistenciaAlumnoPorSalirConHorasExtras = (request, response) => {
 
         asistenciaService
             .getListaAsistenciaAlumnoPorSalirConHorasExtras(params)
-            .then(results=>{
+            .then(results => {
                 console.log("resultado lista de asistencia");
                 response.status(200).json(results);
-            }).catch(error=>{
-                handle.callbackError(error, response);  
+            }).catch(error => {
+                handle.callbackError(error, response);
             });
 
     } catch (e) {
@@ -198,12 +197,12 @@ const getListaMesAsistenciaPorSucursal = (request, response) => {
     const { id_sucursal } = request.params;
 
     console.log("id_sucursal = " + id_sucursal);
-    
+
     asistenciaService
         .getListaMesAsistenciaPorSucursal(id_sucursal)
-        .then(results =>{
+        .then(results => {
             response.status(200).json(results);
-        }).catch(error=>{
+        }).catch(error => {
             handle.callbackError(error, response);
         });
 };
