@@ -34,6 +34,8 @@ const getAlumnos = (request, response) => {
              to_char(a.fecha_nacimiento,'dd-mm-yyyy') as fecha_nacimiento_format,
              balance.total_adeudo > 0 As adeuda,
              balance.total_adeudo,
+             balance.tiempo_saldo,
+             balance.tiempo_usado,
              g.nombre as nombre_grupo,
              g.color as color,
              s.nombre as nombre_sucursal,
@@ -54,6 +56,27 @@ const getAlumnos = (request, response) => {
     }
 };
 
+const createAlumno = async(request, response) => {
+    console.log("@create alumno");
+    try {
+        //validarToken(request,response);
+
+        const p = getParams(request.body);
+
+        console.log("" + JSON.stringify(p));
+
+        const alumno = await alumnoService.createAlumno(p);
+
+        //here send a email
+
+        response.status(200).json(alumno.id);
+
+    } catch (e) {
+        handle.callbackErrorNoControlado(e, response);
+    }
+}
+
+/*
 const createAlumno = (request, response) => {
     console.log("@create alumno");
     try {
@@ -138,7 +161,7 @@ const createAlumno = (request, response) => {
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
     }
-};
+};*/
 
 const modificarFechaLimitePagoMensualidad = (request, response) => {
     console.log("modificarFechaLimitePagoMensualidad");
@@ -173,6 +196,7 @@ const modificarFechaLimitePagoMensualidad = (request, response) => {
     }
 };
 
+//FIXME: corregir la actualizacion del formato de inscripcion
 
 // PUT—/alumno/:id | updateAlumno()
 const updateAlumno = (request, response) => {
@@ -215,9 +239,10 @@ const updateAlumno = (request, response) => {
                 mostrar_nombre_carino = $16,
                 color = $17,
                 cat_genero = $18,                
-                 modifico = $19, 
-                fecha_inscripcion = $20
-                 WHERE id = $1`, [
+                modifico = $19, 
+                fecha_inscripcion = $20,
+                tiempo_hora = $21
+                WHERE id = $1`, [
                     id,
                     alumno.nombre, alumno.apellidos, (alumno.fecha_nacimiento == "" ? null : alumno.fecha_nacimiento), alumno.alergias,
                     alumno.nota, alumno.hora_entrada, alumno.hora_salida,
@@ -226,8 +251,8 @@ const updateAlumno = (request, response) => {
                     alumno.co_grupo, alumno.nombre_carino, (alumno.mostrar_nombre_carino || false),
                     (alumno.color || null),
                     alumno.cat_genero, alumno.genero,
-                    (alumno.fecha_inscripcion == "" ? null : alumno.fecha_inscripcion)
-
+                    (alumno.fecha_inscripcion == "" ? null : alumno.fecha_inscripcion),
+                    alumno.tiempo_hora
                 ],
                 (error, results) => {
                     if (error) {
@@ -349,7 +374,8 @@ const getParams = (body) => {
         fecha_inscripcion,
         genero,
         fecha_limite_pago_mensualidad,
-        tiempo_horas
+        cat_tipo_cobranza,
+        tiempo_hora
     } = body;
 
     return parametros;
