@@ -1,6 +1,7 @@
 drop function agregar_cargo_alumno( date, integer,  integer, integer, numeric, text, integer);
 
 
+
 CREATE OR REPLACE FUNCTION agregar_cargo_alumno(
 		fecha_cargo date,id_alumno integer, id_cargo integer, cantidad integer,monto numeric,nota text, id_genero integer,horas integer
 	)
@@ -152,7 +153,7 @@ BEGIN
 							monto_modificado,
 							cargo_original,
 							texto_ayuda,
-							alumno_record.cat_tipo_cobranza,
+							balance_record.cat_tipo_cobranza,
 							tiempo_horas_aplicar,
 							(getDate('')+getHora(''))::timestamp,
 							id_genero
