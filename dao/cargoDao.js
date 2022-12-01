@@ -81,25 +81,25 @@ const completarRegistroRecargoMensualidad = (idCargoMensualidad, idRecargo, gene
                                     recargo = true,                                    
                                     fecha_modifico = (getDate('')+getHora(''))::timestamp,
                                     modifico = $3
-                                WHERE id = $1 RETURNING id;`
-        , [idCargoMensualidad, idRecargo, genero]);
+                                WHERE id = $1 RETURNING id;`, [idCargoMensualidad, idRecargo, genero]);
 };
 
 
-const getCatalogoCargos = () => {
+const getCatalogoCargos = async(idSucursal) => {
     console.log("@getCatalogoCargos");
-    return genericDao.findAll(QUERY.CARGOS, []);
+    //return genericDao.findAll(QUERY.CARGOS, []);
+    return await genericDao.findAll(` select c.* from cat_cargo c where c.eliminado = false and c.co_sucursal = $1 or c.sistema = true `, [idSucursal]);
 };
 
-const getCargosAlumno = (idAlumno,limite) => {
+const getCargosAlumno = (idAlumno, limite) => {
     console.log("@getCargosAlumno");
 
     //pagina = (pagina-1);
     console.log("request.params.id_alumno " + idAlumno);
     console.log("limite " + limite);
     //console.log("pagin " + pagina);
-    
-//    let offset = (limite * pagina);
+
+    //    let offset = (limite * pagina);
 
     return genericDao.findAll(
         ` SELECT a.co_balance_alumno,
@@ -128,9 +128,8 @@ const getCargosAlumno = (idAlumno,limite) => {
                                            left join cat_descuento_cargo des on des.id = b.cat_descuento_cargo
              WHERE a.id = $1 and b.eliminado = false and a.eliminado = false
              ORDER by b.pagado, b.fecha desc
-             LIMIT ${limite}`,
-        [idAlumno]);
-//LIMIT ${limite} OFFSET ${offset}
+             LIMIT ${limite}`, [idAlumno]);
+    //LIMIT ${limite} OFFSET ${offset}
 };
 
 const getBalanceAlumno = (idAlumno) => {
@@ -139,8 +138,7 @@ const getBalanceAlumno = (idAlumno) => {
     return genericDao.findOne(
         `SELECT al.nombre as nombre_alumno,al.apellidos as apellidos_alumno,to_char(al.fecha_limite_pago_mensualidad,'dd-Mon') as fecha_limite_pago_mensualidad, bal.* 
          FROM co_alumno al inner join  co_balance_alumno bal on al.co_balance_alumno = bal.id and bal.eliminado = false
-         WHERE al.id = $1::int and al.eliminado = false `
-        , [idAlumno]);
+         WHERE al.id = $1::int and al.eliminado = false `, [idAlumno]);
     /*
     response,
     (results) => {
@@ -241,8 +239,7 @@ const obtenerFiltroAniosCargosSucursal = (idSucursal) => {
 	        group by to_char(c.fecha,'YYYY')
 	        order by to_char(c.fecha,'YYYY')::integer desc
 	
-                        `,
-            [idSucursal]);
+                        `, [idSucursal]);
 
 };
 
@@ -281,7 +278,7 @@ with  serie_meses as (
         from serie_meses s left join meses_pagados mp on mp.fecha_registrado = s.fecha_mes
 `;
 
-const obtenerEstadoCuenta = async (idAlumno) => {
+const obtenerEstadoCuenta = async(idAlumno) => {
     console.log("@obtenerEstadoCuenta");
 
     console.log("ID alumno " + idAlumno);
@@ -304,22 +301,21 @@ const obtenerEstadoCuenta = async (idAlumno) => {
 		 					inner join co_sucursal suc on suc.id = al.co_sucursal
 							inner join co_grupo grupo on  grupo.id = al.co_grupo							
 							inner join co_empresa empresa on empresa.id = suc.co_empresa
-         WHERE al.id = $1::int and al.eliminado = false`,
-        [idAlumno]);
+         WHERE al.id = $1::int and al.eliminado = false`, [idAlumno]);
 
     const detalleMensualidadesPendientes = await obtenerDetalleEstadoCuenta(
-        idAlumno        
-    );   
+        idAlumno
+    );
 
     return {
         alumno: alumno,
-        cargos: detalleMensualidadesPendientes || []        
+        cargos: detalleMensualidadesPendientes || []
     };
 
 
 };
 
-const obtenerDetalleEstadoCuenta = async (idAlumno) => {
+const obtenerDetalleEstadoCuenta = async(idAlumno) => {
 
     return await genericDao.findAll(` SELECT a.co_balance_alumno,
                b.id as id_cargo_balance_alumno,
@@ -349,8 +345,7 @@ const obtenerDetalleEstadoCuenta = async (idAlumno) => {
 					and b.pagado = false
 			 		and b.eliminado = false
 					and a.eliminado = false
-              ORDER by b.pagado,cargo.nombre asc, b.fecha desc`,
-        [idAlumno]);
+              ORDER by b.pagado,cargo.nombre asc, b.fecha desc`, [idAlumno]);
 };
 
 module.exports = {

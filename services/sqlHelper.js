@@ -1,4 +1,3 @@
-
 const { pool } = require('../db/conexion');
 const handle = require('../helpers/handlersErrors');
 
@@ -6,11 +5,11 @@ const QUERY = {
     FORMA_PAGO: "SELECT * FROM CO_FORMA_PAGO WHERE ELIMINADO = FALSE",
     CAT_GENERO_FAMILIAR: "SELECT * FROM CAT_GENERO WHERE ELIMINADO = FALSE AND TIPO = 'FAMILIAR'",
     CAT_GENERO_ALUMNO: "SELECT * FROM CAT_GENERO WHERE ELIMINADO = FALSE AND TIPO = 'ALUMNO'",
-    GRUPO: "SELECT * FROM CO_GRUPO WHERE ELIMINADO = false",
+    GRUPO: "SELECT * FROM CO_GRUPO WHERE CO_SUCURSAL = $1 AND ELIMINADO = false",
     SERVICIOS: "SELECT * FROM cat_servicio WHERE ELIMINADO = false order by nombre",
     CARGOS: "SELECT * FROM CAT_CARGO WHERE ELIMINADO = false order by nombre",
     SUCURSALES: "SELECT id,nombre,direccion,class_color FROM CO_SUCURSAL WHERE ELIMINADO = false ",
-    TEMPLATE_EMPRESA : `
+    TEMPLATE_EMPRESA: `
         SELECT t.nombre as nombre_template,
             t.encabezado,
             t.pie,
@@ -19,7 +18,7 @@ const QUERY = {
             em.telefono		
         from co_template t inner join co_empresa em on em.id = t.id
         where em.id = $1 and t.eliminado = false order by t.id desc limit 1`
-    
+
 };
 
 
@@ -33,12 +32,12 @@ const getCatalogo = (query, response) => {
         }
 
         pool.query(query, (error, results) => {
-                if (error) {
-                    handle.callbackError(error, response);
-                    return;
-                }
-                response.status(200).json(results.rows);
-            });
+            if (error) {
+                handle.callbackError(error, response);
+                return;
+            }
+            response.status(200).json(results.rows);
+        });
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -97,20 +96,20 @@ const getResultQuery = (query, params, response, handler) => {
     console.log("@getResultQuery");
     try {
 
-       let hadlerGenerico = (results) => {
+        let hadlerGenerico = (results) => {
             console.log("Query Ejecutado correctamente..");
             response.status(200).json(results.rows);
         };
 
-       let handlerCatch = (error) => {
-           console.log("Excepcion al ejecutar el query "+error);
+        let handlerCatch = (error) => {
+            console.log("Excepcion al ejecutar el query " + error);
             handle.callbackError(error, response);
             return;
         };
 
         console.log("*****************************************************");
         getResults(query, params, handler || hadlerGenerico, handlerCatch);
-      
+
 
     } catch (e) {
         handle.callbackErrorNoControlado(e, response);
@@ -127,7 +126,7 @@ const executeQuery = (query, params, response, handler) => {
             return;
         }
 
-      
+
         let tiene_parametros = tieneParametros(params);
 
         let hadlerGenerico = (results) => {
@@ -162,12 +161,12 @@ function tieneParametros(params) {
     return (params != undefined || params != null || params != []);
 }
 
-function getQueryInstance(query,params){
-    
+function getQueryInstance(query, params) {
+
     let tiene_parametros = tieneParametros(params);
 
-    console.log("Tiene parametros "+tiene_parametros+" PARAMS "+JSON.stringify(params));
-    console.log("Query "+query);
+    console.log("Tiene parametros " + tiene_parametros + " PARAMS " + JSON.stringify(params));
+    console.log("Query " + query);
 
     return tiene_parametros ? pool.query(query, params) : pool.query(query);
 
@@ -176,9 +175,9 @@ function getQueryInstance(query,params){
 
 module.exports = {
     getQueryInstance,
-    QUERY,    
+    QUERY,
     getCatalogo,
-    getResultQuery,    
+    getResultQuery,
     getResults,
-    executeQuery//FIX
+    executeQuery //FIX
 };

@@ -1,21 +1,19 @@
-
-
 const cargosDao = require('../dao/cargoDao');
 const alumnoDao = require('../dao/alumnoDao');
 //const notificacionService = require('../utils/NotificacionService');
-const { getHtmlPreviewTemplate,TEMPLATES } = require('../utils/CorreoService');
+const { getHtmlPreviewTemplate, TEMPLATES } = require('../utils/CorreoService');
 
 //registrar pagos
-const registrarCargo = async (cargoData) => {
+const registrarCargo = async(cargoData) => {
     console.log("@registrarCargo");
-    try{
-     const respuesta = await cargosDao.registrarCargo(cargoData);
-     console.log("Enviar correo de cargo");  
-     console.log(JSON.stringify(respuesta));          
-     //notificacionService.notificarCargo(cargoData.id_alumno, respuesta.id_cargo);                                                       
-     return respuesta;
-    }catch(error){
-        console.log(" X X X X X "+error);
+    try {
+        const respuesta = await cargosDao.registrarCargo(cargoData);
+        console.log("Enviar correo de cargo");
+        console.log(JSON.stringify(respuesta));
+        //notificacionService.notificarCargo(cargoData.id_alumno, respuesta.id_cargo);                                                       
+        return respuesta;
+    } catch (error) {
+        console.log(" X X X X X " + error);
         return error;
     }
     /*return new Promise((resolve, reject) => {
@@ -34,40 +32,40 @@ const registrarCargo = async (cargoData) => {
     });  */
 };
 
-const completarRegistroRecargoMensualidad = (idAlumno,idCargoMensualidad,idRecargo,genero)=>{    
-    return new Promise((resolve,reject)=>{
-            cargosDao
-                .completarRegistroRecargoMensualidad(
-                        idCargoMensualidad,
-                        idRecargo,
+const completarRegistroRecargoMensualidad = (idAlumno, idCargoMensualidad, idRecargo, genero) => {
+    return new Promise((resolve, reject) => {
+        cargosDao
+            .completarRegistroRecargoMensualidad(
+                idCargoMensualidad,
+                idRecargo,
+                genero
+            ).then(id => {
+                console.log("Registro de recargo relacionado a la mensualidad ");
+                //actualizar fecha pago proximo mes
+                alumnoDao
+                    .actualizarProximaFechaLimitePagoMensualidadAlumno(
+                        idAlumno,
                         genero
-                ).then(id=>{
-                    console.log("Registro de recargo relacionado a la mensualidad ");
-                    //actualizar fecha pago proximo mes
-                    alumnoDao
-                        .actualizarProximaFechaLimitePagoMensualidadAlumno(
-                                idAlumno,
-                                genero
-                        ).then(id=>{
-                                console.log("Registro de fecha limite de pago actualizado al proximo mes");
-                            resolve(id);
-                        }).catch(error=>reject(error));
-            }).catch(error=>reject(error));
+                    ).then(id => {
+                        console.log("Registro de fecha limite de pago actualizado al proximo mes");
+                        resolve(id);
+                    }).catch(error => reject(error));
+            }).catch(error => reject(error));
     });
-    
+
 };
 
 
-const getCatalogoCargos = () => {
+const getCatalogoCargos = async(idSucursal) => {
     console.log("@getCatalogoCargos");
-    return cargosDao.getCatalogoCargos();
+    return await cargosDao.getCatalogoCargos(idSucursal);
 };
 
 
-const getCargosAlumno = (idAlumno,limite) => {
+const getCargosAlumno = (idAlumno, limite) => {
     console.log("@getCargosAlumno");
 
-    return cargosDao.getCargosAlumno(idAlumno,limite);
+    return cargosDao.getCargosAlumno(idAlumno, limite);
 };
 
 const getBalanceAlumno = (idAlumno) => {
@@ -94,30 +92,30 @@ const obtenerFiltroAniosCargosSucursal = (idSucursal) => {
     return cargosDao.obtenerFiltroAniosCargosSucursal(idSucursal);
 };
 
-const obtenerEstadoCuentaAlumno = async (idAlumno) => {
-    console.log("@obtenerEstadoCuentaAlumno");    
-     const informacionAlumno = await alumnoDao.getCorreosTokensAlumno(idAlumno);  
-     let estado = await cargosDao.obtenerEstadoCuenta(idAlumno);         
-     return {...estado,
-            padres:{
-                    nombre_padres: informacionAlumno ? informacionAlumno.nombres_padres : '',
-                    correos:  informacionAlumno ? informacionAlumno.correos : ''
-                }
-            };
+const obtenerEstadoCuentaAlumno = async(idAlumno) => {
+    console.log("@obtenerEstadoCuentaAlumno");
+    const informacionAlumno = await alumnoDao.getCorreosTokensAlumno(idAlumno);
+    let estado = await cargosDao.obtenerEstadoCuenta(idAlumno);
+    return {...estado,
+        padres: {
+            nombre_padres: informacionAlumno ? informacionAlumno.nombres_padres : '',
+            correos: informacionAlumno ? informacionAlumno.correos : ''
+        }
+    };
 };
 
-const obtenerPreviewEstadoCuenta = async (idAlumno)=>{
+const obtenerPreviewEstadoCuenta = async(idAlumno) => {
     const params = await obtenerEstadoCuentaAlumno(idAlumno);
-    return await getHtmlPreviewTemplate(TEMPLATES.TEMPLATE_ESTADO_CUENTA,params);
+    return await getHtmlPreviewTemplate(TEMPLATES.TEMPLATE_ESTADO_CUENTA, params);
 };
 
 
 
-module.exports = {   
+module.exports = {
     registrarCargo,
     getCatalogoCargos,
     getCargosAlumno,
-    getBalanceAlumno,    
+    getBalanceAlumno,
     eliminarCargos,
     obtenerMesesAdeudaMensualidad,
     completarRegistroRecargoMensualidad,

@@ -208,7 +208,7 @@ POST('/usuarios_rh', usuarioService.desactivarUsuarioReporte);
 GET('/usuarios_rh/:id_sucursal', reporteAsistenciaUsuario.getUsuariosAsistencias);
 
 //grupo
-GET('/grupos', catagolos.getGrupos);
+GET('/grupos/:id_sucursal', catagolos.getGrupos);
 
 //actividades
 GET('/actividad/catalogo_actividad', actividad.getCatalogoActividades);
@@ -248,7 +248,7 @@ GET('/pagos/:id_cargo_balance_alumno', pagos.getPagosByCargoId);
 PUT('/pagos/reenviar_comprobante', pagos.reenviarComprobantePago);
 
 POST('/cargos/registrar', cargos.registrarCargo);
-GET('/cargos', cargos.getCatalogoCargos);
+GET('/cargos/:id_sucursal', cargos.getCatalogoCargos);
 GET('/cargos/:id_alumno/:limite', cargos.getCargosAlumno);
 GET('/balance/:id_alumno', cargos.getBalanceAlumno);
 PUT('/cargos/:id_alumno', cargos.eliminarCargos);
