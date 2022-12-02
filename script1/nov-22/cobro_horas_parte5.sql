@@ -21,3 +21,4 @@ update co_cargo_balance_alumno set cat_tipo_cobranza = 1;
 alter table co_cargo_balance_alumno alter column cat_tipo_cobranza set not null;
 
 
+update cat_cargo set suma_tiempo_saldo = true where id = 1

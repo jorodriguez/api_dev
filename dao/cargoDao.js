@@ -117,6 +117,8 @@ const getCargosAlumno = (idAlumno, limite) => {
                b.total_pagado,
                b.nota,
                b.pagado,
+               b.tiempo_horas,
+               b.cat_tipo_cobranza,
                (des.id is not null) as descuento_aplicado,
 	           des.id as id_descuento,
                des.nombre as nombre_descuento,   
