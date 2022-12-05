@@ -33,6 +33,7 @@ DROP FUNCTION public.generar_horas_extras_alumno(text, integer);
 
 DROP FUNCTION public.generar_horas_extras_asistencia(text, integer);
 
+
 CREATE OR REPLACE FUNCTION public.generar_horas_extras_asistencia(
 	ids_asistencias_param text,
 	id_genero integer,

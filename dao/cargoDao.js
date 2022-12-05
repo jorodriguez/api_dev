@@ -9,7 +9,7 @@ const registrarCargo = (cargoData) => {
     console.log("@registrarCargo");
 
     return new Promise((resolve, reject) => {
-        const { fecha_cargo, id_alumno, cat_cargo, cantidad, monto, nota, genero } = cargoData;
+        const { fecha_cargo, id_alumno, cat_cargo, cantidad, monto, nota, tiempo_horas, genero } = cargoData;
 
         let parametros = [];
         let sql = "";
@@ -32,12 +32,12 @@ const registrarCargo = (cargoData) => {
             }
             console.log("cat_cargo.cat_cargo  " + fecha_cargo.fecha_mes);
             //parametros para mensualidad
-            sql = "select agregar_cargo_alumno($1,$2,$3,$4,$5,$6,$7) as id_cargo_generado;";
-            parametros = [new Date(fecha_cargo.fecha_mes), id_alumno, cat_cargo.id, cantidad, monto, nota, genero];
+            sql = "select agregar_cargo_alumno($1,$2,$3,$4,$5,$6,$7,$8) as id_cargo_generado;";
+            parametros = [new Date(fecha_cargo.fecha_mes), id_alumno, cat_cargo.id, cantidad, monto, nota, genero, tiempo_horas];
         } else {
             //no es mensualidad            
-            sql = "select agregar_cargo_alumno(getDate(''),$1,$2,$3,$4,$5,$6) as id_cargo_generado;";
-            parametros = [id_alumno, cat_cargo.id, cantidad, monto, nota, genero];
+            sql = "select agregar_cargo_alumno(getDate(''),$1,$2,$3,$4,$5,$6,$7) as id_cargo_generado;";
+            parametros = [id_alumno, cat_cargo.id, cantidad, monto, nota, genero, tiempo_horas];
 
         }
 

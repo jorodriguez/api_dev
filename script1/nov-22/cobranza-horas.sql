@@ -78,12 +78,7 @@ alter table co_balance_alumno alter column cat_tipo_cobranza set not null;
 
 alter table co_balance_alumno add column tiempo integer not null default 0;
 
-
-
 ------ ------ ------ ------ ------ ------ ------ 
-
-
-
 
 
 

@@ -38,7 +38,9 @@ INSERT INTO cat_cargo (co_sucursal,nombre,descripcion,precio,notificar,sistema,e
 INSERT INTO cat_cargo (co_sucursal,nombre,descripcion,precio,notificar,sistema,es_facturable,escribir_cantidad,escribir_monto,seleccionar_fecha,aplica_descuento,genero) VALUES (2,'Cuota de Material - 50% DESCUENTO C/Convenio','Cuota de Material - 50% DESCUENTO C/Convenio',2100,false,false,false,false,false,false,false,1);
 INSERT INTO cat_cargo (co_sucursal,nombre,descripcion,precio,notificar,sistema,es_facturable,escribir_cantidad,escribir_monto,seleccionar_fecha,aplica_descuento,genero) VALUES (2,'Cuota de Material','Cuota de Material',4800,false,false,false,false,true,false,false,1);
 INSERT INTO cat_cargo (co_sucursal,nombre,descripcion,precio,notificar,sistema,es_facturable,escribir_cantidad,escribir_monto,seleccionar_fecha,aplica_descuento,genero) VALUES (2,'Programa Online','Programa Online.',2499,true,false,true,false,false,false,false,1);
-
+-- cargo para sumar horas solo se ve en la nueva suc
+INSERT INTO cat_cargo (id,co_sucursal,nombre,descripcion,precio,notificar,escribir_monto,genero)
+VALUES (5,4,'Horas ','Horas agregadas aplicables al mes en curso',200,false,true,1);
 
 
 -- cargos para la suc de contry
