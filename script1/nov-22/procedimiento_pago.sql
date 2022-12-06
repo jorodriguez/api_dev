@@ -123,8 +123,8 @@ BEGIN
 					where co_balance_alumno =  balance_record.id and eliminado = false
 				),
 				tiempo_saldo =  (
-					select sum(tiempo_saldo) from co_cargo_balance_alumno 
-					where co_balance_alumno =  balance_record.id and eliminado = false and cat_tipo_cobranza = 2 and pagado = true and to_char(fecha,'YYYYMM') = to_char(current_date,'YYYYMM')
+					select COALESCE(sum(tiempo_horas),0) from co_cargo_balance_alumno 
+					where co_balance_alumno = balance_record.id and eliminado = false and cat_tipo_cobranza = 2 and pagado = true and to_char(fecha,'YYYYMM') = to_char(current_date,'YYYYMM')					
 				)
 			where id = id_alumno;
    			
