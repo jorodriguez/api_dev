@@ -119,6 +119,8 @@ const getCargosAlumno = (idAlumno, limite) => {
                b.pagado,
                b.tiempo_horas,
                b.cat_tipo_cobranza,
+               b.tiempo_saldo_aplicado,
+               to_char(b.fecha_aplico_descuento,'DD-MM-YYYY H24:MI') as fecha_aplico_descuento,
                (des.id is not null) as descuento_aplicado,
 	           des.id as id_descuento,
                des.nombre as nombre_descuento,   

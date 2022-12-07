@@ -74,9 +74,4 @@ where cargo.eliminado = false
 
 
 
- insety 
-
-
-
-select * from cat_cargo
 

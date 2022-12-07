@@ -1,4 +1,5 @@
 
+                         
 CREATE OR REPLACE FUNCTION public.agregar_pago_alumno(
 	ids_cargos text,
 	cargos_desglose text,
@@ -19,6 +20,7 @@ AS $BODY$
 DECLARE
 	fecha_current timestamp;
 	ids_cargos_relacionar integer[];
+
 	ids_cargos_descuento_aplicar integer[];
 	ids_descuentos_array integer[];	
 	cargos_desglose_relacionar numeric[];
@@ -30,13 +32,15 @@ DECLARE
 	sqlerr_exception_detail TEXT;
 	sqlerr_exception_hint TEXT;
 	id_balance_alumno integer;
-	ind int := 0;
+	ind int := 0;	
+	tiempo_saldo_aplicar numeric := 0;
+	existen_cargos_aplicar_tiempo_saldo boolean :=false;
+	
 	sqlInsertPago TEXT := 'INSERT INTO co_pago_balance_alumno(CO_BALANCE_ALUMNO,FECHA,PAGO,NOTA,GENERO)
 							VALUES($1,$2,$3,$4,$5) RETURNING id INTO id_pago';	
 							
 	sqlInsertRelacion TEXT := 'INSERT INTO co_pago_cargo_balance_alumno(fecha,co_pago_balance_alumno,co_cargo_balance_alumno,pago,genero)
-							VALUES($1,$2,$3,$4,$5)';		
-							
+							VALUES($1,$2,$3,$4,$5)';									
 
 BEGIN    
 
@@ -63,11 +67,22 @@ BEGIN
 	--IF balance_record is not null THEN
 	IF FOUND THEN				
 		fecha_current := ((getDate('')+getHora(''))::timestamp);							
-		
 				INSERT INTO co_pago_balance_alumno(CO_BALANCE_ALUMNO,FECHA,PAGO,NOTA,CO_FORMA_PAGO,IDENTIFICADOR_FACTURA,IDENTIFICADOR_PAGO,GENERO)
 							VALUES(balance_record.ID,fecha_current,pago_param,nota,forma_pago_param,identificador_factura_param,identificador_pago_param, id_genero) 
 				RETURNING id INTO id_pago_balance_alumno;
-					
+									
+				raise notice 'id_pago_balance insertartado %',id_pago_balance_alumno;
+				raise notice 'pass 2';
+				---actualizar total balance alumno Agregar cargos								
+				
+				
+			raise notice 'se registro el pago ';
+
+			raise notice 'aplicar descuentos a cargos ';
+
+			--aplicar descuentos 
+			raise notice 'ids_cargos_descuento_aplicar %',ids_cargos_descuento_aplicar; 
+			
 			
 				FOR i IN 1 .. coalesce(array_upper(ids_cargos_descuento_aplicar, 1),1)
 				LOOP
@@ -86,7 +101,8 @@ BEGIN
 				END LOOP;
    			
 
-						
+			raise notice 'relacionar ';
+			
 			FOR i IN 1 .. array_upper(ids_cargos_relacionar, 1)
    			LOOP
 			  						
@@ -98,7 +114,8 @@ BEGIN
 								cargos_desglose_relacionar[i],								
 								id_genero;		
 					raise notice 'guardado..';			
-
+					
+					--actualizar total en cargo				
 
 					UPDATE co_cargo_balance_alumno
 					SET TOTAL_PAGADO = (TOTAL_PAGADO + cargos_desglose_relacionar[i]),
@@ -109,7 +126,7 @@ BEGIN
 					
    			END LOOP;
 
-
+			----- APLICAR CARGOS
 			-- RECALCULAR BALANCE
 			update  co_balance_alumno 			
 			SET total_adeudo = (
@@ -121,13 +138,44 @@ BEGIN
 				total_cargos =(
 					select sum(total) from co_cargo_balance_alumno 
 					where co_balance_alumno =  balance_record.id and eliminado = false
-				),
-				tiempo_saldo =  (
+				),	
+				tiempo_saldo = (
 					select COALESCE(sum(tiempo_horas),0) from co_cargo_balance_alumno 
-					where co_balance_alumno = balance_record.id and eliminado = false and cat_tipo_cobranza = 2 and pagado = true and to_char(fecha,'YYYYMM') = to_char(current_date,'YYYYMM')					
-				)
-			where id = id_alumno;
-   			
+					where co_balance_alumno = balance_record.id and eliminado = false and cat_tipo_cobranza = 2 and pagado = true and to_char(fecha,'YYYYMM') = to_char(getDate(''),'YYYYMM')
+				),
+				fecha_modifico = (getDate('')+getHora(''))::timestamp,
+				modifico = id_genero
+			where id =  balance_record.id; 
+
+			-- APLICAR TIEMPO SALDO
+/*
+			select count(id) > 0
+			from co_cargo_balance_alumno 
+			where co_balance_alumno = balance_record.id and eliminado = false and cat_tipo_cobranza = 2 and pagado = true and to_char(fecha,'YYYYMM') = to_char(getDate(''),'YYYYMM')	--and tiempo_saldo_aplicado = false			
+			INTO existen_cargos_aplicar_tiempo_saldo;
+
+			select COALESCE(sum(tiempo_horas),0) from co_cargo_balance_alumno 
+			where co_balance_alumno = balance_record.id and eliminado = false and cat_tipo_cobranza = 2 and pagado = true and to_char(fecha,'YYYYMM') = to_char(getDate(''),'YYYYMM')	--and tiempo_saldo_aplicado = false
+			INTO tiempo_saldo_aplicar;
+*/
+			
+  		/*	IF existen_cargos_aplicar_tiempo_saldo AND tiempo_saldo > 0 THEN 
+				-- RECALCULAR BALANCE SALDO
+				update  co_balance_alumno 			
+				SET	tiempo_saldo = tiempo_saldo_aplicar,
+					fecha_modifico = (getDate('')+getHora(''))::timestamp,
+					modifico = id_genero
+				where id =  balance_record.id; */
+
+				--actualizar cargos que se aplicaron - usaron las horas
+				update co_cargo_balance_alumno  
+					set tiempo_saldo_aplicado = true,
+						fecha_tiempo_saldo_aplicado = (getDate('')+getHora(''))::timestamp,
+						fecha_modifico = (getDate('')+getHora(''))::timestamp,
+						modifico = id_genero,
+						aplico_tiempo_saldo = id_genero
+				where co_balance_alumno = balance_record.id and eliminado = false and cat_tipo_cobranza = 2 and pagado = true and to_char(fecha,'YYYYMM') = to_char(getDate(''),'YYYYMM');-- and tiempo_saldo_aplicado = false;									
+		--	END IF;
 			
 	ELSE
 		raise notice 'NO EXISTE EL BALANCE';
@@ -137,4 +185,4 @@ BEGIN
 	
 	return (select id_pago_balance_alumno);
 END;
-$BODY$;
+$BODY$
