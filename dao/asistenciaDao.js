@@ -1,7 +1,7 @@
 const { USUARIO_DEFAULT, ENTRADA, SALIDA, MENSAJE_ALGO_FALLO } = require('../utils/Constantes');
 const mensajeria = require('../services/mensajesFirebase');
-const {  ExceptionBD } = require('../exception/exeption');
-const {  existeValorArray } = require('../utils/Utils');
+const { ExceptionBD } = require('../exception/exeption');
+const { existeValorArray } = require('../utils/Utils');
 const genericDao = require('./genericDao');
 
 
@@ -11,8 +11,9 @@ const SQL_ALUMNOS_RECIBIDOS =
     `SELECT asistencia.id,
             asistencia.fecha,
             alumno.foto,
+            alumno.cat_tipo_cobranza,
             asistencia.hora_entrada,
-            asistencia.hora_salida,
+            asistencia.hora_salida,            
             alumno.id as id_alumno,
             CASE WHEN alumno.mostrar_nombre_carino THEN            
                 alumno.nombre_carino          
@@ -28,13 +29,20 @@ const SQL_ALUMNOS_RECIBIDOS =
             true as visible,
             false as seleccionado,            
             (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp as calcular_tiempo_extra,
-			age((getDate('')+getHora(''))::timestamp,(asistencia.fecha+alumno.hora_salida)::timestamp) as tiempo_extra   
+			age((getDate('')+getHora(''))::timestamp,(asistencia.fecha+alumno.hora_salida)::timestamp) as tiempo_extra,
+            to_char((coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp),'HH24:MI') as tiempo_usado,
+		    balance.tiempo_saldo,		  		  
+		    ((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp))/60)/60) AS tiempo_usado_numeric,
+		    balance.tiempo_saldo - ((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp))/60)/60) as tiempo_restante,
+            to_char(
+                (coalesce(balance.tiempo_saldo,0)::text ||' hours')::interval -  ((((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp))/60)/60)) ||' hours')::interval
+                ,'HH24:MI') as tiempo_restante_hora
             FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id 
                               inner join co_grupo grupo on alumno.co_grupo = grupo.id         
+                              inner join co_balance_alumno balance on balance.id = alumno.co_balance_alumno     
         WHERE asistencia.hora_salida is null AND alumno.eliminado=false 
            AND alumno.co_sucursal = $1
-        ORDER BY grupo.nombre ASC`
-    ;
+        ORDER BY grupo.nombre ASC`;
 
 const SQL_ALUMNOS_RECIBIDOS_HORAS_EXTRAS =
     `SELECT 
@@ -63,12 +71,11 @@ const SQL_ALUMNOS_RECIBIDOS_HORAS_EXTRAS =
     WHERE asistencia.id = ANY($1::int[])
         and (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp 
         AND alumno.eliminado=false            
-    ORDER BY alumno.nombre ASC`
-    ;
+    ORDER BY alumno.nombre ASC`;
 
 const getAlumnosRecibidos = (idSucursal) => {
     console.log("@getAlumnosRecibidos");
-    console.log("Iniciando consulta de alumno de la suc "+idSucursal);
+    console.log("Iniciando consulta de alumno de la suc " + idSucursal);
     return genericDao.findAll(SQL_ALUMNOS_RECIBIDOS, [idSucursal]);
 };
 
@@ -114,8 +121,11 @@ const getAlumnosPorRecibir = (idSucursal) => {
             a.nombre_carino          
             ELSE a.nombre END
             as nombre,
-            a.foto  
+            a.foto,            
+            a.cat_tipo_cobranza,
+            balance.tiempo_saldo
         FROM co_alumno a INNER JOIN co_grupo grupo ON a.co_grupo = grupo.id		
+                         INNER JOIN CO_BALANCE_ALUMNO balance on balance.id = a.co_balance_alumno
         WHERE a.id not in (
                        SELECT asistencia.co_alumno
                            FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno=alumno.id            
@@ -176,40 +186,40 @@ const getAlumnosPorRecibir = (idSucursal) => {
 };*/
 
 //version corregida - prueba
-const registrarEntradaAlumnos = async (params) => {
-    console.log("@asisetnciaDao.registrarEntrada "+new Date());
-    try{
-       
+const registrarEntradaAlumnos = async(params) => {
+    console.log("@asisetnciaDao.registrarEntrada " + new Date());
+    try {
+
         const { ids, genero } = params;
-        console.log("IDS recibidos "+JSON.stringify(ids));
+        console.log("IDS recibidos " + JSON.stringify(ids));
         let idsRegistrar = new Set(ids);
         let idsAlumnos = '';
-        let first = true;        
-        
+        let first = true;
+
         idsRegistrar.forEach(element => {
             if (first) {
                 idsAlumnos += (element + "");
                 first = false;
             } else {
                 idsAlumnos += (',' + element);
-            }            
-        });   
-        console.log("IDS registrar "+idsRegistrar);
+            }
+        });
+        console.log("IDS registrar " + idsRegistrar);
 
         const results = await genericDao
             .executeProcedure(`SELECT registrar_entrada_alumno('${idsAlumnos}',${genero});`);
-         
-         console.log(`RESULTADO DEL PROCEDIMIENTO ${JSON.stringify(results)}`);
-         let listaIdsAsistencias = [];
-         if(results && results.rowCount > 0){
+
+        console.log(`RESULTADO DEL PROCEDIMIENTO ${JSON.stringify(results)}`);
+        let listaIdsAsistencias = [];
+        if (results && results.rowCount > 0) {
             console.log("Resultado del procedimiento " + JSON.stringify(results.rows));
             listaIdsAsistencias = results.rows.map(e => e.registrar_entrada_alumno);
             enviarMensajeEntradaSalida(listaIdsAsistencias, ENTRADA);
-         }   
-         console.log("Lista devolver "+JSON.stringify(listaIdsAsistencias));
-         return listaIdsAsistencias;
+        }
+        console.log("Lista devolver " + JSON.stringify(listaIdsAsistencias));
+        return listaIdsAsistencias;
 
-       /*let arrayAlumnos = Array.from(idsRegistrar);
+        /*let arrayAlumnos = Array.from(idsRegistrar);
 
        console.log("IDS registrar "+arrayAlumnos);
        /*size = arrayAlumnos && arrayAlumnos.length;
@@ -239,12 +249,12 @@ const registrarEntradaAlumnos = async (params) => {
        }       
        enviarMensajeEntradaSalida(listaIdsAsistencias, ENTRADA);*/
 
-        
-    }catch(error){
+
+    } catch (error) {
         console.log("ERROR");
         return new ExceptionBD(MENSAJE_ALGO_FALLO);
     }
-   
+
 };
 
 function enviarMensajeEntradaSalida(ids_asistencias, operacion) {
@@ -292,8 +302,7 @@ function enviarMensajeEntradaSalida(ids_asistencias, operacion) {
                                 left join correos c on c.id_alumno = al.id
             where a.id = ANY($2::int[])	 -- IDS DE ASISTENCIAS	 
               AND a.eliminado = false
-              AND al.eliminado = false`,
-            [ids_asistencias, ids_asistencias])
+              AND al.eliminado = false`, [ids_asistencias, ids_asistencias])
             .then(results => {
                 console.log("result " + JSON.stringify(results));
                 if (existeValorArray(results)) {
@@ -550,7 +559,7 @@ const getListaAsistenciaAlumnoPorSalirConHorasExtras = (params) => {
 
     let array = [];
     if (lista_id_asistencias != undefined && lista_id_asistencias != []) {
-        array = lista_id_asistencias.split(',').map(function (item) {
+        array = lista_id_asistencias.split(',').map(function(item) {
             return parseInt(item, 10);
         });
     }
