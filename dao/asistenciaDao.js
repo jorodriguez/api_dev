@@ -13,7 +13,10 @@ const SQL_ALUMNOS_RECIBIDOS =
             alumno.foto,
             alumno.cat_tipo_cobranza,
             asistencia.hora_entrada,
+            to_char(asistencia.hora_entrada,'HH24:MI') as hora_entrada_format,    
             asistencia.hora_salida,            
+            to_char(asistencia.hora_salida,'HH24:MI') as hora_salida_format,    
+            to_char(getDate('')+getHora(''),'HH24:MI') as hora_actual_format,   
             alumno.id as id_alumno,
             CASE WHEN alumno.mostrar_nombre_carino THEN            
                 alumno.nombre_carino          
@@ -30,13 +33,22 @@ const SQL_ALUMNOS_RECIBIDOS =
             false as seleccionado,            
             (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp as calcular_tiempo_extra,
 			age((getDate('')+getHora(''))::timestamp,(asistencia.fecha+alumno.hora_salida)::timestamp) as tiempo_extra,
-            to_char((coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp),'HH24:MI') as tiempo_usado,
-		    balance.tiempo_saldo,		  		  
-		    ((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp))/60)/60) AS tiempo_usado_numeric,
-		    balance.tiempo_saldo - ((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp))/60)/60) as tiempo_restante,
-            to_char(
-                (coalesce(balance.tiempo_saldo,0)::text ||' hours')::interval -  ((((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp))/60)/60)) ||' hours')::interval
-                ,'HH24:MI') as tiempo_restante_hora
+            (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp as calcular_tiempo_extra,
+        age((getDate('')+getHora(''))::timestamp,(asistencia.fecha+alumno.hora_salida)::timestamp) as tiempo_extra,
+        to_char((coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp),'HH24:MI') as tiempo_usado,
+	    balance.tiempo_saldo,		  		  
+		((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp))/60)/60) AS tiempo_usado_numeric,		    		
+        balance.tiempo_saldo - ((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp))/60)/60) < 0 as adeuda_tiempo,            
+        case when balance.tiempo_saldo - ((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp))/60)/60) < 0 THEN
+        to_char(
+                (ABS(balance.tiempo_saldo - ((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp))/60)/60)) ||'hours')::interval,
+                       'HH24:MI')
+        ELSE to_char('00:00'::interval,'HH24:MI')
+        END as tiempo_adeuda,           
+        to_char(
+            ( coalesce(balance.tiempo_saldo,0)::text ||' hours')::interval -  (( ((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp)) /60)/60)) ||' hours')::interval
+        ,'HH24:MI') as tiempo_adeuda_absoluto,
+            to_char(getDate('')+getHora(''),'dd-mon-yy HH24:MI am') as fecha_consulta
             FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id 
                               inner join co_grupo grupo on alumno.co_grupo = grupo.id         
                               inner join co_balance_alumno balance on balance.id = alumno.co_balance_alumno     
@@ -55,8 +67,12 @@ const SQL_ALUMNOS_RECIBIDOS_HORAS_EXTRAS =
             end as color,                        
         alumno.nombre_carino,            
         alumno.mostrar_nombre_carino,
+        alumno.cat_tipo_cobranza,
         asistencia.hora_entrada,    
+        to_char(asistencia.hora_entrada,'HH24:MI') as hora_entrada_format,    
         asistencia.hora_salida,
+        to_char(asistencia.hora_salida,'HH24:MI') as hora_salida_format,    
+        to_char(getDate('')+getHora(''),'HH24:MI') as hora_actual_format,    
         alumno.id as id_alumno,
         CASE WHEN alumno.mostrar_nombre_carino THEN            
                 alumno.nombre_carino          
@@ -65,9 +81,24 @@ const SQL_ALUMNOS_RECIBIDOS_HORAS_EXTRAS =
         alumno.hora_salida as hora_salida_alumno,  
         false as seleccionado,   
         (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp as calcular_tiempo_extra,
-        age((getDate('')+getHora(''))::timestamp,(asistencia.fecha+alumno.hora_salida)::timestamp) as tiempo_extra
+        age((getDate('')+getHora(''))::timestamp,(asistencia.fecha+alumno.hora_salida)::timestamp) as tiempo_extra,
+        to_char((coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp),'HH24:MI') as tiempo_usado,
+	    balance.tiempo_saldo,		  		  
+		((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp))/60)/60) AS tiempo_usado_numeric,		    		
+        balance.tiempo_saldo - ((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp))/60)/60) < 0 as adeuda_tiempo,            
+        case when balance.tiempo_saldo - ((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp))/60)/60) < 0 THEN
+        to_char(
+                (ABS(balance.tiempo_saldo - ((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp))/60)/60)) ||'hours')::interval,
+                       'HH24:MI')
+        ELSE to_char('00:00'::interval,'HH24:MI')
+        END as tiempo_adeuda,           
+        to_char(
+            ( coalesce(balance.tiempo_saldo,0)::text ||' hours')::interval -  (( ((EXTRACT(EPOCH FROM (coalesce(asistencia.hora_salida, (getDate('')+getHora(''))::timestamp) - (asistencia.hora_entrada)::timestamp)) /60)/60)) ||' hours')::interval
+        ,'HH24:MI') as tiempo_adeuda_absoluto,        
+        to_char(getDate('')+getHora(''),'dd-mon-yy HH24:MI am') as fecha_consulta
     FROM co_asistencia asistencia inner join co_alumno alumno on asistencia.co_alumno = alumno.id                               
                                 inner join co_grupo grupo on grupo.id = alumno.co_grupo
+                                inner join co_balance_alumno balance on balance.id = alumno.co_balance_alumno     
     WHERE asistencia.id = ANY($1::int[])
         and (getDate('')+getHora(''))::timestamp > (asistencia.fecha+alumno.hora_salida)::timestamp 
         AND alumno.eliminado=false            
