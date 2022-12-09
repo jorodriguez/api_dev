@@ -372,7 +372,7 @@ const registrarSalidaAlumnos = (params) => {
         console.log("arrayIdSalidas " + JSON.stringify(listaSalida));
         console.log("arrayIdSalidasCalcularHoraExtras " + JSON.stringify(listaCalcularHorasExtras));
 
-        procesoSalidaAlumnos(listaSalida, listaCalcularHorasExtras, genero)
+        procesoSalidaAlumnos(listaSalida, listaCalcularHorasExtras, id_sucursal, genero)
             .then(results => {
                 console.log("Resultado " + JSON.stringify(results));
                 if (results.rowCount > 0) {
@@ -389,7 +389,7 @@ const registrarSalidaAlumnos = (params) => {
     });
 };
 
-const procesoSalidaAlumnos = (idSalidas, arrayIdSalidasCalcularHoraExtras = [], genero) => {
+const procesoSalidaAlumnos = (idSalidas, arrayIdSalidasCalcularHoraExtras = [], id_sucursal, genero) => {
     console.log("IDS de asistencia recibidos " + idSalidas);
     var idsAsistencias = '';
     var idsAsistenciasCalculoHorasExtras = '';
@@ -416,11 +416,9 @@ const procesoSalidaAlumnos = (idSalidas, arrayIdSalidasCalcularHoraExtras = [], 
 
     });
 
-    console.log(" === > asistencias " + idsAsistencias);
-    console.log(" === > asistencias para generar horas extras " + idsAsistenciasCalculoHorasExtras);
-    //return pool.query(`SELECT registrar_salida_alumno('${idsAsistencias}','${idsAsistenciasCalculoHorasExtras}',${genero});`);
-    //console.log("== ejcutando = "+`SELECT registrar_salida_alumno('${idsAsistencias}','${idsAsistenciasCalculoHorasExtras}',${genero});`);
-    return genericDao.executeProcedure(`SELECT registrar_salida_alumno('${idsAsistencias}','${idsAsistenciasCalculoHorasExtras}',${genero});`);
+    console.log(" proc salida " + `SELECT registrar_salida_alumno('${idsAsistencias}','${idsAsistenciasCalculoHorasExtras}',${genero},${id_sucursal});`);
+
+    return genericDao.executeProcedure(`SELECT registrar_salida_alumno('${idsAsistencias}','${idsAsistenciasCalculoHorasExtras}',${genero},${id_sucursal});`);
 };
 
 

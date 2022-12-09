@@ -32,3 +32,9 @@ alter table co_cargo_balance_alumno  add column tiempo_saldo_aplicado bool defau
 alter table co_cargo_balance_alumno  add column fecha_tiempo_saldo_aplicado timestamp;
 
 alter table co_cargo_balance_alumno  add column aplico_tiempo_saldo integer references usuario(id);
+
+alter table CO_ASISTENCIA add column log_movimiento text;
+
+alter table cat_cargo add column codigo varchar(12);
+
+update cat_cargo set codigo = 'TIEMPO_EXTRA' where id = 5;

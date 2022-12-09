@@ -72,7 +72,7 @@ const registrarSalidaAlumnos = (request, response) => {
 
     try {
         console.log(" = " + JSON.stringify(request.body));
-        const params = { listaSalida = [], listaCalcularHorasExtras = [], genero } = request.body;
+        const params = { listaSalida = [], listaCalcularHorasExtras = [], id_sucursal, genero } = request.body;
         asistenciaService
             .registrarSalidaAlumnos(params)
             .then(results => {
