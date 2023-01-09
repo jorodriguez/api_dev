@@ -15,22 +15,3 @@ insert into co_grupo(nombre,color,genero) values('COBRANZA POR HORA','#174CD1',1
 
 
 
-
-
-
---separa grupos por sucursal
-select * from co_grupo
-
---separa cargos por sucursal
-select * from cat_cargo
-select * from co_forma_pago
-
-select * from configuracion
-
-
-
-
-
-
-
-
