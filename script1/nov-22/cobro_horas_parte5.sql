@@ -39,7 +39,7 @@ alter table cat_cargo add column codigo varchar(12);
 
 update cat_cargo set codigo = 'TIEMPO_EXTRA' where id = 5;
 
-
+/*
 drop function registrar_salida_alumno(text, integer);
 
 drop function public.registrar_salida_alumno(text, text, integer);
@@ -47,3 +47,5 @@ drop function public.registrar_salida_alumno(text, text, integer);
 drop function agregar_cargo_alumno(integer, integer, integer, text, integer);
 
 drop function generar_horas_extras_asistencia(text,integer)
+
+*/
