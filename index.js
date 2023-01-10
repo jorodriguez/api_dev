@@ -52,7 +52,7 @@ const sucursalService = require('./services/sucursal');
 
 const port = configEnv.PORT;
 //version/branch
-const version = "2208-fix-correo-magic actualizado 10 agosto";
+const version = "2301 - cobranza por horas en eesquema de pago por sucursal";
 //Se corrigio el formato de recibo de pago
 
 //es un middleware que serializa los cuerpos de las respuestas 
