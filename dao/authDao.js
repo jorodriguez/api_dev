@@ -1,7 +1,7 @@
 const genericDao = require('./genericDao');
 
-const  CONDICION_LOGIN =  'TRIM(u.correo) = TRIM($1)';
-const  CONDICION_ID =  'u.id = $1';
+const CONDICION_LOGIN = 'TRIM(u.correo) = TRIM($1)';
+const CONDICION_ID = 'u.id = $1';
 const getQueryBase = (condicion) => {
     return `
     SELECT u.id,
@@ -11,6 +11,8 @@ const getQueryBase = (condicion) => {
             u.co_sucursal,
             u.permiso_gerente,
             su.nombre AS nombre_sucursal,
+            su.logo,
+            su.color,
             em.id AS id_empresa,
             em.nombre as nombre_empresa,
             (select count(r.*)
@@ -137,8 +139,7 @@ const cambiarSucursalUsuario = (idUsuario, idSucursal) => {
             SET CO_SUCURSAL = $2,
                 fecha_modifico = (getDate('')+getHora(''))::timestamp,
                 modifico = $1
-            WHERE id = $1 RETURNING id;`,
-            [idUsuario, idSucursal]);
+            WHERE id = $1 RETURNING id;`, [idUsuario, idSucursal]);
 };
 
 
@@ -149,4 +150,3 @@ module.exports = {
     cambiarSucursalUsuario,
     refreshLogin
 };
-
