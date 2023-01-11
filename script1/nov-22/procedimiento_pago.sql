@@ -108,6 +108,8 @@ BEGIN
 					
    			END LOOP;
 
+   			
+
 			----- APLICAR CARGOS
 			-- RECALCULAR BALANCE
 			update  co_balance_alumno 			
@@ -120,23 +122,14 @@ BEGIN
 				total_cargos =(
 					select sum(total) from co_cargo_balance_alumno 
 					where co_balance_alumno =  balance_record.id and eliminado = false
-				),	
-				tiempo_saldo = (
-					select COALESCE(sum(tiempo_horas),0) from co_cargo_balance_alumno 
-					where co_balance_alumno = balance_record.id and eliminado = false and cat_tipo_cobranza = 2 and pagado = true and to_char(fecha,'YYYYMM') = to_char(getDate(''),'YYYYMM')
-				),
+				),		
 				fecha_modifico = (getDate('')+getHora(''))::timestamp,
 				modifico = id_genero
 			     where id =  balance_record.id; 
 
-				--actualizar cargos que se aplicaron - usaron las horas
-				update co_cargo_balance_alumno  
-					set tiempo_saldo_aplicado = true,
-						fecha_tiempo_saldo_aplicado = (getDate('')+getHora(''))::timestamp,
-						fecha_modifico = (getDate('')+getHora(''))::timestamp,
-						modifico = id_genero,
-						aplico_tiempo_saldo = id_genero
-				where co_balance_alumno = balance_record.id and eliminado = false and cat_tipo_cobranza = 2 and pagado = true and to_char(fecha,'YYYYMM') = to_char(getDate(''),'YYYYMM');-- and tiempo_saldo_aplicado = false;									
+		    PERFORM actualizar_balance_tiempo_alumno(balance_record.id,id_genero);
+
+				
 		--	END IF;
 			
 	ELSE
