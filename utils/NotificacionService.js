@@ -1,4 +1,3 @@
-
 const { pool } = require('../db/conexion');
 const mensajeria = require('../services/mensajesFirebase');
 const { CARGOS, TEMA_NOTIFICACION } = require('../utils/Constantes');
@@ -13,7 +12,7 @@ async function notificarCargo(id_alumno, id_cargos) {
     console.log("notificarCargo " + id_alumno + "    " + id_cargos);
     //ir por alumno
     try {
-        const row = await alumnoService.getCorreosTokenAlumno(id_alumno);        
+        const row = await alumnoService.getCorreosTokenAlumno(id_alumno);
         if (row != null) {
             completarNotificacionCargo(row.correos, row.tokens, row.nombres_padres, row.nombre_alumno, id_cargos, row.co_sucursal);
         } else {
@@ -21,7 +20,7 @@ async function notificarCargo(id_alumno, id_cargos) {
         }
     } catch (error) {
         console.error(error);
-    }   
+    }
 }
 
 function completarNotificacionCargo(lista_correos, lista_tokens, nombres_padres, nombre_alumno, id_cargo, id_sucursal) {
@@ -218,13 +217,13 @@ function enviarReciboComplemento(lista_correos, lista_tokens, nombres_padres, id
                     direccion: row.direccion_sucursal
                 };
                 var params = {
-                    titulo: "Magic Intelligence",
-                    nombre_empresa: "Magic Intelligence",
+                    titulo: row.nombre_sucursal,
+                    nombre_empresa: row.nombre_sucursal,
                     nombre_cliente: nombres_padres,
                     pago: pago,
                     alumno: alumno,
                     sucursal: sucursal,
-                    mensaje_pie: (configEnv.EMAIL_CONFIG && configEnv.EMAIL_CONFIG.template_mail) ? configEnv.EMAIL_CONFIG.template_mail.mensaje_pie : ""  //variables.template_mail.mensaje_pie
+                    mensaje_pie: (configEnv.EMAIL_CONFIG && configEnv.EMAIL_CONFIG.template_mail) ? configEnv.EMAIL_CONFIG.template_mail.mensaje_pie : "" //variables.template_mail.mensaje_pie
                 };
 
                 enviarCorreoReciboPago(
@@ -327,7 +326,7 @@ const enviarCorreoClaveFamiliar = (para, asunto, params) => {
         });
 };
 
-const enviarEstadoCuenta = async (idAlumno) => {
+const enviarEstadoCuenta = async(idAlumno) => {
 
     const estadoCuenta = await obtenerEstadoCuentaAlumno(idAlumno);
 
