@@ -532,7 +532,7 @@ schedule.scheduleJob({ hour: 20, minute: 0 }, function() {
 });
 
 
-schedule.scheduleJob({ hour: 22, minute: 36 }, async function() {
+schedule.scheduleJob({ hour: 20, minute: 0 }, async function() {
     console.log('PROCESO DE ENVIO DE CORTE ' + new Date());
     try {
         await corteService.getCorteDiario();
