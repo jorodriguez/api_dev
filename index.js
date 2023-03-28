@@ -8,6 +8,7 @@ const configEnv = require('./config/configEnv');
 const multer = require('multer');
 const fileUpload = multer();
 
+
 //const usuario = require('./services/usuario');
 const alumno = require('./services/alumno');
 const asistencia = require('./services/asistencia');
@@ -46,6 +47,8 @@ const reporteAsistenciaUsuario = require('./services/reporte_asistencia_usuario'
 const avisos = require('./services/avisos');
 
 const sucursalService = require('./services/sucursal');
+
+const corteService = require('./services/corte');
 
 
 
@@ -525,5 +528,16 @@ schedule.scheduleJob({ hour: 20, minute: 0 }, function() {
         asistencia.ejecutarProcesoSalidaAutomatica();
     } catch (e) {
         console.log("Error al ejecutar el proceso de revision de salida " + e);
+    }
+});
+
+
+schedule.scheduleJob({ hour: 22, minute: 27 }, async function() {
+    console.log('PROCESO DE ENVIO DE CORTE ' + new Date());
+    try {
+        await corteService.getCorteDiario();
+
+    } catch (e) {
+        console.log("Error al enviar el corte " + e);
     }
 });
