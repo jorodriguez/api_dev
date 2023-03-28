@@ -17,33 +17,17 @@ const getCorteDiario =async () => {
 
         if(corte){
 
-            let mensaje = 'SIN PAGOS REGISTRADOS HOY';
+            let mensaje = 'SIN PAGOS REGISTRADOS HOY EN LAS SUCURSALES MAGIC';
 
             for(let i = 0; i< corte.length; i++){
                  const suc = corte[i];
                 mensaje+= ` ${suc.count} pagos de ${suc.sucursal} total $${suc.pago_total_sucursal} \n `;
             }
-
-            const params = {
-                phoneNumber: configEnv.WHATSAPP || "8110208406",
-                message:mensaje,
-                apiKey:"523bb545-0bc3-9d34-0a97-3588baefba11"
-            };
-            
+                     
             console.log("Enviar mensaje "+mensaje);
+            
+            enviarMensaje(mensaje);
 
-            request.post(`${API_WHATSAPP}`, {                
-                json: params
-            }, (error, res, body) => {
-                if (error) {
-                    console.log(" x x x x x x ERROR AL ENVIAR EL MENSAJE DE WHATSAPP x x x xx x x ");
-                    console.error(error);                
-                    reject(error)
-                    return;
-                }            
-                console.log(" === MENSAjE ENVIAFO ===");
-                console.log(body);                          
-            })
         }
 
 
@@ -53,7 +37,30 @@ const getCorteDiario =async () => {
     }
 };
 
+
+const enviarMensaje = (_mensaje)=>{
+
+    const params = {
+        phoneNumber: configEnv.WHATSAPP || "8110208406",
+        message:_mensaje,
+        apiKey:"523bb545-0bc3-9d34-0a97-3588baefba11"
+    };
+
+    request.post(`${API_WHATSAPP}`, {                
+        json: params
+    }, (error, res, body) => {
+        if (error) {
+            console.log(" x x x x x x ERROR AL ENVIAR EL MENSAJE DE WHATSAPP x x x xx x x ");
+            console.error(error);                                    
+            return;
+        }            
+        console.log(" === MENSAjE ENVIAFO ===");
+        console.log(body);                          
+    });
+}
+
 module.exports = {
     getCorteDiario,  
+    enviarMensaje
   
 };
