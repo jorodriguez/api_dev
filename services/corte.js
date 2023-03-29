@@ -6,26 +6,56 @@ const configEnv = require('../config/configEnv');
 
 const API_WHATSAPP = 'http://66.172.27.131:5001/whatsapp/send';
 
+const formatPrice = (value)=>{
+
+    let val = (value / 1).toFixed(2).replace(',', '.')
+
+    return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+}
+
 const getCorteDiario =async () => {
     console.log("@getCorteDiario");
     try {
         
 
+        const fechaCorte = await corteService.getFechaCorte();
         const corte = await corteService.getCorteSucursales();
+        
+        console.log(JSON.stringify(fechaCorte));
+        
+        let mensaje = '';
 
-        console.log(JSON.stringify(corte));
-
-        if(corte){
-
-            let mensaje = 'SIN PAGOS REGISTRADOS HOY EN LAS SUCURSALES MAGIC';
-
-            for(let i = 0; i< corte.length; i++){
-                 const suc = corte[i];
-                mensaje+= ` ${suc.count} pagos de ${suc.sucursal} total $${suc.pago_total_sucursal} \n `;
+        if(corte){           
+            
+            mensaje = 'PAGOS REALIZADOS '+fechaCorte.fecha;
+            
+            if(corte.length > 0){            
+               for(let i = 0; i< corte.length; i++){
+                    const suc = corte[i];
+                    mensaje+= ` ${suc.count} pagos de ${suc.sucursal} : *$${formatPrice(suc.pago_total_sucursal)}* \n `;
+                }
+            }else{
+                mensaje = 'NUNGÚN PAGO REGISTRADO HOY '+fechaCorte.fecha;
             }
                      
             console.log("Enviar mensaje "+mensaje);
             
+            enviarMensaje(mensaje);
+
+        }
+
+         mensaje = ' TOTAL DE ADEUDOS PENDIENTES \n ';
+
+        const corteAdeudos = await corteService.getCorteAdeudoSucursales();
+        
+        if(corteAdeudos){
+            
+            for(let i = 0; i< corteAdeudos.length; i++){
+                const suc = corteAdeudos[i];
+                mensaje+= `*$${formatPrice(suc.total_adeudo)}* pendiente por cobrar en ${suc.sucursal} \n `;
+            }
+
             enviarMensaje(mensaje);
 
         }

@@ -9,12 +9,12 @@ async function procesoRecargosMensualidad() {
     try {
          const retorno =  await recargoService.ejecutarProcesoRecargoMensualidad();         
          //correoService.enviarCorreo('joel@magicintelligence.com,joel.rod.roj@hotmail.com',"","Recargos Generados",`<h6>${JSON.stringify(retorno)}</h6`);
-         corteService.enviarMensaje(`Recargos generados ${JSON.stringify(retorno)}`);
+         //corteService.enviarMensaje(`Recargos generados ${JSON.stringify(retorno)}`);
          return retorno;
     } catch (e) {
         console.log("[recargos] Excepcion al ejecutar el proceso de recargos " + e);
         //enviar un correo al equipo de soporte     
-        correoService.enviarCorreo('joel@magicintelligence.com,joel.rod.roj@hotmail.com',"","Recargos Fail",`<h6>${e}</h6`);
+        //correoService.enviarCorreo('joel@magicintelligence.com,joel.rod.roj@hotmail.com',"","Recargos Fail",`<h6>${e}</h6`);
         return [];
    }
 
