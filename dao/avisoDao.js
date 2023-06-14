@@ -1,110 +1,108 @@
 const genericDao = require("./genericDao");
 const {
-  ExceptionDatosFaltantes,
-  ExceptionBD,
+    ExceptionDatosFaltantes,
+    ExceptionBD,
 } = require("../exception/exeption");
 const { isEmptyOrNull } = require("../utils/Utils");
 const { TIPO_PUBLICACION } = require("../utils/Constantes");
 
 
-const registrarAviso = async (avisoData) => {
-  console.log("@dao.registrarAviso");  
-  const { para } =  avisoData;
-  try{
-  const contadorPara = para && para.length;
-  
-  let idAviso = null;
-  let publicaciones = [];
-  if(contadorPara > 0){
+const registrarAviso = async(avisoData) => {
+    console.log("@dao.registrarAviso");
+    const { para } = avisoData;
+    try {
+        const contadorPara = para && para.length;
 
-     idAviso = await insertarCoAviso(avisoData);   
-   console.log("==AVISO GENERADO "+idAviso);
-    //const existePublicacionEmpresa = listaPara.filter(e=>e.id_tipo_publicacion == TIPO_PUBLICACION.EMPRESA);   
-   ///insertar la publicacion
-   console.log("iniciando insercion de publicacion");
-    for(let i =0;i< contadorPara;i++){        
-        const publicacion = para[i];
-        console.log("insert publicacion "+publicacion);
-        const idPublicacion = await insertarAvisoPublicacion(idAviso,publicacion,avisoData.genero);                      
-        publicaciones.push({coAvisoPublicacion:idPublicacion, ...publicaciones});
-        
-      }  
-  }     
+        let idAviso = null;
+        let publicaciones = [];
+        if (contadorPara > 0) {
 
-  return idAviso;
+            idAviso = await insertarCoAviso(avisoData);
+            console.log("==AVISO GENERADO " + idAviso);
+            //const existePublicacionEmpresa = listaPara.filter(e=>e.id_tipo_publicacion == TIPO_PUBLICACION.EMPRESA);   
+            ///insertar la publicacion
+            console.log("iniciando insercion de publicacion");
+            for (let i = 0; i < contadorPara; i++) {
+                const publicacion = para[i];
+                console.log("insert publicacion " + publicacion);
+                const idPublicacion = await insertarAvisoPublicacion(idAviso, publicacion, avisoData.genero);
+                publicaciones.push({ coAvisoPublicacion: idPublicacion, ...publicaciones });
 
-  }catch(e){  
-    console.log("Error al insertar el aviso "+e);
-    throw new ExceptionBD("Error");
-  }
+            }
+        }
+
+        return idAviso;
+
+    } catch (e) {
+        console.log("Error al insertar el aviso " + e);
+        throw new ExceptionBD("Error");
+    }
 };
 
 
-const insertarCoAviso = async (avisoData)=>{
-  const {
-    fecha,
-    para,
-    titulo,
-    aviso,
-    id_empresa,
-    etiqueta,
-    nota_interna,
-    genero,
-  } = avisoData;
-  console.log(JSON.stringify(avisoData));
+const insertarCoAviso = async(avisoData) => {
+    const {
+        fecha,
+        para,
+        titulo,
+        aviso,
+        id_empresa,
+        etiqueta,
+        nota_interna,
+        genero,
+    } = avisoData;
+    console.log(JSON.stringify(avisoData));
 
-  return await genericDao.execute(
-    `
+    return await genericDao.execute(
+        `
                         INSERT INTO CO_AVISO(FECHA,CO_EMPRESA,PARA,TITULO,AVISO,ETIQUETAS,NOTA_INTERNA,GENERO)
                         VALUES(current_date,$1,$2,$3,$4,$5,$6,$7) returning ID;
-                   `,
-    [
-      id_empresa,
-      JSON.stringify(para),
-      titulo,
-      aviso,
-      JSON.stringify(etiqueta) || "",
-      nota_interna,
-      genero
-    ]
-  );
+                   `, [
+            id_empresa,
+            JSON.stringify(para),
+            titulo,
+            aviso,
+            JSON.stringify(etiqueta) || "",
+            nota_interna,
+            genero
+        ]
+    );
 };
 
-const insertarAvisoPublicacion = async (id_aviso,publicacionData,genero) =>{
-  console.log("@insertarAvisoPublicacion");
-  const {        
-    tipo,    
-    id_empresa,     
-    id_sucursal,
-    id_grupo,
-    id_familiar    
-  } = publicacionData;
-  
-  console.log(JSON.stringify(publicacionData));
+const insertarAvisoPublicacion = async(id_aviso, publicacionData, genero) => {
+    console.log("@insertarAvisoPublicacion");
+    const {
+        tipo,
+        id_empresa,
+        id_sucursal,
+        id_grupo,
+        id_familiar
+    } = publicacionData;
 
-  return await genericDao.execute(
-    `INSERT INTO CO_AVISO_PUBLICACION(CO_AVISO, CO_TIPO_PUBLICACION,CO_EMPRESA,CO_SUCURSAL,CO_GRUPO,CO_FAMILIAR,GENERO)
-        VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING ID;`,
-    [
-      id_aviso,
-      tipo,
-      id_empresa,
-      id_sucursal == -1 ? null : id_sucursal,
-      id_grupo == -1 ? null : id_grupo,
-      id_familiar == -1 ? null : id_familiar,
-      genero
-    ]
-  );
+    console.log(JSON.stringify(publicacionData));
+
+    return await genericDao.execute(
+        `INSERT INTO CO_AVISO_PUBLICACION(CO_AVISO, CO_TIPO_PUBLICACION,CO_EMPRESA,CO_SUCURSAL,CO_GRUPO,CO_FAMILIAR,GENERO)
+        VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING ID;`, [
+            id_aviso,
+            tipo,
+            id_empresa,
+            id_sucursal == -1 ? null : id_sucursal,
+            id_grupo == -1 ? null : id_grupo,
+            id_familiar == -1 ? null : id_familiar,
+            genero
+        ]
+    );
 
 
 };
 
 
-const registrarEnvio = async (id,infoEnvio,genero) => {
-  console.log("@registrarEnvio");
-    
-  return await genericDao.execute(
-    `
+const registrarEnvio = async(id, infoEnvio, genero) => {
+    console.log("@registrarEnvio");
+
+    return await genericDao.execute(
+        `
                  UPDATE CO_AVISO
                      SET 
                         FECHA_MODIFICO = CURRENT_TIMESTAMP,
@@ -114,16 +112,15 @@ const registrarEnvio = async (id,infoEnvio,genero) => {
                         FECHA_ENVIO = CURRENT_TIMESTAMP
                      WHERE ID = $1
                         RETURNING ID;
-                `,
-    [id,JSON.stringify(infoEnvio),genero]
-  );
+                `, [id, JSON.stringify(infoEnvio), genero]
+    );
 };
 
-const modificarAviso = async (avisoData) => {
-  console.log("@modificarAviso");
-  const { id, para, titulo, aviso, etiqueta, nota_interna, genero } = avisoData;
-  return await genericDao.execute(
-    `
+const modificarAviso = async(avisoData) => {
+    console.log("@modificarAviso");
+    const { id, para, titulo, aviso, etiqueta, nota_interna, genero } = avisoData;
+    return await genericDao.execute(
+        `
                 UPDATE CO_AVISO
                     SET PARA = $2,
                         TITULO = $3,
@@ -134,43 +131,41 @@ const modificarAviso = async (avisoData) => {
                         MODIFICO = $7
                 WHERE ID = $1
                 RETURNING ID;
-                `,
-    [id, JSON.stringify(para), titulo, aviso, JSON.stringify(etiqueta), nota_interna, genero]
-  );
+                `, [id, JSON.stringify(para), titulo, aviso, JSON.stringify(etiqueta), nota_interna, genero]
+    );
 };
 
-const eliminarAvisos = async (avisoData) => {
-  console.log("@eliminarAvisos");
+const eliminarAvisos = async(avisoData) => {
+    console.log("@eliminarAvisos");
 
-  const { ids, genero } = avisoData;
-  var idsAviso = "";
-  var first = true;
+    const { ids, genero } = avisoData;
+    var idsAviso = "";
+    var first = true;
 
-  ids.forEach((element) => {
-    if (first) {
-      idsAviso += element + "";
-      first = false;
-    } else {
-      idsAviso += "," + element;
-    }
-  });
-  return await genericDao.execute(
-    `
+    ids.forEach((element) => {
+        if (first) {
+            idsAviso += element + "";
+            first = false;
+        } else {
+            idsAviso += "," + element;
+        }
+    });
+    return await genericDao.execute(
+        `
                                     UPDATE CO_AVISO     
                                     SET eliminado = true,
                                         fecha_modifico = current_timestamp,
                                         modifico = $2
                                     WHERE id = ANY($1::INT[]);                                    
-                                    `,
-    [idsAviso, genero]
-  );
+                                    `, [idsAviso, genero]
+    );
 };
 
-const obtenerAvisos = async (idUsuario) => {
-  console.log("@obtenerAvisos");
+const obtenerAvisos = async(idUsuario) => {
+    console.log("@obtenerAvisos");
 
-  return await genericDao.findAll(
-    `
+    return await genericDao.findAll(
+        `
                 SELECT a.id,
                 e.nombre as empresa, 
                 to_char(a.fecha,'dd-MM-YYYY') as fecha,
@@ -189,16 +184,15 @@ const obtenerAvisos = async (idUsuario) => {
                     where u.id = $1
                     and a.eliminado = false
              order by a.fecha_envio desc
-            `,
-    [idUsuario]
-  );
+            `, [idUsuario]
+    );
 };
 
-const obtenerAvisoId = async (idAviso) => {
+const obtenerAvisoId = async(idAviso) => {
     console.log("@obtenerAvisoId");
-  
+
     return await genericDao.findOne(
-      `
+        `
                   SELECT a.id,
                   e.nombre as empresa, 
                   to_char(a.fecha,'dd-MM-YYYY') as fecha,
@@ -212,16 +206,15 @@ const obtenerAvisoId = async (idAviso) => {
               FROM CO_AVISO a inner join co_empresa e on e.id = a.co_empresa                             
               where a.id = $1
                       and a.eliminado = false             
-              `,
-      [idAviso]
+              `, [idAviso]
     );
-  };
+};
 
-const obtenerContactos = async (idsSucursales) => {
-  console.log("@obtenerContactos");
+const obtenerContactos = async(idsSucursales) => {
+    console.log("@obtenerContactos");
 
-  return await genericDao.findAll(
-    `               
+    return await genericDao.findAll(
+        `               
 select af.id as id_alumno_familiar,
 fam.id as id_familiar,
 fam.correo,
@@ -257,16 +250,15 @@ and a.eliminado = false
 and fam.eliminado = false	  
 order by suc.id,fam.nombre,grupo.nombre
 
-            `,
-    [idsSucursales]
-  );
+            `, [idsSucursales]
+    );
 };
 
-const obtenerContactosIds = async (idsFamiliares) => {
-  console.log("@obtenerContactosIds");
+const obtenerContactosIds = async(idsFamiliares) => {
+    console.log("@obtenerContactosIds");
 
-  return await genericDao.findAll(
-    `               
+    return await genericDao.findAll(
+        `               
 select af.id as id_alumno_familiar,
 fam.id as id_familiar,
 fam.correo,
@@ -300,9 +292,8 @@ and a.eliminado = false
 and fam.eliminado = false	  
 order by suc.id,fam.nombre,grupo.nombre
 
-            `,
-    [idsFamiliares]
-  );
+            `, [idsFamiliares]
+    );
 };
 
 const QUERY_CORREOS_AVISO_POR_EMPRESA = `
@@ -436,16 +427,16 @@ const QUERY_EXISTE_PUBLICACION_EMPRESA = `
  )
 `;
 
-const obtenerCorreosPorAviso = async (aviso)=>{
-  console.log("@obtenerCorreosPorAviso");
-  
-  const existePublicacionTodaEmpresa = await genericDao.findOne(QUERY_EXISTE_PUBLICACION_EMPRESA,[aviso.id]);
-  console.log("existePublicacionTodaEmpresa "+JSON.stringify(existePublicacionTodaEmpresa));
+const obtenerCorreosPorAviso = async(aviso) => {
+    console.log("@obtenerCorreosPorAviso");
 
-  let query = existePublicacionTodaEmpresa.exists ? QUERY_CORREOS_AVISO_POR_EMPRESA : QUERY_CORREOS_AVISO_POR_CRITERIO;
-  let params = existePublicacionTodaEmpresa.exists ? [aviso.genero]:[aviso.id];
-  
-  return await genericDao.findAll(query, params);
+    const existePublicacionTodaEmpresa = await genericDao.findOne(QUERY_EXISTE_PUBLICACION_EMPRESA, [aviso.id]);
+    console.log("existePublicacionTodaEmpresa " + JSON.stringify(existePublicacionTodaEmpresa));
+
+    let query = existePublicacionTodaEmpresa.exists ? QUERY_CORREOS_AVISO_POR_EMPRESA : QUERY_CORREOS_AVISO_POR_CRITERIO;
+    let params = existePublicacionTodaEmpresa.exists ? [aviso.genero] : [aviso.id];
+
+    return await genericDao.findAll(query, params);
 
 };
 
@@ -532,9 +523,9 @@ from universo u
 order by u.tipo, u.nombre
 `;
 
-const obtenerTagsContactos = async (idUsuario)=>{
-  console.log("@obtenerTagsContactos");         
-  return await genericDao.findAll(QUERY_TAGS_CONTACTOS, [idUsuario]);
+const obtenerTagsContactos = async(idUsuario) => {
+    console.log("@obtenerTagsContactos");
+    return await genericDao.findAll(QUERY_TAGS_CONTACTOS, [idUsuario]);
 };
 
 const QUERY_AVISO_FAMILIAR = `
@@ -674,20 +665,20 @@ select
 	 
 `;
 
-const obtenerAvisosPorFamiliar = async (idFamiliar)=>{  
-  return await genericDao.findAll(QUERY_AVISO_FAMILIAR, [idFamiliar]);
+const obtenerAvisosPorFamiliar = async(idFamiliar) => {
+    return await genericDao.findAll(QUERY_AVISO_FAMILIAR, [idFamiliar]);
 };
 
 module.exports = {
-  obtenerAvisos,
-  registrarAviso,  
-  eliminarAvisos,
-  modificarAviso,
-  obtenerContactos,
-  obtenerContactosIds,
-  registrarEnvio,
-  obtenerAvisoId,
-  obtenerCorreosPorAviso,
-  obtenerTagsContactos,
-  obtenerAvisosPorFamiliar
+    obtenerAvisos,
+    registrarAviso,
+    eliminarAvisos,
+    modificarAviso,
+    obtenerContactos,
+    obtenerContactosIds,
+    registrarEnvio,
+    obtenerAvisoId,
+    obtenerCorreosPorAviso,
+    obtenerTagsContactos,
+    obtenerAvisosPorFamiliar
 };

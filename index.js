@@ -55,7 +55,7 @@ const corteService = require('./services/corte');
 
 const port = configEnv.PORT;
 //version/branch
-const version = "2301 - cobranza por horas en eesquema de pago por sucursal";
+const version = "2306 - aviso | reactivación de opción de aviso";
 //Se corrigio el formato de recibo de pago
 
 //es un middleware que serializa los cuerpos de las respuestas 
