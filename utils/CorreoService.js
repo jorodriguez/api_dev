@@ -44,7 +44,7 @@ const enviarCorreoConCopiaTemaNotificacion = async(
             idSucursalTemaCopia,
             idTemaNotificacion,
         )
-        enviarCorreo(para, cc, asunto, renderHtml)
+        await enviarCorreo(para, cc, asunto, renderHtml)
     } catch (error) {
         console.log('Excepción en el envio de correo : ' + error)
     }
